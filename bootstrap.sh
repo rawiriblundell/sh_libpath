@@ -18,20 +18,52 @@ _is_lib_loaded() {
 
 # Try to convert a relative path to an absolute one
 # A slightly adjusted version sourced from
-# https://stackoverflow.com/a/21188136
+# https://stackoverflow.com/a/23002317
 get_absolute_path() {
-  _filename="${1}"
-  _parentdir=$(dirname "${_filename}")
+  _filename="${1:?No filename specified}"
+  # Ensure that a customised CDPATH doesn't interfere
+  CDPATH=''
 
   # We only act further if the file actually exists
   [ -e "${_filename}" ] || return 1
+
+  # If it's a directory, print it
   if [ -d "${_filename}" ]; then
-    printf -- '%s\n' "$(cd "${_filename}" && pwd)"
-  elif [ -d "${_parentdir}" ]; then
-    printf -- '%s\n' "$(cd "${_parentdir}" && pwd)/$(basename "${_filename}")"
+    (cd "${_filename}" && pwd)
+  elif [ -f "${_filename}" ]; then
+    if [[ "${_filename}" = /* ]]; then
+      printf -- '%s\n' "${_filename}"
+    elif [[ "${_filename}" == */* ]]; then
+      (
+        cd "${_filename%/*}" >/dev/null 2>&1 || return 1
+        printf -- '%s\n' "$(pwd)/${_filename##*/}"
+      )
+    else
+      printf -- '%s\n' "$(pwd)/${_filename}"
+    fi
   fi
-  unset -v _filename _parentdir
+  unset -v _filename
 }
+
+readlink_f ()
+{
+    ( _count=0;
+    _target="${1:?No target specified}";
+    CDPATH='';
+    [ -e "${_target}" ] || return 1;
+    [ -L "${_target}" ] || return 1;
+    while [ -L "${_target}" ]; do
+        _target="$(readlink "${_target}")";
+        _count=$(( _count + 1 ));
+        if [ "${_count}" -gt 20 ]; then
+            printf -- '%s\n' "readlink_f error: recursion limit reached" 1>&2;
+            return 1;
+        fi;
+    done;
+    cd "$(dirname "${_target}")" > /dev/null 2>&1 || return 1;
+    printf -- '%s\n' "${PWD%/}/${_target##*/}" )
+}
+
 
 # Function to work through a list of commands and/or files
 # and fail on any unmet requirements.  Example usage:
@@ -47,6 +79,30 @@ requires() {
         _val="${_item#*=}"  # Everything right of the first '='
         eval [ \$"${_key}" = "${_val}" ] && continue
       ;;  
+    esac
+
+    # Shell version check e.g. requires BASH32 = bash 3.2
+    # TO-DO: Add "is greater than" logic
+    case "${1}" in
+      (BASH*)
+        if [ "${#BASH_VERSINFO[@]}" -gt 0 ]; then
+          bashver="${BASH_VERSINFO[*]:0:2}" # Get major and minor number e.g. '4 3'
+          bashver="BASH${bashver/ /}"       # Concat and remove spaces e.g. 'BASH43'
+          [ "${1}" = "${bashver}" ] && continue
+        fi
+      ;;
+      (KSH)
+        # At present we just check that we have one of the following env vars
+        [ "${#KSH_VERSION}" -gt 0 ] && continue
+        [ "${#.sh.version}" -gt 0 ] && continue
+      ;;
+      (ZSH*)
+        if [ "${#ZSH_VERSION}" -gt 0 ]; then
+          # ZSH_VERSION outputs a semantic number e.g. 5.7.1
+          # We use parameter expansion to pull out the dots e.g. ZSH571
+          [ "${1}" = "ZSH${ZSH_VERSION//./}" ] && continue
+        fi
+      ;;
     esac
     
     # Next, try to determine if it's a command
