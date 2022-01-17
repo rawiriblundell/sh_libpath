@@ -45,6 +45,8 @@ get_absolute_path() {
   unset -v _filename
 }
 
+# Portable version of 'readlink -f'
+# To be pushed out to another library at some point
 readlink_f() {
   (
     _count=0
@@ -71,6 +73,10 @@ readlink_f() {
   )
 }
 
+# Make getting a string length a bit more familiar for practitioners of other languages
+# To be pushed out to another library at some point
+# Is not used at all in this library - it's like putting the egg before the chicken
+# ... or is it the chicken before the egg?  Damn!
 strlen() {
   case "${1}" in
     (-b|--bytes)
@@ -107,14 +113,18 @@ requires() {
       ;;  
     esac
 
-    # Shell version check e.g. requires BASH32 = bash 3.2
-    # TO-DO: Add "is greater than" logic
+    # Shell version check e.g. 'requires BASH32' = we check for bash 3.2 or newer
+    # To strictly require a specific version, you could use the keyval test above
+    # TO-DO: Expand the "is greater than" logic, add extra shells
     case "${1}" in
       (BASH*)
         if [ "${#BASH_VERSINFO[@]}" -gt 0 ]; then
           bashver="${BASH_VERSINFO[*]:0:2}" # Get major and minor number e.g. '4 3'
           bashver="BASH${bashver/ /}"       # Concat and remove spaces e.g. 'BASH43'
+          # Test on string (e.g. BASH44 = BASH44)
           [ "${1}" = "${bashver}" ] && continue
+          # Test on integer by stripping "BASH" (e.g. 51 -ge 44)
+          [ "${1/BASH/}" -ge "${bashver/BASH/}" ] && continue
         fi
       ;;
       (KSH)
@@ -126,7 +136,9 @@ requires() {
         if [ "${#ZSH_VERSION}" -gt 0 ]; then
           # ZSH_VERSION outputs a semantic number e.g. 5.7.1
           # We use parameter expansion to pull out the dots e.g. ZSH571
+          # We do a string, then an int comparison just as with bash
           [ "${1}" = "ZSH${ZSH_VERSION//./}" ] && continue
+          [ "${1/ZSH/}" -ge "${ZSH_VERSION//./}" ] && continue
         fi
       ;;
     esac
@@ -169,6 +181,7 @@ import() {
   _target="${1:?No target specified}"
 
   # If it's already loaded, then skip
+  # TO-DO: test, further develop
   #_is_lib_loaded "${target}" && return 0
 
   for _lib in ${SH_LIBPATH//://$_target }/${_target}; do
