@@ -1,7 +1,15 @@
 # shellcheck shell=ksh
+
+# Potential basepaths for where our libraries might be placed
+POSSIBLE_SH_LIBPATHS=(
+  "${HOME}"/.local/lib/sh
+  /usr/local/lib/sh
+  /opt/sh_libpath/lib/sh
+)
+
 # If SH_LIBPATH is not set or null, then we try to build it
 if [ -z "${SH_LIBPATH+x}" ] || [ "${#SH_LIBPATH}" -eq "0" ]; then
-  for _path in /usr/local/lib/sh "${HOME}"/.local/lib/sh; do
+  for _path in "${POSSIBLE_SH_LIBPATHS[@]}"; do
     [ -d "${_path}" ] && SH_LIBPATH="${SH_LIBPATH}:${_path}"
   done
 fi
@@ -10,99 +18,11 @@ unset -v _path
 SH_LIBPATH="${SH_LIBPATH#:}"
 export SH_LIBPATH
 
-_is_lib_loaded() {
-  _lib="${1:?No library defined}"
-  [ -z "${SH_LIBS_LOADED##*"$_lib"*}" ] && [ -n "${SH_LIBS_LOADED}" ]
-  unset -v _lib
-}
-
-# Try to convert a relative path to an absolute one
-# A slightly adjusted version sourced from
-# https://stackoverflow.com/a/23002317
-get_absolute_path() {
-  _filename="${1:?No filename specified}"
-  # Ensure that a customised CDPATH doesn't interfere
-  CDPATH=''
-
-  # We only act further if the file actually exists
-  [ -e "${_filename}" ] || return 1
-
-  # If it's a directory, print it
-  if [ -d "${_filename}" ]; then
-    (cd "${_filename}" && pwd)
-  elif [ -f "${_filename}" ]; then
-    if [[ "${_filename}" = /* ]]; then
-      printf -- '%s\n' "${_filename}"
-    elif [[ "${_filename}" == */* ]]; then
-      (
-        cd "${_filename%/*}" >/dev/null 2>&1 || return 1
-        printf -- '%s\n' "$(pwd)/${_filename##*/}"
-      )
-    else
-      printf -- '%s\n' "$(pwd)/${_filename}"
-    fi
-  fi
-  unset -v _filename
-}
-
-# Portable version of 'readlink -f'
-# To be pushed out to another library at some point
-readlink_f() {
-  (
-    _count=0
-    _target="${1:?No target specified}"
-    # Ensure that a customised CDPATH doesn't interfere
-    CDPATH=''
-
-    # Ensure that target actually exists and is actually a symlink
-    [ -e "${_target}" ] || return 1
-    [ -L "${_target}" ] || return 1
-
-    while [ -L "${_target}" ]; do
-      _target="$(readlink "${_target}")"
-      _count=$(( _count + 1 ))
-      # This shouldn't be required, but just in case,
-      # we ensure that we don't get stuck in an infinite loop
-      if [ "${_count}" -gt 20 ]; then
-        printf -- '%s\n' "readlink_f error: recursion limit reached" >&2
-        return 1
-      fi
-    done
-    cd "$(dirname "${_target}")" >/dev/null 2>&1 || return 1
-    printf -- '%s\n' "${PWD%/}/${_target##*/}"
-  )
-}
-
-# Make getting a string length a bit more familiar for practitioners of other languages
-# To be pushed out to another library at some point
-# Is not used at all in this library - it's like putting the egg before the chicken
-# ... or is it the chicken before the egg?  Damn!
-strlen() {
-  case "${1}" in
-    (-b|--bytes)
-      shift 1
-      LANG_orig="${LANG}"; LC_ALL_orig="${LC_ALL}"
-      LANG=C; LC_ALL=C; 
-      str="${*}"
-      printf -- '%d\n' "${#str}"
-      LANG="${LANG_orig}"; LC_ALL="${LC_ALL_orig}"
-    ;;
-    ('')
-      printf -- '%d\n' "0"
-    ;;
-    (*)
-      str="${*}"
-      printf -- '%d\n' "${#str}"
-    ;;
-  esac
-}
-
 # Function to work through a list of commands and/or files
 # and fail on any unmet requirements.  Example usage:
 # requires curl sed awk /etc/someconf.cfg
 requires() {
-  # shellcheck disable=SC2048
-  for _item in ${*}; do
+  for _item in "${@}"; do
     # First, is this a variable check?
     # There has to be a cleaner/safer way to do this
     case "${1}" in
@@ -119,12 +39,12 @@ requires() {
     case "${1}" in
       (BASH*)
         if [ "${#BASH_VERSINFO[@]}" -gt 0 ]; then
-          bashver="${BASH_VERSINFO[*]:0:2}" # Get major and minor number e.g. '4 3'
-          bashver="BASH${bashver/ /}"       # Concat and remove spaces e.g. 'BASH43'
+          _bashver="${BASH_VERSINFO[*]:0:2}" # Get major and minor number e.g. '4 3'
+          _bashver="BASH${_bashver/ /}"       # Concat and remove spaces e.g. 'BASH43'
           # Test on string (e.g. BASH44 = BASH44)
-          [ "${1}" = "${bashver}" ] && continue
+          [ "${1}" = "${_bashver}" ] && continue
           # Test on integer by stripping "BASH" (e.g. 51 -ge 44)
-          [ "${1/BASH/}" -ge "${bashver/BASH/}" ] && continue
+          [ "${1/BASH/}" -ge "${_bashver/BASH/}" ] && continue
         fi
       ;;
       (KSH)
@@ -150,8 +70,8 @@ requires() {
     [ -x ./"${_item}" ] && continue
 
     # Next, let's see if it's a library in SH_LIBPATH
-    for _lib in ${SH_LIBPATH//://$_item }/${_item}; do
-      [ -r "${_lib}" ] && continue
+    for _target_lib in ${SH_LIBPATH//://$_item }/${_item}; do
+      [ -r "${_target_lib}" ] && continue
     done
 
     # Next, let's see if it's a readable file e.g. a cfg file to load
@@ -165,51 +85,158 @@ requires() {
 
   # If we have no failures, then no news is good news - return quietly
   if [ "${#_failures}" -eq "0" ]; then
-    unset -v _item _failures _lib
+    unset -v _item _failures _target_lib _bashver
     return 0
   # Otherwise, we error out and exit immediately
   else
     printf -- '%s\n' "The following requirements were not met" "${_failures}" >&2
-    unset -v _item _failures _lib
+    unset -v _item _failures _target_lib _bashver
     exit 1
   fi
-}
-
-# We want SH_LIBPATH to be expanded for printf
-# shellcheck disable=SC2086
-import() {
-  _target="${1:?No target specified}"
-
-  # If it's already loaded, then skip
-  # TO-DO: test, further develop
-  #_is_lib_loaded "${target}" && return 0
-
-  for _lib in ${SH_LIBPATH//://$_target }/${_target}; do
-    if [ -r "${_lib}" ]; then
-      # shellcheck disable=SC1090
-      . "${_lib}"
-      SH_LIBS_LOADED="${SH_LIBS_LOADED} ${_lib}"
-      unset -v _target _lib
-      return 0
-    fi
-  done
-  unset -v _target _lib
-  return 1
 }
 
 # Sometimes you might want to load a file only if it exists,
 # but otherwise it's not critical and your script can move on.
 wants() {
   _fstarget="${1:?No target specified}"
-  if [ -e "${_fstarget}" ]; then
-    if [ -r "${_fstarget}" ]; then
-      # shellcheck disable=SC1090
-      . "${_fstarget}"
-      unset -v _fstarget
-    else
-      printf -- '%s\n' "${_fstarget} exists but isn't readable" >&2
-      unset -v _fstarget
-      return 1
-    fi
+  [ -e "${_fstarget}" ] || return
+
+  if [ -r "${_fstarget}" ]; then
+    # shellcheck disable=SC1090
+    . "${_fstarget}" || { printf -- 'wants: %s\n' "Failed to load '${_fstarget}'"; exit 1; }
+    unset -v _fstarget
+  else
+    printf -- 'wants: %s\n' "${_fstarget} exists but isn't readable" >&2
+    unset -v _fstarget
+    return 1
   fi
+}
+
+_is_lib_loaded() {
+  _target_lib="${1:?No library defined}"
+  [ -z "${SH_LIBS_LOADED##*"$_target_lib"*}" ] && [ -n "${SH_LIBS_LOADED}" ]
+  unset -v _target_lib
+}
+
+import() {
+  _target_lib="${1:?No library specified}"
+
+  # Ensure that it's not already loaded
+  _is_lib_loaded "${_target_lib}" && { unset -v _target_lib; return 0; }
+
+  # Test if the first character of _target_lib is '/'
+  # This indicates to us that the given library is likely a full path e.g.
+  # import /opt/something/specific/library.sh
+  # See this expansion right here?  This stuff is why this library exists.
+  if [ "${_target_lib%"${_target_lib#?}"}" = "/" ]; then
+    if [ -r "${_target_lib}" ]; then
+      # shellcheck disable=SC1090
+      . "${_target_lib}" || { printf -- 'import: %s\n' "Failed to load '${_target_lib}'" >&2; exit 1; }
+      SH_LIBS_LOADED="${SH_LIBS_LOADED} ${_target_lib}"
+      unset -v _target_lib
+      return 0
+    elif [ -e "${_target_lib}" ]; then
+      printf -- 'import: %s\n' "Insufficient permissions while importing '${_target_lib}'" >&2
+    else
+      printf -- 'import: %s\n' "Could not locate '${_target_lib}'" >&2
+    fi
+    unset -v _target_lib
+    exit 1
+  fi
+
+  # If we get to this point, then we're iterating through SH_LIBPATH
+  if (( "${#SH_LIBPATH}" == 0 )); then
+    printf -- 'import: %s\n' "SH_LIBPATH appears to be empty" >&2
+    unset -v _target_lib
+    exit 1
+  fi
+
+  # This expands SH_LIBPATH and appends the target to each path member e.g.
+  # for _target in /usr/local/lib/sh/arrays.sh "${HOME}"/.local/lib/sh/arrays.sh; do
+  for _target_lib in ${SH_LIBPATH//://$_target_lib }/${_target_lib}; do
+    if [ -r "${_target_lib}" ]; then
+      # shellcheck disable=SC1090
+      . "${_target_lib}" || { printf -- 'import: %s\n' "Failed to load '${_target_lib}'" >&2; exit 1; }
+      SH_LIBS_LOADED="${SH_LIBS_LOADED} ${_target_lib}"
+      unset -v _target _target_lib
+      return 0
+    elif [ -e "${_target_lib}" ]; then
+      printf -- 'import: %s\n' "Insufficient permissions while importing '${_target_lib}'" >&2
+      unset -v _target _target_lib
+      exit 1
+    fi
+  done
+  
+  # If we get to this point, then the library wasn't loaded for some reason
+  printf -- 'import: %s\n' "Unspecified error while importing '${_target_lib}'" >&2
+  unset -v _target _target_lib
+  exit 1
+}
+
+# Where import() loads singular library files
+# We provide from() for loading individual functions
+# This works with functions that are in a split-files structure i.e.
+# /usr/local/lib/sh/math.sh would be loaded with 'import math.sh'
+# /usr/local/lib/sh/text/strlen.sh would be loaded with 'from text import strlen.sh'
+# Theoretically it could be loaded with 'import text/strlen.sh'
+# Usage: from [module] import [function|all|*]
+from() {
+  # Ensure our args are as desired - in count and structure
+  if (( "${#}" != 3 )) || ! [ "${2}" = "import" ]; then
+    printf -- 'from: %s\n' "Incorrect usage of 'from()'" >&2
+    exit 1
+  fi
+  _subdir="${1}"
+  _function="${3}"
+
+  case "${_function}" in
+    (all|'*')
+      # Get first found match of subdir in SH_LIBPATH
+      for _target_lib in ${SH_LIBPATH//://$_subdir }/${_subdir}; do
+        if [ -d "${_target_lib}" ]; then
+          _subdir_path="${_target_lib}"
+          break
+        fi
+      done
+
+      # If we can't find it, fail out
+      if [ "${_subdir_path+x}" = "x" ] && [ "${#_subdir_path }" -eq "0" ]; then
+        printf -- 'from: %s\n' "${_subdir} not found in SH_LIBPATH" >&2
+        exit 1
+      fi
+
+      : "Loading all functions from ${_subdir_path}"
+      for _target_lib in "${_subdir_path}"/*; do
+        if ! [ -r "${_target_lib}" ]; then
+          printf -- 'from: %s\n' "Insufficient permissions to import '${_subdir_path}/${_target_lib}'" >&2
+          exit 1
+        fi
+        _is_lib_loaded "${_target_lib}" && continue
+        # shellcheck disable=SC1090
+        . "${_target_lib}"
+        SH_LIBS_LOADED="${SH_LIBS_LOADED} ${_target_lib}"
+      done
+      unset -v _subdir _function _subdir_path _target_lib
+      return 0
+    ;;
+    (*)
+      _target_lib="${_subdir_path}/${_function}"
+      if [ -r "${_target_lib}" ]; then
+        # shellcheck disable=SC1090
+        . "${_target_lib}" || { printf -- 'from: %s\n' "Failed to load '${_target_lib}'" >&2; exit 1; }
+        SH_LIBS_LOADED="${SH_LIBS_LOADED} ${_target_lib}"
+        unset -v _target_lib
+        return 0
+      elif [ -e "${_target_lib}" ]; then
+        printf -- 'from: %s\n' "Insufficient permissions while importing '${_target_lib}'" >&2
+        unset -v _subdir _function _subdir_path _target_lib
+        exit 1
+      fi
+    ;;
+  esac
+
+  # If we get to this point, then the library wasn't loaded for some reason
+  printf -- 'from: %s\n' "Unspecified error while importing '${_function}' from '${_subdir}'" >&2
+  unset -v _subdir _function _subdir_path _target_lib
+  exit 1
 }
