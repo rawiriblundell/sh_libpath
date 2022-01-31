@@ -55,11 +55,10 @@ If you're a `python`ista or a `perl`er, and you're reading this, ask yourself ho
 
 ### Not all hammers are created equal
 
-Whenever someone mentions doing anything remotely constructive about the unix shell, someone invariably trots this argument out.
+Whenever someone mentions doing anything remotely constructive about the unix shell, someone invariably trots out Maslow's Hammer.
 
-Abraham Maslow famously stated
-
->If the only tool you have is a hammer, you tend to see every problem as a nail.
+> If the only tool you have is a hammer, you tend to see every problem as a nail.
+> Abraham Maslow
 
 And some might see this kind of effort as falling into that trap.  I don't.  Sometimes a nail really is a nail and we shouldn't have to tolerate a $5 Walmart hammer when we could have something more like a 20oz Estwing.  And, sometimes, the people who are on team spanners really shouldn't talk about hammers and nails.  I mean... you can hammer in a nail with a spanner, but it's not pretty...
 
@@ -75,9 +74,9 @@ It is usually presented by its advocates as a brilliant one-time invocation that
 set -euo pipefail
 ```
 
-The Unofficial Strict Mode is textbook [Cargo Cult Programming.](https://en.wikipedia.org/wiki/Cargo_cult_programming), and developers with less shell experience seem to love copying and pasting it, probably because the name gives them the illusion that it's some kind of `use strict`, which it isn't.  It's more like `use chaos`.  It is non-portable, even within `bash` itself (as the behaviour of its various components have changed across `bash` versions), it replaces a set of well known and understood issues with a set of less known and less understood issues, and it gives a false sense of security.  Newcomers to shell scripting also fall into the trap of believing the claims of its advocates.
+The Unofficial Strict Mode is textbook [Cargo Cult Programming.](https://en.wikipedia.org/wiki/Cargo_cult_programming), and developers with less shell experience seem to love copying and pasting it, probably because the name gives them the illusion that it's some kind of `use strict`, which it isn't.  It's potentially more like `use chaos`.  It is non-portable, even within `bash` itself (as the behaviours of its various components have changed across `bash` versions), it replaces a set of well known and understood issues with a set of less known and less understood issues, and it gives a false sense of security.  Newcomers to shell scripting also fall into the trap of believing the claims of its advocates, to their potential peril.
 
-`errexit`, `nounset` and `pipefail` are imperfect implementations of otherwise sane ideas, and unfortunately they often amount to being unreliable interfaces that are less familiar and less understood than simply living without them. It's perfectly fine to *want* them to work as advertised, and I think we all would like that, but they don't, so shouldn't be recommended so blindly, nor advertised as a "best practice" - they aren't.
+`errexit`, `nounset` and `pipefail` are imperfect implementations of otherwise sane ideas, and unfortunately they often amount to being unreliable interfaces that are less familiar and less understood than simply living without them and curating defensive scripting habits. It's perfectly fine to *want* them to work as advertised, and I think we all would like that, but they don't, so shouldn't be recommended so blindly, nor advertised as a "best practice" - they aren't.
 
 Some light reading into the matter:
 
@@ -101,9 +100,11 @@ Some light reading into the matter:
 
 Now don't get me wrong: I recognise and genuinely like the *intent* behind the Unofficial Strict Mode.  But its subcomponents are so broken that the use of this mode often causes more trouble than it's worth.
 
+And if you look at the original blogpost describing it, note that more than half of the page is dedicated to documenting workarounds for its flaws.
+
 A number of other library/framework/module projects use and advocate for it.  I won't do that because it's counter to my goals.
 
-I will provide it, however, something like:
+I will provide it, however, via something like:
 
 ```bash
 import strict.sh
@@ -124,22 +125,15 @@ Not all systems abide by the XDG spec.  We can provide a library to take care of
 That's a good question for which I don't have a good answer?
 
 
-
-
-function_list -> list functions in the library
-
-net_cidr_list
-
 ## How about importing singular functions
 
 You mean like a `python`-esque import e.g.
 
-```
+```bash
 from datetime import time
 ```
 
 I think I have something that's more-or-less equivalent to that now.
-
 
 ## Incomplete list of bash libraries and frameworks
 
