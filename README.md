@@ -58,6 +58,7 @@ If you're a `python`ista or a `perl`er, and you're reading this, ask yourself ho
 Whenever someone mentions doing anything remotely constructive about the unix shell, someone invariably trots out Maslow's Hammer.
 
 > If the only tool you have is a hammer, you tend to see every problem as a nail.
+>  
 > Abraham Maslow
 
 And some might see this kind of effort as falling into that trap.  I don't.  Sometimes a nail really is a nail and we shouldn't have to tolerate a $5 Walmart hammer when we could have something more like a 20oz Estwing.  And, sometimes, the people who are on team spanners really shouldn't talk about hammers and nails.  I mean... you can hammer in a nail with a spanner, but it's not pretty...
