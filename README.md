@@ -2,6 +2,79 @@
 
 Making shell scripts more robust with libraries
 
+## TL;DR
+
+```
+#!/usr/bin/env bash
+
+# Load our init script
+. /path/to/init.sh || exit 1
+
+# Start using the functions that it provides
+import os.sh
+import git.sh
+from arrays import array_split.sh
+
+requires BASH51 git jq osstr=Linux
+wants /opt/secrets/squirrels.conf
+```
+
+## Enhance
+
+This project proposes adding a library ecosystem to shell scripts.
+
+`init.sh` bootstraps a couple of environment vars:
+
+* `SH_LIBPATH` - this is a colon seperated list of library paths, just like `PATH`
+* `SH_LIBS_LOADED` - a colon separated list of libraries that are already loaded.  This is used as one method to attempt multiple reloadings of the same library code
+
+The proposed library structure caters for both monolithic libraries e.g.
+
+`/usr/local/lib/sh/monolithic.sh`
+
+As well as hierarchical e.g.
+
+`/usr/local/lib/sh/text/string_function.sh`
+
+It also adds the following functions:
+
+### `import`
+
+Similar to its `python` cousin, this is intended for loading monolithic libraries
+
+
+### `from`
+
+Similar to its `python` cousin, this is intended for loading hierarchical libraries
+
+### `requires`
+
+This function serves multiple purposes.  A lot of shell scripts just _assume_ that binaries are present and don't fail nicely if these binaries aren't.  A lot of shell scripts don't really serve themselves well in terms of internal documentation.  A lot of shell scripts don't fail-early.  `requires()` fixes all of that and more.
+
+First, it works through multiple items so you only need to declare it once if you choose to.  It would typically be used to check for the existence of commands in `PATH` like this:
+
+```bash
+requires git jq sed awk
+```
+
+But it can also check that variables equal something, for example
+
+```bash
+requires EDITOR=/usr/bin/vim
+```
+
+It can also check for a particular version of `bash`, for example to require `bash 4.1` or newer:
+
+```bash
+requires BASH41
+```
+
+It also handles checking full paths for e.g. executable scripts, config files and SH_LIBPATH libraries.
+
+### `wants`
+
+This function currently deals only with files.  You tell it to look at a file, if that file is found it sources it.  Otherwise it's not fatal.  It's a lazy-loader, and I'm not sure how much work will go into it.
+
 ## Why
 
 Well, why not?
