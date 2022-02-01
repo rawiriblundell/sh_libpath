@@ -71,6 +71,14 @@ requires BASH41
 
 It also handles checking full paths for e.g. executable scripts, config files and SH_LIBPATH libraries.
 
+By dealing with this at the very start of the script, we ensure that we fail early.  It abstracts away messy `command -v`/`which`/`type` tests and when someone reads a line like:
+
+```bash
+requires BASH42 git jq storcli /etc/multipath.conf
+```
+
+It's clear what the script needs in order to run i.e. it's self-documenting code.
+
 ### `wants`
 
 This function currently deals only with files.  You tell it to look at a file, if that file is found it sources it.  Otherwise it's not fatal.  It's a lazy-loader, and I'm not sure how much work will go into it.
@@ -146,18 +154,7 @@ Not all systems abide by the XDG spec.  We can provide a library to take care of
 
 That's a good question for which I don't have a good answer?
 
-
-## How about importing singular functions
-
-You mean like a `python`-esque import e.g.
-
-```bash
-from datetime import time
-```
-
-I think I have something that's more-or-less equivalent to that now.
-
-## Incomplete list of bash libraries and frameworks
+## Incomplete list of other bash libraries and frameworks
 
 In no particular order...
 
