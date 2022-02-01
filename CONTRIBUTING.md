@@ -34,6 +34,20 @@ When you're ready, put in a Pull Request with a small explanation of what you're
 
 Please look at some of the other code and try to be consistent with it.
 
+### Portability
+
+This project will try to code on the more portable side.  Perhaps not strictly portable, but at least in a way that it can be refactored up or down the portability scale.
+
+Fundamentally: POSIX plus named arrays as a minimum.
+
+### Scoping variables
+
+`local`
+
+As much as I'd love to use this, [it's a mess out there](https://unix.stackexchange.com/questions/493729/list-of-shells-that-support-local-keyword-for-defining-local-variables)
+
+So instead of using `local`, the preference will be to pseudoscope.
+
 ## The Unofficial Strict Mode
 
 There is a lot of advice on the internet to "always use The Unofficial Strict Mode."
