@@ -4,7 +4,7 @@ Making shell scripts more robust with libraries
 
 ## TL;DR
 
-```
+```bash
 #!/usr/bin/env bash
 
 # Load our init script
@@ -41,7 +41,6 @@ It also adds the following functions:
 ### `import`
 
 Similar to its `python` cousin, this is intended for loading monolithic libraries
-
 
 ### `from`
 
