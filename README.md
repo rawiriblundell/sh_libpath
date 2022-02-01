@@ -160,6 +160,7 @@ In no particular order...
 * https://github.com/pioneerworks/lib-bash
 * https://github.com/reale/bashlets
 * https://github.com/mulle-nat/mulle-bashfunctions
+* https://github.com/m10k/toolbox
 * https://github.com/awesome-lists/awesome-bash Maybe holds some more
 * https://github.com/alebcay/awesome-shell
 
