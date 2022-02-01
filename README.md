@@ -65,58 +65,6 @@ And some might see this kind of effort as falling into that trap.  I don't.  Som
 
 See, also: [Master Foo and the Ten Thousand Lines](http://www.catb.org/~esr/writings/unix-koans/ten-thousand.html)
 
-## The Unofficial Strict Mode
-
-There is a lot of advice on the internet to "always use The Unofficial Strict Mode."
-
-It is usually presented by its advocates as a brilliant one-time invocation that will magically fix every shell scripting issue. It is usually in a form similar to:
-
-```bash
-set -euo pipefail
-```
-
-The Unofficial Strict Mode is textbook [Cargo Cult Programming.](https://en.wikipedia.org/wiki/Cargo_cult_programming), and developers with less shell experience seem to love copying and pasting it, probably because the name gives them the illusion that it's some kind of `use strict`, which it isn't.  It's potentially more like `use chaos`.  It is non-portable, even within `bash` itself (as the behaviours of its various components have changed across `bash` versions), it replaces a set of well known and understood issues with a set of less known and less understood issues, and it gives a false sense of security.  Newcomers to shell scripting also fall into the trap of believing the claims of its advocates, to their potential peril.
-
-`errexit`, `nounset` and `pipefail` are imperfect implementations of otherwise sane ideas, and unfortunately they often amount to being unreliable interfaces that are less familiar and less understood than simply living without them and curating defensive scripting habits. It's perfectly fine to *want* them to work as advertised, and I think we all would like that, but they don't, so shouldn't be recommended so blindly, nor advertised as a "best practice" - they aren't.
-
-Some light reading into the matter:
-
-* https://lists.nongnu.org/archive/html/bug-bash/2017-03/msg00171.html
-* https://www.reddit.com/r/commandline/comments/g1vsxk/the_first_two_statements_of_your_bash_script/fniifmk/
-* http://wiki.bash-hackers.org/scripting/obsolete
-* http://mywiki.wooledge.org/BashFAQ/105
-* http://mywiki.wooledge.org/BashFAQ/112
-* https://mywiki.wooledge.org/BashPitfalls#set_-euo_pipefail
-* https://bean.solutions/i-do-not-like-the-bash-strict-mode.html
-* https://www.mulle-kybernetik.com/modern-bash-scripting/state-euxo-pipefail.html
-* https://www.reddit.com/r/commandline/comments/4b3cqu/use_the_unofficial_bash_strict_mode_unless_you/
-* https://www.reddit.com/r/programming/comments/25y6yt/use_the_unofficial_bash_strict_mode_unless_you/
-* https://www.reddit.com/r/bash/comments/5zdzil/shell_scripts_matter_good_shell_script_practices/
-* https://www.reddit.com/r/programming/comments/4daos8/good_practices_for_writing_shell_scripts/d1pgv4p/
-* https://www.reddit.com/r/bash/comments/5ddvd2/til_you_can_turn_tracing_x_on_and_off_dynamically/da3xjkk/
-* https://news.ycombinator.com/item?id=8054440
-* http://www.oilshell.org/blog/2020/10/osh-features.html
-* https://fvue.nl/wiki/Bash:_Error_handling
-* https://gist.github.com/dimo414/2fb052d230654cc0c25e9e41a9651ebe (i.e. `set -u` is an absolute clusterfuck)
-
-Now don't get me wrong: I recognise and genuinely like the *intent* behind the Unofficial Strict Mode.  But its subcomponents are so broken that the use of this mode often causes more trouble than it's worth.
-
-And if you look at the original blogpost describing it, note that more than half of the page is dedicated to documenting workarounds for its flaws.
-
-A number of other library/framework/module projects use and advocate for it.  I won't do that because it's counter to my goals.
-
-I will provide it, however, via something like:
-
-```bash
-import strict.sh
-
-# Enable Unofficial Strict Mode
-strict_euopipefail
-
-# Set IFS to '\t\n'
-strict_nowhitesplitting
-```
-
 ## XDG vars
 
 Not all systems abide by the XDG spec.  We can provide a library to take care of some of that.
