@@ -10,6 +10,14 @@ I realise that some people might have issues with this.  If you're contributing 
 
 Whichever way you go, please do declare a FOSS license, otherwise potentially restrictive and messy Copyright rules apply by default.
 
+### License Header
+
+At the start of your files, please include the contents of [license_header](license_header)
+
+## Third party code
+
+Any code imported from another project must be using a compatible license such as MIT.  Attribution will be given and tracked in [NOTICE](NOTICE.md).
+
 ## Code of Conduct
 
 See [CODE_OF_CONDUCT](CODE_OF_CONDUCT.md)
