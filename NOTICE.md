@@ -19,10 +19,11 @@ permitted.
 
 ## Attributions
 
-- Crytography section, NOTICES.md.  https://github.com/eclipse/ditto-examples/blob/master/legal/NOTICE.md
+- Crytography section, NOTICE.md.  https://github.com/eclipse/ditto-examples/blob/master/legal/NOTICE.md
 
 ## MIT License
 
+```
 MIT License
 
 Copyright (c) [YEAR] [AUTHOR]
@@ -44,10 +45,11 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+```
 
 ## Apache License 2.0
 
-
+```
                                  Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
@@ -249,3 +251,5 @@ SOFTWARE.
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
+```
+
