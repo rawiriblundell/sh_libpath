@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ################################################################################
+# Provenance: https://github.com/rawiriblundell/sh_libpath
+# SPDX-License-Identifier: Apache-2.0
 
 get_child_pids() {
   _ppid="${1:?No PPID supplied}"
@@ -24,4 +26,3 @@ get_child_pids() {
   fi
   unset -v _ppid
 }
-

@@ -17,33 +17,22 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-# Repeat a string n number of times
-# Supports '-n' to suppress newlines while iterating
-str_repeat() {
-  case "${1}" in
-    (-n) _str_repeat_newlines=no; shift 1 ;;
-  esac
-  _str_repeat_newlines="${_str_repeat_newlines:-yes}"
-  _str_repeat_str="${1:?No string specified}"
-  _str_repeat_count="${2:-1}"
+# Iterate through a file or stream line-by-line with a delay between each line
+scroll() {
+  # Check that stdin isn't empty
+  if [[ -t 0 ]]; then
+    printf -- '%s\n' "Usage:  pipe | to | scroll [n]" ""
+    printf -- '\t%s\n'  "Increment line by line through the output of other commands" "" \
+      "Delay between each increment can be defined.  Default is 1 second."
+    return 0
+  fi
 
-  case "${_str_repeat_newlines}" in
-    (yes)
-      for (( i=0; i<_str_repeat_count; ++i )); do
-        printf -- '%s\n' "${_str_repeat_str}"
-      done
-    ;;
-    (no)
-      for (( i=0; i<_str_repeat_count; ++i )); do
-        printf -- '%s' "${_str_repeat_str}"
-      done
-      printf -- '%s\n' ""
-    ;;
-    (*)
-      printf -- 'str_repeat: %s\n' "Unspecified error" >&2
-      return 1
-    ;;
-  esac
+  # Default the sleep time to 1 second
+  sleepTime="${1:-1}"
 
-  unset -v _str_repeat_str _str_repeat_count _str_repeat_newlines
+  # Now we output line by line with a sleep in the middle
+  while read -r; do
+    printf -- '%s\n' "${REPLY}"
+    sleep "${sleepTime}" 2>/dev/null || sleep 1
+  done 
 }

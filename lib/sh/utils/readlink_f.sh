@@ -14,10 +14,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ################################################################################
+# Provenance: https://github.com/rawiriblundell/sh_libpath
+# SPDX-License-Identifier: Apache-2.0
 
 # Portable version of 'readlink -f' for versions that don't have '-f'
 
-requires readlink
+# Test for readlink as a requirement
+# TODO: Consider a capability test for 'readlink' i.e. if 'readlink -f' already works, just map to it
+if ! command -v readlink; then
+  printf -- '%s\n' "readlink_f: 'readlink' is required for this library" >&2
+  exit 1
+fi
 
 readlink_f() {
   (
@@ -44,4 +51,3 @@ readlink_f() {
     printf -- '%s\n' "${PWD%/}/${_target##*/}"
   )
 }
-

@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ################################################################################
+# Provenance: https://github.com/rawiriblundell/sh_libpath
+# SPDX-License-Identifier: Apache-2.0
 
 get_terminal_size() {
   if [ "${#LINES}" -gt 0 ] && [ "${#COLUMNS}" -gt 0 ]; then

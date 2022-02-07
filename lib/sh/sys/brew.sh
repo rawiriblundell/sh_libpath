@@ -17,33 +17,20 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-# Repeat a string n number of times
-# Supports '-n' to suppress newlines while iterating
-str_repeat() {
-  case "${1}" in
-    (-n) _str_repeat_newlines=no; shift 1 ;;
-  esac
-  _str_repeat_newlines="${_str_repeat_newlines:-yes}"
-  _str_repeat_str="${1:?No string specified}"
-  _str_repeat_count="${2:-1}"
-
-  case "${_str_repeat_newlines}" in
-    (yes)
-      for (( i=0; i<_str_repeat_count; ++i )); do
-        printf -- '%s\n' "${_str_repeat_str}"
-      done
-    ;;
-    (no)
-      for (( i=0; i<_str_repeat_count; ++i )); do
-        printf -- '%s' "${_str_repeat_str}"
-      done
-      printf -- '%s\n' ""
-    ;;
-    (*)
-      printf -- 'str_repeat: %s\n' "Unspecified error" >&2
-      return 1
-    ;;
-  esac
-
-  unset -v _str_repeat_str _str_repeat_count _str_repeat_newlines
+brew_is_installed() {
+  local failcount
+  failcount=0
+  if ! command -v brew >/dev/null 2>&1; then
+    printf -- '%s\n' "This script requires brew on a mac.  This wasn't found..." >&2
+    exit 1
+  fi
+  for brew_pkg in ${*:?Package unspecified}; do
+    if brew list | grep -w "${brew_pkg}" >/dev/null 2>&1; then
+      printf -- '%s\n' "${brew_pkg} appears to be installed"
+    else
+      printf -- '%s\n' "${brew_pkg} is not installed"
+      (( failcount++ ))
+    fi
+  done
+  (( failcount > 0 )) && return 1
 }

@@ -17,33 +17,22 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-# Repeat a string n number of times
-# Supports '-n' to suppress newlines while iterating
-str_repeat() {
-  case "${1}" in
-    (-n) _str_repeat_newlines=no; shift 1 ;;
-  esac
-  _str_repeat_newlines="${_str_repeat_newlines:-yes}"
-  _str_repeat_str="${1:?No string specified}"
-  _str_repeat_count="${2:-1}"
+# Convert a three number style semantic version number to an integer for version comparisons
+# This zero pads, to double digits, the second and third numbers and removes any non-numerical chars
+# e.g. 'openssl 1.0.2k-fips' -> '10002'
+semver_to_int() {
+    _sem_ver="${1:?No version number supplied}"
 
-  case "${_str_repeat_newlines}" in
-    (yes)
-      for (( i=0; i<_str_repeat_count; ++i )); do
-        printf -- '%s\n' "${_str_repeat_str}"
-      done
-    ;;
-    (no)
-      for (( i=0; i<_str_repeat_count; ++i )); do
-        printf -- '%s' "${_str_repeat_str}"
-      done
-      printf -- '%s\n' ""
-    ;;
-    (*)
-      printf -- 'str_repeat: %s\n' "Unspecified error" >&2
-      return 1
-    ;;
-  esac
+    # Strip the variable of any non-numerics or dots
+    _sem_ver="$(write "${_sem_ver}" | sed 's/[^0-9.]//g')"
 
-  unset -v _str_repeat_str _str_repeat_count _str_repeat_newlines
+    # Swap the dots for spaces and assign the outcome to the positional param array
+    # We want word splitting here, so we disable shellcheck's complaints
+    # shellcheck disable=SC2046
+    set -- $(write "${_sem_ver}" | tr '.' ' ')
+
+    # Assemble and print our integer
+    printf -- '%d%02d%02d' "${1}" "${2:-0}" "${3:-0}"
+
+    unset -v _sem_ver
 }
