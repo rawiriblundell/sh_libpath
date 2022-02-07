@@ -16,6 +16,7 @@
 ################################################################################
 
 # Potential basepaths for where our libraries might be placed
+# TO-DO: Expand and include $FPATH (ksh, z/OS) and/or $fpath (zsh)
 POSSIBLE_SH_LIBPATHS=(
   "${HOME}"/.local/lib/sh
   /usr/local/lib/sh

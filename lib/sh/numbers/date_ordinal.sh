@@ -17,33 +17,28 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-# Repeat a string n number of times
-# Supports '-n' to suppress newlines while iterating
-str_repeat() {
-  case "${1}" in
-    (-n) _str_repeat_newlines=no; shift 1 ;;
-  esac
-  _str_repeat_newlines="${_str_repeat_newlines:-yes}"
-  _str_repeat_str="${1:?No string specified}"
-  _str_repeat_count="${2:-1}"
-
-  case "${_str_repeat_newlines}" in
-    (yes)
-      for (( i=0; i<_str_repeat_count; ++i )); do
-        printf -- '%s\n' "${_str_repeat_str}"
+date() {
+  case "$@" in
+    (*"%o"*) 
+      declare -a args1
+      declare -a args2
+      while [[ -n "$1" ]]; do
+        args2+=("$1")
+        if [[ "${1:0:1}" != + ]]; then
+          args1+=("$1")
+        fi
+        shift
       done
-    ;;
-    (no)
-      for (( i=0; i<_str_repeat_count; ++i )); do
-        printf -- '%s' "${_str_repeat_str}"
-      done
-      printf -- '%s\n' ""
+      case $(command date +%d "${args1[@]}") in
+        (01|21|31) dSfx="st";;
+        (02|22)    dSfx="nd";;
+        (03|23)    dSfx="rd";;
+        (*)        dSfx="th";;
+      esac
+      command date "${args2[@]}" | sed -e "s/%o/${dSfx}/g"
     ;;
     (*)
-      printf -- 'str_repeat: %s\n' "Unspecified error" >&2
-      return 1
+      command date "$@"
     ;;
   esac
-
-  unset -v _str_repeat_str _str_repeat_count _str_repeat_newlines
 }

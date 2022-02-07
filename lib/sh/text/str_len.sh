@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ################################################################################
+# Provenance: https://github.com/rawiriblundell/sh_libpath
+# SPDX-License-Identifier: Apache-2.0
 
 # Make getting a string length a bit more familiar
 # for practitioners of other languages
@@ -60,4 +62,3 @@ strlen() {
   esac
   unset -v str
 }
-

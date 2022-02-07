@@ -17,33 +17,22 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-# Repeat a string n number of times
-# Supports '-n' to suppress newlines while iterating
-str_repeat() {
-  case "${1}" in
-    (-n) _str_repeat_newlines=no; shift 1 ;;
-  esac
-  _str_repeat_newlines="${_str_repeat_newlines:-yes}"
-  _str_repeat_str="${1:?No string specified}"
-  _str_repeat_count="${2:-1}"
-
-  case "${_str_repeat_newlines}" in
-    (yes)
-      for (( i=0; i<_str_repeat_count; ++i )); do
-        printf -- '%s\n' "${_str_repeat_str}"
-      done
-    ;;
-    (no)
-      for (( i=0; i<_str_repeat_count; ++i )); do
-        printf -- '%s' "${_str_repeat_str}"
-      done
-      printf -- '%s\n' ""
-    ;;
-    (*)
-      printf -- 'str_repeat: %s\n' "Unspecified error" >&2
-      return 1
-    ;;
-  esac
-
-  unset -v _str_repeat_str _str_repeat_count _str_repeat_newlines
+stat_file() {
+    case "${1}" in
+        (atime)
+            stat -c %X "${1}" 2>/dev/null || 
+                stat -f %a "${1}" 2>/dev/null ||
+                perl -e 'if (! -f $ARGV[0]){die "0000000"};$atime=(stat($ARGV[0]))[8];print $atime."\n";' "${1}"
+        ;;
+        (ctime)
+            stat -c %Z "${1}" 2>/dev/null || 
+                stat -f %c "${1}" 2>/dev/null ||
+                perl -e 'if (! -f $ARGV[0]){die "0000000"};$ctime=(stat($ARGV[0]))[10];print $ctime."\n";' "${1}"        
+        ;;
+        (mtime)
+            stat -c %Y "${1}" 2>/dev/null || 
+                stat -f %m "${1}" 2>/dev/null ||
+                perl -e 'if (! -f $ARGV[0]){die "0000000"};$mtime=(stat($ARGV[0]))[9];print $mtime."\n";' "${1}"
+        ;;
+    esac
 }

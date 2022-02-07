@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ################################################################################
+# Provenance: https://github.com/rawiriblundell/sh_libpath
+# SPDX-License-Identifier: Apache-2.0
 
 # Try to convert a relative path to an absolute one
 # A slightly adjusted version sourced from
@@ -43,4 +45,3 @@ get_absolute_path() {
   fi
   unset -v _filename
 }
-

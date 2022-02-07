@@ -1,12 +1,16 @@
 # Notices for sh_libpath
 
-This project is produced and maintained by Rawiri Blundell.  This software incorporates material from third parties.
+This project is produced and maintained by the SH_LIBPATH authors.  This software incorporates material from third parties.
 
 ## Copyright
 
 All content is the property of the respective authors or their employers.  Every attempt will be made to track third party code and licences in the Attributions section of this document.
 
 The software provided by this project is released under the Apache License 2.0, which has a Redistribution clause that protects third party code.
+
+A copy of the MIT License and the Apache License 2.0 are at the bottom of this document for reference.
+
+If you find code in this repository that you feel violates copyright, be it your copyright or anybody elses, please notify the authors in the first instance.  We respect the copyrights of others and their license choices, and if we're in error in any way, we want to rectify that immediately.
 
 ## Cryptography
 
@@ -252,4 +256,3 @@ SOFTWARE.
    See the License for the specific language governing permissions and
    limitations under the License.
 ```
-

@@ -17,33 +17,19 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-# Repeat a string n number of times
-# Supports '-n' to suppress newlines while iterating
-str_repeat() {
-  case "${1}" in
-    (-n) _str_repeat_newlines=no; shift 1 ;;
-  esac
-  _str_repeat_newlines="${_str_repeat_newlines:-yes}"
-  _str_repeat_str="${1:?No string specified}"
-  _str_repeat_count="${2:-1}"
-
-  case "${_str_repeat_newlines}" in
-    (yes)
-      for (( i=0; i<_str_repeat_count; ++i )); do
-        printf -- '%s\n' "${_str_repeat_str}"
-      done
-    ;;
-    (no)
-      for (( i=0; i<_str_repeat_count; ++i )); do
-        printf -- '%s' "${_str_repeat_str}"
-      done
-      printf -- '%s\n' ""
-    ;;
-    (*)
-      printf -- 'str_repeat: %s\n' "Unspecified error" >&2
-      return 1
-    ;;
-  esac
-
-  unset -v _str_repeat_str _str_repeat_count _str_repeat_newlines
+host2ip() {
+  # If $1 is missing, print brief usage
+  if [[ -n "$1" ]]; then
+    printf '%s\n' "Usage: host2ip [hostname|ip.add.re.ss]"
+    return 1
+  # If $1 appears to be a node name, figure out its IP
+  elif [[ "$1" =~ '^[a-zA-Z]$' ]]; then
+    host -4 -W 1 "$1" | awk '{print $4}'
+  # If $1 appears to be an IP address, try to figure the reverse  
+  elif [[ "$1" =~ '^((25[0-5]|2[0-4][0-9]|[01][0-9][0-9]|[0-9]{1,2})[.]){3}(25[0-5]|2[0-4][0-9]|[01][0-9][0-9]|[0-9]{1,2})$' ]]; then
+    host -4 -W 1 "$1" | awk '{print $4}' | cut -d '.' -f1
+  else
+    printf '%s\n' "host2ip could not determine what is meant by: $1"
+    return 1
+  fi
 }
