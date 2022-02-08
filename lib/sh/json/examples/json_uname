@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# A simple demonstration of 'uname' with json output
+# Unfortunately as spaces are littered right throughout its output,
+# 'uname -a' is not parsable.  This means multiple uname calls instead.  Ugh.
+# We also attempt to provide for POSIX, GNU/Linux and Solaris
+
+# A simple aesthetic function to give another name for '.'
+# shellcheck disable=SC1090
+include() { . "${1}" || exit 1; }
+
+include ../lib/jsonprint.sh
+
+json_open
+  json_open_obj uname
+    json_str nodename "$(uname -n)"
+    json_append_str os_kernel "$(uname -s)"
+    uname -o >/dev/null 2>&1 && json_append_str os_name "$(uname -o)"
+    json_append_str os_version "$(uname -v)"
+    json_append_str release_level "$(uname -r)"
+    json_append_str hardware_type "$(uname -m)"
+    uname -i >/dev/null 2>&1 && json_append_str platform "$(uname -i)"
+    uname -p >/dev/null 2>&1 && json_append_str processor "$(uname -p)"
+  json_close_obj
+json_close

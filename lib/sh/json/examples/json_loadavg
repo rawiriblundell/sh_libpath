@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# A simple demonstration of CPU load average with json output
+
+# A simple aesthetic function to give another name for '.'
+# shellcheck disable=SC1090
+include() { . "${1}" || exit 1; }
+
+include ../lib/jsonprint.sh
+
+# A small function to pluck the load detail from the 'uptime' command
+# 'uptime' is fairly stable and seems to be relatively portable, but just in 
+# case we need to put any OS/Distro specific handling in, we do so here.
+# This function looks for "load average:" and prints the rest of the line i.e.
+# 09:56:10 up 15 days, 17:58,  1 user,  load average: 2.04, 1.43, 1.15
+# becomes
+# 2.04, 1.43, 1.15
+get_uptime_output() {
+  uptime | sed -n -e 's/^.*load average: //p'
+}
+
+# Gather our load averages, first we check for /proc/loadavg
+if [[ -r "/proc/loadavg" ]]; then
+  read -r one_min five_min fifteen_min _ _ < /proc/loadavg
+else
+  IFS=', ' read -r one_min five_min fifteen_min < <(get_uptime_output)
+fi
+
+json_open
+  json_open_obj load_average
+    json_num 1min "${one_min}"
+    json_append_num 5min "${five_min}"
+    json_append_num 15min "${fifteen_min}"
+  json_close_obj
+  json_timestamp
+json_close

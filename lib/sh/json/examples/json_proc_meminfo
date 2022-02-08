@@ -1,0 +1,56 @@
+#!/bin/bash
+
+# A demonstration for converting '/proc/meminfo' to json output
+
+# A simple aesthetic function to give another name for '.'
+# shellcheck disable=SC1090
+include() { . "${1}" || exit 1; }
+
+include ../lib/jsonprint.sh
+
+# Fail early if there's no readable /proc/meminfo to parse
+json_require /proc/meminfo
+
+# Let's start building our JSON output
+json_open
+  # Let's tare a loop tracker
+  loop_iter=0
+
+  # Open a json array
+  json_open_arr "/proc/meminfo"
+    json_open_obj
+
+      # Start processing the file line by line
+      while IFS=':' read -r key value; do
+        # Remove any leading whitespace from 'value'
+        value="${value#"${value%%[![:space:]]*}"}"
+
+        # Pop 'value' into the params array
+        # shellcheck disable=SC2086
+        set -- ${value}
+
+        # If the value is in two parts, we append the second part to the key e.g.
+        # key[MemTotal:] val[123456 kB] -> key[MemTotal (kB)] val[123456]
+        case "${2}" in
+          ('') : ;;
+          (*)
+            key="${key} (${2})"
+            value="${1}"
+          ;;
+        esac
+
+        # We expect every instance of value to be a number
+        # We also behave differently for the first run through the loop
+        if (( loop_iter == 0 )); then
+          json_num "${key}" "${value}"
+        else
+          json_append_num "${key}" "${value}"
+        fi
+
+        # Increment our loop tracker
+        (( loop_iter++))
+      done < /proc/meminfo
+
+    json_close_obj
+  json_close_arr
+json_close

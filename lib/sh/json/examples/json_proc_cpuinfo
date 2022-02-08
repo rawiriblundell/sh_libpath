@@ -1,0 +1,85 @@
+#!/bin/bash
+
+# A demonstration for converting '/proc/cpuinfo' to json output
+
+# A simple aesthetic function to give another name for '.'
+# shellcheck disable=SC1090
+include() { . "${1}" || exit 1; }
+
+include ../lib/jsonprint.sh
+
+# Fail early if there's no readable /proc/cpuinfo to parse
+json_require /proc/cpuinfo
+
+# Convert /proc/cpuinfo to semicolon delimited lines
+cpuinfo_to_lines() {
+  tr '\n' ';' < /proc/cpuinfo | tr -d '\t' | sed 's/;;/\n/g'
+}
+
+# Let's start building our JSON output
+json_open
+
+  # Map the lines to an array
+  mapfile -t obj_array < <(cpuinfo_to_lines)
+
+  # Tare a loop tracking variable
+  loop_iter=1
+
+  # Open a json array
+  json_open_arr "/proc/cpuinfo"
+    # Open the first json object
+    json_open_obj
+
+    # Loop through our array elements
+    for obj_element in "${obj_array[@]}"; do
+
+      # Map the element to the MAPFILE default array
+      mapfile -d ';' -t <<< "${obj_element}"
+
+      # And start another loop tracker
+      mapfile_iter=0
+
+        # Split each element of MAPFILE into 'key' and 'value'  
+        while IFS=':' read -r key value; do
+          # In the presence of a 'trim()' function, this would be cleaner
+          # Remove any trailing whitespace from 'key'
+          key="${key%"${key##*[![:space:]]}"}"
+
+          # Remove any leading whitespace from 'value'
+          value="${value#"${value%%[![:space:]]*}"}"
+
+          # Remove any trailing whitespace from 'value'
+          value="${value%"${value##*[![:space:]]}"}"
+
+          # Detect the value 'type' and assign the appropriate function
+          case "$(json_gettype "${value}")" in
+            (string)
+              # If we have the first array element, we omit the leading comma
+              if (( mapfile_iter == 0 )); then
+                json_str "${key}" "${value}"
+              # Otherwise, use append, which stacks a keypair with leading comma
+              else
+                json_append_str "${key}" "${value}"
+              fi
+            ;;
+            (int|float)
+              if (( mapfile_iter == 0 )); then
+                json_num "${key}" "${value}"
+              else
+                json_append_num "${key}" "${value}"
+              fi
+            ;;
+          esac
+          # We're looping through the array, so we iterate our tracker
+          (( mapfile_iter++ ))
+        done < <(printf -- '%s\n' "${MAPFILE[@]}" | grep .)
+      if (( loop_iter >= "${#obj_array[@]}" )); then
+        json_close_obj
+      else
+        (( loop_iter++ ))
+        json_append_obj
+      fi
+    done
+  json_close_arr
+json_close
+

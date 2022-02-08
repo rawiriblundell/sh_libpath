@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# A demonstration of 'vmstat -s' with json output
+
+# A simple aesthetic function to give another name for '.'
+# shellcheck disable=SC1090
+include() { . "${1}" || exit 1; }
+
+include ../lib/jsonprint.sh
+
+json_require vmstat
+
+loop_iter=0
+json_open
+  json_open_obj "vmstat -s"
+    while read -r; do
+      # Protect against AIX HR's in its 'vmstat' output
+      case "${REPLY}" in
+        (*'----'*) : ;;
+        (*)
+          # We want word splitting here
+          # shellcheck disable=SC2086
+          set -- ${REPLY}
+          value="${1}"
+          shift 1
+          key="${*}"
+          if (( loop_iter == 0 )); then
+            json_num "\"${key}\"" "${value}"
+            (( loop_iter++ ))
+          else
+            json_append_num "\"${key}\"" "${value}"
+          fi
+        ;;
+      esac
+    done < <(vmstat -s)
+  json_close_obj
+  json_timestamp
+json_close

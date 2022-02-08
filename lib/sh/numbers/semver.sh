@@ -24,15 +24,25 @@ semver_to_int() {
     _sem_ver="${1:?No version number supplied}"
 
     # Strip the variable of any non-numerics or dots
-    _sem_ver="$(write "${_sem_ver}" | sed 's/[^0-9.]//g')"
+    _sem_ver="$(printf -- '%s\n' "${_sem_ver}" | sed 's/[^0-9.]//g')"
 
     # Swap the dots for spaces and assign the outcome to the positional param array
     # We want word splitting here, so we disable shellcheck's complaints
     # shellcheck disable=SC2046
-    set -- $(write "${_sem_ver}" | tr '.' ' ')
+    set -- $(printf -- '%s\n' "${_sem_ver}" | tr '.' ' ')
 
     # Assemble and print our integer
     printf -- '%d%02d%02d' "${1}" "${2:-0}" "${3:-0}"
 
     unset -v _sem_ver
 }
+
+# In pure bash, the above would look like this:
+# semver_to_int() {
+#     local _sem_ver
+#     _sem_ver="${1:?No version number supplied}"
+#     _sem_ver="${_sem_ver//[^0-9.]/}"
+#     # shellcheck disable=SC2086
+#     set -- ${_sem_ver//./ }
+#     printf -- '%d%02d%02d' "${1}" "${2:-0}" "${3:-0}"
+# }

@@ -1,0 +1,171 @@
+#!/bin/bash
+
+# A demonstration of 'ls' with json output
+
+# A simple aesthetic function to give another name for '.'
+# shellcheck disable=SC1090
+include() { . "${1}" || exit 1; }
+
+include ../lib/jsonprint.sh
+
+# We require 'stat' and 'file' for this to work
+json_require stat file
+
+# Include dotfiles
+shopt -s dotglob nullglob
+
+# Figure out which checksum method is available, start with sha256sum
+# If a file has a backslash or newline in it, then the hash may start with a '\'
+# This will upset the receiver of this json data as an invalid escape
+# So for all of these functions, we use 'tr' to remove any instances of '\'
+if digest -v -a md5 "$1" > /dev/null 2>&1; then
+  get_file_checksum() {
+    digest -v -a md5 "${1:?No target specified}" | 
+    awk -F '= ' '{print $2}' | 
+    tr -d "\\\\"
+  }
+# We can always try for md5sum as well
+elif command -v md5sum > /dev/null 2>&1; then
+  get_file_checksum() {
+    md5sum "${1:?No target specified}" |
+    awk '{print $1}' |
+    tr -d "\\\\"
+  }
+# One last try for 'cksum' which should cover more ancient Unices
+elif command -v cksum > /dev/null 2>&1; then
+  get_file_checksum() {
+    cksum "${1:?No target specified}" |
+    awk '{print $1}' |
+    tr -d "\\\\"
+  }
+fi
+
+# This function gives a simple determination about a file type
+get_file_type() {
+  _fsobj="${1}"
+  _fsobj_type=''
+  [[ -b "${_fsobj}" ]] && _fsobj_type="block special"
+  [[ -c "${_fsobj}" ]] && _fsobj_type="character special"
+  [[ -d "${_fsobj}" ]] && _fsobj_type="directory"
+  [[ -L "${_fsobj}" ]] && _fsobj_type="symlink"
+  [[ -p "${_fsobj}" ]] && _fsobj_type="named pipe"
+  [[ -t "${_fsobj}" ]] && _fsobj_type="open file descriptor"
+  [[ -S "${_fsobj}" ]] && _fsobj_type="socket"
+
+  # If _fsobj_type is still unset, these two should capture everything else
+  [[ -x "${_fsobj}" ]] && _fsobj_type="${_fsobj_type:-executable file}"
+  [[ -f "${_fsobj}" ]] && _fsobj_type="${_fsobj_type:-regular file}"
+
+  # Add extra information if it's there
+  [[ -g "${_fsobj}" ]] && _fsobj_type="${_fsobj_type} with set-gid"
+  [[ -u "${_fsobj}" ]] && _fsobj_type="${_fsobj_type} with set-uid"
+  [[ -k "${_fsobj}" ]] && _fsobj_type="${_fsobj_type} with sticky bit"
+
+  # Finally, print our gathered detail
+  printf -- '%s\n' "${_fsobj_type}"
+
+  # And unset our variables
+  unset -v _fsobj _fsobj_type
+}
+
+get_stat_bsd() {
+  stat -f '
+  , "file_owner": "%Su"
+  , "file_group": "%Sg"
+  , "file_mode": %Op
+  , "size_bytes": %z
+  , "file_modified": %m
+  , "file_accessed": %a
+  , "file_birth": %B
+  , "dereference": "%Y"
+  ' "${1:?No target specified}" 2>/dev/null
+}
+
+get_stat_gnu() {
+  stat -c ', "file_owner": "%U", "file_group": "%G", "file_mode": %a, "size_bytes": %s, "file_modified": %Y, "file_accessed": %X, "file_birth": %W, "dereference": "%N"' "${1:?No target specified}" 2>/dev/null
+}
+
+get_file_name() {
+  (
+    stat -c "%n" "${1:?No target specified}" 2>/dev/null ||
+      stat -f "%N" "${1}"
+  ) | json_sanitise | json_escape_str
+}
+
+get_file_link() {
+  (
+    stat -c "%N" "${1:?No target specified}" 2>/dev/null ||
+      stat -f "%Y" "${1}"
+  ) | json_sanitise | json_escape_str
+}
+
+# We can enable checksumming
+case "${1}" in
+  (-c|--checksum) shift 1; checksum=true ;;
+esac
+
+target_dir="${1:-.}"
+
+(
+  cd "${target_dir}" || json_vorhees "Could not access ${target_dir}"
+  json_open
+    json_open_arr "${PWD}"
+      export loop_iter=0
+        for fsobj in "${PWD:-$(pwd)}"/*; do
+          if (( loop_iter == 0 )); then
+            json_open_obj
+            (( loop_iter++ ))
+          else
+            json_append_obj
+          fi
+          json_str file_name "$(get_file_name "${fsobj}")"
+          get_stat_gnu "${fsobj}" || get_stat_bsd "${fsobj}"
+          json_append_str file_type_simple "$(get_file_type "${fsobj}")"
+          if [[ "${checksum}" = "true" ]]; then
+            json_append_str checksum "$(get_file_checksum "${fsobj}" 2>/dev/null)"
+          fi
+        done
+      #   # Read in a formatted sequence from 'stat' and assign to our vars
+      #   while read -r line; do
+      #   loop_iter=0
+      #     case "${line}" in
+      #       ("file_name"*)
+      #         if (( loop_iter == 0 )); then
+      #           json_open_obj
+      #           (( loop_iter++ ))
+      #         else
+      #           json_append_obj
+      #         fi
+      #         set -- ${line}
+      #         export name="$(json_sanitise "${*:2}")"
+      #         printf -- '{%s' "${1} \"${name}\""
+      #       ;;
+      #       ("file_mode"*)
+      #         set -- ${line}
+      #         printf -- ', %s' "${1} ${2#"${2%???}"}"
+      #       ;;
+      #       ("dereference"*)
+      #         set -- '${line}'
+      #         link="$(json_sanitise "${*:2}")"
+      #         printf -- ', %s' "${1} \"${link}\""
+      #         file_type="$(file "${name}" | awk -F ': ' '{print $2}')"
+      #         file_type="$(json_sanitise "${file_type}")"
+
+      #         json_append_str file_type "${file_type}"
+      #         json_append_str file_type_simple "$(get_file_type "${name}")"
+      #         #if [[ "${checksum}" = "true" ]]; then
+      #           json_append_str checksum "$(get_file_checksum "${name}" 2>/dev/null)"
+      #         #fi
+      #         echo test
+      #       ;;
+      #       ('') : ;;
+      #       (*)
+      #         printf -- ', %s' "${line}"
+      #       ;;
+      #     esac
+      #   done < <(get_stat_gnu "${1:-$PWD}" || get_stat_bsd "${1:-$PWD}")
+      json_close_obj
+    json_close_arr
+  json_close
+)
+

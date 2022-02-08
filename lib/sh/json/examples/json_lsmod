@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# A simple demonstration of 'lsmod' with json output
+
+# A simple aesthetic function to give another name for '.'
+# shellcheck disable=SC1090
+include() { . "${1}" || exit 1; }
+
+include ../lib/jsonprint.sh
+
+# We require the 'lsmod' command, obviously
+json_require lsmod
+
+# A function to remove leading lines
+text_behead() {
+  awk -v head="${1:-1}" '{if (NR>head) {print}}'
+}
+
+# Remove the header from 'lsmod' and store within an array
+mapfile -t lsmod_raw < <(lsmod | text_behead 1)
+
+# Setup our counters
+loop_iter=0
+element_count="${#lsmod_raw[@]}"
+
+json_open
+  json_open_arr lsmod
+    json_open_obj
+    for element in "${lsmod_raw[@]}"; do
+      # shellcheck disable=SC2086
+      set -- ${element}
+      json_str Module "${1}"
+      json_append_num Size "${2}"
+      json_append_num Used_Count "${3}"
+      json_append_str Used_by "${4}"
+      # Iterate the loop counter up by one  
+      (( loop_iter++ ))
+      # While we have less objects than array elements, keep appending
+      if (( loop_iter < element_count )); then
+        json_append_obj
+      else
+        json_close_obj
+      fi
+    done
+  json_close_arr
+json_close
