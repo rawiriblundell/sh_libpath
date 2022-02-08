@@ -17,35 +17,10 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-# Overlay the 'date' command with ordinal suffixes
-# This adds a new specier '%o' which would typically be coupled with '%d'
-# Example:
-# $ date '+%B %-d'
-# February 8
-# $ date '+%B %-d%o'
-# February 8th
-date() {
-  case "$@" in
-    (*"%o"*) 
-      declare -a args1
-      declare -a args2
-      while [[ -n "$1" ]]; do
-        args2+=("$1")
-        if [[ "${1:0:1}" != + ]]; then
-          args1+=("$1")
-        fi
-        shift
-      done
-      case $(command date +%d "${args1[@]}") in
-        (01|21|31) dSfx="st";;
-        (02|22)    dSfx="nd";;
-        (03|23)    dSfx="rd";;
-        (*)        dSfx="th";;
-      esac
-      command date "${args2[@]}" | sed -e "s/%o/${dSfx}/g"
-    ;;
-    (*)
-      command date "$@"
-    ;;
-  esac
+swaphogs() {
+  {
+    for file in /proc/*/status ; do
+      awk '/VmSwap|Name/{printf $2 " " $3}END{ print ""}' "${file}" 2>/dev/null
+    done
+  } | grep " kB$" | sort -k 2 -n | column -t
 }
