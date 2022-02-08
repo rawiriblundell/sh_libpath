@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# A demonstration of '/proc/vmstat' with json output
+
+# A simple aesthetic function to give another name for '.'
+# shellcheck disable=SC1090
+include() { . "${1}" || exit 1; }
+
+include ../lib/jsonprint.sh
+
+json_require /proc/vmstat
+
+json_open
+  json_readloop --name /proc/vmstat /proc/vmstat
+  json_timestamp
+json_close

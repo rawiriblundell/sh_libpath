@@ -1,0 +1,35 @@
+#!/bin/bash
+# shellcheck disable=SC2086
+
+# A demonstration of 'du' with json output
+
+# A simple aesthetic function to give another name for '.'
+# shellcheck disable=SC1090
+include() { . "${1}" || exit 1; }
+
+include ../lib/jsonprint.sh
+
+# We require the 'find' and 'du' commands for this to work
+json_require find du
+
+target_dir="${1:-.}"
+
+(
+  cd "${target_dir}" || json_vorhees "Could not access ${target_dir}"
+  json_open
+    json_open_arr du_"${PWD:-$(pwd)}"
+      loop_iter=0
+      while read -r size name; do
+        if (( loop_iter == 0 )); then
+          json_open_obj
+          (( loop_iter++ ))
+        else
+          json_append_obj
+        fi
+        json_str size "${size}"
+        json_append_str name "${PWD:-$(pwd)}/${name##*/}"
+      done < <(find . \( -name . -o -prune \) -type f -exec du -h {} \;)
+      json_close_obj
+    json_close_arr
+  json_close
+)

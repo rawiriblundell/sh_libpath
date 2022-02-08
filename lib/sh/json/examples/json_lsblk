@@ -1,0 +1,94 @@
+#!/bin/bash
+
+# A simple demonstration of 'lsblk' with json output
+
+# A simple aesthetic function to give another name for '.'
+# shellcheck disable=SC1090
+include() { . "${1}" || exit 1; }
+
+include ../lib/jsonprint.sh
+
+# We require the 'lsblk' command, obviously
+json_require lsblk
+
+# If we have a version of 'lsblk' that natively supports json output, use it
+if lsblk -J >/dev/null 2>&1; then
+  lsblk -J
+  exit 0
+fi
+
+# Otherwise, we try to build the same output ourselves.
+# We start by defining the functions that we need
+
+# This function generates a list of children (i.e. partitions)
+# for a given disk, so that we can loop over them
+get_dev_children() {
+  lsblk -npl -o NAME,TYPE "${1:?}" | awk '{if(!($2=="disk")) print $1}'
+}
+
+# This function generates a list of disks that we can loop over
+get_disk_list() {
+  lsblk -npl -o NAME,TYPE | awk '{if($2=="disk")print $1}'
+}
+
+# This function ensures we return details for a disk only
+get_disk_info() {
+  lsblk -n -l -o NAME,MAJ:MIN,RM,SIZE,RO,TYPE,MOUNTPOINT "${1:?}" | 
+    awk '{if($6=="disk") print}'
+}
+
+# This function returns details for a partition only if given
+# It will also return detail for a disk and all its children partitions
+# You know, if you wanted to use it that way
+get_part_info() {
+  lsblk -n -l -o NAME,MAJ:MIN,RM,SIZE,RO,TYPE,MOUNTPOINT "${1:?}"
+}
+
+# We pipe get_[disk|part]_info() into this function which formats
+# the input into our desired json structure
+format_blk_info() {
+  while read -r name majmin rm size ro type mountpoint; do
+    json_str name "${name}"
+    json_append_str "maj:min" "${majmin}"
+    json_append_str rm "${rm}"
+    json_append_str size "${size}"
+    json_append_str ro "${ro}"
+    json_append_str type "${type}"
+    json_append_str mountpoint "${mountpoint}"
+  done
+}
+
+json_open
+  json_open_arr blockdevices
+    disk_iter_count=0
+    for disk in $(get_disk_list); do
+      if (( disk_iter_count == 0 )); then
+        json_open_obj
+      else
+        json_append_obj
+      fi
+        get_disk_info "${disk}" | format_blk_info
+        json_comma
+        json_open_arr children
+          part_iter_count=0
+          # If child count is 0, close the array immediately
+          child_count=$(get_dev_children "${disk}" | grep -c .)
+          if (( child_count == 0 )); then
+            json_close_arr
+          else
+            for part in $(get_dev_children "${disk}"); do
+              if (( part_iter_count == 0 )); then
+                json_open_obj
+                (( part_iter_count++ ))
+              else
+                json_append_obj
+              fi
+              get_part_info "${part}" | format_blk_info
+            done
+            json_close_obj
+          fi
+        json_close_arr
+      done
+    json_close_obj
+  json_close_arr
+json_close

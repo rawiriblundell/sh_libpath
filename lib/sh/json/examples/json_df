@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# A simple demonstration of 'df' with json output
+
+# A simple aesthetic function to give another name for '.'
+# shellcheck disable=SC1090
+include() { . "${1}" || exit 1; }
+
+include ../lib/jsonprint.sh
+
+# A function to remove leading lines
+text_behead() {
+  awk -v head="${1:-1}" '{if (NR>head) {print}}'
+}
+
+# Absorb our output into an array
+# We structure it like this to ensure that the header is first
+# And the rest of the output is sorted based on filesystem name
+mapfile -t df_output < <(df -kP | head -n 1 && df -kP | text_behead 1 | sort)
+
+# We get a count of lines to work through, subtracting one
+# to cater for the existence of the 'df' header in the array
+line_count=$(( ${#df_output[@]} - 1 ))
+
+# Grab the header and assign each column title to a variable
+# shellcheck disable=SC2086
+set -- ${df_output[0]}
+head1="${1}"  # Usually 'Filesystem'
+head2="${2}"  # Usually '1024-blocks'
+head3="${3}"  # Usually 'Used'
+head4="${4}"  # Usually 'Available'
+head5="${5}"  # Usually 'Capacity'
+shift 5
+head6="${*}"  # Usually 'Mounted on'
+
+# If we get to this point, let's start building our JSON output
+json_open
+  json_open_arr "disk space usage"
+    json_open_obj
+      for (( i=1;i<line_count;i++ )); do
+        # shellcheck disable=SC2086
+        set -- ${df_output[i]}
+
+        json_str "${head1}" "${1:-null}"
+        json_append_num "${head2}" "${2:-null}"
+        json_append_num "${head3}" "${3:-null}"
+        json_append_num "${head4}" "${4:-null}"
+        json_append_num "${head5} (%)" "${5%\%}"
+        json_append_str "${head6}" "${6:-null}"
+        (( (i+1) < line_count )) && json_append_obj
+      done
+    json_close_obj
+  json_close_arr
+json_close

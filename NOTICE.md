@@ -24,10 +24,11 @@ permitted.
 ## Attributions
 
 - Crytography section, NOTICE.md.  https://github.com/eclipse/ditto-examples/blob/master/legal/NOTICE.md
+- jsonprint.sh, MIT License (c) 2020 Rawiri Blundell https://github.com/rawiriblundell/jsonprint
 
 ## MIT License
 
-```
+```bash
 MIT License
 
 Copyright (c) [YEAR] [AUTHOR]
@@ -53,7 +54,7 @@ SOFTWARE.
 
 ## Apache License 2.0
 
-```
+```bash
                                  Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/

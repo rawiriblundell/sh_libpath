@@ -18,14 +18,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Overlay the 'date' command with ordinal suffixes
-# This adds a new specier '%o' which would typically be coupled with '%d'
+# This adds a new specifier '%o' which would typically be coupled with '%d'
 # Example:
 # $ date '+%B %-d'
 # February 8
 # $ date '+%B %-d%o'
 # February 8th
 date() {
-  case "$@" in
+  case "${@}" in
     (*"%o"*) 
       declare -a args1
       declare -a args2
@@ -37,15 +37,16 @@ date() {
         shift
       done
       case $(command date +%d "${args1[@]}") in
-        (01|21|31) dSfx="st";;
-        (02|22)    dSfx="nd";;
-        (03|23)    dSfx="rd";;
-        (*)        dSfx="th";;
+        (01|21|31) _date_suffix="st";;
+        (02|22)    _date_suffix="nd";;
+        (03|23)    _date_suffix="rd";;
+        (*)        _date_suffix="th";;
       esac
-      command date "${args2[@]}" | sed -e "s/%o/${dSfx}/g"
+      command date "${args2[@]}" | sed -e "s/%o/${_date_suffix}/g"
     ;;
     (*)
-      command date "$@"
+      command date "${@}"
     ;;
   esac
+  unset -v _date_suffix
 }
