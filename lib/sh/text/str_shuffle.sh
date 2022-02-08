@@ -21,19 +21,17 @@
 # This uses a Knuth-Fisher-Yates shuffle method... kinda.
 # Note: This does not produce cryptographically secure random strings!
 str_shuffle() {
-  # We require RANDOM, any shell that we come across should have it
-  # But we check for it, just in case...
-  if (( "${RANDOM:-1}${RANDOM:-1}" == "${RANDOM:-1}${RANDOM:-1}" )); then
-    printf -- 'str_shuffle: %s\n' "No randomness found"
-    return 1
-  fi
-
   # Ensure that our dependencies are present
   for _str_shuffle_dep in fold paste; do
     if ! command -v "${_str_shuffle_dep}" >/dev/null 2>&1; then
       _str_shuffle_missing="${_str_shuffle_missing},${_str_shuffle_dep}"
     fi
   done
+  # We require RANDOM, any shell that we come across should have it
+  # But we check for it, just in case...
+  if (( "${RANDOM:-1}${RANDOM:-1}" == "${RANDOM:-1}${RANDOM:-1}" )); then
+    _str_shuffle_missing="${_str_shuffle_missing},RANDOM shell function"
+  fi
   if (( "${#_str_shuffle_missing}" > 0 )); then
     printf -- 'str_shuffle: %s\n' "The following requirements were not found in PATH" >&2
     printf -- '%s\n' "${_str_shuffle_missing/,/}" >&2
