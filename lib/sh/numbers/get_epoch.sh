@@ -33,6 +33,26 @@ elif command -v perl >/dev/null 2>&1; then
     get_epoch() { perl -e 'print($^T."\n");'; }
     # Alternative: get_epoch() { perl -e 'print time."\n";'; }
 else
+
+
+# Calculate how many seconds since epoch
+# Portable version based on http://www.etalabs.net/sh_tricks.html
+# We strip leading 0's in order to prevent unwanted octal math
+# This seems terse, but the vars are the same as their 'date' formats
+# get_epoch() {
+#   local y j h m s yo
+
+# # POSIX portable way to assign all our vars
+# IFS=: read -r y j h m s <<-EOF
+# $(date -u +%Y:%j:%H:%M:%S)
+# EOF
+
+#   # yo = year offset
+#   yo=$(( y - 1600 ))
+#   y=$(( (yo * 365 + yo / 4 - yo / 100 + yo / 400 + $(( 10#$j )) - 135140) * 86400 ))
+
+#   printf -- '%s\n' "$(( y + ($(( 10#$h )) * 3600) + ($(( 10#$m )) * 60) + $(( 10#$s )) ))"
+
     # TODO: I have a raw shell approach for this somewhere...
     printf -- 'get_epoch: %s\n' "A suitable method could not be found" >&2
     exit 1
