@@ -26,7 +26,7 @@ permitted.
 - Crytography section, NOTICE.md.  https://github.com/eclipse/ditto-examples/blob/master/legal/NOTICE.md
 - jsonprint.sh, MIT License (c) 2020 Rawiri Blundell https://github.com/rawiriblundell/jsonprint
 - color.sh, MIT License (c) 2020 Ivan https://github.com/vaniacer/bash_color
-- bashmenot, BSD 3-Clause License (c) 2014-2015, Mitek Bak https://github.com/mietek/bashmenot/
+- bashmenot, BSD 3-Clause License (c) 2014-2015, Miëtek Bak https://github.com/mietek/bashmenot/
 
 ## BSD 3-Clause License
 

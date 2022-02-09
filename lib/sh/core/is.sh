@@ -50,7 +50,12 @@ is() {
     ;;
     (number|float)
       echo "${_var_a}" | grep -E '^[-+]?[0-9]+\.[0-9]*$'; return "${?}" ;;
-    (int|integer)   [ "${_var_a}" -eq "${_var_a}" ]; return "${?}" ;;
+    (int|integer)
+      case "${1#[-+]}" in 
+        (''|*[!0-9]*) return 1 ;;
+      esac
+      return 0
+    ;;
     (substr|substring)
       case "${_var_a}" in
         (*"${_var_b}"*)  return 0 ;;
@@ -71,4 +76,53 @@ is() {
     ;;
   esac > /dev/null 2>&1
   return 1
+}
+
+# Test if a given item is a function and emit a return code
+is_function() {
+  [[ $(type -t "${1:-grobblegobble}") = function ]]
+}
+
+# Are we within a directory that's tracked by git?
+is_gitdir() {
+  if [[ -e .git ]]; then
+    return 0
+  else
+    git rev-parse --git-dir 2>&1 | grep -Eq '^.git|/.git'
+  fi
+}
+
+# Test if a given value is an integer
+# To ensure that we fail on floats (i.e. in ksh),
+# we ensure that one side of the test is an int
+is_integer() {
+  [ "${1%%.*}" -eq "${1}" ] 2>/dev/null
+}
+
+# Test if a given value is a global var, local var (default) or array
+is_set() {
+  case "${1}" in
+    (-a|-array)
+      declare -p "${2}" 2>/dev/null | grep -- "-a ${2}=" >/dev/null 2>&1
+      return "${?}"
+    ;;
+    (-g|-global)
+      export -p | grep "declare -x ${2}=" >/dev/null 2>&1
+      return "${?}"
+    ;;
+    (-h|--help|"")
+      printf -- '%s\n' "Function to test whether NAME is declared" \
+        "Usage: is_set [-a(rray)|-l(ocal var)|-g(lobal var)|-h(elp)] NAME" \
+        "If no option is supplied, NAME is tested as a local var"
+      return 0
+    ;;
+    (-l|-local)
+      declare -p "${2}" 2>/dev/null | grep -- "-- ${2}=" >/dev/null 2>&1
+      return "${?}"
+    ;;
+    (*)
+      declare -p "${1}" 2>/dev/null | grep -- "-- ${1}=" >/dev/null 2>&1
+      return "${?}"
+    ;;
+  esac
 }

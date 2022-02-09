@@ -57,3 +57,8 @@ else
     printf -- 'get_epoch: %s\n' "A suitable method could not be found" >&2
     exit 1
 fi
+
+# Calculate how many days since epoch
+epochdays() {
+  printf -- '%s\n' "$(( $(epoch) / 86400 ))"
+}
