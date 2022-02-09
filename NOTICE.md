@@ -8,7 +8,7 @@ All content is the property of the respective authors or their employers.  Every
 
 The software provided by this project is released under the Apache License 2.0, which has a Redistribution clause that protects third party code.
 
-A copy of the MIT License and the Apache License 2.0 are at the bottom of this document for reference.
+Copies of the licenses that cover all of the included source code are at the bottom of this document for reference.
 
 If you find code in this repository that you feel violates copyright, be it your copyright or anybody elses, please notify the authors in the first instance.  We respect the copyrights of others and their license choices, and if we're in error in any way, we want to rectify that immediately.
 
@@ -26,6 +26,41 @@ permitted.
 - Crytography section, NOTICE.md.  https://github.com/eclipse/ditto-examples/blob/master/legal/NOTICE.md
 - jsonprint.sh, MIT License (c) 2020 Rawiri Blundell https://github.com/rawiriblundell/jsonprint
 - color.sh, MIT License (c) 2020 Ivan https://github.com/vaniacer/bash_color
+- bashmenot, BSD 3-Clause License (c) 2014-2015, Mitek Bak https://github.com/mietek/bashmenot/
+
+## BSD 3-Clause License
+
+```bash
+BSD 3-Clause License
+
+Copyright (c) [YEAR] [AUTHOR]
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of the copyright holder nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+```
 
 ## MIT License
 
