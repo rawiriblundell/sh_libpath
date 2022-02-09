@@ -46,3 +46,52 @@ hr() {
 
   unset -v _hr_width
 }
+
+# Map out some block characters
+# shellcheck disable=SC2034
+block100="\xe2\x96\x88"  # u2588\0xe2 0x96 0x88 Solid Block 100%
+block75="\xe2\x96\x93"   # u2593\0xe2 0x96 0x93 Dark shade 75%
+block50="\xe2\x96\x92"   # u2592\0xe2 0x96 0x92 Half shade 50%
+block25="\xe2\x96\x91"   # u2591\0xe2 0x96 0x91 Light shade 25%
+
+# Put those block characters in ascending and descending triplets
+blockAsc="$(printf -- '%b\n' "${block25}${block50}${block75}")"
+blockDwn="$(printf -- '%b\n' "${block75}${block50}${block25}")"
+
+
+# Source: https://gist.github.com/hypergig/ea6a60469ab4075b2310b56fa27bae55
+# Define an array of color numbers for the colors that are hardest to see on
+# either a black or white terminal background
+BLOCKED_COLORS=(0 1 7 9 11 {15..18} {154..161} {190..197} {226..235} {250..255})
+
+# Define another array that is an inversion of the above
+mapfile -t ALLOWED_COLORS < <(printf -- '%d\n' {0..255} "${BLOCKED_COLORS[@]}" | sort -n | uniq -u)
+
+
+# A function to generate a random color code using the above arrays
+_select_random_color() {
+  local color
+  # Define our initial color code
+  color=$(( RANDOM % 255 ))
+  # Ensure that our color code is an allowed one.  If not, regenerate until it is.
+  until printf -- '%d\n' "${ALLOWED_COLORS[@]}" | grep -xq "${color}"; do
+    color=$(( RANDOM % 255 ))
+  done
+  # Emit our selected color number
+  printf -- '%d\n' "${color}"
+}
+
+hrps1(){
+  local color width
+  # Figure out the width of the terminal window
+  width="$(( "${COLUMNS:-$(tput cols)}" - 6 ))"
+  # Define our initial color code
+  color="$(_select_random_color)"
+  tput setaf "${color}"               # Set our color
+  printf -- '%s' "${blockAsc}"        # Print the ascending block sequence
+  for (( i=1; i<=width; ++i )); do    # Fill the gap with hard blocks
+    printf -- '%b' "${block100}"
+  done
+  printf -- '%s\n' "${blockDwn}"      # Print our descending block sequence
+  tput sgr0                           # Unset our color
+}

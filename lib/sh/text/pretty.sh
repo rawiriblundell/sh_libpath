@@ -17,9 +17,30 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-#TODO: Build in anti-collision code that I have elsewhere
+# Source: https://gist.github.com/hypergig/ea6a60469ab4075b2310b56fa27bae55
+# Define an array of color numbers for the colors that are hardest to see on
+# either a black or white terminal background
+_pretty_blocked_colors=(0 1 7 9 11 {15..18} {154..161} {190..197} {226..235} {250..255})
+
+# Define another array that is an inversion of the above
+mapfile -t _pretty_allowed_colors < <(printf -- '%d\n' {0..255} "${_pretty_blocked_colors[@]}" | sort -n | uniq -u)
+
+# A function to generate a random color code using the above arrays
+_pretty_select_random_color() {
+  # Define our initial color code
+  _pretty_color=$(( RANDOM % 255 ))
+  # Ensure that our color code is an allowed one.  If not, regenerate until it is.
+  until printf -- '%d\n' "${_pretty_allowed_colors[@]}" | grep -xq "${_pretty_color}"; do
+    _pretty_color=$(( RANDOM % 255 ))
+  done
+  # Emit our selected color number
+  printf -- '%d\n' "${_pretty_color}"
+  unset -v _pretty_color
+}
+
+# Randomize text color for every fed line
 pretty () {
   while read -r; do
-    printf "\033[38;5;%dm%s\033[0m\n" $(($RANDOM%255)) "${REPLY}";
+    printf "\033[38;5;%dm%s\033[0m\n" $(_pretty_select_random_color) "${REPLY}"
   done
 }
