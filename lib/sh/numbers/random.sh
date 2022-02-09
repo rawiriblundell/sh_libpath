@@ -75,10 +75,10 @@ random_xorshift128plus() {
     nCount="${1:-1}"
     nMin="${2:-1}"
     seed0=4          # RFC 1149.5
-    seed1="${4:-$(Fn_getSeed)}"
+    seed1="${4:-$(random_Seed)}"
 
     # Figure out our default maxRand, using 'getconf'
-    case "$(getconf LONG_BIT)" in
+    case "$(getconf LONG_BIT 2>/dev/null)" in
         (64)
             # 2^63-1
             maxRand=9223372036854775807
@@ -123,4 +123,27 @@ random_xorshift128plus() {
         fi
     
     done 
+}
+
+# Get a number of random integers using $RANDOM with debiased modulo
+randInt() {
+  local nCount nMin nMax nMod randThres i xInt
+  nCount="${1:-1}"
+  nMin="${2:-1}"
+  nMax="${3:-32767}"
+  nMod=$(( nMax - nMin + 1 ))
+  if (( nMod == 0 )); then return 3; fi
+  # De-bias the modulo as best as possible
+  randThres=$(( -(32768 - nMod) % nMod ))
+  if (( randThres < 0 )); then
+    (( randThres = randThres * -1 ))
+  fi
+  i=0
+  while (( i < nCount )); do
+    xInt="${RANDOM}"
+    if (( xInt > ${randThres:-0} )); then
+      printf -- '%d\n' "$(( xInt % nMod + nMin ))"
+      (( i++ ))
+    fi
+  done
 }

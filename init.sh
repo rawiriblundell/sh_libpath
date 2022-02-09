@@ -105,7 +105,7 @@ requires() {
     return 0
   # Otherwise, we error out and exit immediately
   else
-    printf -- '%s\n' "The following requirements were not met" "${_failures}" >&2
+    printf -- '%s\n' "The following requirements were not met:" "${_failures}" >&2
     unset -v _item _failures _target_lib _bashver
     exit 1
   fi
