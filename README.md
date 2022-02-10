@@ -190,3 +190,9 @@ In no particular order...
 
 * https://github.com/zsh-users/antigen
 * https://github.com/zsh-users
+
+## Want to take it to the next level?
+
+* https://github.com/modernish/modernish
+* http://www.oilshell.org/
+* https://ngs-lang.org/

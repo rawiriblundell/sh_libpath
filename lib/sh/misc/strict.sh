@@ -17,23 +17,26 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-cer_to_crt() {
-    _cer_to_crt_in="${1}"
-    _cer_to_crt_out="${2}"
+################################################################################
+# Please read CONTRIBUTING and research the Unofficial Strict Mode's flaws
 
-    if (( "${#_cer_to_crt_in}" == 0 )); then
-        printf -- 'cer_to_crt: %s\n' "No input file provided" >&2
-        return 1
-    fi
+# Enable Unofficial Strict Mode
+strict_euopipefail() {
+  set -o errexit
+  set -o nounset
+  set -o pipefail
+}
 
-    if (( "${#_cer_to_crt_out}" == 0 )); then
-        _cer_to_crt_out="${_cer_to_crt_out%.*}"
-        _cer_to_crt_out="${_cer_to_crt_out}.crt"
-    fi
+# Set IFS to '\t\n'
+strict_nowhitesplitting() {
+  IFS='\t\n'
+}
 
-    grep "TRUSTED" "${_cer_to_crt_in}" >/dev/null 2>&1 || _cer_to_crt_enctype="DER"
-
-    openssl x509 -inform "${_cer_to_crt_enctype:-PEM}" -in "${_cer_to_crt_in}" -out "${_cer_to_crt_out}" 2>/dev/null
-
-    unset -v _cer_to_crt_in _cer_to_crt_out _cer_to_crt_enctype
+# modernish-style 'safe' mode
+# https://github.com/modernish/modernish/blob/master/lib/modernish/mdl/safe.mm
+safe() {
+  IFS=''
+  set -o noglob
+  set -o nounset
+  set -o noclobber
 }

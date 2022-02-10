@@ -4,13 +4,13 @@ This project is produced and maintained by the SH_LIBPATH authors.  This softwar
 
 ## Copyright
 
-All content is the property of the respective authors or their employers.  Every attempt will be made to track third party code and licences in the Attributions section of this document.
+All content is the property of the respective authors or their employers.  Every attempt will be made in good faith to track third party code and licences in the Attributions section of this document.
 
-The software provided by this project is released under the Apache License 2.0, which has a Redistribution clause that protects third party code.
+The software directly provided by this project is released under the Apache License 2.0, which has a Redistribution clause that protects third party code.
 
 Copies of the licenses that cover all of the included source code are at the bottom of this document for reference.
 
-If you find code in this repository that you feel violates copyright, be it your copyright or anybody elses, please notify the authors in the first instance.  We respect the copyrights of others and their license choices, and if we're in error in any way, we want to rectify that immediately.
+If you find code in this repository that you feel violates copyright, be it your copyright or anybody elses, please notify the authors in the first instance, preferably in a non-confrontational way.  Like you would communicate with a friend or colleague.  We respect the copyrights of others and their license choices, and if we're in error in any way, we want to rectify that immediately.
 
 ## Cryptography
 
@@ -23,10 +23,11 @@ permitted.
 
 ## Attributions
 
-- Crytography section, NOTICE.md.  https://github.com/eclipse/ditto-examples/blob/master/legal/NOTICE.md
+- Cryptography section, NOTICE.md.  https://github.com/eclipse/ditto-examples/blob/master/legal/NOTICE.md
 - jsonprint.sh, MIT License (c) 2020 Rawiri Blundell https://github.com/rawiriblundell/jsonprint
 - color.sh, MIT License (c) 2020 Ivan https://github.com/vaniacer/bash_color
-- bashmenot, BSD 3-Clause License (c) 2014-2015, Miëtek Bak https://github.com/mietek/bashmenot/
+- various libraries as indicated in their headers, bashmenot, BSD 3-Clause License (c) 2014-2015, Miëtek Bak https://github.com/mietek/bashmenot/
+- various ideas as indicated by code comments, modernish, ISC License 2015-2021 Martijn Dekker <martijn@inlv.org> https://github.com/modernish/modernish
 
 ## BSD 3-Clause License
 
@@ -60,6 +61,24 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+```
+
+## ISC License
+
+```bash
+Copyright (c) [YEAR] [AUTHOR]
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 ```
 
 ## MIT License
