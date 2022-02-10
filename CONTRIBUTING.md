@@ -4,19 +4,40 @@ Contributions are welcome!
 
 ## License
 
-Any contributed code that is accepted into this repo will be published under the same license as the repo i.e. Apache 2.0 License.
+Any contributed code that is accepted into this repo will be published under the same license as the repo i.e. Apache 2.0 License, unless you choose to submit it under a compatible license like MIT.
 
-I realise that some people might have issues with this.  If you're contributing modules or functions that aren't already covered, consider instead hosting them on your own github repo and adding them to the install manifest.
+I realise that some people might have issues with this.  If you're contributing modules or functions that aren't already covered, and you want to use a different license that you don't feel is compatible, consider instead hosting them on your own github repo and sending me a link.  I'll find somewhere to share it here and promote it.
+
+| :pushpin: It might be nice in the future to have a very simple library fetch mechanism.  This would grab a simple manifest file from this repo, maybe perform some simple tasks based on the manifest, but ultimately its purpose would be to fetch any non-core libraries and place them into `SH_LIBPATH`.  What to call it though?  Something like `pip`?  How about... Shell Library Into Place or `slip`? |
+| --- |
 
 Whichever way you go, please do declare a FOSS license, otherwise potentially restrictive and messy Copyright rules apply by default.
 
 ### License Header
 
-At the start of your files, please include the contents of [license_header](license_header)
+If you wish to contribute code under a compatible license, please include a license header in your file(s) and update [NOTICE](notice.md).  IF you wish to defer to the project's license, please include the contents of [license_header](license_header) at the top of your file(s).
 
 ## Third party code
 
-Any code imported from another project must be using a compatible license such as MIT.  Attribution will be given and tracked in [NOTICE](NOTICE.md).
+Any code imported from another project or site must be using a compatible license such as MIT.  Attribution will be given and tracked in [NOTICE](NOTICE.md).
+
+### Code copied from websites
+
+Code that is published on a website is almost always the copyright of its author, or the website owner, depending on the site's terms and conditions.  Copyright is also automatic from the moment a work is created.  Blindly copying and pasting code is, therefore, a copyright violation.
+
+Please do not copy code from websites unless they have an explicit license statement detailing a compatible license, OR, you have express written permission from the copyright holder to re-use their code in a way that is compatible with, or directly under, the terms of a compatible license.
+
+Some reference terms and conditions:
+
+* https://www.ycombinator.com/legal/ (search for the word "copyright")
+* https://www.redditinc.com/policies/user-agreement-september-12-2021 (Section 05 "Your Content")
+* https://slashdotmedia.com/terms-of-use/ (End of Section 6 and all of Section 7)
+* https://docs.github.com/en/github/site-policy/github-terms-of-service#d-user-generated-content
+* https://stackoverflow.com/help/licensing (Nice and simple)
+
+See, also: https://tosdr.org/
+
+Simply emailing the author of a copyrighted material, introducing yourself, explaining your desired usage of their material, and asking them politely to consider a FOSS/OSI license will often result in positive reciprocation.
 
 ## Code of Conduct
 
@@ -44,9 +65,20 @@ Please look at some of the other code and try to be consistent with it.
 
 ### Portability
 
-This project will try to code on the more portable side.  Perhaps not strictly portable, but at least in a way that it can be refactored up or down the portability scale.
+This project will try to code on the more portable side.  Perhaps not strictly portable, but at least in a way that it can be refactored up or down the portability scale as/when required.
 
 Fundamentally: POSIX plus named arrays as a minimum.
+
+### Compartmentalisation
+
+I was just looking for an excuse to use that word.
+
+One of the flaws - I think - with some of the other shell library projects, is that they get bogged down with too much re-use.  And so you get library upon library upon library dependant on one-another.  For example, one function supplied by this project is `write()`, which fixes the mess of `echo` and the verbosity of `printf` for everyday use.  You'd think that such a function would be re-used throughout other library files, and you'd be wrong.
+
+This practise should be heavily discouraged.
+
+Each library file should be as self-contained as possible, and should not require the inclusion of any other library.  This ultimately keeps the end-user interface simple, it ultimately keeps the core functions of `import()` and `from()` simple, it improves code re-use and derivative works, and it doesn't bog the codebase down with frustrating and highly obnoxious namespacing.
+
 
 ### Scoping variables
 
@@ -94,16 +126,6 @@ Now don't get me wrong: I recognise and genuinely like the *intent* behind the U
 
 And if you look at the original blogpost describing it, note that more than half of the page is dedicated to documenting workarounds for its flaws.
 
-A number of other library/framework/module projects use and advocate for it.  I won't do that because it's counter to my goals.
+A number of other library/framework/module projects use and advocate for it.  This project will not do that.
 
-I will provide it, however, via something like:
-
-```bash
-import strict.sh
-
-# Enable Unofficial Strict Mode
-strict_euopipefail
-
-# Set IFS to '\t\n'
-strict_nowhitesplitting
-```
+This project will provide the capability, however, via a library named `strict.sh`.
