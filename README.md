@@ -2,6 +2,9 @@
 
 Making shell scripts more robust with libraries
 
+| :warning: WARNING: This code is very very pre-alpha.  I'm currently just dumping in a bunch of functions from my code attic.  You're welcome to test, give feedback and contribute, but please don't use this for anything close to production! |
+| --- |
+
 ## TL;DR
 
 ```bash
