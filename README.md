@@ -5,7 +5,7 @@ Making shell scripts more robust with libraries
 | :warning: WARNING: This code is very very pre-alpha.  I'm currently just dumping in a bunch of functions from my code attic.  You're welcome to test, give feedback and contribute, but please don't use this for anything close to production! |
 | --- |
 
-## TL;DR
+## TL;DR?
 
 ```bash
 #!/usr/bin/env bash
@@ -22,7 +22,9 @@ requires BASH51 git jq osstr=Linux
 wants /opt/secrets/squirrels.conf
 ```
 
-## Enhance
+## OK... More information?
+
+![Supertroopers!  Enhance!](https://media2.giphy.com/media/3ohc14lCEdXHSpnnSU/giphy.gif)
 
 This project proposes adding a library ecosystem to shell scripts.
 
