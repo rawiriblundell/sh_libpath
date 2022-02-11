@@ -17,9 +17,4 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-# Wrap long comma separated lists by element count (default: 8 elements)
-csvwrap() {
-  export splitCount="${1:-8}"
-  perl -pe 's{,}{++$n % $ENV{splitCount} ? $& : ",\\\n"}ge'
-  unset -v splitCount
-}
+# TODO: Find the nth instance of $char within $string

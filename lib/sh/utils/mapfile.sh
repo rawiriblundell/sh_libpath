@@ -75,6 +75,7 @@ fi
 # # Potentially useful resources: 
 # # http://cfajohnson.com/shell/arrays/
 # # https://stackoverflow.com/a/32931403
+# # https://stackoverflow.com/a/64793921
 
 # # Known issue: No traps!  This means IFS might be left altered if 
 # # the function is cancelled or fails in some way

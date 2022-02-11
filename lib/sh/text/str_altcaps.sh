@@ -49,24 +49,26 @@ _str_altcaps_uppercase(){
     esac
 }
 
-# TODO: Get spaces working
 str_altcaps() {
-    if (( "${#}" == 0 )); then
-        read -r _str_altcaps_line
-        # shellcheck disable=SC2086
-        set -- ${_str_altcaps_line}
-    fi
-    _str_altcaps_charcount=0
-
+    _str_altcaps_lastswitch=lower
+    _str_altcaps_count=0
     for _str_altcaps_word in "${@}"; do
         for _str_altcaps_char in $(printf -- '%s\n' "${_str_altcaps_word}" | fold -w 1); do
-            _str_altcaps_charcount=$(( _str_altcaps_charcount + 1 ))
-            case "${_str_altcaps_charcount}" in
-                ([13579]|*[13579]) _str_altcaps_lowercase "${_str_altcaps_char}" ;;
-                ([02468]|*[02468]) _str_altcaps_uppercase "${_str_altcaps_char}" ;;
+            case "${_str_altcaps_lastswitch}" in
+                (lower)
+                    _str_altcaps_uppercase "${_str_altcaps_char}"
+                    _str_altcaps_lastswitch=upper
+                ;;
+                (upper)
+                    _str_altcaps_lowercase "${_str_altcaps_char}"
+                    _str_altcaps_lastswitch=lower
+                ;;
             esac
         done
+        _str_altcaps_count=$(( _str_altcaps_count + 1 ))
+        (( _str_altcaps_count != "${#}" )) && printf -- '%s' " "
     done
+
     printf -- '%s\n' ""
-    unset -v _str_altcaps_line _str_altcaps_charcount _str_altcaps_char
+    unset -v _str_altcaps_lastswitch _str_altcaps_count _str_altcaps_word _str_altcaps_char
 }

@@ -88,6 +88,8 @@ As much as I'd love to use this, [it's a mess out there](https://unix.stackexcha
 
 So instead of using `local`, the preference will be to pseudoscope.
 
+`RETVAL` variable
+
 ## The Unofficial Strict Mode
 
 There is a lot of advice on the internet to "always use The Unofficial Strict Mode."
