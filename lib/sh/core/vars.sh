@@ -17,7 +17,7 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-# Set these helper functions early so that they can assist with init
+# Set these variable helper functions
 var_is_set() { [ "${1+x}" = "x" ] && [ "${#1}" -gt "0" ]; }     # set and not null
 var_is_unset() { [ -z "${1+x}" ]; }                             # unset
 var_is_empty() { [ "${1+x}" = "x" ] && [ "${#1}" -eq "0" ]; }   # set and null
