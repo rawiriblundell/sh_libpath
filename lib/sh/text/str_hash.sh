@@ -101,40 +101,19 @@ _str_hash_md5() {
 
 str_hash() {
   case "${1}" in
-    (sha512)
-      shift 1
-      _str_hash_sha512 "${*}" | awk '{print $1}'
-    ;;
-    (sha384)
-      shift 1
-      _str_hash_sha384 "${*}" | awk '{print $1}'
-    ;;
-    (sha256)
-      shift 1
-      _str_hash_sha256 "${*}" | awk '{print $1}'
-    ;;
-    (sha224)
-      shift 1
-      _str_hash_sha224 "${*}" | awk '{print $1}'
-    ;;
-    (sha1)
-      shift 1
-      _str_hash_sha1 "${*}" | awk '{print $1}'
-    ;;
-    (md5)
-      shift 1
-      _str_hash_md5 "${*}" | awk '{print $1}'
-    ;;
+    (sha512) shift 1; _str_hash_sha512 "${*}" | awk '{print $1}' ;;
+    (sha384) shift 1; _str_hash_sha384 "${*}" | awk '{print $1}' ;;
+    (sha256) shift 1; _str_hash_sha256 "${*}" | awk '{print $1}' ;;
+    (sha224) shift 1; _str_hash_sha224 "${*}" | awk '{print $1}' ;;
+    (sha1)   shift 1; _str_hash_sha1 "${*}" | awk '{print $1}' ;;
+    (md5)    shift 1; _str_hash_md5 "${*}" | awk '{print $1}' ;;
     (ck)
       shift 1
       if command -v cksum >/dev/null 2>&1; then
         printf -- '%s\n' "${*}" | cksum | awk '{print $1}'
       else
         _str_hash_not_found cksum
-      fi
-    ;;
-    (*)
-      _str_hash_md5 "${*}" | awk '{print $1}'
-    ;;
+      fi ;;
+    (*)      _str_hash_md5 "${*}" | awk '{print $1}' ;;
   esac
 }

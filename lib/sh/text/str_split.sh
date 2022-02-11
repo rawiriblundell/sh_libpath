@@ -17,9 +17,23 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-# Wrap long comma separated lists by element count (default: 8 elements)
-csvwrap() {
-  export splitCount="${1:-8}"
-  perl -pe 's{,}{++$n % $ENV{splitCount} ? $& : ",\\\n"}ge'
-  unset -v splitCount
+# Split a string on a given delimiter (defaults to whitespace splitting)
+# and save the output into an array, 'STR_SPLIT[@]'
+# Avoiding 'readarray'/'mapfile' intentionally here to increase portability
+str_split() {
+  STR_SPLIT=()
+  case "${1}" in
+    (-d|--delimiter)
+      _str_split_delim="${2}"
+      shift 2
+      _str_split_counter=0
+      while read -r _str_split_line; do
+        STR_SPLIT[$_str_split_counter]="${_str_split_line}"
+        _str_split_counter=$(( _str_split_counter + 1 ))
+      done < <(printf -- '%s\n' "${*}" | tr "${_str_split_delim}" "\n")
+    ;;
+    (*) STR_SPLIT=( "${@}" ) ;;
+  esac
+  export STR_SPLIT
+  unset -v _str_split_delim _str_split_counter
 }
