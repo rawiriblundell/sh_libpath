@@ -31,6 +31,11 @@ convert_p12_to_pem() {
         return 1
     fi
 
+    if [[ -s "${_p12_to_pem_in}" ]]; then
+        printf -- 'convert_p12_to_pem: %s\n' "Input file eppears to be empty" >&2
+        return 1
+    fi
+
     if (( "${#_p12_to_pem_out}" == 0 )); then
         _p12_to_pem_out="${_p12_to_pem_in%.*}"
         _p12_to_pem_out="${_p12_to_pem_out}.pem"
