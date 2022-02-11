@@ -33,6 +33,19 @@ convert_pem_to_p12() {
         return 1
     fi
 
+    if [[ -s "${_pem_to_p12_key}" ]]; then
+        printf -- 'convert_pem_to_p12: %s\n' "Input key file eppears to be empty" >&2
+        return 1
+    fi
+    if [[ -s "${_pem_to_p12_cert}" ]]; then
+        printf -- 'convert_pem_to_p12: %s\n' "Input cert file eppears to be empty" >&2
+        return 1
+    fi
+    if [[ -s "${_pem_to_p12_ca}" ]]; then
+        printf -- 'convert_pem_to_p12: %s\n' "Input CA file eppears to be empty" >&2
+        return 1
+    fi
+
     openssl pkcs12 -export \
       -inkey "${_pem_to_p12_key}" \
       -in "${_pem_to_p12_cert}" \

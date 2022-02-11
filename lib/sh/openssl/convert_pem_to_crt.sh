@@ -18,32 +18,31 @@
 # SPDX-License-Identifier: Apache-2.0
 
 if ! command -v openssl >/dev/null 2>&1; then
-    printf -- 'convert_cer_to_crt: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
+    printf -- 'convert_pem_to_crt: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
     exit 1
 fi
 
-convert_cer_to_crt() {
-    _cer_to_crt_in="${1}"
-    _cer_to_crt_out="${2}"
+convert_pem_to_crt() {
+    _pem_to_crt_in="${1}"
+    _pem_to_crt_out="${2}"
+    _pem_to_crt_out="${3}"
 
-    if (( "${#_cer_to_crt_in}" == 0 )); then
-        printf -- 'convert_cer_to_crt: %s\n' "No input file provided" >&2
+    if (( "${#_pem_to_crt_in}" == 0 )); then
+        printf -- 'convert_pem_to_crt: %s\n' "No input file provided" >&2
         return 1
     fi
 
-    if [[ -s "${_cer_to_crt_in}" ]]; then
-        printf -- 'convert_cer_to_crt: %s\n' "Input file eppears to be empty" >&2
+    if [[ -s "${_pem_to_crt_in}" ]]; then
+        printf -- 'convert_pem_to_crt: %s\n' "Input file eppears to be empty" >&2
         return 1
     fi
 
-    if (( "${#_cer_to_crt_out}" == 0 )); then
-        _cer_to_crt_out="${_cer_to_crt_in%.*}"
-        _cer_to_crt_out="${_cer_to_crt_out}.crt"
+    if (( "${#_pem_to_crt_out}" == 0 )); then
+        _pem_to_crt_out="${_pem_to_crt_in%.*}"
+        _pem_to_crt_out="${_pem_to_crt_out}.crt"
     fi
 
-    grep "TRUSTED" "${_cer_to_crt_in}" >/dev/null 2>&1 || _cer_to_crt_enctype="DER"
+    openssl x509 -outform "${_pem_to_crt_enctype:-PEM}" -in "${_pem_to_crt_in}" -out "${_pem_to_crt_out}"
 
-    openssl x509 -inform "${_cer_to_crt_enctype:-PEM}" -in "${_cer_to_crt_in}" -out "${_cer_to_crt_out}"
-
-    unset -v _cer_to_crt_in _cer_to_crt_out _cer_to_crt_enctype
+    unset -v _pem_to_crt_in _pem_to_crt_out _pem_to_crt_enctype
 }

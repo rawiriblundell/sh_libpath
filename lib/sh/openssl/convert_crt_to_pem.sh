@@ -31,6 +31,11 @@ convert_crt_to_pem() {
         return 1
     fi
 
+    if [[ -s "${_crt_to_pem_in}" ]]; then
+        printf -- 'convert_crt_to_pem: %s\n' "Input file eppears to be empty" >&2
+        return 1
+    fi
+
     if (( "${#_crt_to_pem_out}" == 0 )); then
         _crt_to_pem_out="${_crt_to_pem_in%.*}"
         _crt_to_pem_out="${_crt_to_pem_out}.pem"
