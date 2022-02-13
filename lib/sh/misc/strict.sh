@@ -23,6 +23,7 @@
 # Enable Unofficial Strict Mode
 strict_euopipefail() {
   set -o errexit
+  set -o errtrace
   set -o nounset
   set -o pipefail
 }
