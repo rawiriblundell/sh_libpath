@@ -41,6 +41,7 @@ _pretty_select_random_color() {
 # Randomize text color for every fed line
 pretty () {
   while read -r; do
+    # shellcheck disable=SC2046
     printf "\033[38;5;%dm%s\033[0m\n" $(_pretty_select_random_color) "${REPLY}"
   done
 }

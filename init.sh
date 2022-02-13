@@ -34,6 +34,12 @@ unset -v _path
 SH_LIBPATH="${SH_LIBPATH#:}"
 export SH_LIBPATH
 
+# Check the length of the var again and fail out if it's empty
+if (( "${#SH_LIBPATH}" == 0 )); then
+  printf -- '%s\n' "SH_LIBPATH appears to be empty" >&2
+  exit 1
+fi
+
 # Function to work through a list of commands and/or files
 # and fail on any unmet requirements.  Example usage:
 # requires curl sed awk /etc/someconf.cfg
@@ -129,16 +135,21 @@ wants() {
 }
 
 _is_lib_loaded() {
-  _target_lib="${1:?No library defined}"
-  [ -z "${SH_LIBS_LOADED##*"$_target_lib"*}" ] && [ -n "${SH_LIBS_LOADED}" ]
-  unset -v _target_lib
+  _is_lib_loaded_target="${1:?No library defined}"
+  if [ "${SH_LIBS_LOADED#*"$_is_lib_loaded_target"}" != "${SH_LIBS_LOADED}" ]; then
+    unset -v _is_lib_loaded_target
+    return 0
+  else
+    unset -v _is_lib_loaded_target
+    return 1
+  fi
 }
 
 import() {
   _target_lib="${1:?No library specified}"
 
   # Ensure that it's not already loaded
-  _is_lib_loaded "${_target_lib}" && { unset -v _target_lib; return 0; }
+  _is_lib_loaded "${_target_lib}" && return 0
 
   # Test if the first character of _target_lib is '/'
   # This indicates to us that the given library is likely a full path e.g.
@@ -149,6 +160,8 @@ import() {
       # shellcheck disable=SC1090
       . "${_target_lib}" || { printf -- 'import: %s\n' "Failed to load '${_target_lib}'" >&2; exit 1; }
       SH_LIBS_LOADED="${SH_LIBS_LOADED} ${_target_lib}"
+      # Strip the leading space char
+      SH_LIBS_LOADED="${SH_LIBS_LOADED# }"
       unset -v _target_lib
       return 0
     elif [ -e "${_target_lib}" ]; then
@@ -174,6 +187,7 @@ import() {
       # shellcheck disable=SC1090
       . "${_target_lib}" || { printf -- 'import: %s\n' "Failed to load '${_target_lib}'" >&2; exit 1; }
       SH_LIBS_LOADED="${SH_LIBS_LOADED} ${_target_lib}"
+      SH_LIBS_LOADED="${SH_LIBS_LOADED# }"
       unset -v _target _target_lib
       return 0
     elif [ -e "${_target_lib}" ]; then
