@@ -17,12 +17,12 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-# 'write()' abstracts the portability of 'printf' and solves the major portability headaches 
-# caused by various implementations of 'echo'.  This is called 'write()' rather than using 
+# 'puts()' abstracts the portability of 'printf' and solves the major portability headaches 
+# caused by various implementations of 'echo'.  This is called 'puts()' rather than using 
 # 'echo()' as  an override function, because some shells protect their builtins and complain.
 # Fun exercise: look at Oracle's man page for 'echo', specifically the USAGE section.
 # This also adds the '-j' option to output in json keypair format (no type-based formatting though)
-write() {
+puts() {
     case "${1}" in
         (-e)
             case "${2}" in
@@ -51,22 +51,22 @@ write() {
 }
 
 # Alternative implementation:
-# write() {
+# puts() {
 #     while (( "${#}" > 1 )); do
 #         case "${1}" in
-#             (-e)        _write_fmt='%b' ;;
-#             (-E)        _write_fmt='%s' ;;
-#             (-j)        _write_fmt='{"%s": "%s"}' ;;
-#             (-n|--end)  _write_newlines='' ;;
-#             (-en|-ne)   _write_fmt='%b'; _write_newlines='' ;;
-#             (-En|nE)    _write_fmt='%s'; _write_newlines='' ;;
+#             (-e)        _puts_fmt='%b' ;;
+#             (-E)        _puts_fmt='%s' ;;
+#             (-j)        _puts_fmt='{"%s": "%s"}' ;;
+#             (-n|--end)  _puts_newlines='' ;;
+#             (-en|-ne)   _puts_fmt='%b'; _puts_newlines='' ;;
+#             (-En|nE)    _puts_fmt='%s'; _puts_newlines='' ;;
 #             (--|*)      break ;;
 #         esac
 #         shift 1
 #     done
 
 #     # shellcheck disable=SC2059
-#     printf -- "${_write_fmt:-%b}${_write_newlines:-\n}" "${*}"
+#     printf -- "${_puts_fmt:-%b}${_puts_newlines:-\n}" "${*}"
 #
-#     unset -v _write_fmt _write_newlines
+#     unset -v _puts_fmt _puts_newlines
 # }
