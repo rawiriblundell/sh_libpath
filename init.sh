@@ -230,38 +230,21 @@ from() {
       done
 
       # If we can't find it, fail out
-      if [ "${_subdir_path+x}" = "x" ] && [ "${#_subdir_path }" -eq "0" ]; then
+      if [ "${_subdir_path+x}" = "x" ] && [ "${#_subdir_path}" -eq "0" ]; then
         printf -- 'from: %s\n' "${_subdir} not found in SH_LIBPATH" >&2
         exit 1
       fi
 
       : "Loading all functions from ${_subdir_path}"
       for _target_lib in "${_subdir_path}"/*; do
-        if ! [ -r "${_target_lib}" ]; then
-          printf -- 'from: %s\n' "Insufficient permissions to import '${_subdir_path}/${_target_lib}'" >&2
-          exit 1
-        fi
-        _is_lib_loaded "${_target_lib}" && continue
-        # shellcheck disable=SC1090
-        . "${_target_lib}"
-        SH_LIBS_LOADED="${SH_LIBS_LOADED} ${_target_lib}"
+        import "${_target_lib}"
       done
       unset -v _subdir _function _subdir_path _target_lib
       return 0
     ;;
     (*)
-      _target_lib="${_subdir_path}/${_function}"
-      if [ -r "${_target_lib}" ]; then
-        # shellcheck disable=SC1090
-        . "${_target_lib}" || { printf -- 'from: %s\n' "Failed to load '${_target_lib}'" >&2; exit 1; }
-        SH_LIBS_LOADED="${SH_LIBS_LOADED} ${_target_lib}"
-        unset -v _target_lib
-        return 0
-      elif [ -e "${_target_lib}" ]; then
-        printf -- 'from: %s\n' "Insufficient permissions while importing '${_target_lib}'" >&2
-        unset -v _subdir _function _subdir_path _target_lib
-        exit 1
-      fi
+      _target_lib="${_subdir}/${_function}"
+      import "${_target_lib}" && return 0
     ;;
   esac
 
