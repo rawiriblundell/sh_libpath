@@ -21,6 +21,7 @@ POSSIBLE_SH_LIBPATHS=(
   "${HOME}"/.local/lib/sh
   /usr/local/lib/sh
   /opt/sh_libpath/lib/sh
+  /usr/share/misc
 )
 
 # If SH_LIBPATH is not set or null, then we try to build it

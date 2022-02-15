@@ -59,28 +59,74 @@ Work on your code improvements.  Try to make smaller commits rather than large o
 
 When you're ready, put in a Pull Request with a small explanation of what you're submitting and why.
 
+## Linting
+
+All code must be parsed through [shellcheck.](https://www.shellcheck.net/)
+
+Be aware that while Shellcheck is an excellent tool, it's not perfect.  Sometimes it can give false positive alerts.  If you do come across a scenario where it is wrong, you can disable an alert by using a `disable` directive.
+
+```bash
+# This function is sourced outside of this library, where it does parse args
+# shellcheck disable=SC2120
+foo() {
+```
+
+## Portability
+
+This project will try to code on the more portable side.  Perhaps not strictly portable, but at least in a way that it can be refactored up or down the portability scale as/when required.
+
+Fundamentally: POSIX plus named arrays as a minimum, but let's not beat around the bush here: `bash` is going to be the first class citizen, and other shells?  Not so much.
+
+`echo` is a portability nightmare.  Prefer `printf` instead.
+
+`ksh` is actually a very good shell that is quietly installed in far more places than you'd expect, so consider targeting that.  If it runs in `ksh`, it'll likely run in `bash`.
+
+Ubuntu's [DashAsBinSh](https://wiki.ubuntu.com/DashAsBinSh) wiki page can give you some ideas on more portable scripting, and `dash` is a readily available shell that you can test your code within. Do be aware that dash is stricter than our goals.
+
 ## Coding Style
 
 Please look at some of the other code and try to be consistent with it.
 
-### Portability
+Broadly we will try to use the same style as [ChromiumOS](https://chromium.googlesource.com/chromiumos/docs/+/HEAD/styleguide/shell.md)
 
-This project will try to code on the more portable side.  Perhaps not strictly portable, but at least in a way that it can be refactored up or down the portability scale as/when required.
+Failing that, we will refer to the [Google Shell Style Guide.](https://google.github.io/styleguide/shellguide.html)
 
-Fundamentally: POSIX plus named arrays as a minimum.
+Any prescribed advice below supersedes the advice given in these two guides.
 
-### Compartmentalisation
+### Indendation and column width
 
-I was just looking for an excuse to use that word.
+Two or four space soft-tabs - whichever you prefer, just keep them consistent within each file.  Try to limit to 80 chars width, but up to 120ish is fine.
 
-One of the flaws - I think - with some of the other shell library projects, is that they get bogged down with too much re-use.  And so you get library upon library upon library dependant on one-another.  For example, one function supplied by this project is `write()`, which fixes the mess of `echo` and the verbosity of `printf` for everyday use.  You'd think that such a function would be re-used throughout other library files, and you'd be wrong.
+`do` and `then` go on the same line rather than the next.
 
-This practise should be heavily discouraged.
+Hard tabs are a hard no.
 
-Each library file should be as self-contained as possible, and should not require the inclusion of any other library.  This ultimately keeps the end-user interface simple, it ultimately keeps the core functions of `import()` and `from()` simple, it improves code re-use and derivative works, and it doesn't bog the codebase down with frustrating and highly obnoxious namespacing.
+### Function names
 
+Function names are in lower `snake_case()`.  Names should try to be meaningful, so if you're not sure, consider `verb_noun` style.  Microsoft has documentation for [approved verbs](https://docs.microsoft.com/en-us/powershell/scripting/developer/cmdlet/approved-verbs-for-windows-powershell-commands?view=powershell-7) for PowerShell that may provide some guidance.
 
+Some style guides and other shell library projects use `class::function()` style naming, however `:` does not appear to be a portable character, so something like `__class_function()` may be preferable.
+
+For helper functions that won't be used directly by a human, prepend it with a single underscore.
+
+Do not use the `function` keyword.  It is non-portable and considered obsolete.
+
+### Variables
+
+### Constants
+
+### Curly braces
 ### Scoping variables
+
+Shell uses dynamic scoping, which can really throw off a lot of people.  Practically speaking: it's not great.  But, with some simple practices, we can mitigate the potential issues caused by this.
+
+Typically in a shell script you have 3, maybe 4 pseudo-scopes:
+
+* Environment level (e.g. `$PATH`) / Shell (e.g. `$RANDOM`)
+* Script level
+* Function level
+
+A lot of badly written articles imply that using UPPERCASE is a good thing.  It's best avoided if at all possible.
 
 `local`
 
@@ -89,6 +135,27 @@ As much as I'd love to use this, [it's a mess out there](https://unix.stackexcha
 So instead of using `local`, the preference will be to pseudoscope.
 
 `RETVAL` variable
+
+I think it might be useful to settle on a return value standard.  For example
+
+```bash
+function_name() {
+  blah
+  function_name_stdout
+  function_name_stderr
+  function_name_rc
+}
+```
+
+### Compartmentalisation
+
+I was just looking for an excuse to use that word.
+
+One of the flaws - I think - with some of the other shell library projects, is that they get bogged down with too much re-use.  And so you get library upon library upon library dependant on one-another.  For example, one function supplied by this project is `puts()`, which fixes the mess of `echo` and the verbosity of `printf` for everyday use.  You'd think that such a function would be re-used throughout other library files, and you'd be wrong.
+
+This practise should be heavily discouraged.
+
+Each library file should be as self-contained as possible, and should try as much as possible not to require the inclusion of any other library.  This ultimately keeps the end-user interface simple, it ultimately keeps the core functions of `import()` and `from()` simple, it improves code re-use for derivative works, and it doesn't bog the codebase down with frustrating and highly obnoxious namespacing.
 
 ## The Unofficial Strict Mode
 

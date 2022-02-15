@@ -146,7 +146,7 @@ Whenever someone mentions doing anything remotely constructive about the unix sh
 >  
 > Abraham Maslow
 
-And some might see this kind of effort as falling into that trap.  I don't.  Sometimes a nail really is a nail and we shouldn't have to tolerate a $5 Walmart hammer when we could have something more like a 20oz Estwing.  And, sometimes, the people who are on team spanners really shouldn't talk about hammers and nails.  I mean... you can hammer in a nail with a spanner, but it's not pretty...
+And some might see this kind of effort as falling into that trap.  I don't.  Sometimes a nail really is a nail, and suggesting that you hit it with a spanner is idiotic.  Nor should we have to tolerate a $5 Walmart hammer when we could have something more like a 20oz Estwing.  And, sometimes, the people who are on team spanners really shouldn't talk about hammers and nails because it's not in their wheelhouse.  I mean... you _can_ hammer in a nail with a spanner, but it's not pretty...
 
 See, also: [Master Foo and the Ten Thousand Lines](http://www.catb.org/~esr/writings/unix-koans/ten-thousand.html)
 
