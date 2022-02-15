@@ -28,6 +28,7 @@ permitted.
 - color.sh, MIT License (c) 2020 Ivan https://github.com/vaniacer/bash_color
 - various libraries as indicated in their headers, bashmenot, BSD 3-Clause License (c) 2014-2015, Miëtek Bak https://github.com/mietek/bashmenot/
 - various ideas as indicated by code comments, modernish, ISC License 2015-2021 Martijn Dekker <martijn@inlv.org> https://github.com/modernish/modernish
+<<<<<<< HEAD
 - shflags.sh, Apache License 2.0 (c) 2008-2020 Kate Ward.  https://github.com/kward/shflags
 - bash_opts.sh, MIT License (c) 2015-2016 Sven Fuchs <me@svenfuchs.com>.  https://github.com/svenfuchs/bash_opts
 - cmdarg.sh, MIT License (c) 2013 Andrew Kesterson <andrew@aklabs.net>.  https://github.com/akesterson/cmdarg
@@ -50,6 +51,9 @@ permitted.
 
   0. You just DO WHAT THE FUCK YOU WANT TO.
 ```
+=======
+- os.sh, XDG vars referenced from xdg (go).  MIT License (c) 2014 Adrian-George Bostan <adrg@epistack.com> https://github.com/adrg/xdg
+>>>>>>> a881126... Add XDG var handling to os.sh
 
 ## BSD 3-Clause License
 
