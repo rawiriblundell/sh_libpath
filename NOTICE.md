@@ -28,6 +28,7 @@ permitted.
 - color.sh, MIT License (c) 2020 Ivan https://github.com/vaniacer/bash_color
 - various libraries as indicated in their headers, bashmenot, BSD 3-Clause License (c) 2014-2015, Miëtek Bak https://github.com/mietek/bashmenot/
 - various ideas as indicated by code comments, modernish, ISC License 2015-2021 Martijn Dekker <martijn@inlv.org> https://github.com/modernish/modernish
+- os.sh, XDG vars referenced from xdg (go).  MIT License (c) 2014 Adrian-George Bostan <adrg@epistack.com> https://github.com/adrg/xdg
 
 ## BSD 3-Clause License
 
