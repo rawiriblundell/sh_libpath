@@ -38,7 +38,6 @@ ltrim() {
     [[ "${ltrim_stdout}" = "${_ltrim_str}" ]] && break
     _ltrim_str="${ltrim_stdout}"
   done
-  ltrim_rc="${?}"
+  printf -- '%s\n' "${_ltrim_str}"
   unset -v _ltrim_str
-  export ltrim_stdout ltrim_rc
 }

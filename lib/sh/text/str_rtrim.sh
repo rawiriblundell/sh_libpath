@@ -42,7 +42,6 @@ rtrim() {
     [[ "${rtrim_stdout}" = "${_rtrim_str}" ]] && break
     _rtrim_str="${rtrim_stdout}"
   done
-  rtrim_rc="${?}"
+  printf -- '%s\n' "${_rtrim_str}"
   unset -v _rtrim_str
-  export rtrim_stdout rtrim_rc
 }
