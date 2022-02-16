@@ -21,7 +21,16 @@
 # Retval as chop_stdout and chop_rc
 # TODO: retval 'chop_remainder'?
 str_chop() {
-  chop_stdout="${1%?}"
+  chop_stdout="${*}"
+  chop_stdout="${chop_stdout%?}"
   chop_rc="${?}"
   export chop_stdout chop_rc
+}
+
+# Remove last character from a string
+chop() {
+  _chop_stdout="${*}"
+  _chop_stdout="${_chop_stdout%?}"
+  printf -- '%s\n' "${_chop_stdout%?}"
+  unset -v _chop_stdout
 }

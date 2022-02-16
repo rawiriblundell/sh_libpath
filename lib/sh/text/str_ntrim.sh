@@ -29,8 +29,5 @@ str_ntrim() {
 
 ntrim() {
   LC_CTYPE=C
-  ntrim_stdout=$(printf -- '%s' "${*}" | xargs)
-  ntrim_rc="${?}"
-  unset -v _ntrim_str
-  export ntrim_stdout ntrim_rc
+  printf -- '%s' "${*}" | xargs
 }

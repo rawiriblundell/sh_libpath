@@ -20,7 +20,15 @@
 # Remove trailing newlines from a string
 # Retval as chomp_stdout and chomp_rc
 str_chomp() {
-  chomp_stdout="${1%$'\n'}"
+  chomp_stdout="${*}"
+  chomp_stdout="${chomp_stdout%$'\n'}"
   chomp_rc="${?}"
   export chomp_stdout chomp_rc
+}
+
+chomp() {
+  _chomp_stdout="${*}"
+  _chomp_stdout="${_chomp_stdout%$'\n'}"
+  printf -- '%s\n' "${_chomp_stdout}"
+  unset -v _chomp_stdout
 }
