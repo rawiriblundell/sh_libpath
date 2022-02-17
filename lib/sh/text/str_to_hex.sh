@@ -17,19 +17,6 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-# Basic step-in function for dos2unix
-# This simply removes dos line endings using 'sed'
-# Alternative approach: tr -d '\015'
-if ! get_command dos2unix; then
-  dos2unix() {
-    if [[ "${1:0:1}" = '-' ]]; then
-      printf -- '%s\n' "This is a simple step-in function, '${1}' isn't supported"
-      return 1
-    fi
-    if [[ -w "${1}" ]]; then
-      sed -ie 's/\r//g' "${1}"
-    else
-      sed -e 's/\r//g' -
-    fi
-  }
-fi
+strtohex() {
+  printf -- '%s'  "${1:?No string supplied}" | xxd -pu
+}

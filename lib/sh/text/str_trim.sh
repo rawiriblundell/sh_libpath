@@ -17,7 +17,6 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-
 # Trim whitespace either side of text
 str_trim() {
   LC_CTYPE=C

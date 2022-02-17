@@ -27,3 +27,25 @@ probe-port() {
 probe-ssh() {
   probe-port "${1:?No target}" "${2:-22}"
 }
+
+portcheck() {
+  # Ensure that $1 and $2 are present
+  if [[ -z $2 ]]||[[ -z $1 ]]; then
+    printf "%s\n" "ERROR - server or port not defined" \
+      "Usage: portcheck [remote servername or IP] [port to check]"
+    exit 1
+  fi
+
+  # Now run through a list of potential ways to do this
+  if command -v telnet >/dev/null 2>&1; then
+    ... # you'd have to build in some timeout logic
+  elif command -v nc > /dev/null 2>&1; then
+    # Or you could check for netcat if you can ensure portable behaviour
+    nc -z -w 1 "$1" "$2"
+  elif command -v nmap >/dev/null 2>&1; then
+    ... # You can also do this check with nmap
+  else
+    printf "%s\n" "ERROR - could not determine a method for checking ports"
+    exit 1
+  fi
+}
