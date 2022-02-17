@@ -17,19 +17,16 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-# Basic step-in function for dos2unix
-# This simply removes dos line endings using 'sed'
-# Alternative approach: tr -d '\015'
-if ! get_command dos2unix; then
-  dos2unix() {
-    if [[ "${1:0:1}" = '-' ]]; then
-      printf -- '%s\n' "This is a simple step-in function, '${1}' isn't supported"
-      return 1
-    fi
-    if [[ -w "${1}" ]]; then
-      sed -ie 's/\r//g' "${1}"
-    else
-      sed -e 's/\r//g' -
-    fi
-  }
-fi
+8ball() {
+  ansArray=(
+    "It is certain" "It is decidedly so" "Without a doubt"
+    "Yes definitely" "You may rely on it" "You can count on it"
+    "As I see it, yes" "Most likely" "Outlook good" "Yes"
+    "Signs point to yes" "Absolutely" "Reply hazy try again"
+    "Ask again later" "Better not tell you now" "Cannot predict now"
+    "Concentrate and ask again" "Don't count on it" "My reply is no"
+    "My sources say no" "Outlook not so good" "Very doubtful"
+    "Chances aren't good"
+  )
+  printf -- '%s\n' "${ansArray[$(( RANDOM % ${#ansArray[@]} ))]}"
+}

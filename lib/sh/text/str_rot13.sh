@@ -14,22 +14,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ################################################################################
-# Provenance: https://github.com/rawiriblundell/sh_libpath
+# Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-# Basic step-in function for dos2unix
-# This simply removes dos line endings using 'sed'
-# Alternative approach: tr -d '\015'
-if ! get_command dos2unix; then
-  dos2unix() {
-    if [[ "${1:0:1}" = '-' ]]; then
-      printf -- '%s\n' "This is a simple step-in function, '${1}' isn't supported"
-      return 1
-    fi
-    if [[ -w "${1}" ]]; then
-      sed -ie 's/\r//g' "${1}"
-    else
-      sed -e 's/\r//g' -
-    fi
-  }
-fi
+rot13 () {
+  # If parameter is a file, or stdin is used, action that first
+  if [[ -r "${1}" ]]||[[ ! -t 0 ]]; then
+    tr a-zA-Z n-za-mN-ZA-M < "${1:-/dev/stdin}"
+  # Otherwise, if a parameter is given, rot13 all parameters
+  elif [[ "${1}" ]]; then
+    tr a-zA-Z n-za-mN-ZA-M <<< "$*"
+  # Otherwise, print usage
+  else
+    printf -- '%s\n' "Usage: rot13 [FILE|STDIN|STRING]"
+    return 1
+  fi
+}

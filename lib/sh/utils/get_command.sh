@@ -46,3 +46,19 @@ get_command() {
   # If we get to this point, we've failed
   return 1
 }
+
+# This function is more PowerShell-esque
+# `get-cmd` will dump out a list of all your available commands
+# `get-cmd user` will filter that list to all commands with 'user' in them.  DO NOT use globbing here e.g. `get-cmd *user*`
+# `get-cmd user grep perl` will filter the list to all matches for those
+get-cmd() {
+  local needle
+  case "${1}" in
+    ('') compgen -c ;;
+    (*)
+      for needle in ${*}; do
+        compgen -c | grep "${needle}"
+      done
+    ;;
+  esac
+}
