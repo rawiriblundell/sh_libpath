@@ -92,13 +92,6 @@ is_gitdir() {
   fi
 }
 
-# Test if a given value is an integer
-# To ensure that we fail on floats (i.e. in ksh),
-# we ensure that one side of the test is an int
-is_integer() {
-  [ "${1%%.*}" -eq "${1}" ] 2>/dev/null
-}
-
 # Test if a given value is a global var, local var (default) or array
 is_set() {
   case "${1}" in
