@@ -32,6 +32,7 @@ compress() {
 }
 
 # Function to extract common compressed file types
+# TODO: Check for atool and defer to it where possible...
 extract() {
   local xcmd rc fsobj
 
