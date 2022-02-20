@@ -79,3 +79,17 @@ breakpoint(){
         q) return ;;             # quit
     esac; done
 }
+
+# Make Ctrl+C a no-op to prevent it killing the script
+no_ctrl_c() {
+  _no_ctrl_c() { :; }
+  trap _no_ctrl_c INT
+}
+
+# Sometimes there may be a need to remove the current directory from PATH
+# in order to prevent an infinite recursion
+prevent_path_recursion() {
+  curdir=$(realpath $(dirname ${BASH_SOURCE}))
+  export PATH=$(echo $PATH | tr ':' '\n' | \
+      awk '$0!="'${curdir}'"' | tr '\n' ':')
+}

@@ -75,3 +75,10 @@ software::fetch() {
   printf -- '%s\n' "Attempting to fetch ${remote_target}..."
   curl "${remote_target}" > "${local_dir}"/"${local_target}" || return 1  
 }
+
+fetch() {
+  case "${2}" in
+    ('') curl -sL -0 "${1}" ;;
+    (*) curl -sL "${*}" ;;
+  esac
+}

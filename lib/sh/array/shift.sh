@@ -17,9 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-# shift_array <arr_name> [<n>]
+# array_shift <arr_name> [<n>]
 # From https://www.reddit.com/r/bash/comments/aj0xm0/quicktip_shifting_arrays/
-shift_array() {
+array_shift() {
   # Create nameref to real array
   local -n arr="$1"
   local n="${2:-1}"
