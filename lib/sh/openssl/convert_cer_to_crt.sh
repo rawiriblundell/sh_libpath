@@ -31,7 +31,7 @@ convert_cer_to_crt() {
         return 1
     fi
 
-    if [[ -s "${_cer_to_crt_in}" ]]; then
+    if ! [[ -s "${_cer_to_crt_in}" ]]; then
         printf -- 'convert_cer_to_crt: %s\n' "Input file eppears to be empty" >&2
         return 1
     fi
