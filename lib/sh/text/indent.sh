@@ -18,9 +18,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Function to indent text by n spaces (default: 2 spaces)
+str_indent() {
+  _ident_width="${1:-2}"
+  _ident_width=$(eval "printf -- '%.0s ' {1..${_ident_width}}")
+  sed "s/^/${_ident_width}/" "${2:-/dev/stdin}"
+}
+
 indent() {
-  local identWidth
-  identWidth="${1:-2}"
-  identWidth=$(eval "printf -- '%.0s ' {1..${identWidth}}")
-  sed "s/^/${identWidth}/" "${2:-/dev/stdin}"
+  _ident_width="${1:-2}"
+  _ident_width=$(eval "printf -- '%.0s ' {1..${_ident_width}}")
+  sed "s/^/${_ident_width}/" "${2:-/dev/stdin}"
 }

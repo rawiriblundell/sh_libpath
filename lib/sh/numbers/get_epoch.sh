@@ -34,6 +34,9 @@ elif command -v perl >/dev/null 2>&1; then
     # Alternative: get_epoch() { perl -e 'print time."\n";'; }
 else
 
+#BSD $(date -j -f "%Y-%m-%dT%T" "$1" "+%s")
+#Busybox $(date -d "${1//T/ }" +%s)
+
 
 # Calculate how many seconds since epoch
 # Portable version based on http://www.etalabs.net/sh_tricks.html
