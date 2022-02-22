@@ -26,8 +26,8 @@ elif printf '%(%s)T\n' -1 | grep "^[0-9].*$" >/dev/null 2>&1; then
     get_epoch() { printf '%(%s)T\n' -1; }
 # Next we try for 'date'
 # Because some 'date' variants will return a literal '+%s', we perform a capability check
-elif date +%s | grep "^[0-9].*$" >/dev/null 2>&1; then
-    get_epoch() { date +%s; }
+elif date -u +%s | grep "^[0-9].*$" >/dev/null 2>&1; then
+    get_epoch() { date -u +%s; }
 # Last we try for 'perl'
 elif command -v perl >/dev/null 2>&1; then
     get_epoch() { perl -e 'print($^T."\n");'; }

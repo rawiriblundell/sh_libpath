@@ -32,6 +32,7 @@ permitted.
 - bash_opts.sh, MIT License (c) 2015-2016 Sven Fuchs <me@svenfuchs.com>.  https://github.com/svenfuchs/bash_opts
 - cmdarg.sh, MIT License (c) 2013 Andrew Kesterson <andrew@aklabs.net>.  https://github.com/akesterson/cmdarg
 - argsparse.sh, WTFPLv2 (c) 2017 Damien Nadé <bash-argsparse@livna.org>.  https://github.com/Anvil/bash-argsparse
+- Some numbers for uuid.sh, BSD 3-Clause License, (c) 2009,2014 Google Inc. https://github.com/google/uuid/blob/master/time.go
 
 ## WTFPL
 
