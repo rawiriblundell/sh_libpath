@@ -17,6 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+# TODO: if command -v uuidgen >/dev/null 2>&1...
+
 uuid_nil() {
   printf -- '%s\n' "00000000-0000-0000-0000-000000000000"
 
@@ -76,6 +78,7 @@ uuid_gen() {
     (5) uuid_stdout="$(uuid_v5)" ;;
     ('')
       if [[ -r /proc/sys/kernel/random/uuid ]]; then
+        # This is a v4 type UUID
         uuid_stdout="$(</proc/sys/kernel/random/uuid)"
       else
         uuid_stdout="$(uuid_pseudo)"
