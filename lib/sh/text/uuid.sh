@@ -17,51 +17,67 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-# TODO: if command -v uuidgen >/dev/null 2>&1...
-
 uuid_nil() {
   printf -- '%s\n' "00000000-0000-0000-0000-000000000000"
 
 }
 
-# date-time and mac address
+# Date-time and mac address
 uuid_v1() {
-  :
+  if command -v uuidgen >/dev/null 2>&1; then
+    uuidgen --time
+  else
+    :
+  fi
 }
 
-
+# Date-time and mac address, DCE security version
 uuid_v2() {
   :
 }
 
 # Namespace hash, md5
 uuid_v3() {
-  :
+  if command -v uuidgen >/dev/null 2>&1; then
+    uuidgen --md5
+  else
+    :
+  fi
 }
 
 # Fully random using /dev/urandom
 # Not fully RFC4122 compliant (yet?)
 uuid_v4() {
-  _uuid_i=0
-  while read -r _uuid_char; do
-    _uuid_chars[_uuid_i]="${_uuid_char}"
-    (( _uuid_i++ ))
-  done < <(tr -dc a-f0-9 < /dev/urandom | fold -w 1 | head -n 36)
+  if command -v uuidgen >/dev/null 2>&1; then
+    uuidgen --random
+  elif [[ -r /proc/sys/kernel/random/uuid ]]; then
+    cat /proc/sys/kernel/random/uuid
+  else
+    _uuid_i=0
+    while read -r _uuid_char; do
+      _uuid_chars[_uuid_i]="${_uuid_char}"
+      (( _uuid_i++ ))
+    done < <(tr -dc a-f0-9 < /dev/urandom | fold -w 1 | head -n 36)
 
-  for (( _uuid_i=1; _uuid_i<36; _uuid_i++ )); do
-    case "${_uuid_i}" in
-      (9|18|23) printf -- '%s' "-" ;;
-      (14)      printf -- '%s' "-4" ;;
-      (*)       printf -- '%s' "${_uuid_chars[_uuid_i]}" ;;
-    esac
-  done
-  printf -- '%s\n' ""
-  unset -v _uuid_i _uuid_char _uuid_chars
+    for (( _uuid_i=1; _uuid_i<36; _uuid_i++ )); do
+      case "${_uuid_i}" in
+        (9|18|23) printf -- '%s' "-" ;;
+        (14)      printf -- '%s' "-4" ;;
+        (*)       printf -- '%s' "${_uuid_chars[_uuid_i]}" ;;
+      esac
+    done
+    printf -- '%s\n' ""
+    unset -v _uuid_i _uuid_char _uuid_chars
+  fi
 }
 
 # Namespace hash, sha-1
 uuid_v5() {
-  :
+  if command -v uuidgen >/dev/null 2>&1; then
+    uuidgen --sha1
+  else
+    :
+  fi
 }
 
 uuid_pseudo() {
@@ -71,19 +87,12 @@ uuid_pseudo() {
 uuid_gen() {
   case "${1}" in
     (0|nil|null) uuid_stdout="$(uuid_nil)" ;;
-    (1) uuid_stdout="$(uuid_v1)" ;;
-    (2) uuid_stdout="$(uuid_v2)" ;;
-    (3) uuid_stdout="$(uuid_v3)" ;;
-    (4) uuid_stdout="$(uuid_v4)" ;;
-    (5) uuid_stdout="$(uuid_v5)" ;;
-    ('')
-      if [[ -r /proc/sys/kernel/random/uuid ]]; then
-        # This is a v4 type UUID
-        uuid_stdout="$(</proc/sys/kernel/random/uuid)"
-      else
-        uuid_stdout="$(uuid_pseudo)"
-      fi
-    ;;
+    (1)  uuid_stdout="$(uuid_v1)" ;;
+    (2)  uuid_stdout="$(uuid_v2)" ;;
+    (3)  uuid_stdout="$(uuid_v3)" ;;
+    (4)  uuid_stdout="$(uuid_v4)" ;;
+    (5)  uuid_stdout="$(uuid_v5)" ;;
+    ('') uuid_v4 ;;
   esac
   printf -- '%s\n' "${uuid_stdout}"
   # Retvals
