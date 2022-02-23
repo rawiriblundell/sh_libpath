@@ -175,3 +175,149 @@ fi
 
 readonly OSSTR OSVER OSBOOTTIME
 export OSSTR OSVER OSBOOTTIME
+
+---
+
+LC_ALL=C
+LANG=C
+export LANG LC_ALL
+
+# Ensure that PATH covers everything we can possibly think of
+# We order it with xpg6/4 first to help Solaris to not be such a precious tulip
+PATH=/usr/xpg6/bin:/usr/xpg4/bin:/usr/kerberos/bin:/usr/kerberos/sbin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/opt/csw/bin:/opt/csw/sbin:/opt/sfw/bin:/opt/sfw/sbin:/usr/sfw/bin:/usr/sfw/sbin:$PATH
+
+# We sanitise the PATH variable to only include
+# directories that exist on the host.
+newPath=
+# Split the PATH out into individual loop elements
+for dir in `echo "${PATH}" | tr ":" "\n"`; do
+  # If the directory exists, add it to the newPath variable
+  if [ -d "${dir}" ]; then
+    newPath="${newPath}:${dir}"
+  fi
+done
+
+# If a leading colon sneaks in, get rid of it
+if echo "${newPath}" | grep "^:" >/dev/null 2>&1; then
+  newPath=`echo "${newPath}" | cut -d ":" -f2-`
+fi
+
+# Now assign our freshly built newPath variable and export it
+PATH="${newPath}"
+export PATH
+
+# This is either the kernel version (Linux) or the release version (everything else)
+if [ -z "${KERNEL}" ]; then KERNEL=`uname -r`; fi
+
+# If it's unset, set RELEASE to be the same as KERNEL
+if [ -z "${RELEASE}" ]; then RELEASE="${KERNEL}"; fi
+
+# Machine Type - identifies the system hardware
+# This typically displays CPU architecture e.g. i686, ia64, sparc etc
+if [ -z "${MACHTYPE}" ]; then
+  # -p works on Linux, Solaris and AIX
+  if uname -p >/dev/null 2>&1; then
+    MACHTYPE=`uname -p`
+  # -p is not available on HP-UX, until I know better, we use -m
+  elif uname -m >dev/null 2>&1; then
+    MACHTYPE=`uname -m`
+  fi
+fi
+
+# This is the same as MACHTYPE
+if [ -z "${HOSTTYPE}" ]; then HOSTTYPE="${MACHTYPE}"; fi
+
+MACH=`uname -m`
+
+# This is the OS Name, nice and simple.
+OS=`uname -s`
+
+export HOSTTYPE KERNEL MACH MACHTYPE OS
+
+# Now we check against OS, ensure that OSTYPE is set and some other useful info
+case ${OS} in
+  "Linux" | "linux-gnu" | "GNU"*)
+  if [ -z "${OSTYPE}" ]; then OSTYPE=linux-gnu; export OSTYPE; fi
+
+	if [ -f /etc/redhat-release ]; then
+      DistroBasedOn=RedHat
+      DistroPkgType=rpm
+      DistroFullName=`sed s/\ release.*// /etc/redhat-release`
+      DistroCodename=`sed s/.*\(// /etc/redhat-release | sed s/\)//`
+      DistroRevision=`sed s/.*release\ // /etc/redhat-release | sed s/\ .*//`
+    elif [ -f /etc/SuSE-release ]; then
+      DistroBasedOn=SuSe
+      DistroPkgType=rpm
+      DistroCodename=`tr "\n" ' ' < /etc/SuSE-release | sed s/VERSION.*//`
+      DistroRevision=`tr "\n" ' ' < /etc/SuSE-release | sed s/.*=\ //`
+    elif [ -f /etc/mandrake-release ]; then
+      DistroBasedOn=Mandrake
+      DistroPkgType=rpm
+      DistroCodename=`sed s/.*\(// /etc/mandrake-release | sed s/\)//`
+      DistroRevision=`sed s/.*release\ // /etc/mandrake-release | sed s/\ .*//`
+    elif [ -f /etc/debian_version ]; then
+      DistroBasedOn=Debian
+      DistroPkgType=deb
+      DistroFullName=`grep '^DISTRIB_DESCRIPTION' /etc/lsb-release | awk -F=  '{ print $2 }'`
+      DistroCodename=`grep '^DISTRIB_CODENAME' /etc/lsb-release | awk -F=  '{ print $2 }'`
+      DistroRevision=`grep '^DISTRIB_RELEASE' /etc/lsb-release | awk -F=  '{ print $2 }'`
+    elif [ -f /etc/slackware-version ]; then
+      DistroBasedOn=Slackware
+      DistroPkgType=pkgtools
+      DistroFullName=
+      DistroCodename=
+      DistroRevision=
+    fi
+    export DistroBasedOn DistroPkgType DistroFullName DistroCodename DistroRevision
+    ;;
+  "SunOS" | "solaris")
+    if [ -z "${OSTYPE}" ]; then OSTYPE=solaris; export OSTYPE; fi
+    ARCH=`uname -p`
+    OSSTR=`uname -a`
+    export ARCH OSSTR
+    ;;
+  "AIX")
+    if [ -z "${OSTYPE}" ]; then OSTYPE=aix; export OSTYPE; fi
+    OSSTR="${OS} )oslevel) ()oslevel -r))"
+    export OSSTR
+    ;;
+  "HPUX")
+    if [ -z "${OSTYPE}" ]; then OSTYPE=hpux; export OSTYPE; fi
+    ;;
+  *"BSD" | "DragonFly" | "Bitrig")
+    if [ -z "${OSTYPE}" ]; then OSTYPE=bsd; export OSTYPE; fi
+    ;;
+  "Darwin")
+    if [ -z "${OSTYPE}" ]; then OSTYPE=mac; export OSTYPE; fi
+    # For osx, we use 'sw_vers' which has output like this:
+    # ProductName: Mac OS X
+    # ProductVersion: 10.2.3
+    # BuildVersion: 6G30
+    OIFS="$IFS"; IFS=$'\n'
+    set `sw_vers` > /dev/null
+    DIST=`echo $1 | tr "\n" ' ' | sed 's/ProductName:[ ]*//'`
+    VERSION=`echo $2 | tr "\n" ' ' | sed 's/ProductVersion:[ ]*//'`
+    BUILD=`echo $3 | tr "\n" ' ' | sed 's/BuildVersion:[ ]*//'`
+    IFS="$OIFS"
+    # We may need this one day, I'll just hide it here for now
+    #Serial Number: $(system_profiler SPHardwareDataType | awk '/Serial/ {print $4}')
+    ;;
+  "CYGWIN"* | "MSYS"* | "MINGW"*)
+    if [ -z "${OSTYPE}" ]; then OSTYPE=Windows; export OSTYPE; fi
+    ;;
+  "Haiku")
+    if [ -z "${OSTYPE}" ]; then OSTYPE=Haiku; export OSTYPE; fi
+    ;;
+  "MINIX")
+    if [ -z "${OSTYPE}" ]; then OSTYPE=MINIX; export OSTYPE; fi
+    ;;
+  "IRIX64")
+    if [ -z "${OSTYPE}" ]; then OSTYPE=IRIX; export OSTYPE; fi
+    ;;
+  *)
+    printf '%s\n' "[configGenie ERROR]: Unrecognised Operating System."
+    exit 1
+    ;;
+esac
+
+OSSTR="${OS} ${DistroBasedOn} ${RELEASE} (${DistroCodename} ${KERNEL} ${MACH})"
