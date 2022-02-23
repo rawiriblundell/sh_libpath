@@ -66,3 +66,51 @@ f_to_c() {
     fi
     unset -v _temp_c _temp_f
 }
+
+# Celsius to Kelvin
+# Forumla: temp + 273.15.  Easy!
+c_to_k()  {
+    _temp_c="${1}"
+    if _temp_number_validation "${_temp_c}"; then
+        _temp_k=$(printf -- '%s\n' "scale=2;${_temp_c} + 273.15" | bc)
+        printf -- '%.2f\n' "${_temp_k}"
+    else
+        printf -- '%s\n' "null"
+    fi
+    unset -v _temp_c _temp_k
+}
+
+# Kelvin to Celsius
+# Forumla: temp - 273.15.  Easy!
+k_to_c()  {
+    _temp_k="${1}"
+    if _temp_number_validation "${_temp_k}"; then
+        _temp_c=$(printf -- '%s\n' "scale=2;${_temp_k} - 273.15" | bc)
+        printf -- '%.2f\n' "${_temp_c}"
+    else
+        printf -- '%s\n' "null"
+    fi
+    unset -v _temp_c _temp_k
+}
+
+# Fahrenheit to Kelvin
+# Formula: There's a couple of formulas out there, one is literally f -> c -> k
+f_to_k() {
+    _temp_f="${1}"
+    _temp_k=$(f_to_c "${_temp_f}")
+    _temp_k=$(c_to_k "${_temp_k}")
+    printf -- '%.2f\n' "${_temp_k}"
+    unset -v _temp_k _temp_f
+}
+
+# Kelvin to Fahrenheit
+# Formula: Reverse of the above - k -> c -> f
+k_to_f() {
+    _temp_k="${1}"
+    _temp_f=$(k_to_c "${_temp_k}")
+    _temp_f=$(c_to_f "${_temp_f}")
+    printf -- '%.2f\n' "${_temp_f}"
+    unset -v _temp_k _temp_f
+}
+
+#TODO: Any thirst for Reaumur and/or Rankine? :)

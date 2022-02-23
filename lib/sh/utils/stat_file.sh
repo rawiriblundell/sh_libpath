@@ -51,3 +51,13 @@ whoowns() {
     ls -ld "${1}" | awk 'NR==1 {print $3}'
   fi
 }
+
+# Test a file's age in seconds
+get_file_age() {
+  if [[ -f "${1:?No file specified}" ]]; then
+    printf -- '%s\n' "$(( $(date +%s) - $(stat -c %Y "${1}") ))"
+  else
+    printf -- '%s\n' "No such file or unreadable: '${1}'"
+    return 1
+  fi
+}
