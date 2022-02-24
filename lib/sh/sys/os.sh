@@ -125,6 +125,24 @@ case $(uname -s) in
                 write "$(($(get_epoch) - $(stat -c %Z /dev/pts)))"
             fi    
         }
+        # Operating System
+        # For versions that have 'PRETTY_NAME' in e.g. /etc/os-release
+        if nullgrep "^PRETTY_NAME.*[0-9]" /etc/os-release; then
+        operSys=$(awk -F "=" '/^PRETTY_NAME=/{print $2}' /etc/os-release | tr -d '"')
+        # Sometimes PRETTY_NAME does not include version info, so we build it manually, and
+        # for older versions with /etc/os-release but not PRETTY_NAME, we try to construct it
+        elif nullgrep -hE "^NAME=|^VERSION=" /etc/os-release; then 
+        operSys=$(awk -F "=" '/^NAME=|^VERSION=/{print $2}' /etc/os-release | tr -d '"' | paste -sd ' ' -)
+        # For everything else, we just try to get whatever we can
+        else
+        operSys=$(grep -Ehi -m 1 'red hat|fedora|cent|enterprise|debian|ubuntu|slack|suse|gentoo' /etc/*release* /etc/*version* 2>/dev/null \
+            | grep "[0-9]" | head -n 1 | sed -e 's/^.*NAME=//' -e 's/DISTRIB_ID=//' -e 's/=//')
+        fi
+        # Be aware: this attempt to give a portable fallback is still problematic
+        # e.g. in a container, the host /proc/version will be given
+        if [[ -z ${operSys} ]]; then
+        operSys=$(</proc/version)
+        fi
     ;;
     ("NetBSD")
         OSSTR=netbsd
