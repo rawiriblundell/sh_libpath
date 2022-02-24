@@ -15,6 +15,9 @@
 # limitations under the License.
 ################################################################################
 
+# Start up SH_STACK
+SH_STACK=( "START====> $(date +%Y%m%d_%H:%M:%S_%Z)" )
+
 # Potential basepaths for where our libraries might be placed
 # TO-DO: Expand and include $FPATH (ksh, z/OS) and/or $fpath (zsh)
 POSSIBLE_SH_LIBPATHS=(
@@ -24,12 +27,11 @@ POSSIBLE_SH_LIBPATHS=(
   /usr/share/misc
 )
 
-# If SH_LIBPATH is not set or null, then we try to build it
-if [ -z "${SH_LIBPATH+x}" ] || [ "${#SH_LIBPATH}" -eq "0" ]; then
-  for _path in "${POSSIBLE_SH_LIBPATHS[@]}"; do
-    [ -d "${_path}" ] && SH_LIBPATH="${SH_LIBPATH}:${_path}"
-  done
-fi
+# we dynamically build SH_LIBPATH
+unset -v SH_LIBPATH
+for _path in "${POSSIBLE_SH_LIBPATHS[@]}"; do
+  [ -d "${_path}" ] && SH_LIBPATH="${SH_LIBPATH}:${_path}"
+done
 unset -v _path
 # Remove any leading colons from the construction process and export
 SH_LIBPATH="${SH_LIBPATH#:}"
@@ -40,6 +42,8 @@ if (( "${#SH_LIBPATH}" == 0 )); then
   printf -- '%s\n' "SH_LIBPATH appears to be empty" >&2
   exit 1
 fi
+
+SH_STACK=( "${SH_STACK[@]}" "SH_LIBPATH: ${SH_LIBPATH}" )
 
 # Function to work through a list of commands and/or files
 # and fail on any unmet requirements.  Example usage:
@@ -158,8 +162,11 @@ import() {
     exit 1
   fi
 
+  SH_STACK=( "${SH_STACK[@]}" "import() > processing '${*}'" )
+
   case "${#}" in
     (1)
+      SH_STACK=( "${SH_STACK[@]}" "import() > case > 1" )
       _target_lib="${1}"
 
       # Ensure that it's not already loaded
@@ -195,14 +202,17 @@ import() {
         elif [ -e "${_target_lib}" ]; then
           printf -- 'import: %s\n' "Insufficient permissions while importing '${_target_lib}'" >&2
           unset -v _target _target_lib
+          [ -t 0 ] && return 1
           exit 1
         fi
       done
     ;;
     (3)
+    SH_STACK=( "${SH_STACK[@]}" "import() > case > 3" )
       # Ensure our args are as desired - in count and structure
       if ! [ "${2}" = "from" ]; then
         printf -- 'import: %s\n' "Incorrect usage of 'import'" >&2
+        [ -t 0 ] && return 1
         exit 1
       fi
       _function="${1}"
@@ -210,6 +220,7 @@ import() {
 
       case "${_function}" in
         (all)
+          SH_STACK=( "${SH_STACK[@]}" "import() > case > 3 > all" )
           # Get first found match of subdir in SH_LIBPATH
           for _target_lib in ${SH_LIBPATH//://$_subdir }/${_subdir}; do
             if [ -d "${_target_lib}" ]; then
@@ -221,6 +232,7 @@ import() {
           # If we can't find it, fail out
           if [ "${_subdir_path+x}" = "x" ] || [ "${#_subdir_path}" -eq "0" ]; then
             printf -- 'import: %s\n' "'${_subdir}' not found in SH_LIBPATH" >&2
+            [ -t 0 ] && return 1
             exit 1
           fi
 
@@ -232,6 +244,7 @@ import() {
               # shellcheck disable=SC1090
               . "${_subdir_path}/${_target_lib}" || {
                 printf -- 'import: %s\n' "Failed to load '${_target_lib}' from ${_subdir_path}" >&2
+                [ -t 0 ] && return 1
                 exit 1
               }
               SH_LIBS_LOADED="${SH_LIBS_LOADED} ${_target_lib}"
@@ -240,6 +253,7 @@ import() {
             elif [ -e "${_target_lib}" ]; then
               printf -- 'import: %s\n' "Insufficient permissions while importing '${_target_lib}'" >&2
               unset -v _target _target_lib
+              [ -t 0 ] && return 1
               exit 1
             fi
           done
@@ -248,9 +262,12 @@ import() {
           return 0
         ;;
         (*)
+          SH_STACK=( "${SH_STACK[@]}" "import() > case > 3 > '*'" )
           _target_lib="${_subdir}/${_function}"
-            # Ensure that it's not already loaded
-            _is_lib_loaded "${_target_lib}" && return 0
+          
+          # Ensure that it's not already loaded
+          _is_lib_loaded "${_target_lib}" && return 0
+          for _target_lib in ${SH_LIBPATH//://$_target_lib }/${_target_lib}; do
             if [ -r "${_target_lib}" ]; then
               # shellcheck disable=SC1090
               . "${_target_lib}" || { printf -- 'import: %s\n' "Failed to load '${_target_lib}'" >&2; exit 1; }
@@ -262,19 +279,26 @@ import() {
             elif [ -e "${_target_lib}" ]; then
               printf -- 'import: %s\n' "Insufficient permissions while importing '${_target_lib}'" >&2
               unset -v _target _target_lib
+              [ -t 0 ] && return 1
               exit 1
             fi
+          done
         ;;
       esac
 
       # If we get to this point, then the library wasn't loaded for some reason
       printf -- 'import: %s\n' "Unspecified error while importing '${_function}' from '${_subdir}'" >&2
+      printf -- '%s\n' "" "${SH_STACK[@]}"
       unset -v _subdir _function _subdir_path _target_lib
+      [ -t 0 ] && return 1
       exit 1
     ;;
     (*)
+      SH_STACK=( "${SH_STACK[@]}" "import() > case > '*'" )
       # If we're here, then 'import()' wasn't called correctly
       printf -- 'import: %s\n' "Unspecified error while executing 'import ${*}'" >&2
+      printf -- '%s\n' "" "${SH_STACK[@]}"
+      [ -t 0 ] && return 1
       exit 1
     ;;
   esac
