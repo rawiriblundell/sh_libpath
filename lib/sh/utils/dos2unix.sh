@@ -20,7 +20,7 @@
 # Basic step-in function for dos2unix
 # This simply removes dos line endings using 'sed'
 # Alternative approach: tr -d '\015'
-if ! get_command dos2unix; then
+if ! command -v dos2unix >/dev/null 2>&1; then
   dos2unix() {
     if [[ "${1:0:1}" = '-' ]]; then
       printf -- '%s\n' "This is a simple step-in function, '${1}' isn't supported"

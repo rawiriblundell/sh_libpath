@@ -17,59 +17,60 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-if [[ -x /bin/systemctl ]]; then
-  Start_Service() {
+if command -v systemctl >/dev/null 2>&1; then
+  svc_start() {
     /bin/systemctl start "${1:?No service specified}"
   }
-  Restart_Service() {
+  svc_restart() {
     /bin/systemctl restart "${1:?No service specified}"
   }
+  svc_status() {
+    /bin/systemctl --quiet is-active "${1:?No service specified}"
+  }
+
+  # Check if a service is enabled
+  get-service-enabled() {
+    systemctl list-unit-files | grep -q "${1:?svc unset}.*enabled"
+    return "$?"
+  }
+
+  # Check if a service is active
+  get-service-active() {
+    systemctl | grep -q "${1:?svc unset}.service.*running"
+    return "$?"
+  }
+
 elif [[ -x /sbin/service ]]; then
-  Start_Service() {
+  svc_start() {
     /sbin/service "${1:?No service specified}" start >/dev/null 2>&1
   }
-  Restart_Service() {
+  svc_restart() {
     /sbin/service "${1:?No service specified}" restart >/dev/null 2>&1
   }
+  svc_status() {
+    /sbin/service "${1:?No service specified}" status >/dev/null 2>&1
+  }
+
 elif [[ -f /etc/init.d/"${1:?No service specified}" ]]; then
-  Start_Service() {
+  svc_start() {
     /etc/init.d/"${1:?No service specified}" start >/dev/null 2>&1
   }
-  Restart_Service() {
+  svc_restart() {
     /etc/init.d/"${1:?No service specified}" restart >/dev/null 2>&1
   }
+  svc_status() {
+    /etc/init.d/"${1:?No service specified}" status >/dev/null 2>&1
+  }
+  
 else
-  Start_Service() {
-    printDebug "No service specified, or service control method not found"
+  svc_start() {
+    printf -- '%s\n' "No service specified, or service control method not found" >&2
   }
-  Restart_Service() {
-    printDebug "No service specified, or service control method not found"
+  svc_restart() {
+    printf -- '%s\n' "No service specified, or service control method not found" >&2
   }
-fi
-
-# Determine -how- to check a service status
-if [[ -x /bin/systemctl ]]; then
-  svcCmd() {
-    /bin/systemctl --quiet is-active "${svcName}"
-  }
-elif [[ -x /sbin/service ]]; then
-  svcCmd() {
-    /sbin/service "${svcName}" status >/dev/null 2>&1
-  }
-elif [[ -f /etc/init.d/"${svcName}" ]]; then
-  svcCmd() {
-    /etc/init.d/"${svcName}" status >/dev/null 2>&1
+  svc_status() {
+    printf -- '%s\n' "No service specified, or service control method not found" >&2
   }
 fi
 
-# Check if a service is enabled
-get-service-enabled() {
-  systemctl list-unit-files | grep -q "${1:?svc unset}.*enabled"
-  return "$?"
-}
-
-# Check if a service is active
-get-service-active() {
-  systemctl | grep -q "${1:?svc unset}.service.*running"
-  return "$?"
-}
