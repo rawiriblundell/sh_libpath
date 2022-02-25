@@ -16,7 +16,11 @@
 ################################################################################
 
 # Start up SH_STACK
-SH_STACK=( "START====> $(date +%Y%m%d_%H:%M:%S_%Z)" )
+SH_STACK=()
+sh_stack_add() {
+  SH_STACK=( "${SH_STACK[@]}" "$(date +%Y%m%d_%H:%M:%S_%Z): ${*}" )
+}
+sh_stack_add "=> START"
 
 # Potential basepaths for where our libraries might be placed
 # TO-DO: Expand and include $FPATH (ksh, z/OS) and/or $fpath (zsh)
@@ -43,7 +47,7 @@ if (( "${#SH_LIBPATH}" == 0 )); then
   exit 1
 fi
 
-SH_STACK=( "${SH_STACK[@]}" "SH_LIBPATH: ${SH_LIBPATH}" )
+sh_stack_add "SH_LIBPATH: ${SH_LIBPATH}"
 
 # Function to work through a list of commands and/or files
 # and fail on any unmet requirements.  Example usage:
@@ -162,11 +166,11 @@ import() {
     exit 1
   fi
 
-  SH_STACK=( "${SH_STACK[@]}" "import() > processing '${*}'" )
+  sh_stack_add "import() > processing '${*}'"
 
   case "${#}" in
     (1)
-      SH_STACK=( "${SH_STACK[@]}" "import() > case > 1" )
+      sh_stack_add "import() > case > 1"
       _target_lib="${1}"
 
       # Ensure that it's not already loaded
