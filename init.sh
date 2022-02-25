@@ -18,9 +18,21 @@
 # Start up SH_STACK
 SH_STACK=()
 sh_stack_add() {
-  SH_STACK=( "${SH_STACK[@]}" "$(date +%Y%m%d_%H:%M:%S_%Z): ${*}" )
+  _sh_stack_depth='=>'
+  case "${1}" in
+    (-[0-9]*)
+      _sh_stack_i=1
+      while (( _sh_stack_i < "${1:/-/}" )); do
+        _sh_stack_depth="${_sh_stack_depth}>"
+        _sh_stack_i=$(( _sh_stack_i + 1 ))
+      done
+      shift -n 1
+    ;;
+  esac
+  SH_STACK=( "${SH_STACK[@]}" "$(date +%Y%m%d_%H:%M:%S_%Z): ${_sh_stack_depth} ${*}" )
+  unset -v _sh_stack_depth _sh_stack_i
 }
-sh_stack_add "=> START"
+sh_stack_add "START"
 
 # Potential basepaths for where our libraries might be placed
 # TO-DO: Expand and include $FPATH (ksh, z/OS) and/or $fpath (zsh)
@@ -160,17 +172,16 @@ _is_lib_loaded() {
 #          import puts.sh from text
 #  The second form also supports the keyword 'all' e.g. 'import all from dir'
 import() {
+  sh_stack_add -2 "Entering 'import()' and processing '${*}'"
   # Ensure that SH_LIBPATH has some substance, otherwise why bother?
   if (( "${#SH_LIBPATH}" == 0 )); then
     printf -- 'import: %s\n' "SH_LIBPATH appears to be empty" >&2
     exit 1
   fi
 
-  sh_stack_add "import() > processing '${*}'"
-
   case "${#}" in
     (1)
-      sh_stack_add "import() > case > 1"
+      sh_stack_add -3 "case > 1"
       _target_lib="${1}"
 
       # Ensure that it's not already loaded
@@ -212,7 +223,7 @@ import() {
       done
     ;;
     (3)
-    SH_STACK=( "${SH_STACK[@]}" "import() > case > 3" )
+      sh_stack_add 3 "case > 3"
       # Ensure our args are as desired - in count and structure
       if ! [ "${2}" = "from" ]; then
         printf -- 'import: %s\n' "Incorrect usage of 'import'" >&2
@@ -224,7 +235,7 @@ import() {
 
       case "${_function}" in
         (all)
-          SH_STACK=( "${SH_STACK[@]}" "import() > case > 3 > all" )
+          sh_stack_add -4 "case > 3 > all"
           # Get first found match of subdir in SH_LIBPATH
           for _target_lib in ${SH_LIBPATH//://$_subdir }/${_subdir}; do
             if [ -d "${_target_lib}" ]; then
@@ -266,7 +277,7 @@ import() {
           return 0
         ;;
         (*)
-          SH_STACK=( "${SH_STACK[@]}" "import() > case > 3 > '*'" )
+          sh_stack_add -4 "case > 3 > '*'"
           _target_lib="${_subdir}/${_function}"
           
           # Ensure that it's not already loaded
@@ -298,7 +309,7 @@ import() {
       exit 1
     ;;
     (*)
-      SH_STACK=( "${SH_STACK[@]}" "import() > case > '*'" )
+      sh_stack_add -3 "case > '*'"
       # If we're here, then 'import()' wasn't called correctly
       printf -- 'import: %s\n' "Unspecified error while executing 'import ${*}'" >&2
       printf -- '%s\n' "" "${SH_STACK[@]}"
