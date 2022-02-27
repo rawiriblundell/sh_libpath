@@ -64,7 +64,7 @@ case "${OSSTR:-$(uname -s)}" in
       serialNumber=$(ipmitool fru print |
         grep -E 'Mainboard|/SYS' |
         awk '{print $7}' |
-        cut -d ")" -f1) |
+        cut -d ")" -f1 |
         awk '/Product Serial/{print $4}'
       )
     # Alternatively we could make something up based on prtfru (SPARC)

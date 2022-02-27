@@ -21,7 +21,7 @@
 # Stops reading after one character, meaning only 'y' or 'Y' will return 0
 # _anything_ else will return 1
 confirm() {
-  read -rn 1 -p "${*:-Continue} [Y/N]? "
+  read -rn 1 -p "${*:-Continue} [y/N]? "
   printf -- '%s\n' ""
   case "${REPLY}" in
     ([yY]) return 0 ;;
@@ -43,7 +43,7 @@ confirm() {
     ;;
   esac
   
-  read "${confirm_args[@]}" -rn 1 -p "${*:-Continue} [Y/N]? "
+  read "${confirm_args[@]}" -rn 1 -p "${*:-Continue} [y/N]? "
   printf -- '%s\n' ""
   case "${REPLY}" in
     ([yY]) return 0 ;;

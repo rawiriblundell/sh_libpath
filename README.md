@@ -185,6 +185,12 @@ In no particular order...
 * https://github.com/m10k/toolbox
 * https://github.com/awesome-lists/awesome-bash Maybe holds some more
 * https://github.com/alebcay/awesome-shell
+* https://github.com/xsh-lib/core
+* https://github.com/martinburger/bash-common-helpers
+* https://github.com/codeforester/base
+* https://github.com/DethByte64/BashLib
+* https://github.com/paralllax/libash
+* https://github.com/jandob/rebash
 
 ## List of projects that may be inspirational
 

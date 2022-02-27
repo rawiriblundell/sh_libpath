@@ -20,42 +20,43 @@
 stat_file() {
     case "${1}" in
         (atime)
-            stat -c %X "${1}" 2>/dev/null || 
-                stat -f %a "${1}" 2>/dev/null ||
-                perl -e 'if (! -f $ARGV[0]){die "0000000"};$atime=(stat($ARGV[0]))[8];print $atime."\n";' "${1}"
+            stat -c %X "${2:?No Target Defined}" 2>/dev/null || 
+                stat -f %a "${2}" 2>/dev/null ||
+                perl -e 'if (! -f $ARGV[0]){die "0000000"};$atime=(stat($ARGV[0]))[8];print $atime."\n";' "${2}"
         ;;
         (ctime)
-            stat -c %Z "${1}" 2>/dev/null || 
-                stat -f %c "${1}" 2>/dev/null ||
-                perl -e 'if (! -f $ARGV[0]){die "0000000"};$ctime=(stat($ARGV[0]))[10];print $ctime."\n";' "${1}"        
+            stat -c %Z "${2:?No Target Defined}" 2>/dev/null || 
+                stat -f %c "${2}" 2>/dev/null ||
+                perl -e 'if (! -f $ARGV[0]){die "0000000"};$ctime=(stat($ARGV[0]))[10];print $ctime."\n";' "${2}"        
         ;;
         (mtime)
-            stat -c %Y "${1}" 2>/dev/null || 
-                stat -f %m "${1}" 2>/dev/null ||
-                perl -e 'if (! -f $ARGV[0]){die "0000000"};$mtime=(stat($ARGV[0]))[9];print $mtime."\n";' "${1}"
+            stat -c %Y "${2:?No Target Defined}" 2>/dev/null || 
+                stat -f %m "${2}" 2>/dev/null ||
+                perl -e 'if (! -f $ARGV[0]){die "0000000"};$mtime=(stat($ARGV[0]))[9];print $mtime."\n";' "${2}"
+        ;;
+        (size)
+            stat -c %s "${2:?No Target Defined}" 2>/dev/null ||
+                stat -f %z "${2}" 2>/dev/null ||
+                perl -e 'if (! -f $ARGV[0]){die "0000000"};$size=(stat($ARGV[0]))[7];print $size."\n";' "${2}"
+        ;;
+        (owner)
+            # shellcheck disable=SC2012
+            stat -c %U "${2:?No Target Defined}" 2>/dev/null ||
+                stat -f %Su "${2}" 2>/dev/null ||
+                ls -ld "${2}" | awk 'NR==1 {print $3}'
         ;;
     esac
 }
 
 # Function to get the owner of a file
 whoowns() {
-  # First we try GNU-style 'stat'
-  if stat -c '%U' "${1}" >/dev/null 2>&1; then
-     stat -c '%U' "${1}"
-  # Next is BSD-style 'stat'
-  elif stat -f '%Su' "${1}" >/dev/null 2>&1; then
-    stat -f '%Su' "${1}"
-  # Otherwise, we failover to 'ls', which is not usually desireable
-  else
-    # shellcheck disable=SC2012
-    ls -ld "${1}" | awk 'NR==1 {print $3}'
-  fi
+  stat_file owner "${1}"
 }
 
 # Test a file's age in seconds
 get_file_age() {
   if [[ -f "${1:?No file specified}" ]]; then
-    printf -- '%s\n' "$(( $(date +%s) - $(stat -c %Y "${1}") ))"
+    printf -- '%s\n' "$(( $(date +%s) - $(stat_file mtime "${1}") ))"
   else
     printf -- '%s\n' "No such file or unreadable: '${1}'"
     return 1
