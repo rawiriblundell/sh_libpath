@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# CC0 1.0 Universal
+# Provenance: https://raw.githubusercontent.com/bashup/realpaths/master/realpaths
+
+realpath.location(){ realpath.follow "$1"; realpath.absolute "$REPLY" ".."; }
+realpath.resolved(){ realpath.follow "$1"; realpath.absolute "$REPLY"; }
+realpath.dirname() { REPLY=.; ! [[ $1 =~ /+[^/]+/*$|^//$ ]] || REPLY="${1%${BASH_REMATCH[0]}}"; REPLY=${REPLY:-/}; }
+realpath.basename(){ REPLY=/; ! [[ $1 =~ /*([^/]+)/*$ ]] || REPLY="${BASH_REMATCH[1]}"; }
+
+realpath.follow() {
+	local target
+	while [[ -L "$1" ]] && target=$(readlink -- "$1"); do
+		realpath.dirname "$1"
+		# Resolve relative to symlink's directory
+		[[ $REPLY != . && $target != /* ]] && REPLY=$REPLY/$target || REPLY=$target
+		# Break out if we found a symlink loop
+		for target; do [[ $REPLY == "$target" ]] && break 2; done
+		# Add to the loop-detect list and tail-recurse
+		set -- "$REPLY" "$@"
+	done
+	REPLY="$1"
+}
+
+realpath.absolute() {
+	REPLY=$PWD; local eg=extglob; ! shopt -q $eg || eg=; ${eg:+shopt -s $eg}
+	while (($#)); do case $1 in
+		//|//[^/]*) REPLY=//; set -- "${1:2}" "${@:2}" ;;
+		/*) REPLY=/; set -- "${1##+(/)}" "${@:2}" ;;
+		*/*) set -- "${1%%/*}" "${1##${1%%/*}+(/)}" "${@:2}" ;;
+		''|.) shift ;;
+		..) realpath.dirname "$REPLY"; shift ;;
+		*) REPLY="${REPLY%/}/$1"; shift ;;
+	esac; done; ${eg:+shopt -u $eg}
+}
+
+realpath.canonical() {
+	realpath.follow "$1"; set -- "$REPLY"   # $1 is now resolved
+	realpath.basename "$1"; set -- "$1" "$REPLY"   # $2 = basename $1
+	realpath.dirname "$1"
+	[[ $REPLY != "$1" ]] && realpath.canonical "$REPLY"; # recurse unless root
+	realpath.absolute "$REPLY" "$2";   # combine canon parent w/basename
+}
+
+realpath.relative() {
+	local target=""
+	realpath.absolute "$1"; set -- "$REPLY" "${@:2}"; realpath.absolute "${2-$PWD}" X
+	while realpath.dirname "$REPLY"; [[ "$1" != "$REPLY" && "$1" == "${1#${REPLY%/}/}" ]]; do
+		target=../$target
+	done
+	[[ $1 == "$REPLY" ]] && REPLY=${target%/} || REPLY="$target${1#${REPLY%/}/}"
+	REPLY=${REPLY:-.}
+}

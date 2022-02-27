@@ -173,6 +173,7 @@ The Unofficial Strict Mode is textbook [Cargo Cult Programming.](https://en.wiki
 
 Some light reading into the matter:
 
+* https://www.in-ulm.de/~mascheck/various/set-e/
 * https://lists.nongnu.org/archive/html/bug-bash/2017-03/msg00171.html
 * https://www.reddit.com/r/commandline/comments/g1vsxk/the_first_two_statements_of_your_bash_script/fniifmk/
 * http://wiki.bash-hackers.org/scripting/obsolete

@@ -57,6 +57,16 @@ _uuid_gettime() {
   unset -v _uuid_ns100_now _uuid_nano_100
 }
 
+# Name string is a fully-qualified domain name
+_uuid_namespace_dns='6ba7b810-9dad-11d1-80b4-00c04fd430c8'
+# Name string is a URL
+_uuid_namespace_url='6ba7b811-9dad-11d1-80b4-00c04fd430c8'
+# Name string is an ISO OID
+_uuid_namespace_oid='6ba7b812-9dad-11d1-80b4-00c04fd430c8'
+# Name string is an X.500 DN (in DER or a text output format)
+_uuid_namespace_x500='6ba7b814-9dad-11d1-80b4-00c04fd430c8'
+
+# Default to ssh RSA fingerprint?
 
 uuid_nil() {
   printf -- '%s\n' "00000000-0000-0000-0000-000000000000"
@@ -68,6 +78,8 @@ uuid_v1() {
     uuidgen --time
     return 0
   fi
+  _uuid_time=$(_uuid_gettime)
+  
 }
 
 # Date-time and mac address, DCE security version
@@ -81,6 +93,8 @@ uuid_v3() {
     uuidgen --md5
     return 0
   fi
+
+  # Namespace+string, then md5'd, first 128 bits sliced off and some tweaks
 }
 
 # Fully random using /dev/urandom
@@ -119,6 +133,19 @@ uuid_v5() {
     uuidgen --sha1
     return 0
   fi
+}
+
+# https://datatracker.ietf.org/doc/html/draft-peabody-dispatch-new-uuid-format
+uuid_v6() {
+  printf -- '%s\n' "Watch this space..."
+}
+
+uuid_v7() {
+  printf -- '%s\n' "Watch this space..."
+}
+
+uuid_v8() {
+  printf -- '%s\n' "Watch this space..."
 }
 
 uuid_pseudo() {

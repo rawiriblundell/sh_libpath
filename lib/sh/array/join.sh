@@ -21,12 +21,12 @@
 
 # Example usage:
 
-#     ▓▒░$ array::join '|' a b c d
+#     ▓▒░$ array_join '|' a b c d
 #     a|b|c|d
-#     ▓▒░$ array::join '||||' a b c d
+#     ▓▒░$ array_join '||||' a b c d
 #     a||||b||||c||||d
 #     ▓▒░$ testarray=( a 'b c' d e )
-#     ▓▒░$ array::join ',' "${testarray[@]}"
+#     ▓▒░$ array_join ',' "${testarray[@]}"
 #     a,b c,d,e
 
 array_join() {

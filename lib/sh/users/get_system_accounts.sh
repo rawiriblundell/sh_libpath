@@ -23,14 +23,14 @@ uidMin=$(awk '/^UID_MIN/{print $2}' /etc/login.defs)
 # So if we can't find it in login.defs, we'll default to '500'
 uidMin="${uidMin:-500}"
 
-get-system-accounts() {
+get_system_accounts() {
   awk -F ':' -v min="${uidMin}" '{ if ( $3 < min ) print $1 }' /etc/passwd
 }
 
-get-system-uids() {
+get_system_uids() {
   awk -F ':' -v min="${uidMin}" '{ if ( $3 < min ) print $3 }' /etc/passwd
 }
 
-get-user-uids() {
+get_user_uids() {
   awk -F ':' -v min="${uidMin}" '{ if ( $3 >= min ) print $3 }' /etc/passwd
 }
