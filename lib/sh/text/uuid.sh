@@ -19,6 +19,41 @@
 
 # RFC4122-style UUIDs
 
+# Name string is a fully-qualified domain name
+_uuid_namespace_dns='6ba7b810-9dad-11d1-80b4-00c04fd430c8'
+# Name string is a URL
+_uuid_namespace_url='6ba7b811-9dad-11d1-80b4-00c04fd430c8'
+# Name string is an ISO OID
+_uuid_namespace_oid='6ba7b812-9dad-11d1-80b4-00c04fd430c8'
+# Name string is an X.500 DN (in DER or a text output format)
+_uuid_namespace_x500='6ba7b814-9dad-11d1-80b4-00c04fd430c8'
+
+# Helper function to pull a bunch of hex-ish looking chars from /dev/urandom
+# Takes one arg: the number of chars to pull.  Defaults to 36.
+_uuid_randchars() {
+  tr -dc a-f0-9 < /dev/urandom | fold -w 1 | head -n "${1:-36}"
+}
+
+# Helper function to convert hostname to a hex string
+_uuid_getnode() {
+  # Initialise our hostname var
+  _uuid_hostname="${HOSTNAME:-$(uname -n)}"
+  # Stack the var until it's more than 6 chars long
+  # Each char when output takes two chars for hex representation
+  # ergo, 6 ascii chars = 12 in hex
+  while (( "${#_uuid_hostname}" < 6 )); do
+    _uuid_hostname="${_uuid_hostname}${HOSTNAME:-$(uname -n)}"
+  done
+  
+  printf -- '%s\n' "${_uuid_hostname}" |
+    fold -w 1 | 
+    head -n 6 | 
+    while read -r _uuid_char; do
+      printf -- '%02x' \'"${_uuid_char}"
+    done
+  printf -- '%s\n' ""
+}
+
 # Helper function to get time in a usable format
 # i.e. the number of 100's of nanoseconds since 15 Oct 1582.
 # The UUID Epoch is 00:00:00, 15 Oct 1582.
@@ -57,17 +92,6 @@ _uuid_gettime() {
   unset -v _uuid_ns100_now _uuid_nano_100
 }
 
-# Name string is a fully-qualified domain name
-_uuid_namespace_dns='6ba7b810-9dad-11d1-80b4-00c04fd430c8'
-# Name string is a URL
-_uuid_namespace_url='6ba7b811-9dad-11d1-80b4-00c04fd430c8'
-# Name string is an ISO OID
-_uuid_namespace_oid='6ba7b812-9dad-11d1-80b4-00c04fd430c8'
-# Name string is an X.500 DN (in DER or a text output format)
-_uuid_namespace_x500='6ba7b814-9dad-11d1-80b4-00c04fd430c8'
-
-# Default to ssh RSA fingerprint?
-
 uuid_nil() {
   printf -- '%s\n' "00000000-0000-0000-0000-000000000000"
 }
@@ -78,11 +102,26 @@ uuid_v1() {
     uuidgen --time
     return 0
   fi
+
   _uuid_time=$(_uuid_gettime)
-  
+  _uuid_clock=
+  _uuid_node=$(_uuid_getnode)
+
+  _uuid_i=1
+  while read -r _uuid_char; do
+    case "${_uuid_i}" in
+      (9|18|23) printf -- '%s' "-" ;;
+      (14)      printf -- '%s' "-4" ;;
+      (*)       printf -- '%s' "${_uuid_char}" ;;
+    esac
+    (( _uuid_i++ ))
+  done < <(printf -- '%s\n' "${_uuid_time}${_uuid_clock}${_uuid_node}" | fold -w 1)
+  printf -- '%s\n' ""
+  unset -v _uuid_i _uuid_char _uuid_time _uuid_clock _uuid_node
 }
 
 # Date-time and mac address, DCE security version
+# https://pubs.opengroup.org/onlinepubs/9696989899/chap5.htm#tagcjh_08_02_01_01
 uuid_v2() {
   :
 }
@@ -110,21 +149,17 @@ uuid_v4() {
     return 0
   fi
 
-  _uuid_i=0
+  _uuid_i=1
   while read -r _uuid_char; do
-    _uuid_chars[_uuid_i]="${_uuid_char}"
-    (( _uuid_i++ ))
-  done < <(tr -dc a-f0-9 < /dev/urandom | fold -w 1 | head -n 36)
-
-  for (( _uuid_i=1; _uuid_i<36; _uuid_i++ )); do
     case "${_uuid_i}" in
       (9|18|23) printf -- '%s' "-" ;;
       (14)      printf -- '%s' "-4" ;;
-      (*)       printf -- '%s' "${_uuid_chars[_uuid_i]}" ;;
+      (*)       printf -- '%s' "${_uuid_char}" ;;
     esac
-  done
+    (( _uuid_i++ ))
+  done < <(_uuid_randchars 35)
   printf -- '%s\n' ""
-  unset -v _uuid_i _uuid_char _uuid_chars
+  unset -v _uuid_i _uuid_char
 }
 
 # Namespace hash, sha-1

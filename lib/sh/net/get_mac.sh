@@ -34,7 +34,8 @@ _sanitise_mac_addr() {
 # HPUX may need to use lanscan
 get_mac() {
   if command -v ip >/dev/null 2>&1; then
-    macAddr=$(ip -s link | grep -A 1 UP | awk '/ether/{print $2; exit}' | tr ":" "-")
+    macAddr=$(ip -brief link | awk '$2 == "UP" {print $3; exit}' | tr ":" "-")
+    #macAddr=$(ip -s link | grep -A 1 UP | awk '/ether/{print $2; exit}' | tr ":" "-")
   elif command -v ifconfig >/dev/null 2>&1; then
     macAddr=$(ifconfig | awk '$0 ~ /HWaddr/ {print $5}' | tr ":" "-" | head -n 1)
     # If we're here, then we might have a different ifconfig output format.  Yay.
