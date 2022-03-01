@@ -18,7 +18,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # RFC4122-style UUIDs
+# I just thought I'd take a brief moment for a shout-out. intl-spectrum.com had
+# a couple of great articles by Nathan Rector that I referenced for v1 and v4.
+# They managed to dumb this down enough _and_ throw in a couple of non-obvious
+# nuggets of technical information that other resources didn't clearly articulate
 
+# The following namespace uuids are used for v3 and v5 UUID's
 # Name string is a fully-qualified domain name
 _uuid_namespace_dns='6ba7b810-9dad-11d1-80b4-00c04fd430c8'
 # Name string is a URL
@@ -34,6 +39,14 @@ _uuid_randchars() {
   tr -dc a-f0-9 < /dev/urandom | fold -w 1 | head -n "${1:-36}"
 }
 
+# Helper function for pulling the first mac address from 'ifconfig'
+_uuid_getmac() {
+  ifconfig | 
+    grep -Eo '([[:xdigit:]]{1,2}[:-]){5}[[:xdigit:]]{1,2}' | 
+    head -n 1 | 
+    tr -d ':'
+}
+
 # Helper function to convert hostname to a hex string
 _uuid_getnode() {
   # Initialise our hostname var
@@ -46,6 +59,7 @@ _uuid_getnode() {
   done
   
   # We start with '17' to indicate that this is a user generated value
+  # Then we churn out our 10 extra chars, totalling 12
   printf -- '%s' "17"
   printf -- '%s\n' "${_uuid_hostname}" |
     fold -w 1 | 
@@ -54,6 +68,18 @@ _uuid_getnode() {
       printf -- '%02x' \'"${_uuid_char}"
     done
   printf -- '%s\n' ""
+}
+
+_uuid_clockseq() {
+  # If we have a UUID_CLOCK env var, then we iterate it
+  if (( "${#UUID_CLOCK}" > 0 )); then
+    UUID_CLOCK=$(printf -- '%x\n' $(( 0x"${UUID_CLOCK}" + 1 )) )
+  # Otherwise, we generate it
+  else
+    _uuid_9th_byte=( 8 9 a b )
+    UUID_CLOCK="${_uuid_9th_byte[RANDOM%4]}$(_uuid_randchars 3 | paste -sd '' -)"
+  fi
+  export UUID_CLOCK
 }
 
 # Helper function to get time in a usable format
@@ -99,6 +125,8 @@ uuid_nil() {
 }
 
 # Date-time and mac address
+# TODO: Figure out "value too great for base" error that pops up.
+#       This looks like an issue with _uuid_gettime()
 uuid_v1() {
   if command -v uuidgen >/dev/null 2>&1; then
     uuidgen --time
@@ -108,30 +136,27 @@ uuid_v1() {
   # If we get to this point, we're generating one from scratch
   # UUIDv1's have the following requirements:
   # adc763c3-e5cb-13bd-a0ae-5d11615562bf
-  # Must be '1' --^    ^-- Must be '8', '9', 'a' or 'b'.
+  # Must be '1' --^    ^    ^^-- Must be '17' if user generated
+  #                    ^-- Must be '8', '9', 'a' or 'b'.
   _uuid_time=$(_uuid_gettime)
-  _uuid_clock=
-  # If get_mac() is loaded, use it!
-  if command -v get_mac >/dev/null 2>&1; then
-    _uuid_node="$(get_mac)"
-  fi
-  # Otherwise we call _uuid_getnode
+  # Run _uuid_clockseq to set/update UUID_CLOCK env var
+  _uuid_clockseq
+  # First, we try to get a mac address from the system
+  _uuid_node="$(_uuid_getmac)"
+  # If that doesn't give us a result, we call _uuid_getnode
   (( "${#_uuid_node}" == 0 )) && _uuid_node=$(_uuid_getnode)
-
-  _uuid_9th_byte=( 8 9 a b )
 
   _uuid_i=1
   while read -r _uuid_char; do
+    (( _uuid_i == 13 )) && _uuid_char="1"
     case "${_uuid_i}" in
-      (9|22) printf -- '%s' "-" ;;
-      (14)   printf -- '-%s' "1" ;;
-      (18)   printf -- '-%s' "${_uuid_9th_byte[RANDOM%4]}" ;;
-      (*)    printf -- '%s' "${_uuid_char}" ;;
+      (9|13)  printf -- '-%s' "${_uuid_char}" ;;
+      (*)     printf -- '%s' "${_uuid_char}" ;;
     esac
     (( _uuid_i++ ))
-  done < <(printf -- '%s\n' "${_uuid_time}${_uuid_clock}${_uuid_node}" | fold -w 1)
-  printf -- '%s\n' ""
-  unset -v _uuid_i _uuid_char _uuid_time _uuid_clock _uuid_node
+  done < <(printf -- '%s\n' "${_uuid_time}" | fold -w 1)
+  printf -- '-%s-%s\n' "${UUID_CLOCK}" "${_uuid_node}"
+  unset -v _uuid_i _uuid_char _uuid_time _uuid_node
 }
 
 # Date-time and mac address, DCE security version
