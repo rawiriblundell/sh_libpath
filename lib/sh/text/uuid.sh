@@ -105,7 +105,12 @@ uuid_v1() {
 
   _uuid_time=$(_uuid_gettime)
   _uuid_clock=
-  _uuid_node=$(_uuid_getnode)
+  # If get_mac() is loaded, use it!
+  if command -v get_mac >/dev/null 2>&1; then
+    _uuid_node="$(get_mac)"
+  fi
+  # Otherwise we call _uuid_getnode
+  (( "${#_uuid_node}" == 0 )) && _uuid_node=$(_uuid_getnode)
 
   _uuid_i=1
   while read -r _uuid_char; do
@@ -137,7 +142,7 @@ uuid_v3() {
 }
 
 # Fully random using /dev/urandom
-# Native method is not fully RFC4122 compliant (yet?)
+# RFC4122 compliant as best I can tell
 uuid_v4() {
   if command -v uuidgen >/dev/null 2>&1; then
     uuidgen --random
@@ -149,17 +154,25 @@ uuid_v4() {
     return 0
   fi
 
+  # If we get to this point, we're generating one from scratch
+  # UUIDv4's are just random hex chars with the following conditions
+  # adc763c3-e5cb-43bd-a0ae-5d11615562bf
+  # Must be '4' --^    ^-- Must be '8', '9', 'a' or 'b'.
+  _uuid_9th_byte=( 8 9 a b )
+
   _uuid_i=1
   while read -r _uuid_char; do
     case "${_uuid_i}" in
-      (9|18|23) printf -- '%s' "-" ;;
-      (14)      printf -- '%s' "-4" ;;
-      (*)       printf -- '%s' "${_uuid_char}" ;;
+      (9|22) printf -- '%s' "-" ;;
+      (14)   printf -- '-%s' "4" ;;
+      (18)   printf -- '-%s' "${_uuid_9th_byte[RANDOM%4]}" ;;
+      (*)    printf -- '%s' "${_uuid_char}" ;;
     esac
     (( _uuid_i++ ))
-  done < <(_uuid_randchars 35)
+  done < <(_uuid_randchars 34)
   printf -- '%s\n' ""
   unset -v _uuid_i _uuid_char
+  unset _uuid_9th_byte
 }
 
 # Namespace hash, sha-1
