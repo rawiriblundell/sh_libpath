@@ -38,16 +38,18 @@ _uuid_randchars() {
 _uuid_getnode() {
   # Initialise our hostname var
   _uuid_hostname="${HOSTNAME:-$(uname -n)}"
-  # Stack the var until it's more than 6 chars long
-  # Each char when output takes two chars for hex representation
-  # ergo, 6 ascii chars = 12 in hex
-  while (( "${#_uuid_hostname}" < 6 )); do
+  # Stack the var until it's more than 5 chars long
+  # Each char when output takes two chars for hex 
+  # representation.  Ergo, 5 ascii chars = 10 in hex
+  while (( "${#_uuid_hostname}" < 5 )); do
     _uuid_hostname="${_uuid_hostname}${HOSTNAME:-$(uname -n)}"
   done
   
+  # We start with '17' to indicate that this is a user generated value
+  printf -- '%s' "17"
   printf -- '%s\n' "${_uuid_hostname}" |
     fold -w 1 | 
-    head -n 6 | 
+    head -n 5 | 
     while read -r _uuid_char; do
       printf -- '%02x' \'"${_uuid_char}"
     done
@@ -103,6 +105,10 @@ uuid_v1() {
     return 0
   fi
 
+  # If we get to this point, we're generating one from scratch
+  # UUIDv1's have the following requirements:
+  # adc763c3-e5cb-13bd-a0ae-5d11615562bf
+  # Must be '1' --^    ^-- Must be '8', '9', 'a' or 'b'.
   _uuid_time=$(_uuid_gettime)
   _uuid_clock=
   # If get_mac() is loaded, use it!
@@ -112,12 +118,15 @@ uuid_v1() {
   # Otherwise we call _uuid_getnode
   (( "${#_uuid_node}" == 0 )) && _uuid_node=$(_uuid_getnode)
 
+  _uuid_9th_byte=( 8 9 a b )
+
   _uuid_i=1
   while read -r _uuid_char; do
     case "${_uuid_i}" in
-      (9|18|23) printf -- '%s' "-" ;;
-      (14)      printf -- '%s' "-4" ;;
-      (*)       printf -- '%s' "${_uuid_char}" ;;
+      (9|22) printf -- '%s' "-" ;;
+      (14)   printf -- '-%s' "1" ;;
+      (18)   printf -- '-%s' "${_uuid_9th_byte[RANDOM%4]}" ;;
+      (*)    printf -- '%s' "${_uuid_char}" ;;
     esac
     (( _uuid_i++ ))
   done < <(printf -- '%s\n' "${_uuid_time}${_uuid_clock}${_uuid_node}" | fold -w 1)
