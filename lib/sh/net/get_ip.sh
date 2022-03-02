@@ -24,6 +24,18 @@ _get_ip_parse_ifconfig() {
   esac
 }
 
+# External options
+# http https IPv DNS
+#            4 6
+# y    y     4 6 -   ifconfig.co/
+# y    *     4 n -   whatismyip.akamai.com/ # cert may not match
+# y    y     4 6 -   icanhazip.com/
+# y    y     4 n -   ipinfo.io/ip
+# y    y     4 6 -   ifconfig.me/
+# y    y     4 n -   echoip.xyz/
+# -    -     4 6 y   ns1.google.com. o-o.myaddr.l.google.com. TXT
+# -    -     4 6 y   resolver1.opendns.com. myip.opendns.com. A myip.opendns.com. AAAA
+
 get_ip() {
   case "${1}" in
     (external|public)

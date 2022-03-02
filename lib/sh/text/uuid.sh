@@ -23,15 +23,10 @@
 # They managed to dumb this down enough _and_ throw in a couple of non-obvious
 # nuggets of technical information that other resources didn't clearly articulate
 
-# The following namespace uuids are used for v3 and v5 UUID's
-# Name string is a fully-qualified domain name
-_uuid_namespace_dns='6ba7b810-9dad-11d1-80b4-00c04fd430c8'
-# Name string is a URL
-_uuid_namespace_url='6ba7b811-9dad-11d1-80b4-00c04fd430c8'
-# Name string is an ISO OID
-_uuid_namespace_oid='6ba7b812-9dad-11d1-80b4-00c04fd430c8'
-# Name string is an X.500 DN (in DER or a text output format)
-_uuid_namespace_x500='6ba7b814-9dad-11d1-80b4-00c04fd430c8'
+# UUID's are basically strings of hex with _at least_ the following byte features
+# adc763c3-e5cb-43bd-a0ae-5d11615562bf
+# Version ------^    ^    ^^-- Must be '17' if user generated
+#                    ^-------- Must be '8', '9', 'a' or 'b'.
 
 # Helper function to pull a bunch of hex-ish looking chars from /dev/urandom
 # Takes one arg: the number of chars to pull.  Defaults to 36.
@@ -70,6 +65,7 @@ _uuid_getnode() {
   printf -- '%s\n' ""
 }
 
+# Helper function to generate/iterate a clock sequence for v1 UUID's
 _uuid_clockseq() {
   # If we have a UUID_CLOCK env var, then we iterate it
   if (( "${#UUID_CLOCK}" > 0 )); then
@@ -80,6 +76,30 @@ _uuid_clockseq() {
     UUID_CLOCK="${_uuid_9th_byte[RANDOM%4]}$(_uuid_randchars 3 | paste -sd '' -)"
   fi
   export UUID_CLOCK
+}
+
+# Helper function to try to ensure outputs are consistent and wihin 
+_uuid_format() {
+  case "${1}" in
+    (v[1-8]|[1-8]) _uuid_7th_byte="${1/v/}" ;;
+    (*)
+    ;;
+  esac
+  _uuid_9th_byte=( 8 9 a b )
+
+  _uuid_i=1
+  while read -r _uuid_char; do
+    (( _uuid_i == 37 )) && break
+    (( _uuid_i == 13 )) && _uuid_char="4"
+    case "${_uuid_i}" in
+      (9|14|19|24) printf -- '%s' "-" ;;
+      (15)         printf -- '%s' "${_uuid_7th_byte}" ;;
+      (20)         printf -- '%s' "${_uuid_9th_byte[RANDOM%4]}" ;;
+      (*)          printf -- '%s' "${_uuid_char}" ;;
+    esac
+    (( _uuid_i++ ))
+  done
+  printf -- '%s\n' ""
 }
 
 # Helper function to get time in a usable format
@@ -125,7 +145,7 @@ uuid_nil() {
 }
 
 # Date-time and mac address
-# TODO: Figure out "value too great for base" error that pops up.
+# TODO: Figure out "value too great for base" error that pops up from time to time.
 #       This looks like an issue with _uuid_gettime()
 uuid_v1() {
   if command -v uuidgen >/dev/null 2>&1; then
@@ -146,16 +166,10 @@ uuid_v1() {
   # If that doesn't give us a result, we call _uuid_getnode
   (( "${#_uuid_node}" == 0 )) && _uuid_node=$(_uuid_getnode)
 
-  _uuid_i=1
-  while read -r _uuid_char; do
-    (( _uuid_i == 13 )) && _uuid_char="1"
-    case "${_uuid_i}" in
-      (9|13)  printf -- '-%s' "${_uuid_char}" ;;
-      (*)     printf -- '%s' "${_uuid_char}" ;;
-    esac
-    (( _uuid_i++ ))
-  done < <(printf -- '%s\n' "${_uuid_time}" | fold -w 1)
-  printf -- '-%s-%s\n' "${UUID_CLOCK}" "${_uuid_node}"
+  printf -- '%s\n' "${_uuid_time}${UUID_CLOCK}${_uuid_node}" | 
+    fold -w 1 | 
+    _uuid_format v1
+
   unset -v _uuid_i _uuid_char _uuid_time _uuid_node
 }
 
@@ -165,15 +179,7 @@ uuid_v2() {
   :
 }
 
-# Namespace hash, md5
-uuid_v3() {
-  if command -v uuidgen >/dev/null 2>&1; then
-    uuidgen --md5
-    return 0
-  fi
-
-  # Namespace+string, then md5'd, first 128 bits sliced off and some tweaks
-}
+# Looking for 'uuid_v3()'?  It's uuid_hash, keep scrolling!
 
 # Fully random using /dev/urandom
 # RFC4122 compliant as best I can tell
@@ -189,32 +195,53 @@ uuid_v4() {
   fi
 
   # If we get to this point, we're generating one from scratch
-  # UUIDv4's are just random hex chars with the following conditions
-  # adc763c3-e5cb-43bd-a0ae-5d11615562bf
-  # Must be '4' --^    ^-- Must be '8', '9', 'a' or 'b'.
-  _uuid_9th_byte=( 8 9 a b )
-
-  _uuid_i=1
-  while read -r _uuid_char; do
-    case "${_uuid_i}" in
-      (9|22) printf -- '%s' "-" ;;
-      (14)   printf -- '-%s' "4" ;;
-      (18)   printf -- '-%s' "${_uuid_9th_byte[RANDOM%4]}" ;;
-      (*)    printf -- '%s' "${_uuid_char}" ;;
-    esac
-    (( _uuid_i++ ))
-  done < <(_uuid_randchars 34)
-  printf -- '%s\n' ""
-  unset -v _uuid_i _uuid_char
-  unset _uuid_9th_byte
+  _uuid_randchars 37 | _uuid_format 4
 }
 
-# Namespace hash, sha-1
-uuid_v5() {
+# uuid_v3 and uuid_v5 in one function.
+# Namespace hash, md5 or sha-1
+uuid_hash() {
+  while (( "${#}" > 0 )); do
+    case "${1}" in
+      (md5|v3)  _uuid_hashmode=md5 ;;
+      (sha1|v5) _uuid_hashmode=sha1 ;;
+      (@dns)    _uuid_namespace='6ba7b810-9dad-11d1-80b4-00c04fd430c8' ;;
+      (@url)    _uuid_namespace='6ba7b811-9dad-11d1-80b4-00c04fd430c8' ;;
+      (@oid)    _uuid_namespace='6ba7b812-9dad-11d1-80b4-00c04fd430c8' ;;
+      (@x500)   _uuid_namespace='6ba7b814-9dad-11d1-80b4-00c04fd430c8' ;;
+      (@custom) _uuid_namespace="${2}" ;;
+      (*)       _uuid_name="${2}" ;;
+    esac
+    shift 1
+  done
+
+  if (( "${#_uuid_hashmode}" )); then
+    printf -- 'uuid_gen: %s\n' "A hashmode must be selected: 'md5' or 'sha1'" >&2
+    exit 1
+  fi
+
+  if (( "${#_uuid_namespace}" )); then
+    printf -- 'uuid_gen: %s\n' "A namespace must be selected: '@dns', '@url', '@oid', '@x500' or '@custom" >&2
+    exit 1
+  fi
+  
   if command -v uuidgen >/dev/null 2>&1; then
-    uuidgen --sha1
+    uuidgen --"${_uuid_hashmode}" --namespace "${_uuid_namespace}" --name "${_uuid_name}"
     return 0
   fi
+
+  case "${_uuid_hashmode}" in
+    (md5)
+      printf -- '%s' "${_uuid_namespace}${_uuid_name}" |
+        md5sum |
+        _uuid_format 3
+    ;;
+    (sha1)
+      printf -- '%s' "${_uuid_namespace}${_uuid_name}" |
+        sha1sum |
+        _uuid_format 5
+    ;;
+  esac
 }
 
 # https://datatracker.ietf.org/doc/html/draft-peabody-dispatch-new-uuid-format
@@ -239,9 +266,9 @@ uuid_gen() {
     (-0|-nil|-null)  uuid_stdout="$(uuid_nil)" ;;
     (-1|--time)      uuid_stdout="$(uuid_v1)" ;;
     (-2)             uuid_stdout="$(uuid_v2)" ;;
-    (-3|--md5)       uuid_stdout="$(uuid_v3)" ;;
+    (-3|--md5)       uuid_stdout="$(uuid_hash v3)" ;;
     (-4|-r|--random) uuid_stdout="$(uuid_v4)" ;;
-    (-5|--sha1)      uuid_stdout="$(uuid_v5)" ;;
+    (-5|--sha1)      uuid_stdout="$(uuid_hash v5)" ;;
     (--pseudo)       uuid_stdout="$(uuid_pseudo)" ;;
     ('')             uuid_stdout="$(uuid_v4)" ;;
   esac
