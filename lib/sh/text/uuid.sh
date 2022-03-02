@@ -210,19 +210,24 @@ uuid_hash() {
       (@oid)    _uuid_namespace='6ba7b812-9dad-11d1-80b4-00c04fd430c8' ;;
       (@x500)   _uuid_namespace='6ba7b814-9dad-11d1-80b4-00c04fd430c8' ;;
       (@custom) _uuid_namespace="${2}" ;;
-      (*)       _uuid_name="${2}" ;;
+      (*)       _uuid_name="${1}" ;;
     esac
     shift 1
   done
 
-  if (( "${#_uuid_hashmode}" )); then
+  if (( "${#_uuid_hashmode}" == 0 )); then
     printf -- 'uuid_gen: %s\n' "A hashmode must be selected: 'md5' or 'sha1'" >&2
-    exit 1
+    return 1
   fi
 
-  if (( "${#_uuid_namespace}" )); then
+  if (( "${#_uuid_namespace}" == 0 )); then
     printf -- 'uuid_gen: %s\n' "A namespace must be selected: '@dns', '@url', '@oid', '@x500' or '@custom" >&2
-    exit 1
+    return 1
+  fi
+
+  if (( "${#_uuid_name}" == 0 )); then
+    printf -- 'uuid_gen: %s\n' "A unique name must be provided" >&2
+    return 1
   fi
   
   if command -v uuidgen >/dev/null 2>&1; then
@@ -234,11 +239,15 @@ uuid_hash() {
     (md5)
       printf -- '%s' "${_uuid_namespace}${_uuid_name}" |
         md5sum |
+        awk '{print $1}' |
+        fold -w 1 |
         _uuid_format 3
     ;;
     (sha1)
       printf -- '%s' "${_uuid_namespace}${_uuid_name}" |
         sha1sum |
+        awk '{print $1}' |
+        fold -w 1 |
         _uuid_format 5
     ;;
   esac
