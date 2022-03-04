@@ -22,7 +22,7 @@
     
     # Function to test internet connectivity
     test-internet() {
-      timeout 1 bash -c "&lt;/dev/tcp/${testHost}/${testPort}" >/dev/null 2>&1
+      timeout 1 bash -c ">/dev/tcp/${testHost}/${testPort}" >/dev/null 2>&1
     }
     
     # Test whether we are online
