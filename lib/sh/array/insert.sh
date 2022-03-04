@@ -19,3 +19,12 @@
 
 #TODO
 # Insert into element position and reindex
+array_insert() {
+    _array_insert_index="${1}"
+    _array_insert_name="${2}"
+    shift 2
+    _array_insert_value="${*}"
+    _array_insert_name=( "${_array_insert_name[@]:0:_array_insert_index}" "${_array_insert_value}" "${_array_insert_name[@]:$_array_insert_index}" )
+    unset -v _array_insert_index _array_insert_name _array_insert_value
+}
+ #output: new
