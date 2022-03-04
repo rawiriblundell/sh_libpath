@@ -23,7 +23,7 @@ Any code imported from another project or site must be using a compatible licens
 
 ### Code copied from websites
 
-Code that is published on a website is almost always the copyright of its author, or the website owner, depending on the site's terms and conditions.  Copyright is also automatic from the moment a work is created.  Blindly copying and pasting code is, therefore, a copyright violation.
+Code that is published on a website is almost always the copyright of its author, or the website owner, depending on the site's terms and conditions.  Copyright is also automatic from the moment a work is created, and does not need a copyright declaration (although having one does help).  Blindly copying and pasting code is, therefore, a copyright violation.
 
 Please do not copy code from websites unless they have an explicit license statement detailing a compatible license, OR, you have express written permission from the copyright holder to re-use their code in a way that is compatible with, or directly under, the terms of a compatible license.
 
@@ -82,6 +82,9 @@ Fundamentally: POSIX plus named arrays as a minimum, but let's not beat around t
 `ksh` is actually a very good shell that is quietly installed in far more places than you'd expect, so consider targeting that.  If it runs in `ksh`, it'll likely run in `bash`.
 
 Ubuntu's [DashAsBinSh](https://wiki.ubuntu.com/DashAsBinSh) wiki page can give you some ideas on more portable scripting, and `dash` is a readily available shell that you can test your code within. Do be aware that dash is stricter than our goals.
+
+| :pushpin: Right now, my thinking is that we could have multiple library files with the same name, but with a shell specific extension i.e. `func.bash`, `func.zsh`, `func.sh`.  This way the most performant way to do something in a particular shell can be contributed, and all users of that shell benefit. |
+| --- |
 
 ## Coding Style
 
