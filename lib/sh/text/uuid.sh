@@ -78,11 +78,13 @@ _uuid_clockseq() {
   export UUID_CLOCK
 }
 
-# Helper function to try to ensure outputs are consistent and wihin 
+# Helper function to try to ensure outputs are consistent 
 _uuid_format() {
   case "${1}" in
     (v[1-8]|[1-8]) _uuid_7th_byte="${1/v/}" ;;
     (*)
+      printf -- 'uuid: %s\n' "Unrecognised version specifier" >&2
+      exit 1
     ;;
   esac
   _uuid_9th_byte=( 8 9 a b )
@@ -90,7 +92,6 @@ _uuid_format() {
   _uuid_i=1
   while read -r _uuid_char; do
     (( _uuid_i == 37 )) && break
-    (( _uuid_i == 13 )) && _uuid_char="4"
     case "${_uuid_i}" in
       (9|14|19|24) printf -- '%s' "-" ;;
       (15)         printf -- '%s' "${_uuid_7th_byte}" ;;
@@ -195,7 +196,7 @@ uuid_v4() {
   fi
 
   # If we get to this point, we're generating one from scratch
-  _uuid_randchars 37 | _uuid_format 4
+  _uuid_randchars 37 | _uuid_format v4
 }
 
 # uuid_v3 and uuid_v5 in one function.
@@ -235,6 +236,11 @@ uuid_hash() {
     return 0
   fi
 
+  # The below isn't a strict implementation just yet, but it works
+  # We should really be converting @custom namespaces and names to big-endian hex
+  # Concatening the namespace and name, then hashing, then converting to little-endian
+  # That's still not the most strict interpretation of the RFC, but it's close...
+  # Other implementations I've read extract bytes from the namespace and append name as a string, go figure!
   case "${_uuid_hashmode}" in
     (md5)
       printf -- '%s' "${_uuid_namespace}${_uuid_name}" |
