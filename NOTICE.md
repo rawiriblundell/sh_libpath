@@ -35,6 +35,7 @@ permitted.
 - Some numbers for uuid.sh, BSD 3-Clause License, (c) 2009,2014 Google Inc. https://github.com/google/uuid/blob/master/time.go
 - chacha20.sh, MIT (c) 2020 Jason A. Donenfeld. https://git.zx2c4.com/chacha20.sh/plain/chacha20.sh
 - realpaths.sh, CC0 1.0 Universal https://raw.githubusercontent.com/bashup/realpaths/master/realpaths
+- bash_loading_animations.sh, WTFPLv2 (c) 2022 Silejonu, https://github.com/Silejonu/bash_loading_animations/
 
 ## WTFPL
 
