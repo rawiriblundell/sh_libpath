@@ -22,11 +22,11 @@ sh_stack_add() {
   case "${1}" in
     (-[0-9]*)
       _sh_stack_i=1
-      while (( _sh_stack_i < "${1:/-/}" )); do
+      while (( _sh_stack_i < "${1/-/}" )); do
         _sh_stack_depth="${_sh_stack_depth}>"
         _sh_stack_i=$(( _sh_stack_i + 1 ))
       done
-      shift -n 1
+      shift 1
     ;;
   esac
   SH_STACK=( "${SH_STACK[@]}" "$(date +%Y%m%d_%H:%M:%S_%Z): ${_sh_stack_depth} ${*}" )
@@ -37,6 +37,7 @@ sh_stack_add "START"
 # Potential basepaths for where our libraries might be placed
 # TO-DO: Expand and include $FPATH (ksh, z/OS) and/or $fpath (zsh)
 POSSIBLE_SH_LIBPATHS=(
+  "${HOME}"/git/sh_libpath/lib/sh
   "${HOME}"/.local/lib/sh
   /usr/local/lib/sh
   /opt/sh_libpath/lib/sh
@@ -172,17 +173,26 @@ _is_lib_loaded() {
 #          import puts.sh from text
 #  The second form also supports the keyword 'all' e.g. 'import all from dir'
 import() {
-  sh_stack_add -2 "Entering 'import()' and processing '${*}'"
+  sh_stack_add -2 "Entering 'import()' and processing args: '${*}'"
   # Ensure that SH_LIBPATH has some substance, otherwise why bother?
   if (( "${#SH_LIBPATH}" == 0 )); then
     printf -- 'import: %s\n' "SH_LIBPATH appears to be empty" >&2
     exit 1
   fi
 
+  sh_stack_add -3 "Processing case statement for ${#} arg(s).  Correct: 1, or 3."
   case "${#}" in
     (1)
-      sh_stack_add -3 "case > 1"
-      _target_lib="${1}"
+      case "${1}" in
+        (*/*)   _target_lib="${1}" ;;
+        (*)
+          printf -- 'import: %s\n' "Usage: import dir/library.sh / import library.sh from dir" >&2
+          unset -v _target _target_lib
+          printf -- '%s\n' "" "${SH_STACK[@]}"
+          [ -t 0 ] && return 1
+          exit 1
+        ;;
+      esac
 
       # Ensure that it's not already loaded
       _is_lib_loaded "${_target_lib}" && return 0
@@ -191,6 +201,7 @@ import() {
       # This indicates to us that the given library is likely a full path e.g.
       # import /opt/something/specific/library.sh
       if [ -r "${_target_lib}" ]; then
+        sh_stack_add -4 "Full path given: ${_target_lib}"
         # shellcheck disable=SC1090
         . "${_target_lib}" || { printf -- 'import: %s\n' "Failed to load '${_target_lib}'" >&2; exit 1; }
         # Add the library to SH_LIBS_LOADED
@@ -217,16 +228,23 @@ import() {
         elif [ -e "${_target_lib}" ]; then
           printf -- 'import: %s\n' "Insufficient permissions while importing '${_target_lib}'" >&2
           unset -v _target _target_lib
+          printf -- '%s\n' "" "${SH_STACK[@]}"
           [ -t 0 ] && return 1
           exit 1
         fi
       done
+
+      # If we're here, then 'import()' wasn't called correctly
+      printf -- 'import: %s\n' "Unspecified error while executing 'import ${*}'" >&2
+      printf -- '%s\n' "" "${SH_STACK[@]}"
+      [ -t 0 ] && return 1
+      exit 1
     ;;
     (3)
-      sh_stack_add 3 "case > 3"
       # Ensure our args are as desired - in count and structure
       if ! [ "${2}" = "from" ]; then
         printf -- 'import: %s\n' "Incorrect usage of 'import'" >&2
+        printf -- '%s\n' "" "${SH_STACK[@]}"
         [ -t 0 ] && return 1
         exit 1
       fi
@@ -247,6 +265,7 @@ import() {
           # If we can't find it, fail out
           if [ "${_subdir_path+x}" = "x" ] || [ "${#_subdir_path}" -eq "0" ]; then
             printf -- 'import: %s\n' "'${_subdir}' not found in SH_LIBPATH" >&2
+            printf -- '%s\n' "" "${SH_STACK[@]}"
             [ -t 0 ] && return 1
             exit 1
           fi
@@ -259,6 +278,7 @@ import() {
               # shellcheck disable=SC1090
               . "${_subdir_path}/${_target_lib}" || {
                 printf -- 'import: %s\n' "Failed to load '${_target_lib}' from ${_subdir_path}" >&2
+                printf -- '%s\n' "" "${SH_STACK[@]}"
                 [ -t 0 ] && return 1
                 exit 1
               }
@@ -267,6 +287,7 @@ import() {
               unset -v _target _target_lib
             elif [ -e "${_target_lib}" ]; then
               printf -- 'import: %s\n' "Insufficient permissions while importing '${_target_lib}'" >&2
+              printf -- '%s\n' "" "${SH_STACK[@]}"
               unset -v _target _target_lib
               [ -t 0 ] && return 1
               exit 1
@@ -293,6 +314,7 @@ import() {
               return 0
             elif [ -e "${_target_lib}" ]; then
               printf -- 'import: %s\n' "Insufficient permissions while importing '${_target_lib}'" >&2
+              printf -- '%s\n' "" "${SH_STACK[@]}"
               unset -v _target _target_lib
               [ -t 0 ] && return 1
               exit 1
@@ -309,7 +331,6 @@ import() {
       exit 1
     ;;
     (*)
-      sh_stack_add -3 "case > '*'"
       # If we're here, then 'import()' wasn't called correctly
       printf -- 'import: %s\n' "Unspecified error while executing 'import ${*}'" >&2
       printf -- '%s\n' "" "${SH_STACK[@]}"
