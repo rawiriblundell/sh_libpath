@@ -15,6 +15,10 @@
 # limitations under the License.
 ################################################################################
 
+# Prevent sourcing this more than once
+(( _sh_libpath_sourced == 1 )) && return
+_sh_libpath_sourced=1
+
 # Start up SH_STACK
 SH_STACK=()
 sh_stack_add() {
