@@ -20,11 +20,11 @@
 # Subnet Mask
 # Note: this is for the primary IP address only.
 # We try with 'ip', which requires CIDR conversion
-if iscommand ip; then
+if command ip >/dev/null 2>&1; then
   cidr=$(ip -o -f inet addr show | awk -F '/' '/scope global/{print $2}' | awk '{print $1}')
   ipMask=$(Fn_cdr2mask "${cidr}")
 # If 'ifconfig' is present, we can try it like this:
-elif iscommand ifconfig; then
+elif command ifconfig >/dev/null 2>&1; then
   ipMask=$(ifconfig | grep -m 1 Mask | cut -d: -f4-)
   # Again, if we're here, we're dealing with a different ifconfig output format
   if [[ -z "${ipMask}" ]]; then
