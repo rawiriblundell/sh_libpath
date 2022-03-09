@@ -13,12 +13,17 @@ Making shell scripts more robust with libraries
 # Load our init script
 . /path/to/init.sh || exit 1
 
-# Start using the functions that it provides
-import os.sh
-import git.sh
-from arrays import array_split.sh
+# Import the function libraries that it provides
+import sys/os.sh
+import utils/git.sh
+import array_split.sh from array
+import all from text
 
-requires BASH51 git jq osstr=Linux
+# Check that we have everything we need including shell version, commands and vars
+# This means self-documenting code and fail-fast are handled in one line
+requires BASH51 git jq curl osstr=Linux
+
+# Lazy-load a config file in case that's something you need
 wants /opt/secrets/squirrels.conf
 ```
 
@@ -28,10 +33,10 @@ wants /opt/secrets/squirrels.conf
 
 This project proposes adding a library ecosystem to shell scripts.
 
-`init.sh` bootstraps a couple of environment vars:
+`init.sh` bootstraps a few environment vars, most importantly:
 
 * `SH_LIBPATH` - this is a colon seperated list of library paths, just like `PATH`
-* `SH_LIBS_LOADED` - a colon separated list of libraries that are already loaded.  This is used as one method to attempt multiple reloadings of the same library code
+* `SH_LIBS_LOADED` - a colon separated list of libraries that are already loaded.  This is used as one method to prevent attempts at multiple loadings of the same library code
 
 The proposed library structure caters for both monolithic libraries e.g.
 
@@ -47,10 +52,6 @@ It also adds the following functions:
 
 Similar to its `python` cousin, this is intended for loading monolithic libraries
 
-### `from`
-
-Similar to its `python` cousin, this is intended for loading hierarchical libraries
-
 ### `requires`
 
 This function serves multiple purposes.  A lot of shell scripts just _assume_ that binaries are present and don't fail nicely if these binaries aren't.  A lot of shell scripts don't really serve themselves well in terms of internal documentation.  A lot of shell scripts don't fail-early.  `requires()` fixes all of that and more.
@@ -61,7 +62,7 @@ First, it works through multiple items so you only need to declare it once if yo
 requires git jq sed awk
 ```
 
-But it can also check that variables equal something, for example
+But it can also check that pre-requisite variables are as desired (or "as required", you might say), for example
 
 ```bash
 requires EDITOR=/usr/bin/vim
@@ -85,7 +86,50 @@ It's clear what the script needs in order to run i.e. it's self-documenting code
 
 ### `wants`
 
-This function currently deals only with files.  You tell it to look at a file, if that file is found it sources it.  Otherwise it's not fatal.  It's a lazy-loader, and I'm not sure how much work will go into it.
+This function currently deals only with files.  You tell it to look at a file, if that file is found it sources it.  Otherwise it's not fatal.  It's a lazy-loader, in other words.
+
+Some scripts are built with a lot of logic for figuring out weird and tricky thing.  You can save a lot of repeat processing by wrapping that logic up behind a var, and putting that var into a config file.  At the start of your script, you load the config file (or you don't) and it short-circuits various pieces of logic, leading to a more efficient run.
+
+For example, I once proposed this code for the checkmk project, to replace some hairy, hackish and non-portable code they already had:
+
+```bash
+# GNU 'coreutils' 5.3.0 broke how 'stat' handled line endings in its output.
+# This was corrected somewhere around 5.92 - 5.94 STABLE.
+# If we detect a version of GNU stat 5.x, we investigate and set MK_STAT_BUG
+# See: https://lists.gnu.org/archive/html/bug-coreutils/2005-12/msg00157.html
+if var_is_blank "${MK_STAT_BUG}"; then
+    # We only care about versions in the range [ 5.3.0 .. 5.94 ] (yes different numbering schemes)
+    if stat --version 2>&1 | grep "GNU.*5.[3-9]" >/dev/null 2>&1; then
+        # Convert the version information from semantic versioning to an integer
+        stat_version=$(semver_to_int "$(stat --version 2>&1 | head -n 1)")
+        if [ "${stat_version}" -ge 50300 ] && [ "${stat_version}" -lt 59400 ]; then
+            MK_STAT_BUG="true"
+        else
+            MK_STAT_BUG="false"
+        fi
+        readonly MK_STAT_BUG
+        export MK_STAT_BUG
+    fi
+
+fi
+
+# If MK_STAT_BUG is true, we correct 'stat's behaviour globally
+if [ "${MK_STAT_BUG}" = "true" ]; then
+    stat() {
+        printf -- '%s\n' "$(command stat "${@}")"
+    }
+fi
+```
+
+To prevent that code from being run through at every single invocation of the checkmk agent, one could simply define:
+
+```bash
+MK_STAT_BUG=false
+```
+
+within a config file.  Load that config file early in the agent script, and the majority of that code gets skipped.  Otherwise, if it's not short-circuited via a config file, it will just run through normally - no problem, just a bit of wasted processing.
+
+So that's what `wants()` is about.  Originally, at least.
 
 ## Why
 
@@ -136,7 +180,7 @@ Now, on the other hand, had my PR simply been
 
 There would have been no controversy at all, and that would have been the end of it.
 
-If you're a `python`ista or a `perl`er, and you're reading this, ask yourself honestly:  When was the last time you sat down and looked at the code inside *that* library that you like?  Odds are: "uhh... approximately... never?" is the answer.  QED.
+If you're a `python`ista or a `perl`er, and you're reading this, ask yourself honestly:  When was the last time you sat down and looked at the code inside _that_ library that you like?  Odds are: "uhh... approximately... never?" is the answer.  QED.
 
 ### Not all hammers are created equal
 
