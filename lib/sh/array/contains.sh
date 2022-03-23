@@ -22,3 +22,30 @@
 # Boolean test
 
 # index location
+
+# This function looks for a keyword within a simple array (i.e. numerical index)
+# and prints out its location (index) within the array if found
+# This can then be used for other array manipulation e.g. splitting
+# Usage: getArrayIndex keyword array
+# e.g. getArrayIndex needle "${haystack[@]}"
+getArrayIndex() {
+  local searchString="$1"
+  shift
+  local tempArray=( "$@" )
+  # This is how you'd do it with bash-3+
+  #for index in "${!tempArray[@]}"; do
+  #  if [[ "${tempArray[index]}" = "${searchString}" ]]; then
+  #    triggerCommand="${tempArray[@]:$(( index + 1 ))}"
+  #  fi
+  #done
+  # Here's how we do it more portably by iterating through the array
+  # This tests each element one-by-one against the keyword,
+  # and prints and then breaks if a match is found
+  for (( index=0; index<"${#tempArray[@]}"; index++ )); do
+    if [[ "${tempArray[index]}" = "${searchString}" ]]; then
+      printf '%s\n' "${index}"
+      return 0
+    fi
+  done
+  return 1
+}

@@ -1,3 +1,4 @@
+
 # shellcheck shell=ksh
 
 # Copyright 2022 Rawiri Blundell
@@ -17,26 +18,23 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-# Ensure a config file is only made up of shell-importable key=vals
+# Ensure a config file is only made up of only shell-importable key=vals
 # Otherwise fail out.  Ignores blanks and comments.
 validate_config() {
-  local conf_file conf_errcount
-  conf_file="${1:?No config file defined}"
-  [[ -r "${conf_file}" ]] || die "Could not read ${conf_file}"
-  conf_errcount="$(grep -Evc '^dark_.*=|^light_.*=|^lights_.*=|^$|^#' "${conf_file}")"
-  (( conf_errcount > 0 )) && die "Invalid config found in ${conf_file}"
-}
+  _validate_config_file="${1:?No config file defined}"
 
-    validate_config() {
-      local config_file
-      config_file="${1:?No config file defined}"
-    
-      count=$(
-        grep -Ev "^#|^$" "${config_file}" |
-          grep -Evc "^[a-zA-Z0-9]+={1}[a-zA-Z0-9]+$"
-      )
-    
-      (( count == 0 )) && return 0
-      return 1
-    }
-    
+  # Filter blank lines and comments
+  # Then count lines that aren't in the x=y format
+  _validate_config_count=$(
+    grep -Ev "^#|^$" "${_validate_config_file}" |
+      grep -Evc "^[a-zA-Z0-9]+={1}[a-zA-Z0-9]+$"
+  )
+  
+  if (( _validate_config_count == 0 )); then
+    unset -v _validate_config_file _validate_config_count
+    return 0
+  else
+    unset -v _validate_config_file _validate_config_count
+    return 1
+  fi
+}
