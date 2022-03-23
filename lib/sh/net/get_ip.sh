@@ -17,13 +17,6 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-_get_ip_parse_ifconfig() {
-  case "${OSSTR:-$(uname -s)}" in
-    ([lL]inux)      awk -F ':' '/inet addr/{print $2}' ;;
-    (SunOS|solaris) awk '/inet/{print $2}' ;;
-  esac
-}
-
 # External options
 # http https IPv DNS
 #            4 6
@@ -36,23 +29,43 @@ _get_ip_parse_ifconfig() {
 # -    -     4 6 y   ns1.google.com. o-o.myaddr.l.google.com. TXT
 # -    -     4 6 y   resolver1.opendns.com. myip.opendns.com. A myip.opendns.com. AAAA
 
+# ifconfig outputs in either of these formats:
+# inet addr:192.168.2.1  Bcast:192.168.1.255  Mask:255.255.255.0
+# inet 172.19.243.193  netmask 255.255.240.0  broadcast 172.19.255.255
+#
+# So we try to cater for both by searching for 'inet' and printing the next field with "addr:" stripped
+
 get_ip() {
   case "${1}" in
     (external|public)
-      curl -4 ifconfig.io
-      curl -6 ifconfig.io
+      case "${2}" in
+        (-6) curl -6 ifconfig.io ;;
+        (*)  curl -4 ifconfig.io ;;
+      esac
     ;;
-    (*)
+    (-6)
       # Start with the 'ip' command
       if command -v ip >/dev/null 2>&1; then
-        ip -o -4 a show up | awk -F '[ /]' '/brd/{print $7}' | grep -v "127.0.0.1"
-        return "$?"
+        ip -o -6 a show up | awk -F '[ /]' '$2 != "lo" {print $7; exit}'
+        return "${?}"
       # Failover to 'ifconfig'
       elif command -v ifconfig >/dev/null 2>&1; then
         ifconfig -a |
-          _get_ip_parse_ifconfig |
-          awk '{print $1}' |
-          grep -v "127.0.0.1"
+          awk '/inet6 / && $2 !~ /::1/ {print $2; exit}' |
+          sed 's/addr"//g'
+        return "${?}"
+      fi
+    ;;
+    (-4|*)
+      # Start with the 'ip' command
+      if command -v ip >/dev/null 2>&1; then
+        ip -o -4 a show up | awk -F '[ /]' '$2 != "lo" {print $7}'
+        return "${?}"
+      # Failover to 'ifconfig'
+      elif command -v ifconfig >/dev/null 2>&1; then
+        ifconfig -a |
+          awk '/inet / && $2 !~ /127.0.0.1/ {print $2; exit}' |
+          sed 's/addr"//g'
         return "${?}"
       fi
     

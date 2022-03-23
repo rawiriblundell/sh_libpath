@@ -88,7 +88,7 @@ It's clear what the script needs in order to run i.e. it's self-documenting code
 
 This function currently deals only with files.  You tell it to look at a file, if that file is found it sources it.  Otherwise it's not fatal.  It's a lazy-loader, in other words.
 
-Some scripts are built with a lot of logic for figuring out weird and tricky thing.  You can save a lot of repeat processing by wrapping that logic up behind a var, and putting that var into a config file.  At the start of your script, you load the config file (or you don't) and it short-circuits various pieces of logic, leading to a more efficient run.
+Some scripts are built with a lot of logic for figuring out weird and tricky things.  You can save a lot of repeat processing by wrapping that logic up behind a var, and putting that var into a config file.  At the start of your script, you load the config file (or you don't) and it short-circuits various pieces of logic, leading to a more efficient run.
 
 For example, I once proposed this code for the checkmk project, to replace some hairy, hackish and non-portable code they already had:
 
