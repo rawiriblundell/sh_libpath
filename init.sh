@@ -15,10 +15,6 @@
 # limitations under the License.
 ################################################################################
 
-# Prevent sourcing this more than once
-(( _sh_libpath_sourced == 1 )) && return
-_sh_libpath_sourced=1
-
 # Start up SH_STACK
 SH_STACK=()
 sh_stack_add() {
@@ -158,6 +154,10 @@ wants() {
     unset -v _fstarget
     return 1
   fi
+}
+
+_is_function_loaded() {
+  typeset -f "${1:?No function defined}" >/dev/null
 }
 
 _is_lib_loaded() {
