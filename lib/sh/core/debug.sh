@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+# https://www.reddit.com/r/bash/comments/g1yjfo/debugging_bash_scripts/
+# https://johannes.truschnigg.info/writing/2021-12_colodebug/
+
 debug_trap_err() {
   set -o errtrace
   trap 'err_handler ${?}' ERR
@@ -34,12 +37,17 @@ debug_err_handler() {
 }
 
 debug() {
-
+  [[ "${debug_mode}" = "true" ]] || return 0
+  : [DEBUG] "${*}"
+  : ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 }
 
 # As above but with a pause 
 step() {
-
+  [[ "${debug_mode}" = "true" ]] || return 0
+  : [DEBUG] "${*}"
+  : ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  read -n 1 -s -r -p "Press any key to continue"
 }
 
 case "${1}" in
@@ -50,21 +58,6 @@ case "${1}" in
     trap 'set +x' EXIT
   ;;
 esac
-
-# shellcheck disable=SC2183
-debug() {
-  [[ "${debug_mode}" != "true" ]] && return 0
-  : [DEBUG] "${*}"
-  : ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  read -n 1 -s -r -p "Press any key to continue"
-}
-
-echo a
-debug breakpoint one
-echo b
-debug breakpoint two
-
----
 
 breakpoint(){
     local REPLY
