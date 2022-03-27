@@ -46,16 +46,19 @@ get_dns() {
         printf -- '%s\n' "${@:3}"
         return 0
       fi
+      if command -v nm-tool >/dev/null 2>&1; then
+        nm-tool | awk '/DNS/{print $2}' | paste -sd ',' -
+        return 0
+      fi
       if command -v nmcli >/dev/null 2>&1; then
         # printf -- '%s\n' "Attempting lookup test using 'nmcli' command..." >&2
         if nmcli dev list >/dev/null 2>&1; then
-          dnsServers=$(nmcli dev list | grep -i dns | awk '{print $2}' | paste -sd ',' -)
+          nmcli dev list | awk 'tolower($0) ~ /dns/{print $2}' | paste -sd ',' -
+          return 0
         elif nmcli device show >/dev/null 2>&1; then
-          dnsServers=$(nmcli --fields ip4.dns dev show | grep . | awk '{print $2}' | paste -sd ',' -)
+          nmcli --fields ip4.dns dev show | awk '/./{print $2}' | paste -sd ',' -
+          return 0
         fi
-      fi
-      if command -v nm-tool >/dev/null 2>&1; then
-        nm-tool | awk '/DNS/{print $2}' | paste -sd ',' -
       fi
     ;;
   esac
@@ -66,13 +69,13 @@ get_dns() {
   fi
   if [ -r /etc/resolv.conf ]; then
     printf -- '%s\n' "Parsing /etc/resolv.conf..." >&2
-    awk '/nameserver/{print $2}' /etc/resolv.conf
+    awk '/nameserver/{print $2}' /etc/resolv.conf | paste -sd ',' -
     return 0
   fi
   # As above, but for OSX
   if [ -r /var/run/resolv.conf ]; then
     printf -- '%s\n' "Parsing /etc/resolv.conf..." >&2
-    awk '/nameserver/{print $2}' /etc/resolv.conf
+    awk '/nameserver/{print $2}' /etc/resolv.conf | paste -sd ',' -
     return 0
   fi
   # If we get to this point, we have failed.

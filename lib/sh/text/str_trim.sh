@@ -45,3 +45,32 @@ trim() {
   unset -v _trim_str
   export trim_stdout trim_rc
 }
+
+str_strip() {
+  LC_CTYPE=C
+  _trim_str="${*}"
+  while true; do
+    trim_stdout="${_trim_str#[[:space:]]}"     # Strip whitespace to the left
+    trim_stdout="${trim_stdout%[[:space:]]}"   # Strip whitespace to the right
+    [[ "${trim_stdout}" = "${_trim_str}" ]] && break
+    _trim_str="${trim_stdout}"
+  done
+  trim_rc="${?}"
+  unset -v _trim_str
+  export trim_stdout trim_rc
+}
+
+strip() {
+  LC_CTYPE=C
+  _trim_str="${*}"
+  while true; do
+    trim_stdout="${_trim_str#[[:space:]]}"     # Strip whitespace to the left
+    trim_stdout="${trim_stdout%[[:space:]]}"   # Strip whitespace to the right
+    [[ "${trim_stdout}" = "${_trim_str}" ]] && break
+    _trim_str="${trim_stdout}"
+  done
+  trim_rc="${?}"
+  unset -v _trim_str
+  export trim_stdout trim_rc
+}
+

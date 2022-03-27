@@ -18,7 +18,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Check if 'timeout' is available, if not, enable a stop-gap function
-if ! get_command timeout; then
+if ! command -v timeout >/dev/null 2>&1; then
   timeout() {
     local duration
 
@@ -61,7 +61,7 @@ if ! get_command timeout; then
 
     # If 'perl' is available, it has a few pretty good one-line options
     # see: http://stackoverflow.com/q/601543
-    if get_command perl; then
+    if command -v perl >/dev/null 2>&1; then
       perl -e '$s = shift; $SIG{ALRM} = sub { kill INT => $p; exit 77 }; exec(@ARGV) unless $p = fork; alarm $s; waitpid $p, 0; exit ($? >> 8)' "${duration}" "$@"
       #perl -MPOSIX -e '$SIG{ALRM} = sub { kill(SIGTERM, -$$); }; alarm shift; $exit = system @ARGV; exit(WIFEXITED($exit) ? WEXITSTATUS($exit) : WTERMSIG($exit));' "$@"
 
