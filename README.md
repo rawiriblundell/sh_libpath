@@ -1,6 +1,6 @@
 # sh_libpath
 
-Making shell scripts more robust with libraries
+Making shell scripts more robust and readable with libraries
 
 | :warning: WARNING: This code is very very pre-alpha.  I'm currently just dumping in a bunch of functions from my code attic.  You're welcome to test, give feedback and contribute, but please don't use this for anything close to production! |
 | --- |
@@ -50,7 +50,7 @@ It also adds the following functions:
 
 ### `import`
 
-Similar to its `python` cousin, this is intended for loading monolithic libraries
+Similar to its `python` cousin, this is intended for loading libraries
 
 ### `requires`
 
@@ -145,6 +145,14 @@ And if you find yourself reading a larger script, it'll usually have a whole bun
 
 I think that until something like the Oil Shell or NGS gains traction, we can abstract a bunch of the common stuff away to libraries and solidify the code.  As a result, our scripts will in turn become more robust, safer, easier to read and easier to debug.
 
+Now, there are existing shell library projects out there, but they usually use a license that is too restrictive, or they are so deeply self-referencing that you need to go on a drug laden vision-quest to make sense of their code, or they insist on ridiculous namespacing - if you're more familiar with another language, you're going to want to call `split`, _not_ `______awesome__shell_library______+5000______class::::text_______________________split____________`.  Hyperbolic example, sure, but not far removed from what some of these library projects are inflicting on their users.  Personally, if I want my code to be that obnoxious to write, I'll switch to PowerShell.
+
+These projects also tend to be Linux and `bash` 4.0 or newer only.  Maybe there'll be the occassional attempt at MacOS compatibility, but that's it.
+
+## Why use libraries and not just a package of scripts
+
+That's a good question for which I don't currently have a good answer?
+
 ### Story time to make this totally relatable
 
 At a former job, I picked up a pre-existing shell script that was somewhat inefficiently written.  From memory it was a very -very- long single line script, several thousand characters long, and basically a very long pipeline that was similar to
@@ -193,14 +201,6 @@ Whenever someone mentions doing anything remotely constructive about the unix sh
 And some might see this kind of effort as falling into that trap.  I don't.  Sometimes a nail really is a nail, and suggesting that you hit it with a spanner is idiotic.  Nor should we have to tolerate a $5 Walmart hammer when we could have something more like a 20oz Estwing.  And, sometimes, the people who are on team spanners really shouldn't talk about hammers and nails because it's not in their wheelhouse.  I mean... you _can_ hammer in a nail with a spanner, but it's not pretty...
 
 See, also: [Master Foo and the Ten Thousand Lines](http://www.catb.org/~esr/writings/unix-koans/ten-thousand.html)
-
-## XDG vars
-
-Not all systems abide by the XDG spec.  We can provide a library to take care of some of that.
-
-## Why use libraries and not just a package of scripts
-
-That's a good question for which I don't have a good answer?
 
 ## Incomplete list of other bash libraries and frameworks
 
