@@ -17,8 +17,11 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-# Function for rounding floats
-# Usage: round [float] [precision]
-round() {
-  printf -- "%.${2:-0}f\n" "${1:?No float given}"
+# TO-DO: differentiate this from trunc() by performing conversions
+# e.g. scientific notation to integers
+# Additionally, handle base (default 10)
+
+# Usage: int [number]
+int() {
+  printf -- '%s\n' "${1:?No float given}" | awk -F '.' '{print $1}'
 }
