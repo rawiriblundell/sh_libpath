@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-# Function for rounding floats
-# Usage: round [float] [precision]
-round() {
-  printf -- "%.${2:-0}f\n" "${1:?No float given}"
+# Usage: ceiling [float]
+ceiling() {
+  printf -- '%s\n' "${1:?No float given}" |
+    awk '{print ($0-int($0)>0)?int($0)+1:int($0)}'
 }
