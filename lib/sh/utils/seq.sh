@@ -18,7 +18,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Check if 'seq' is available, if not, provide a basic replacement function
-if ! get_command seq; then
+if ! command -v seq >/dev/null 2>&1; then
   seq() {
     local first
     # If no parameters are given, print out usage
