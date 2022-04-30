@@ -24,8 +24,13 @@ average() {
       awk '{ total += $1; count++ } END { print total/count }'
     ;;
     (1)
-      # Assume a file
-      awk '{ total += $1; count++ } END { print total/count }' "${1}"
+      # If it's a file, average the lines
+      if [ -r "${1}" ]; then
+        awk '{ total += $1; count++ } END { print total/count }' "${1}"
+      # Otherwise, the average of a single number is the number itself
+      else
+        printf -- '%s\n' "${1}"
+      fi
     ;;
     (*)
       # Assume params to average

@@ -23,7 +23,7 @@
 # Check if 'shuf' is available, if not, provide basic shuffle functionality
 # Check commit history for a range of alternative methods - ruby, perl, python etc
 # Requires: randInt function
-if ! get_command shuf; then
+if ! command -v shuf >/dev/null 2>&1; then
   shuf() {
     local OPTIND inputRange inputStrings nMin nMax nCount shufArray shufRepeat
 

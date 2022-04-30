@@ -17,7 +17,6 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-
 # Usage: get_sourceforge [project] [linux|mac|windows]
 fetch_sourceforge() {
   # We require 'curl' and 'jq'

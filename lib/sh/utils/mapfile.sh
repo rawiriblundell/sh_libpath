@@ -80,7 +80,7 @@ fi
 # # Known issue: No traps!  This means IFS might be left altered if 
 # # the function is cancelled or fails in some way
 
-# if ! get_command mapfile; then
+# if ! command -v mapfile >/dev/null 2>&1; then
 #   # This is simply the appropriate section of 'help mapfile', edited, as a function:
 #   mapfilehelp() {
 #     # Hey, this exercise is for an array-capable shell, so let's use an array for this!

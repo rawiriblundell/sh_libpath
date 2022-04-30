@@ -18,7 +18,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Check if 'rev' is available, if not, enable a stop-gap function
-if ! get_command rev; then
+if ! command -v rev >/dev/null 2>&1; then
   rev() {
     # Check that stdin or $1 isn't empty
     if [[ -t 0 ]] && [[ -z "${1}" ]]; then

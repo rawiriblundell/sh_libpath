@@ -136,7 +136,7 @@ genphrase() {
   # First we test to see if shuf is available.  This should now work with the
   # 'shuf' step-in function and 'rand' scripts available from https://github.com/rawiriblundell
   # Also requires the 'capitalise' function from said source.
-  if get_command shuf; then
+  if command -v shuf >/dev/null 2>&1; then
     # If we're using bash4, then use mapfile for safety
     if (( BASH_VERSINFO >= 4 )); then
       # Basically we're using shuf and awk to generate lines of random words
@@ -164,14 +164,14 @@ genphrase() {
   
   # Otherwise, we switch to bash.  This is the fastest way I've found to perform this
   else
-    if ! get_command rand; then
+    if ! command -v rand >/dev/null 2>&1; then
       printf -- '%s\n' "[ERROR] genphrase: This function requires the 'rand' external script, which was not found." \
         "You can get this script from https://github.com/rawiriblundell"
       return 1
     fi
 
     # We test for 'mapfile' which indicates bash4 or some step-in function
-    if get_command mapfile; then
+    if command -v mapfile >/dev/null 2>&1; then
       # Create two arrays, one with all the words, and one with a bunch of random numbers
       mapfile -t dictArray < ~/.pwords.dict
       mapfile -t numArray < <(rand -M "${#dictArray[@]}" -r -N "${totalWords}")

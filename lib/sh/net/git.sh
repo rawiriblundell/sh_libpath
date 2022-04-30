@@ -261,7 +261,7 @@ delete-branch() {
 # Let 'git' take the perf hit of setting GIT_BRANCH rather than PROMPT_COMMAND
 # There's no one true way to get the current git branch, they all have pros/cons
 # See e.g. https://stackoverflow.com/q/6245570
-if get_command git; then
+if command -v git >/dev/null 2>&1; then
   git() {
     # If the args contain any mention of a master branch, we check for the newer 
     # 'main' nomenclature.  We take no other position than to suggest the correct command.
