@@ -56,7 +56,7 @@ get-cmd() {
   case "${1}" in
     ('') compgen -c ;;
     (*)
-      for needle in ${*}; do
+      for needle in "${@}"; do
         compgen -c | grep "${needle}"
       done
     ;;

@@ -18,13 +18,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Provide a very simple 'tac' step-in function
-if ! get_command tac; then
+if ! command -v tac >/dev/null 2>&1; then
   tac() {
-    if get_command perl; then
+    if command -v perl >/dev/null 2>&1; then
       perl -e 'print reverse<>' < "${1:-/dev/stdin}"
-    elif get_command awk; then
+    elif command -v awk >/dev/null 2>&1; then
       awk '{line[NR]=$0} END {for (i=NR; i>=1; i--) print line[i]}' < "${1:-/dev/stdin}"
-    elif get_command sed; then
+    elif command -v sed >/dev/null 2>&1; then
       sed -e '1!G;h;$!d' < "${1:-/dev/stdin}"
     fi
   }

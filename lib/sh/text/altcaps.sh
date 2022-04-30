@@ -72,3 +72,27 @@ str_altcaps() {
     printf -- '%s\n' ""
     unset -v _str_altcaps_lastswitch _str_altcaps_count _str_altcaps_word _str_altcaps_char
 }
+
+altcaps() {
+    _str_altcaps_lastswitch=lower
+    _str_altcaps_count=0
+    for _str_altcaps_word in "${@}"; do
+        for _str_altcaps_char in $(printf -- '%s\n' "${_str_altcaps_word}" | fold -w 1); do
+            case "${_str_altcaps_lastswitch}" in
+                (lower)
+                    _str_altcaps_uppercase "${_str_altcaps_char}"
+                    _str_altcaps_lastswitch=upper
+                ;;
+                (upper)
+                    _str_altcaps_lowercase "${_str_altcaps_char}"
+                    _str_altcaps_lastswitch=lower
+                ;;
+            esac
+        done
+        _str_altcaps_count=$(( _str_altcaps_count + 1 ))
+        (( _str_altcaps_count != "${#}" )) && printf -- '%s' " "
+    done
+
+    printf -- '%s\n' ""
+    unset -v _str_altcaps_lastswitch _str_altcaps_count _str_altcaps_word _str_altcaps_char
+}
