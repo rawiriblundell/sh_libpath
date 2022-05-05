@@ -69,19 +69,16 @@ requires() {
   for _item in "${@}"; do
     # First, is this a variable check?
     # There has to be a cleaner/safer way to do this
-    case "${1}" in
+    case "${_item}" in
       (*=*)
         _key="${_item%%=*}" # Everything left of the first '='
         _val="${_item#*=}"  # Everything right of the first '='
         eval [ \$"${_key}" = "${_val}" ] && continue
-      ;;  
-    esac
-
-    # Shell version check e.g. 'requires BASH32' = we check for bash 3.2 or newer
-    # To strictly require a specific version, you could use the keyval test above
-    # TO-DO: Expand the "is greater than" logic, add extra shells
-    case "${1}" in
+      ;;
       (BASH*)
+        # Shell version check e.g. 'requires BASH32' = we check for bash 3.2 or newer
+        # To strictly require a specific version, you could use the keyval test above
+        # TO-DO: Expand the "is greater than" logic, add extra shells
         if [ "${#BASH_VERSINFO[@]}" -gt 0 ]; then
           _bashver="${BASH_VERSINFO[*]:0:2}" # Get major and minor number e.g. '4 3'
           _bashver="BASH${_bashver/ /}"       # Concat and remove spaces e.g. 'BASH43'
@@ -104,6 +101,9 @@ requires() {
           [ "${1}" = "ZSH${ZSH_VERSION//./}" ] && continue
           [ "${1/ZSH/}" -ge "${ZSH_VERSION//./}" ] && continue
         fi
+      ;;
+      (root)
+        [ "${EUID:-$(id -u)}" -eq "0" ] && continue
       ;;
     esac
     

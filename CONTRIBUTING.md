@@ -81,7 +81,7 @@ Fundamentally: POSIX plus named arrays as a minimum, but let's not beat around t
 
 `ksh` is actually a very good shell that is quietly installed in far more places than you'd expect, so consider targeting that.  If it runs in `ksh`, it'll likely run in `bash`.
 
-Ubuntu's [DashAsBinSh](https://wiki.ubuntu.com/DashAsBinSh) wiki page can give you some ideas on more portable scripting, and `dash` is a readily available shell that you can test your code within. Do be aware that dash is stricter than our goals.
+Ubuntu's [DashAsBinSh](https://wiki.ubuntu.com/DashAsBinSh) wiki page can give you some ideas on more portable scripting, and `dash` is a readily available shell that you can test your code within. Do be aware that `dash` is stricter than our goals.
 
 | :pushpin: Right now, my thinking is that we could have multiple library files with the same name, but with a shell specific extension i.e. `func.bash`, `func.zsh`, `func.sh`.  This way the most performant way to do something in a particular shell can be contributed, and all users of that shell benefit. |
 | --- |
@@ -100,7 +100,7 @@ Any prescribed advice below supersedes the advice given in these two guides.
 
 Two or four space soft-tabs - whichever you prefer, just keep them consistent within each file.  Try to limit to 80 chars width, but up to 120ish is fine.
 
-`do` and `then` go on the same line rather than the next.
+`do` and `then` go on the same line rather than the next.  The same applies for opening braces and parens.
 
 Hard tabs are a hard no.
 
@@ -114,12 +114,9 @@ For helper functions that won't be used directly by a human, prepend it with a s
 
 Do not use the `function` keyword.  It is non-portable and considered obsolete.
 
-### Variables
+### Variables and scoping
 
-### Constants
-
-### Curly braces
-### Scoping variables
+Variables should generally be in lowercase, snake_case if possible.  All variables should have curly braces for readability and consistency.
 
 Shell uses dynamic scoping, which can really throw off a lot of people.  Practically speaking: it's not great.  But, with some simple practices, we can mitigate the potential issues caused by this.
 
@@ -131,13 +128,13 @@ Typically in a shell script you have 3, maybe 4 pseudo-scopes:
 
 A lot of badly written articles imply that using UPPERCASE is a good thing.  It's best avoided if at all possible.
 
-`local`
+#### local
 
 As much as I'd love to use this, [it's a mess out there](https://unix.stackexchange.com/questions/493729/list-of-shells-that-support-local-keyword-for-defining-local-variables)
 
 So instead of using `local`, the preference will be to pseudoscope.
 
-`RETVAL` variable
+#### `RETVAL` variables
 
 I think it might be useful to settle on a return value standard.  For example
 
@@ -149,6 +146,10 @@ function_name() {
   function_name_rc
 }
 ```
+
+#### Constants
+
+Define a constant in its appropriate scope with `readonly`.
 
 ### Compartmentalisation
 
