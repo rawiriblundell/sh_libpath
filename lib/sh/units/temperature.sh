@@ -17,28 +17,17 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-# If the input matches "int.int", then we test if it's a float
-# Otherwise, we test if it's an integer
+
+# Use the 'printf' builtin to test whether we have an int or a float
 # +/- specifiers are accepted
 # All other conditions will return 1 i.e. not a float or int
 _temp_number_validation() {
-    case "${1}" in
-        (*[0-9].[0-9]*)
-            # Floats
-            if printf -- '%s\n' "${1}" | grep -E '^[-+]?[0-9]+\.[0-9]*$' >/dev/null 2>&1; then
-                return 0
-            fi
-            return 1
-        ;;
-        (*[0-9]*)
-            # Integers
-            if printf -- '%s\n' "${1}" | grep -E '^[-+]?[0-9]+$' >/dev/null 2>&1; then
-                return 0
-            fi
-            return 1
-        ;;
-        (*) return 1 ;;
-    esac
+    # Is it an int?
+    printf -- '%d' "${1:-null}" >/dev/null 2>&1 && return 0
+    # Is it a float?
+    printf -- '%f' "${1:-null}" >/dev/null 2>&1 && return 0
+    # If we get here, then we failed in our mission
+    return 1
 }
 
 # Celsius to Fahrenheit
