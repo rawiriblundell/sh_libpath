@@ -47,6 +47,7 @@ POSSIBLE_SH_LIBPATHS=(
 # we dynamically build SH_LIBPATH
 unset -v SH_LIBPATH
 for _path in "${POSSIBLE_SH_LIBPATHS[@]}"; do
+  sh_stack_add "SH_LIBPATH: checking if ${_path} exists..."
   [ -d "${_path}" ] && SH_LIBPATH="${SH_LIBPATH}:${_path}"
 done
 unset -v _path
