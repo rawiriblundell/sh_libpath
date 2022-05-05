@@ -17,7 +17,13 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+# This library requires 'bc'
+if ! command -v bc >/dev/null 2>&1; then
+    printf -- 'temperature: %s\n' "This library requires 'bc', which was not found in PATH" >&2
+    exit 1
+fi
 
+# Helper function:
 # Use the 'printf' builtin to test whether we have an int or a float
 # +/- specifiers are accepted
 # All other conditions will return 1 i.e. not a float or int
@@ -33,25 +39,18 @@ _temp_number_validation() {
 # Celsius to Fahrenheit
 # Formula: temp times 9 divided by 5 + 32
 c_to_f() {
-    _temp_c="${1}"
-    if _temp_number_validation "${_temp_c}"; then
-        _temp_f=$(printf -- '%s\n' "scale=2;${_temp_c} * 9 / 5 + 32" | bc)
-        printf -- '%.2f\n' "${_temp_f}"
-    else
-        printf -- '%s\n' "null"
-    fi
-    unset -v _temp_c _temp_f
+    _temp_number_validation "${1}" || { printf -- '%s\n' "null"; return 1; }
+    printf -- '%s\n' "scale=2;${1} * 9 / 5 + 32" | bc
 }
 
 # Fahrenheit to Celsius
 # Forumla: temp minus 32 times 5 divided by 9
 f_to_c() {
+    _temp_number_validation "${1}" || { printf -- '%s\n' "null"; return 1; }
     _temp_f="${1}"
     if _temp_number_validation "${_temp_f}"; then
         _temp_c=$(printf -- '%s\n' "scale=2;${_temp_f} - 32 * 5 / 9" | bc)
         printf -- '%.2f\n' "${_temp_c}"
-    else
-        printf -- '%s\n' "null"
     fi
     unset -v _temp_c _temp_f
 }
@@ -59,12 +58,11 @@ f_to_c() {
 # Celsius to Kelvin
 # Forumla: temp + 273.15.  Easy!
 c_to_k()  {
+    _temp_number_validation "${1}" || { printf -- '%s\n' "null"; return 1; }
     _temp_c="${1}"
     if _temp_number_validation "${_temp_c}"; then
         _temp_k=$(printf -- '%s\n' "scale=2;${_temp_c} + 273.15" | bc)
         printf -- '%.2f\n' "${_temp_k}"
-    else
-        printf -- '%s\n' "null"
     fi
     unset -v _temp_c _temp_k
 }
@@ -72,12 +70,11 @@ c_to_k()  {
 # Kelvin to Celsius
 # Forumla: temp - 273.15.  Easy!
 k_to_c()  {
+    _temp_number_validation "${1}" || { printf -- '%s\n' "null"; return 1; }
     _temp_k="${1}"
     if _temp_number_validation "${_temp_k}"; then
         _temp_c=$(printf -- '%s\n' "scale=2;${_temp_k} - 273.15" | bc)
         printf -- '%.2f\n' "${_temp_c}"
-    else
-        printf -- '%s\n' "null"
     fi
     unset -v _temp_c _temp_k
 }
@@ -85,6 +82,7 @@ k_to_c()  {
 # Fahrenheit to Kelvin
 # Formula: There's a couple of formulas out there, one is literally f -> c -> k
 f_to_k() {
+    _temp_number_validation "${1}" || { printf -- '%s\n' "null"; return 1; }
     _temp_f="${1}"
     _temp_k=$(f_to_c "${_temp_f}")
     _temp_k=$(c_to_k "${_temp_k}")
@@ -95,6 +93,7 @@ f_to_k() {
 # Kelvin to Fahrenheit
 # Formula: Reverse of the above - k -> c -> f
 k_to_f() {
+    _temp_number_validation "${1}" || { printf -- '%s\n' "null"; return 1; }
     _temp_k="${1}"
     _temp_f=$(k_to_c "${_temp_k}")
     _temp_f=$(c_to_f "${_temp_f}")
