@@ -114,9 +114,50 @@ For helper functions that won't be used directly by a human, prepend it with a s
 
 Do not use the `function` keyword.  It is non-portable and considered obsolete.
 
-### Variables and scoping
+### Variables
 
-Variables should generally be in lowercase, snake_case if possible.  All variables should have curly braces for readability and consistency.
+Variables should generally be in lowercase, snake_case if possible.
+
+Curly braces are used on `${arrays[@]}` and `${variable/modif/ications}`. For consistency, we use curly braces on normal variables too.
+
+Curly braces around variables also improves readability when syntax colouring is not available. ${this_variable} stands out within this block of text, for example.
+
+Exception: When you're in an arithmetic context e.g. $(( time_metric + 10 ))
+
+Exceptions to the exception: If your var is an array element or requires transformation e.g.
+
+$(( "${time_metrics[2]}" + 20 ))
+$(( "${10#time_metric}" + 10 ))
+
+Try, also, to use meaningful names. This is meaningless:
+
+```bash
+for f in $(lsblk -ln -o NAME); do
+    ...
+```
+
+Whereas this is better:
+
+```bash
+for block_device in $(lsblk -ln -o NAME); do
+    ...
+```
+
+This also reduces/eliminates unexpected in-scope collisions.
+
+Exception: C-Style for (( i=0; i<max_count; i++ )); do style loops, as the var i is usually self-contained and is short-hand for 'integer'
+
+It's generally good, but a highly uncommon, habit to unset your variables once you're done with them.  We should aspire to do this where we can.
+
+#### Typing
+
+Variables in Linux/UNIX shells are untyped. `typeset` and `declare` and similar tools have been developed to bring some form of typing, but these are not portable solutions, so should be avoided.
+
+If you need a variable to be of a specific type, the best advice right now is to validate it before you use it.
+
+We do already have some code for this kind of validation.
+
+#### Scoping
 
 Shell uses dynamic scoping, which can really throw off a lot of people.  Practically speaking: it's not great.  But, with some simple practices, we can mitigate the potential issues caused by this.
 
@@ -128,11 +169,53 @@ Typically in a shell script you have 3, maybe 4 pseudo-scopes:
 
 A lot of badly written articles imply that using UPPERCASE is a good thing.  It's best avoided if at all possible.
 
+We practice psuedoscoping to minimise the chances of variables within scripts or functions from clobbering variables within the environment and vice versa.
+
+Variables must be in the appropriate format for its "scope" as defined below:
+
+#### Environment
+
+We know from long-established convention that environment variables are almost always in UPPERCASE. You can see this in e.g. bash by running set and/or printenv.
+
+We generally shouldn't need to put any variables into the environment, so you should avoid UPPERCASE as much as possible. If you do need a variable in the environment "scope" for whatever reason, use the form MK_VARNAME e.g. MK_VERSION
+
+You might often see this "scope" referred to as the global scope, or shell scope. This scope also contains shell builtin variables.
+
+#### Script
+
+Variables in the script "scope" tend often to be mistakenly written in UPPERCASE, which gives rise to the possibility of clobbering a legitimate variable in the environment "scope". This can have results that are potentially hilarious, or potentially bad depending on your point of view.
+
+For that reason, UPPERCASE variable names are strongly discouraged outside of the environment scope.
+
+Instead, use lowercase, with underscores to separate words i.e. snake_case.
+
+GNU Autoconf's documentation also states:
+
+As a general rule, shell variable names containing a lower-case letter are safe; you can define and use these variables without worrying about their effect on the underlying system, and without worrying about whether the shell changes them unexpectedly.
+
 #### local
 
-As much as I'd love to use this, [it's a mess out there](https://unix.stackexchange.com/questions/493729/list-of-shells-that-support-local-keyword-for-defining-local-variables)
+`bash` and others allow you to define variables as local within a function e.g.
 
-So instead of using `local`, the preference will be to pseudoscope.
+```bash
+get_api_user() {
+    local username
+    username=Shelly
+    ...
+}
+```
+
+In library files that target a shell that supports this, please go ahead and use it.
+
+If you are targeting a generic/portable library, please avoid this.  It's non-portable, and the workarounds are messy to say the least.  Our solution is to simply prepend any variables within a function with an underscore. We also unset the variable immediately prior to the function closure. For example:
+
+```bash
+get_api_user() {
+    _username=Shelly
+    ...
+    unset -v _username
+}
+```
 
 #### `RETVAL` variables
 
@@ -149,7 +232,20 @@ function_name() {
 
 #### Constants
 
-Define a constant in its appropriate scope with `readonly`.
+_a.k.a. immutable variable_
+
+Define a constant in its appropriate scope with `readonly`.  Define and set separately e.g.
+
+```bash
+my_variable="Polaris"
+readonly my_variable
+```
+
+Variable pseudoscopes re-cap:
+Environment: ${SH_UPPERCASE}
+Script: ${meaningful_snake_case}
+Function / Local: ${_underscore_prepended_snake_case} with unset -v
+Constants: The appropriate above form set to readonly
 
 ### Compartmentalisation
 
@@ -202,4 +298,4 @@ And if you look at the original blogpost describing it, note that more than half
 
 A number of other library/framework/module projects use and advocate for it.  This project will not do that.
 
-This project will provide the capability, however, via a library named `strict.sh`.
+This project will nonetheless provide the capability, however, via a library named `strict.sh`.
