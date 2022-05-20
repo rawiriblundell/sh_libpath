@@ -253,6 +253,39 @@ import() {
       _import_target="${_import_target#*/}"
       _extension="${_import_target#*.}"
 
+      # TODO: If I do some extension logic here, I should be able to merge this and the following case clause
+      #case "${_extension:?sh}" in
+      #  (bash|zsh)
+      #  (sh)
+      #esac
+      
+      # This expands SH_LIBPATH and appends the target to each path member e.g.
+      # for _target in /usr/local/lib/sh/arrays.sh "${HOME}"/.local/lib/sh/arrays.sh; do
+      for _import_target in ${SH_LIBPATH//://$_import_target }/${_import_target}; do
+        if [ -r "${_import_target}" ]; then
+          # shellcheck disable=SC1090
+          . "${_import_target}" || {
+            printf -- 'import: %s\n' "Failed to load '${_import_target}'" >&2
+            exit 1
+          }
+          SH_LIBS_LOADED="${SH_LIBS_LOADED} ${_import_target}"
+          SH_LIBS_LOADED="${SH_LIBS_LOADED# }"
+          unset -v _target _import_target
+          return 0
+        elif [ -e "${_import_target}" ]; then
+          sh_stack_dump
+          printf -- 'import: %s\n' "Insufficient permissions while importing '${_import_target}'" >&2
+          unset -v _target _import_target
+          exit 1
+        fi
+      done
+    ;;
+    (*/*)
+      # Is it a specific library in the format path/library?
+      _subdir_path="${_import_target%%/*}"
+      _import_target="${_import_target#*/}"
+      _extension="sh"
+
       # This expands SH_LIBPATH and appends the target to each path member e.g.
       # for _target in /usr/local/lib/sh/arrays.sh "${HOME}"/.local/lib/sh/arrays.sh; do
       for _import_target in ${SH_LIBPATH//://$_import_target }/${_import_target}; do
@@ -271,14 +304,10 @@ import() {
         fi
       done
     ;;
-    (*/*)
-      # Is it a specific library in the format path/library?
-      _subdir_path="${_import_target%%/*}"
-      _import_target="${_import_target#*/}"
-      _extension="sh"
-    ;;
     (*)
       # Is it a path within SH_LIBPATH?  Load everything within that path.
+      # Note: we only load everything with a .sh extension
+      # We don't want to try loading library.zsh into bash, for example
       _subdir_path="${_import_target}"
 
       sh_stack_add -4 "case > 3 > all"
