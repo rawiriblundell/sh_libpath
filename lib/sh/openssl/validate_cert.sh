@@ -22,9 +22,14 @@ if ! command -v openssl >/dev/null 2>&1; then
     exit 1
 fi
 
+# Validate a certificate against a key and csr
+# Usage: validate_cert certificate.crt [optional: certificate.key] [optional: certificate.csr]
+# If the key and/or csr are not explicitly defined, we will assume the same basename as the crt
+# e.g. for 'example.com.crt', 'example.com.key' and 'example.com.csr' will be assumed
 validate_cert() {
     _validate_cert="${1}"
     _validate_key="${2}"
+    _validate_csr="${3}"
 
     if (( "${#_validate_cert}" == 0 )); then
         printf -- 'validate_cert: %s\n' "No input file provided" >&2
@@ -38,20 +43,31 @@ validate_cert() {
         _validate_key="${_validate_key}.key"
     fi
 
+    if (( "${#_validate_csr}" == 0 )); then
+        _validate_key="${_validate_cert%.*}"
+        _validate_key="${_validate_key}.csr"
+    fi
+
     if [ ! -r "${_validate_key}" ]; then
         printf -- 'validate_cert: %s\n' "key file not found, specified, or readable" >&2
         return 1
     fi
 
+    if [ ! -r "${_validate_csr}" ]; then
+        printf -- 'validate_cert: %s\n' "csr file not found, specified, or readable" >&2
+        return 1
+    fi
+
     _cert_hash="$(openssl x509 -noout -modulus -in "${_validate_cert}" | openssl md5)"
     _key_hash="$(openssl rsa -noout -modulus -in "${_validate_key}" | openssl md5)"
-    unset -v _validate_cert _validate_key
+    _csr_hash="$(openssl req -noout -modulus -in "${_validate_csr}" | openssl md5)"
+    unset -v _validate_cert _validate_key _validate_csr
 
-    if [ "${_cert_hash}" = "${_key_hash}" ]; then
-        unset -v _cert_hash _key_hash
+    if [ "${_cert_hash}" = "${_key_hash}" ] && [ "${_cert_hash}" = "${_csr_hash}" ]; then
+        unset -v _cert_hash _key_hash _csr_hash
         return 0
     fi
 
-    unset -v _cert_hash _key_hash
+    unset -v _cert_hash _key_hash _csr_hash
     return 1
 }
