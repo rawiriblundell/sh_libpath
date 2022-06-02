@@ -249,8 +249,14 @@ import() {
   case "${_import_target}" in
     (*/*.*)
       # Is it a specific library in the format path/library.extension?
+<<<<<<< HEAD
       _subdir_path="${_import_target%%/*}"
       _import_target="${_import_target#*/}"
+=======
+      #_subdir_path="${_import_target%%/*}"
+      #_import_target="${_import_target#*/}"
+      #_extension="${_import_target#*.}"
+>>>>>>> 830cbab... Add validate_cert.sh
 
       # If these two are the same, then we don't have an extension.  Default to .sh
       if [ "${_import_target}" = "${_import_target#*.}" ]; then
