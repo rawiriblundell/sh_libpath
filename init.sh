@@ -249,9 +249,9 @@ import() {
   case "${_import_target}" in
     (*/*.*)
       # Is it a specific library in the format path/library.extension?
-      _subdir_path="${_import_target%%/*}"
-      _import_target="${_import_target#*/}"
-      _extension="${_import_target#*.}"
+      #_subdir_path="${_import_target%%/*}"
+      #_import_target="${_import_target#*/}"
+      #_extension="${_import_target#*.}"
 
       # TODO: If I do some extension logic here, I should be able to merge this and the following case clause
       #case "${_extension:?sh}" in
