@@ -20,7 +20,7 @@
 # Make getting a string length a bit more familiar
 # for practitioners of other languages
 str_len() {
-  case "${1:?No string specified}" in
+  case "${1}" in
     (-b|--bytes)
       shift 1
       LANG_orig="${LANG}"; LC_ALL_orig="${LC_ALL}"
@@ -43,7 +43,7 @@ str_len() {
 # Make getting a string length a bit more familiar
 # for practitioners of other languages
 strlen() {
-  case "${1:?No string specified}" in
+  case "${1}" in
     (-b|--bytes)
       shift 1
       LANG_orig="${LANG}"; LC_ALL_orig="${LC_ALL}"

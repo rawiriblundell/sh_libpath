@@ -249,8 +249,9 @@ import() {
   case "${_import_target}" in
     (*/*.*)
       # Is it a specific library in the format path/library.extension?
-      _subdir_path="${_import_target%%/*}"
-      _import_target="${_import_target#*/}"
+      #_subdir_path="${_import_target%%/*}"
+      #_import_target="${_import_target#*/}"
+      #_extension="${_import_target#*.}"
 
       # If these two are the same, then we don't have an extension.  Default to .sh
       if [ "${_import_target}" = "${_import_target#*.}" ]; then
