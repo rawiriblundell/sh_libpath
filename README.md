@@ -206,35 +206,37 @@ See, also: [Master Foo and the Ten Thousand Lines](http://www.catb.org/~esr/writ
 
 In no particular order...
 
+* https://github.com/aks/bash-lib
+* https://github.com/alebcay/awesome-shell
+* https://github.com/awesome-lists/awesome-bash
 * https://github.com/basherpm/basher
 * https://github.com/Bash-it/bash-it
-* https://github.com/bpkg/bpkg
-* https://github.com/cyberark/bash-lib
-* https://github.com/aks/bash-lib
 * https://github.com/bashup/events
+* https://github.com/bpkg/bpkg
+* https://github.com/cloudflare/semver_bash
+* https://github.com/codeforester/base
+* https://github.com/cyberark/bash-lib
+* https://github.com/DethByte64/BashLib
 * https://github.com/dzove855/bar
 * https://github.com/fidian/ansi
-* https://github.com/matejak/argbash
-* https://github.com/jneen/balls
+* https://github.com/gruntwork-io/bash-commons
+* https://github.com/jandob/rebash
 * https://github.com/jmcantrell/bashful
-* https://github.com/niieani/bash-oo-framework
-* https://github.com/cloudflare/semver_bash
-* https://github.com/zombieleet/bashify
-* https://github.com/tests-always-included/mo
+* https://github.com/jneen/balls
 * https://github.com/juan131/bash-libraries
 * https://github.com/labbots/bash-utility
-* https://github.com/pioneerworks/lib-bash
-* https://github.com/reale/bashlets
-* https://github.com/mulle-nat/mulle-bashfunctions
 * https://github.com/m10k/toolbox
-* https://github.com/awesome-lists/awesome-bash Maybe holds some more
-* https://github.com/alebcay/awesome-shell
-* https://github.com/xsh-lib/core
 * https://github.com/martinburger/bash-common-helpers
-* https://github.com/codeforester/base
-* https://github.com/DethByte64/BashLib
+* https://github.com/matejak/argbash
+* https://github.com/mulle-nat/mulle-bashfunctions
+* https://github.com/niieani/bash-oo-framework
 * https://github.com/paralllax/libash
-* https://github.com/jandob/rebash
+* https://github.com/pioneerworks/lib-bash
+* https://github.com/Privex/shell-core
+* https://github.com/reale/bashlets
+* https://github.com/tests-always-included/mo
+* https://github.com/xsh-lib/core
+* https://github.com/zombieleet/bashify
 
 ## List of projects that may be inspirational
 
