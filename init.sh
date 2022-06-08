@@ -251,13 +251,27 @@ import() {
       # Is it a specific library in the format path/library.extension?
       _subdir_path="${_import_target%%/*}"
       _import_target="${_import_target#*/}"
-      _extension="${_import_target#*.}"
 
-      # TODO: If I do some extension logic here, I should be able to merge this and the following case clause
-      #case "${_extension:?sh}" in
-      #  (bash|zsh)
-      #  (sh)
-      #esac
+      # If these two are the same, then we don't have an extension.  Default to .sh
+      if [ "${_import_target}" = "${_import_target#*.}" ]; then
+        _extension="sh"
+      # Otherwise, extract the extension
+      else
+        _extension="${_import_target#*.}"
+      fi
+
+      # Check that the subdir exists in SH_LIBPATH, if not, fail out
+      # Get first found match of subdir in SH_LIBPATH
+      for _import_subdir in ${SH_LIBPATH//://$_subdir_path }/${_subdir_path}; do
+        if [ -d "${_import_subdir}" ]; then
+          _subdir_path="${_import_target}"
+          break
+        fi
+        # TODO: Fail out here
+      done
+
+      # We've validated all of the input components, so re-assemble them
+      _import_target="${_subdir_path}/${_import_target}.${_extension}"
       
       # This expands SH_LIBPATH and appends the target to each path member e.g.
       # for _target in /usr/local/lib/sh/arrays.sh "${HOME}"/.local/lib/sh/arrays.sh; do
@@ -268,30 +282,6 @@ import() {
             printf -- 'import: %s\n' "Failed to load '${_import_target}'" >&2
             exit 1
           }
-          SH_LIBS_LOADED="${SH_LIBS_LOADED} ${_import_target}"
-          SH_LIBS_LOADED="${SH_LIBS_LOADED# }"
-          unset -v _target _import_target
-          return 0
-        elif [ -e "${_import_target}" ]; then
-          sh_stack_dump
-          printf -- 'import: %s\n' "Insufficient permissions while importing '${_import_target}'" >&2
-          unset -v _target _import_target
-          exit 1
-        fi
-      done
-    ;;
-    (*/*)
-      # Is it a specific library in the format path/library?
-      _subdir_path="${_import_target%%/*}"
-      _import_target="${_import_target#*/}"
-      _extension="sh"
-
-      # This expands SH_LIBPATH and appends the target to each path member e.g.
-      # for _target in /usr/local/lib/sh/arrays.sh "${HOME}"/.local/lib/sh/arrays.sh; do
-      for _import_target in ${SH_LIBPATH//://$_import_target }/${_import_target}; do
-        if [ -r "${_import_target}" ]; then
-          # shellcheck disable=SC1090
-          . "${_import_target}" || { printf -- 'import: %s\n' "Failed to load '${_import_target}'" >&2; exit 1; }
           SH_LIBS_LOADED="${SH_LIBS_LOADED} ${_import_target}"
           SH_LIBS_LOADED="${SH_LIBS_LOADED# }"
           unset -v _target _import_target
