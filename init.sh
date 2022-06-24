@@ -52,8 +52,12 @@ POSSIBLE_SH_LIBPATHS=(
 # we dynamically build SH_LIBPATH
 unset -v SH_LIBPATH
 for _path in "${POSSIBLE_SH_LIBPATHS[@]}"; do
-  sh_stack_add "SH_LIBPATH: checking if ${_path} exists..."
-  [ -d "${_path}" ] && SH_LIBPATH="${SH_LIBPATH}:${_path}"
+  if [ -d "${_path}" ]; then
+    sh_stack_add "SH_LIBPATH: checking if ${_path} exists... found!"
+    SH_LIBPATH="${SH_LIBPATH}:${_path}"
+  else
+    sh_stack_add "SH_LIBPATH: checking if ${_path} exists... not found."
+  fi
 done
 unset -v _path
 # Remove any leading colons from the construction process and export
@@ -63,7 +67,11 @@ export SH_LIBPATH
 # Check the length of the var again and fail out if it's empty
 if (( "${#SH_LIBPATH}" == 0 )); then
   printf -- '%s\n' "SH_LIBPATH appears to be empty" >&2
-  exit 1
+  if [ -t 0 ]; then
+    return 1
+  else
+    exit 1
+  fi
 fi
 
 sh_stack_add "SH_LIBPATH: ${SH_LIBPATH}"
@@ -141,7 +149,11 @@ requires() {
   else
     printf -- '%s\n' "The following requirements were not met:" "${_failures}" >&2
     unset -v _item _failures _target_lib _bashver
-    exit 1
+    if [ -t 0 ]; then
+      return 1
+    else
+      exit 1
+    fi
   fi
 }
 
@@ -153,12 +165,23 @@ wants() {
 
   if [ -r "${_fstarget}" ]; then
     # shellcheck disable=SC1090
-    . "${_fstarget}" || { printf -- 'wants: %s\n' "Failed to load '${_fstarget}'"; exit 1; }
+    . "${_fstarget}" || {
+      printf -- 'wants: %s\n' "Failed to load '${_fstarget}'"
+      if [ -t 0 ]; then
+        return 1
+      else
+        exit 1
+      fi
+    }
     unset -v _fstarget
   else
     printf -- 'wants: %s\n' "${_fstarget} exists but isn't readable" >&2
     unset -v _fstarget
-    return 1
+    if [ -t 0 ]; then
+      return 1
+    else
+      exit 1
+    fi
   fi
 }
 
@@ -170,39 +193,57 @@ _is_lib_loaded() {
   _is_lib_loaded_target="${1:?No library defined}"
   if [ "${SH_LIBS_LOADED#*"$_is_lib_loaded_target"}" != "${SH_LIBS_LOADED}" ]; then
     unset -v _is_lib_loaded_target
-    return 0
+    if [ -t 0 ]; then
+      return 0
+    else
+      exit 0
+    fi
   else
     unset -v _is_lib_loaded_target
-    return 1
+    if [ -t 0 ]; then
+      return 1
+    else
+      exit 1
+    fi
   fi
 }
 
-# Usage examples:
+#### Usage examples:
+# Attempt to source a library from a given full path
 # import /opt/company/libs/sh/library.sh
-#   Attempts to source a library from a given full path
-# import text/puts
-#   Attempts to locate and source the library "puts.sh" within SH_LIBPATH
-# import text/puts.bash
-#   Attempts to locate and source the library "puts.bash" within SH_LIBPATH
+#
+# Attempts to locate the subdir 'units' within SH_LIBPATH and sources all the libraries within it
 # import units
-#   Attempts to locate the subdir 'units' within SH_LIBPATH and sources all the libraries within it
+#
+# Attempts to locate and source the library "puts.sh" within SH_LIBPATH
+# import text/puts
+#
+# Attempts to locate and source the library "puts.bash" within SH_LIBPATH
+# import text/puts.bash
+#
 import() {
-  sh_stack_add -2 "Entering 'import()' and processing args: '${*}'"
+  sh_stack_add -2 "Entering 'import()' and processing ${#} found arg(s): '${*}'"
 
   # Ensure that SH_LIBPATH has some substance, otherwise why bother?
-  sh_stack_add -3 "SH_LIBPATH at this point: ${SH_LIBPATH}"
   if (( "${#SH_LIBPATH}" == 0 )); then
     sh_stack_dump
     printf -- 'import: %s\n' "SH_LIBPATH appears to be empty" >&2
-    exit 1
+    if [ -t 0 ]; then
+      return 1
+    else
+      exit 1
+    fi
   fi
 
   # Ensure that we have an arg to parse
-  sh_stack_add -3 "Count of args found: ${#}"
   if (( "${#}" == 0 )); then
     sh_stack_dump
     printf -- 'import: %s\n' "No args given" >&2
-    exit 1
+    if [ -t 0 ]; then
+      return 1
+    else
+      exit 1
+    fi
   fi
 
   # Assign our target to a var
@@ -212,143 +253,196 @@ import() {
   # TO-DO: Add option to import() to ignore this test and (forcibly?) reload
   _is_lib_loaded "${_import_target}" && return 0
 
-  # Is it a direct path to a readable file?  Load it.
+  # Is it a full path to a readable file?
   # Example: import /opt/something/specific/library.sh
-  if [ -r "${_import_target}" ]; then
-    sh_stack_add -4 "Full path given to readable file: ${_import_target}"
-    # shellcheck disable=SC1090
-    if . "${_import_target}"; then
-      # Add the library to SH_LIBS_LOADED
-      SH_LIBS_LOADED="${SH_LIBS_LOADED} ${_import_target}"
-      # Strip the leading space char
-      SH_LIBS_LOADED="${SH_LIBS_LOADED# }"
-      export SH_LIBS_LOADED
-      unset -v _import_target
-      return 0
+  sh_stack_add -2 "Is '${_import_target}' a full path to a file?"
+  if [ -f "${_import_target}" ]; then
+    sh_stack_add -3 "Full path: '${_import_target}' exists.  Is it readable?"
+    if [ -r "${_import_target}" ]; then
+      sh_stack_add -4 "Full path: '${_import_target}' readable.  Loading."
+      # shellcheck disable=SC1090
+      if . "${_import_target}"; then
+        # Add the library to SH_LIBS_LOADED
+        SH_LIBS_LOADED="${SH_LIBS_LOADED} ${_import_target}"
+        # Strip the leading space char
+        SH_LIBS_LOADED="${SH_LIBS_LOADED# }"
+        export SH_LIBS_LOADED
+        unset -v _import_target
+        return 0
+      else
+        sh_stack_add -5 "Full path: '${_import_target}' readable but not loadable.  Failing."
+        sh_stack_dump
+        printf -- 'import: %s\n' "Error while importing '${_import_target}'" >&2
+        unset -v _import_target
+        if [ -t 0 ]; then
+          return 1
+        else
+          exit 1
+        fi
+      fi
     else
+      sh_stack_add -4 "Full path: '${_import_target}' unreadable.  Failing."
       sh_stack_dump
-      printf -- 'import: %s\n' "Failed to load '${_import_target}'" >&2
+      printf -- 'import: %s\n' "Insufficient permissions while importing '${_import_target}'" >&2
       unset -v _import_target
-      exit 1
+      if [ -t 0 ]; then
+        return 1
+      else
+        exit 1
+      fi
     fi
-  elif [ -e "${_import_target}" ]; then
-    sh_stack_add -4 "Full path given to unreadable file: ${_import_target}"
-    sh_stack_dump
-    printf -- 'import: %s\n' "Insufficient permissions while importing '${_import_target}'" >&2
-    unset -v _import_target
-    exit 1
   fi
+  sh_stack_add -2 "'${_import_target}' is apparently not a full path to a file."
 
+  # Is it a path a subdir within SH_LIBPATH?  If so, load everything within that path.
+  # Note: we only load everything with a .sh extension
+  # We don't want to try loading library.zsh into bash, for example
+  sh_stack_add -2 "Is '${_import_target}' a sub-directory within SH_LIBPATH?"
+  # Get first found match of subdir in SH_LIBPATH
+  for _potential_subdir in ${SH_LIBPATH//://$_import_target }/${_import_target}; do
+    sh_stack_add -3 "Testing if '${_potential_subdir}' exists"
+    if [ -d "${_potential_subdir}" ]; then
+      _subdir="${_potential_subdir}"
+      unset -v _potential_subdir
+      sh_stack_add -4 "Loading all libraries and functions from '${_subdir}'"
+      for _load_target in "${_subdir_path}"/*; do
+        # Ensure that it's not already loaded
+        _is_lib_loaded "${_subdir}/${_load_target}" && continue
+        if [ -r "${_subdir}/${_load_target}" ]; then
+          # shellcheck disable=SC1090
+          . "${_subdir}/${_load_target}" || {
+            sh_stack_dump
+            printf -- 'import: %s\n' "Failed to load '${_load_target}' from ${_subdir}" >&2
+            unset -v _target _import_target
+            if  [ -t 0 ]; then
+              return 1
+            else
+              exit 1
+            fi
+          }
+          SH_LIBS_LOADED="${SH_LIBS_LOADED} ${_load_target}"
+          SH_LIBS_LOADED="${SH_LIBS_LOADED# }"
+          unset -v _target _import_target
+        elif [ -e "${_import_target}" ]; then
+          sh_stack_dump
+          printf -- 'import: %s\n' "Insufficient permissions while importing '${_import_target}'" >&2
+          unset -v _target _import_target
+          if  [ -t 0 ]; then
+            return 1
+          else
+            exit 1
+          fi
+        fi
+      done
+      export SH_LIBS_LOADED
+      unset -v _subdir _function _subdir_path _import_target
+      if  [ -t 0 ]; then
+        return 0
+      else
+        exit 0
+      fi
+    fi
+  done
+  sh_stack_add -2 "'${_import_target}' is apparently not a sub-directory within SH_LIBPATH."
+
+  sh_stack_add -2 "Is '${_import_target}' a relative path within SH_LIBPATH?"
   # With the above scenario out of the way, we now assess the following in order:
   # import subdir/library.extension (e.g. import text/tolower.sh)
   #     This scenario allows us to load shell specific libs e.g. text/tolower.zsh
   # import subdir/library           (e.g. import text/tolower)
   #     This scenario defaults to the .sh extension i.e. text/tolower = text/tolower.sh
-  # import subdir                   (e.g. import text
-  #     This scenario loads all libraries within a subdir
-  case "${_import_target}" in
-    (*/*.*)
-      # Is it a specific library in the format path/library.extension?
-      #_subdir_path="${_import_target%%/*}"
-      #_import_target="${_import_target#*/}"
-      #_extension="${_import_target#*.}"
 
-      # If these two are the same, then we don't have an extension.  Default to .sh
-      if [ "${_import_target}" = "${_import_target#*.}" ]; then
-        _extension="sh"
-      # Otherwise, extract the extension
-      else
-        _extension="${_import_target#*.}"
-      fi
+  sh_stack_add -3 "Splitting '${_import_target}' to the following vars:"
+  _subdir_path="${_import_target%%/*}"
+  # Debug code
+  : _import_target: "${_import_target}"
+  : _import_target%%/*: "${_import_target%%/*}"
+  : _subdir_path: "${_subdir_path}"
 
-      # Check that the subdir exists in SH_LIBPATH, if not, fail out
-      # Get first found match of subdir in SH_LIBPATH
-      for _import_subdir in ${SH_LIBPATH//://$_subdir_path }/${_subdir_path}; do
-        if [ -d "${_import_subdir}" ]; then
-          _subdir_path="${_import_target}"
-          break
-        fi
-        # TODO: Fail out here
-      done
+  # Check that the variable has substance
+  sh_stack_add -4 "\${_subdir_path}: Check if null or unset..."
+  if [ "${_subdir_path+x}" = "x" ] || [ "${#_subdir_path}" -eq "0" ]; then
+    sh_stack_add -4 "\${_subdir_path}: Appears to be null or unset."
+    sh_stack_dump
+    if [ -t 0 ]; then
+      return 1
+    else
+      exit 1
+    fi
+  fi
 
-      # We've validated all of the input components, so re-assemble them
-      _import_target="${_subdir_path}/${_import_target}.${_extension}"
+  # Check that the subdir exists in SH_LIBPATH, if not, fail out
+  # Get first found match of subdir in SH_LIBPATH
+  for _import_subdir in ${SH_LIBPATH//://$_subdir_path }/${_subdir_path}; do
+    sh_stack_add -4 "\${_subdir_path}: Does '${_import_subdir}' exist?"
+    if [ -d "${_import_subdir}" ]; then
+      sh_stack_add -4 "\${_subdir_path}: '${_import_subdir}' exists!"
+      _subdir_path="${_import_target}"
+      break
+    fi
+    sh_stack_add -4 "\${_subdir_path}: It looks like '${_subdir_path}' isn't a subdir of SH_LIBPATH"
+    sh_stack_dump
+    printf -- 'import: %s\n' "Could not find library subdir within SH_LIBPATH" >&2
+    unset -v _target _import_target _subdir_path
+    if [ -t 0 ]; then
+      return 1
+    else
+      exit 1
+    fi
+  done
+
+  _library_name="${_import_target#*/}"
+  sh_stack_add -4 "_library_name: '${_library_name}'"
+
+  # If these two are the same, then we don't have an extension.  Default to .sh
+  if [ "${_import_target}" = "${_import_target#*.}" ]; then
+    _library_extension="sh"
+  # Otherwise, extract the extension
+  else
+    _library_extension="${_import_target#*.}"
+  fi
+  sh_stack_add -4 "_library_extension: '${_library_extension}'"
+
+  # We've validated all of the input components, so re-assemble them
+  _import_target="${_subdir_path}/${_library_name}.${_library_extension}"
       
-      # This expands SH_LIBPATH and appends the target to each path member e.g.
-      # for _target in /usr/local/lib/sh/arrays.sh "${HOME}"/.local/lib/sh/arrays.sh; do
-      for _import_target in ${SH_LIBPATH//://$_import_target }/${_import_target}; do
-        if [ -r "${_import_target}" ]; then
-          # shellcheck disable=SC1090
-          . "${_import_target}" || {
-            printf -- 'import: %s\n' "Failed to load '${_import_target}'" >&2
-            exit 1
-          }
-          SH_LIBS_LOADED="${SH_LIBS_LOADED} ${_import_target}"
-          SH_LIBS_LOADED="${SH_LIBS_LOADED# }"
-          unset -v _target _import_target
-          return 0
-        elif [ -e "${_import_target}" ]; then
-          sh_stack_dump
-          printf -- 'import: %s\n' "Insufficient permissions while importing '${_import_target}'" >&2
-          unset -v _target _import_target
+  # This expands SH_LIBPATH and appends the target to each path member e.g.
+  # for _target in /usr/local/lib/sh/arrays.sh "${HOME}"/.local/lib/sh/arrays.sh; do
+  for _import_target in ${SH_LIBPATH//://$_import_target }/${_import_target}; do
+    if [ -r "${_import_target}" ]; then
+      # shellcheck disable=SC1090
+      . "${_import_target}" || {
+        printf -- 'import: %s\n' "Failed to load '${_import_target}'" >&2
+        if  [ -t 0 ]; then
+          return 1
+        else
           exit 1
         fi
-      done
-    ;;
-    (*)
-      # Is it a path within SH_LIBPATH?  Load everything within that path.
-      # Note: we only load everything with a .sh extension
-      # We don't want to try loading library.zsh into bash, for example
-      _subdir_path="${_import_target}"
-
-      sh_stack_add -4 "case > 3 > all"
-      # Get first found match of subdir in SH_LIBPATH
-      for _import_target in ${SH_LIBPATH//://$_subdir }/${_subdir}; do
-        if [ -d "${_import_target}" ]; then
-          _subdir_path="${_import_target}"
-          break
-        fi
-      done
-
-      # If we can't find it, fail out
-      if [ "${_subdir_path+x}" = "x" ] || [ "${#_subdir_path}" -eq "0" ]; then
-        printf -- 'import: %s\n' "'${_subdir}' not found in SH_LIBPATH" >&2
-        printf -- '%s\n' "" "${SH_STACK[@]}"
-        [ -t 0 ] && return 1
+      }
+      SH_LIBS_LOADED="${SH_LIBS_LOADED} ${_import_target}"
+      SH_LIBS_LOADED="${SH_LIBS_LOADED# }"
+      unset -v _target _import_target
+      return 0
+    elif [ -e "${_import_target}" ]; then
+      sh_stack_dump
+      printf -- 'import: %s\n' "Insufficient permissions while importing '${_import_target}'" >&2
+      unset -v _target _import_target
+      if  [ -t 0 ]; then
+        return 1
+      else
         exit 1
       fi
-
-      sh_stack_add -4 "Loading all functions from ${_subdir_path}"
-      for _import_target in "${_subdir_path}"/*; do
-        # Ensure that it's not already loaded
-        _is_lib_loaded "${_subdir_path}/${_import_target}" && continue
-        if [ -r "${_subdir_path}/${_import_target}" ]; then
-          # shellcheck disable=SC1090
-          . "${_subdir_path}/${_import_target}" || {
-            sh_stack_dump
-            printf -- 'import: %s\n' "Failed to load '${_import_target}' from ${_subdir_path}" >&2
-            unset -v _target _import_target
-            exit 1
-          }
-          SH_LIBS_LOADED="${SH_LIBS_LOADED} ${_import_target}"
-          SH_LIBS_LOADED="${SH_LIBS_LOADED# }"
-          unset -v _target _import_target
-        elif [ -e "${_import_target}" ]; then
-          sh_stack_dump
-          printf -- 'import: %s\n' "Insufficient permissions while importing '${_import_target}'" >&2
-          unset -v _target _import_target
-          exit 1
-        fi
-      done
-      export SH_LIBS_LOADED
-      unset -v _subdir _function _subdir_path _import_target
-      return 0
-    ;;
-  esac
+    fi
+  done
+  sh_stack_add -2 "'${_import_target}' is apparently not a sub-directory within SH_LIBPATH."
 
   # If we're here, then 'import()' wasn't called correctly
   sh_stack_dump
   printf -- 'import: %s\n' "Unspecified error while executing 'import ${*}'" >&2
   unset -v _subdir _function _subdir_path _import_target
-  exit 1
+  if  [ -t 0 ]; then
+    return 1
+  else
+    exit 1
+  fi
 }
