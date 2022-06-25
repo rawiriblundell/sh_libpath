@@ -49,13 +49,9 @@ is() {
       return "${?}"
     ;;
     (number|float)
-      echo "${_var_a}" | grep -E '^[-+]?[0-9]+\.[0-9]*$'; return "${?}" ;;
+      printf -- '%f' "${1:-null}" >/dev/null 2>&1; return "${?}" ;;
     (int|integer)
-      case "${1#[-+]}" in 
-        (''|*[!0-9]*) return 1 ;;
-      esac
-      return 0
-    ;;
+      printf -- '%d' "${1:-null}" >/dev/null 2>&1; return "${?}" ;;
     (substr|substring)
       case "${_var_a}" in
         (*"${_var_b}"*)  return 0 ;;
