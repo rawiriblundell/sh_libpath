@@ -14,10 +14,14 @@ Making shell scripts more robust and readable with libraries
 . /path/to/init.sh || exit 1
 
 # Import the function libraries that it provides
-import sys/os.sh
-import utils/git.sh
-import array_split.sh from array
-import all from text
+# Without a given extension, ".sh" is assumed
+import sys/os
+# Give a specific extension to load a shell specific lib
+import utils/git.zsh
+# If you have a full path to a library for whatever reason
+import /opt/mycompany/some/full/path/to/a/specific/library.sh
+# Or just load all libraries under the text libpath
+import text
 
 # Check that we have everything we need including shell version, commands and vars
 # This means self-documenting code and fail-fast are handled in one line
