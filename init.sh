@@ -77,6 +77,35 @@ fi
 
 sh_stack_add "SH_LIBPATH: ${SH_LIBPATH}"
 
+# TODO: Update to parse first-found library only
+# Or update to present the reverse e.g.
+# Function 'is()' provided by the following libraries: a, b, c
+# TODO: Evolve to add function description parsing?
+# e.g.
+# funcname() {
+#   # Description: This function converts a into b
+# Take the description and present it in the output of this function
+# TODO: Add status e.g.
+# Library                Status
+# -----------------------------
+# alt_strcaps.sh         Loaded
+# -> alt_strcaps()       Loaded
+ls_shlibs() {
+  for _element in "${SH_LIBPATH_ARRAY[@]}"; do
+    while read -r _library_file; do
+      if grep '() {' "${_library_file}" >/dev/null 2>&1; then
+        printf -- '%s:\n' "${_library_file}"
+        grep '() {' "${_library_file}" | 
+          grep -v '#' |
+          sed -e "s/^/  --> /" -e 's/() {.*//g' |
+          sort |
+          uniq
+      fi
+    done < <(find "${_element}" -type f)
+  done
+  unset -v _element _library_file
+}
+
 # Function to work through a list of commands and/or files
 # and fail on any unmet requirements.  Example usage:
 # requires curl sed awk /etc/someconf.cfg
