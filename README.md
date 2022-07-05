@@ -40,6 +40,7 @@ This project proposes adding a library ecosystem to shell scripts.
 `init.sh` bootstraps a few environment vars, most importantly:
 
 * `SH_LIBPATH` - this is a colon seperated list of library paths, just like `PATH`
+* `SH_LIBPATH_ARRAY` - the same as above, just in an array
 * `SH_LIBS_LOADED` - a colon separated list of libraries that are already loaded.  This is used as one method to prevent attempts at multiple loadings of the same library code
 
 The proposed library structure caters for both monolithic libraries e.g.
