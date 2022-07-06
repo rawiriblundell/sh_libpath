@@ -229,6 +229,7 @@ In no particular order...
 * https://github.com/jmcantrell/bashful
 * https://github.com/jneen/balls
 * https://github.com/juan131/bash-libraries
+* https://github.com/kvz/bash3boilerplate
 * https://github.com/labbots/bash-utility
 * https://github.com/m10k/toolbox
 * https://github.com/martinburger/bash-common-helpers
