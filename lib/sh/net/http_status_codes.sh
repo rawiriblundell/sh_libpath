@@ -4,9 +4,12 @@
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/contributors.txt
 # https://creativecommons.org/licenses/by-sa/2.5/
+#
+# Unofficial codes retrieved from Wikipedia, licensed under CC-BY-SA 3.0.
 ################################################################################
 # Provenance: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
-# SPDX-License-Identifier: CC-BY-SA-2.5
+# Provenance: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#Unofficial_codes
+# SPDX-License-Identifier: CC-BY-SA-2.5, CC BY-SA-3.0
 
 explain_http_status_code() {
   case "${1}" in
@@ -19,7 +22,7 @@ explain_http_status_code() {
       return 0
     ;;
     ([sS]uccess|[sS]uccessful)
-      for _code in 202 203 204 205 206 207 208 226; do
+      for _code in 200 201 202 203 204 205 206 207 208 226; do
         explain_http_status_code "${_code}"
         printf -- '%s\n' ""
       done
@@ -35,7 +38,7 @@ explain_http_status_code() {
       return 0
     ;;
     ([cC]lient|[cC]lient_[eE]rrors)
-      for _code in 400 401 402 403 404 405 406 407 408 409 410 411 412 413 414 415 416 417 418 421 422 423 424 425 426 428 429 431 451; do
+      for _code in 400 401 402 403 404 405 406 407 408 409 410 411 412 413 414 415 416 417 418 421 422 423 424 425 426 428 429 431 444 451 499; do
         explain_http_status_code "${_code}"
         printf -- '%s\n' ""
       done
@@ -43,7 +46,7 @@ explain_http_status_code() {
       return 0
     ;;
     ([sS]erver|[sS]erver_[eE]rrors)
-      for _code in 500 501 502 503 504 505 506 507 508 510 511; do
+      for _code in 500 501 502 503 504 505 506 507 508 510 511 599; do
         explain_http_status_code "${_code}"
         printf -- '%s\n' ""
       done
@@ -65,6 +68,38 @@ explain_http_status_code() {
     (103)
       _http_status_code='Early Hints'
       _http_status_description='This status code is primarily intended to be used with the Link header, letting the user agent start preloading resources while the server prepares a response.'
+    ;;
+    (110)
+      _http_status_code='Response is Stale'
+      _http_status_description="(Obsolete) The response provided by a cache is stale (the content's age exceeds a maximum age set by a Cache-Control header or heuristically chosen lifetime)."
+    ;;
+    (111) 
+      _http_status_code='Revalidation Failed'
+      _http_status_description='(Obsolete) The cache was unable to validate the response, due to an inability to reach the origin server.'
+    ;;
+    (112)
+      _http_status_code='Disconnected Operation'
+      _http_status_description='(Obsolete) The cache is intentionally disconnected from the rest of the network.'
+    ;;
+    (113) 
+      _http_status_code='Heuristic Expiration'
+      _http_status_description="(Obsolete) The cache heuristically chose a freshness lifetime greater than 24 hours and the response's age is greater than 24 hours."
+    ;;
+    (199)
+      _http_status_code='Miscellaneous Warning'
+      _http_status_description='(Obsolete) Arbitrary, non-specific warning. The warning text may be logged or presented to the user.'
+    ;;
+    (200)
+      _http_status_code='OK'
+      _http_status_description='The request succeeded. The result meaning of "success" depends on the HTTP method:
+        GET: The resource has been fetched and transmitted in the message body.
+        HEAD: The representation headers are included in the response without any message body.
+        PUT or POST: The resource describing the result of the action is transmitted in the message body.
+        TRACE: The message body contains the request message as received by the server.'
+    ;;
+    (201)
+      _http_status_code='Created'
+      _http_status_description='The request succeeded, and a new resource was created as a result. This is typically the response sent after POST requests, or some PUT requests.'
     ;;
     (202)
       _http_status_code='Accepted'
@@ -94,9 +129,17 @@ explain_http_status_code() {
       _http_status_code='Already Reported (WebDAV)'
       _http_status_description='Used inside a <dav:propstat> response element to avoid repeatedly enumerating the internal members of multiple bindings to the same collection.'
     ;;
+    (214)
+      _http_status_code='Transformation Applied'
+      _http_status_description='(Obsolete) Added by a proxy if it applies any transformation to the representation, such as changing the content encoding, media type or the like.'
+    ;;
     (226)
       _http_status_code='IM Used (HTTP Delta encoding)'
       _http_status_description='The server has fulfilled a GET request for the resource, and the response is a representation of the result of one or more instance-manipulations applied to the current instance.'
+    ;;
+    (299)
+      _http_status_code='Miscellaneous Persistent Warning'
+      _http_status_description='(Obsolete) Same as 199, but indicating a persistent warning.'
     ;;
     (300)
       _http_status_code='Multiple Choices'
@@ -210,6 +253,15 @@ explain_http_status_code() {
       _http_status_code="I'm a teapot"
       _http_status_description='The server refuses the attempt to brew coffee with a teapot.'
     ;;
+    (419)
+      _http_status_code="Page Expired"
+      _http_status_description='(Non-standard, Laravel Framework) Used by the Laravel Framework when a CSRF Token is missing or expired.'
+    ;;
+    (420)
+      _http_status_code="Method Failure / Enhance Your Calm"
+      _http_status_description='(Non-standard, Spring Framework) A deprecated response used by the Spring Framework when a method has failed.
+      (Non-standard, Twitter) Returned by version 1 of the Twitter Search and Trends API when the client is being rate limited; versions 1.1 and later use the 429 Too Many Requests response code instead. The phrase "Enhance your calm" comes from the 1993 movie Demolition Man, and its association with this number is likely a reference to cannabis.'
+    ;;
     (421)
       _http_status_code='Misdirected Request'
       _http_status_description='The request was directed at a server that is not able to produce a response. This can be sent by a server that is not configured to produce responses for the combination of scheme and authority that are included in the request URI.'
@@ -242,13 +294,67 @@ explain_http_status_code() {
       _http_status_code='Too Many Requests'
       _http_status_description='The user has sent too many requests in a given amount of time ("rate limiting").'
     ;;
+    (430)
+      _http_status_code='Request Header Fields Too Large'
+      _http_status_description='(Non-standard, Shopify) Used by Shopify, instead of the 429 Too Many Requests response code, when too many URLs are requested within a certain time frame.'
+    ;;
     (431)
       _http_status_code='Request Header Fields Too Large'
       _http_status_description='The server is unwilling to process the request because its header fields are too large. The request may be resubmitted after reducing the size of the request header fields.'
     ;;
+    (440)
+      _http_status_code='Login Time-out'
+      _http_status_description="(Non-standard, Microsoft IIS) The client's session has expired and must log in again."
+    ;;
+    (444)
+      _http_status_code='Connection Closed Without Response'
+      _http_status_description='(Non-standard, nginx) Instructs nginx to close the connection without sending a response to the client, most commonly used to deny malicious or malformed requests.'
+    ;;
+    (449)
+      _http_status_code='Retry With'
+      _http_status_description="(Non-standard, Microsoft IIS) The server cannot honour the request because the user has not provided the required information."
+    ;;
+    (450)
+      _http_status_code='Blocked by Windows Parental Controls'
+      _http_status_description='(Non-standard, Microsoft) The Microsoft extension code indicated when Windows Parental Controls are turned on and are blocking access to the requested webpage.'
+    ;;
     (451)
-      _http_status_code='Unavailable For Legal Reasons'
-      _http_status_description='The user agent requested a resource that cannot legally be provided, such as a web page censored by a government.'
+      _http_status_code='Unavailable For Legal Reasons / Redirect'
+      _http_status_description='(RFC-standard) The user agent requested a resource that cannot legally be provided, such as a web page censored by a government.
+      (Non-standard, Microsoft IIS) Used in Exchange ActiveSync to tell the client to re-run the HTTP AutoDiscover operation to find a more appropriate server.'
+    ;;
+    (460)
+      _http_status_code='AWS ELB'
+      _http_status_description="(Non-standard, AWS) Client closed the connection with the load balancer before the idle timeout period elapsed. Typically when client timeout is sooner than the Elastic Load Balancer's timeout."
+    ;;
+    (463)
+      _http_status_code='AWS ELB'
+      _http_status_description='(Non-standard, AWS) The load balancer received an X-Forwarded-For request header with more than 30 IP addresses.'
+    ;;
+    (494)
+      _http_status_code='Request header too large'
+      _http_status_description='(Non-standard, nginx) Client sent too large request or too long header line.'
+    ;;
+    (495)
+      _http_status_code='SSL Certificate Error'
+      _http_status_description='(Non-standard, nginx) An expansion of the 400 Bad Request response code, used when the client has provided an invalid client certificate.'
+    ;;
+    (496)
+      _http_status_code='SSL Certificate Required'
+      _http_status_description='(Non-standard, nginx) An expansion of the 400 Bad Request response code, used when a client certificate is required but not provided.'
+    ;;
+    (497)
+      _http_status_code='HTTP Request Sent to HTTPS Port'
+      _http_status_description='(Non-standard, nginx) An expansion of the 400 Bad Request response code, used when the client has made a HTTP request to a port listening for HTTPS requests.'
+    ;;
+    (498)
+      _http_status_code='Invalid Token'
+      _http_status_description='(Non-standard, Esri ArcGIS) Returned by ArcGIS for Server. Code 498 indicates an expired or otherwise invalid token.'
+    ;;
+    (499)
+      _http_status_code='Client Closed Request / Token Required'
+      _http_status_description='(Non-standard, nginx) The client has closed the connection while nginx was processing the request.
+      (Non-standard, Esri ArcGIS) Returned by ArcGIS for Server. Code 499 indicates that a token is required but was not submitted.'
     ;;
     (500)
       _http_status_code='Internal Server Error'
@@ -286,6 +392,10 @@ explain_http_status_code() {
       _http_status_code='Loop Detected (WebDAV)'
       _http_status_description='The server detected an infinite loop while processing the request.'
     ;;
+    (509)
+      _http_status_code='Bandwidth Limit Exceeded'
+      _http_status_description='(Non-standard, Apache Web Server/cPanel)The server has exceeded the bandwidth specified by the server administrator; this is often used by shared hosting providers to limit the bandwidth of customers.'
+    ;;
     (510)
       _http_status_code='Not Extended'
       _http_status_description='Further extensions to the request are required for the server to fulfill it.'
@@ -293,6 +403,59 @@ explain_http_status_code() {
     (511)
       _http_status_code='Network Authentication Required'
       _http_status_description='Indicates that the client needs to authenticate to gain network access.'
+    ;;
+    (520)
+      _http_status_code='Web Server Returned an Unknown Error'
+      _http_status_description='(Non-standard, Cloudflare) The origin server returned an empty, unknown, or unexpected response to Cloudflare.'
+    ;;
+    (521)
+      _http_status_code='Web Server Is Down'
+      _http_status_description='(Non-standard, Cloudflare) The origin server refused connections from Cloudflare. Security solutions at the origin may be blocking legitimate connections from certain Cloudflare IP addresses.'
+    ;;
+    (522)
+      _http_status_code='Connection Timed Out'
+      _http_status_description='(Non-standard, Cloudflare) Cloudflare timed out contacting the origin server.'
+    ;;
+    (523)
+      _http_status_code='Origin Is Unreachable'
+      _http_status_description='(Non-standard, Cloudflare) Cloudflare could not reach the origin server; for example, if the DNS records for the origin server are incorrect or missing.'
+    ;;
+    (524)
+      _http_status_code='A Timeout Occurred'
+      _http_status_description='(Non-standard, Cloudflare) Cloudflare was able to complete a TCP connection to the origin server, but did not receive a timely HTTP response.'
+    ;;
+    (525)
+      _http_status_code='SSL Handshake Failed'
+      _http_status_description='(Non-standard, Cloudflare) Cloudflare could not negotiate a SSL/TLS handshake with the origin server.'
+    ;;
+    (526)
+      _http_status_code='Invalid SSL Certificate'
+      _http_status_description="(Non-standard, Cloudflare) Cloudflare could not validate the SSL certificate on the origin web server. Also used by Cloud Foundry's gorouter."
+    ;;
+    (527)
+      _http_status_code='Railgun Error'
+      _http_status_description="(Non-standard, Cloudflare) Error 527 indicates an interrupted connection between Cloudflare and the origin server's Railgun server."
+    ;;
+    (529)
+      _http_status_code='Site is overloaded'
+      _http_status_description="(Non-standard, Qualys) Used by Qualys in the SSLLabs server testing API to signal that the site can't process the request."
+    ;;
+    (530)
+      _http_status_code='Site is frozen / Cloudflare'
+      _http_status_description='(Non-standard, Pantheon) Used by the Pantheon web platform to indicate a site that has been frozen due to inactivity.
+      (Non-standard, Cloudflare) Error 530 is returned along with a 1xxx error.'
+    ;;
+    (561)
+      _http_status_code='Unauthorized'
+      _http_status_description='(Non-standard, AWS) An error around authentication returned by a server registered with a load balancer. You configured a listener rule to authenticate users, but the identity provider (IdP) returned an error code when authenticating the user.'
+    ;;
+    (598)
+      _http_status_code='Network Read Timeout Error'
+      _http_status_description='(Non-standard, misc) Used by some HTTP proxies to signal a network read timeout behind the proxy to a client in front of the proxy.'
+    ;;
+    (599)
+      _http_status_code='Network Connect Timeout Error'
+      _http_status_description='(Non-standard, misc) Used by some HTTP proxies to signal a network connect timeout behind the proxy to a client in front of the proxy.'
     ;;
     (''|*)
       printf -- 'explain_http_status_code: %s\n' "Usage: explain_http_status_code ARGUMENT" >&2
@@ -306,3 +469,4 @@ explain_http_status_code() {
   unset -v _http_status_number _http_status_code _http_status_description
   return 0
 }
+ 
