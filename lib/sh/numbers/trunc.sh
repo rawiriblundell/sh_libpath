@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+# Description: Remove any fractional precision from a given float
+# Example: 'trunc 3.7445' => 3
+
 # Usage: trunc [float]
 trunc() {
   printf -- '%s\n' "${1:?No float given}" | awk -F '.' '{print $1}'

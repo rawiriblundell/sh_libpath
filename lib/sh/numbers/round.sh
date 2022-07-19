@@ -17,8 +17,10 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-# Function for rounding floats
-# Usage: round [float] [precision]
+# Description: Round a given float to the nearest integer or fractional precision
+# Example: 'round 3.4445' => 3, 'round 3.4445 2' => 3.44
+
+# Usage: round [float] [precision (optional)]
 round() {
   printf -- "%.${2:-0}f\n" "${1:?No float given}"
 }
