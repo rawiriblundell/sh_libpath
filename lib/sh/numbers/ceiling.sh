@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+# Description: Round a given float upwards to the nearest full integer
+# Example: 'ceiling 3.4' => 4
+
 # Usage: ceiling [float]
 ceiling() {
   printf -- '%s\n' "${1:?No float given}" |

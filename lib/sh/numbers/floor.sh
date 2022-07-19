@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+# Description: Round a given float downwards to the nearest full integer
+# Example: 'floor 3.7' => 3
+
 # Usage: floor [float]
 floor() {
   printf -- '%s\n' "${1:?No float given}" | awk '{print int($0)}'
