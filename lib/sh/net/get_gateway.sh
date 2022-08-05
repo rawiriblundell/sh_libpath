@@ -20,17 +20,19 @@
 get_gateway() {
   # Default Gateway
   if command -v ip >/dev/null 2>&1; then
-    _get_gwaddr=$(ip route show | grep -E '^default|^0.0.0.0' | awk '{ print $3 }')
+    _get_gwaddr=$(ip route show | awk '/^default|^0.0.0.0/{ print $3 }')
   elif [[ -z ${_get_gwaddr} ]]; then
     case "${OSSTR}" in
       (linux)
-        _get_gwaddr=$(netstat -nrv | grep -E '^default|^0.0.0.0' | awk '{ print $2; exit }')
+        _get_gwaddr=$(netstat -nrv | awk '/^default|^0.0.0.0/{ print $2; exit }')
       ;;
       (solaris)
-        _get_gwaddr=$(netstat -nrv | grep -E '^default|^0.0.0.0' | awk '{ print $3; exit }')
+        _get_gwaddr=$(netstat -nrv | awk '/^default|^0.0.0.0/{ print $3; exit }')
       ;;
     esac
   elif [[ -z ${_get_gwaddr} ]]; then
-    _get_gwaddr=$(route | grep -E '^default|^0.0.0.0' | awk '{ print $2 }')
+    _get_gwaddr=$(route -n | awk '/^default|^0.0.0.0/{ print $2 }')
   fi
+  printf -- '%s\n' "${_get_gwaddr}"
+  unset -v _get_gwaddr
 }

@@ -17,19 +17,14 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-# Convert comma separated list to long format e.g. id user | tr "," "\n"
-# See also n2c() and n2s() for the opposite behaviour
-c2n() {
-  while read -r; do 
-    printf -- '%s\n' "${REPLY}" | tr "," "\\n"
-  done < "${1:-/dev/stdin}"
-}
+# Note that this has its edge cases, and to completely functionalise basename/dirname is a bit more involved.
+# Example discussions: 
+# https://unix.stackexchange.com/questions/253524/dirname-and-basename-vs-parameter-expansion
+# https://stackoverflow.com/questions/22401091/bash-variable-substitution-vs-dirname-and-basename
 
-# Convert multiple lines to comma separated format
-# See also c2n() for the opposite behaviour
-n2c() { paste -sd ',' "${1:--}"; }
-
-# Convert multiple lines to space separated format
-n2s() { paste -sd ' ' "${1:--}"; }
-
-# noext=${basename%%.*}
+# Check if 'basename' is available, if not, enable a stop-gap function
+if ! command -v basename >/dev/null 2>&1; then
+  basename() {
+    printf -- '%s\n' "${1##*/}"
+  }
+fi

@@ -47,6 +47,37 @@ hr() {
   unset -v _hr_width
 }
 
+# hr() {
+#   case "${1}" in
+#     (bar)
+#       local color width
+#       # Figure out the width of the terminal window
+#       width="$(( "${COLUMNS:-$(tput cols)}" - 6 ))"
+#       # Define our initial color code
+#       color="$(_select_random_color)"
+#       tput setaf "${color}"               # Set our color
+#       printf -- '%s' "${blockAsc}"        # Print the ascending block sequence
+#       for (( i=1; i<=width; ++i )); do    # Fill the gap with hard blocks
+#         printf -- '%b' "${block100}"
+#       done
+#       printf -- '%s\n' "${blockDwn}"      # Print our descending block sequence
+#       tput sgr0                           # Unset our color
+#     ;;
+#     (nocolor)
+#       shift 1
+#       # shellcheck disable=SC2183
+#       printf -- '%*s\n' "${1:-$COLUMNS}" | tr ' ' "${2:-#}"
+#     ;;
+#     (*)
+#       color="$(_select_random_color)"
+#       tput setaf "${color}"
+#       # shellcheck disable=SC2183
+#       printf -- '%*s\n' "${1:-$COLUMNS}" | tr ' ' "${2:-#}"
+#       tput sgr0
+#     ;;
+#   esac
+# }
+
 # Map out some block characters
 # shellcheck disable=SC2034
 block100="\xe2\x96\x88"  # u2588\0xe2 0x96 0x88 Solid Block 100%

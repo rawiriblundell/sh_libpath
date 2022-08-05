@@ -270,3 +270,15 @@ expand_glob () {
 			echo "${files_a[*]}"
 	) || return 1
 }
+
+
+newest() {
+	find . -type f -print0 |
+	xargs -0 stat -c "%Y:%n" |
+	sort -n |
+	tail -n 1 |
+	cut -d ':' -f2-
+}
+
+#That assume GNU `stat`, switching it up for BSD `stat` isn't hard, and auto-selecting between the two is also a simple exercise, but I'll leave that to the reader.
+
