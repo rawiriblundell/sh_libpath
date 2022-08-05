@@ -55,3 +55,9 @@ In practice you'll get something that looks like this:
       % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                      Dload  Upload   Total   Spent    Left  Speed
     100  123M  100  123M    0     0  7432k      0  0:00:17  0:00:17 --:--:-- 7170k
+
+    api::get_http_code() {
+      local curl_args
+      curl_args="${CURL_OPTS} --silent --output /dev/null --write-out %{http_code}"
+      curl ${curl_args} "${1:?No API URI specified}"
+    }

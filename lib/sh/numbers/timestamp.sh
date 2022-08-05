@@ -17,13 +17,13 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-command -v zdump >/dev/null 2>&1 || {
-  printf -- 'dst: %s\n' "This library requires 'zdump', which was not found in PATH" >&2
+command -v date >/dev/null 2>&1 || {
+  printf -- 'dst: %s\n' "This library requires 'date', which was not found in PATH" >&2
   exit 1
 }
 
 # Function to figure out daylight savings dates for the current year
-dst() {
+timestamp() {
   if (( "${#TZ}" == 0 )); then
     # RHEL7 / systemd
     if command -v timedatectl >/dev/null 2>&1; then
@@ -44,8 +44,5 @@ dst() {
     export TZ
   fi
 
-  zdump -v "${TZ}" \
-    | grep "$(date '+%Y').*isdst=1" \
-    | tail -n 2 \
-    | awk '{print $4, $3, $6}'
+  date "+%a %b %d %I:%M:%S %p ${TZ} %Y"
 }
