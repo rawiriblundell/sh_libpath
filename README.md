@@ -209,7 +209,7 @@ See, also: [Master Foo and the Ten Thousand Lines](http://www.catb.org/~esr/writ
 
 ## Incomplete list of other bash libraries and frameworks
 
-In no particular order...
+In alphabetical order only for readability:
 
 * https://github.com/aks/bash-lib
 * https://github.com/alebcay/awesome-shell
@@ -235,6 +235,7 @@ In no particular order...
 * https://github.com/martinburger/bash-common-helpers
 * https://github.com/matejak/argbash
 * https://github.com/mulle-nat/mulle-bashfunctions
+* https://github.com/nafigator/bash-helpers
 * https://github.com/niieani/bash-oo-framework
 * https://github.com/paralllax/libash
 * https://github.com/pioneerworks/lib-bash
@@ -243,6 +244,7 @@ In no particular order...
 * https://github.com/tests-always-included/mo
 * https://github.com/xsh-lib/core
 * https://github.com/zombieleet/bashify
+* https://loader.sourceforge.io/overview/
 
 ## List of projects that may be inspirational
 
