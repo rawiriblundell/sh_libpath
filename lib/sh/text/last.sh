@@ -19,48 +19,22 @@
 
 # If you ain't first - you're last!
 
-# This function is the match for 'first()' 
-# i.e. it prints out the last [n] lines of input, defaulting to 1
+# This function is the partner for 'first()' 
+# It returns the last line, column or character of a given input
 last() {
-  while (( "${#}" > 0 )); do
-    case "${1}" in
-      (-[0-9]|[0-9]*) _last_count="${1}"; shift 1 ;;
-      (-n)            _last_count="${2}"; shift 2 ;;
-      (*)             _last_params="${1}"; shift 1 ;;
-    esac
-  done
-
-  # Re-build our positional parameters
-  # shellcheck disable=SC2086
-  set -- ${_last_params}
-
-  # Strip any non-numeric chars from _first_count
-  _last_count="$(printf -- '%s\n' "${_last_count}" | sed 's/[^0-9.]//g')"
-
-  # Get the last n lines
-  tail -n "${_last_count:-1}" "${@}"
-
-  unset -v _last_count _last_params
+  case "${1}" in
+    (char)       shift 1; read -r line; printf -- '%s' "${line#"${line%?}"}" ;;
+    (col|column) shift 1; awk '{print $NF}' "${@}" ;;
+    (row|line)   shift 1; tail -n 1 "${@}" ;;
+    (*)          tail -n 1 "${@}" ;;
+  esac
 }
 
 str_last() {
-  while (( "${#}" > 0 )); do
-    case "${1}" in
-      (-[0-9]|[0-9]*) _last_count="${1}"; shift 1 ;;
-      (-n)            _last_count="${2}"; shift 2 ;;
-      (*)             _last_params="${1}"; shift 1 ;;
-    esac
-  done
-
-  # Re-build our positional parameters
-  # shellcheck disable=SC2086
-  set -- ${_last_params}
-
-  # Strip any non-numeric chars from _first_count
-  _last_count="$(printf -- '%s\n' "${_last_count}" | sed 's/[^0-9.]//g')"
-
-  # Get the last n lines
-  tail -n "${_last_count:-1}" "${@}"
-
-  unset -v _last_count _last_params
+  case "${1}" in
+    (char)       shift 1; read -r line; printf -- '%s' "${line#"${line%?}"}" ;;
+    (col|column) shift 1; awk '{print $NF}' "${@}" ;;
+    (row|line)   shift 1; tail -n 1 "${@}" ;;
+    (*)          tail -n 1 "${@}" ;;
+  esac
 }

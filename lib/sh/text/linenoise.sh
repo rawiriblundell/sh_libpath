@@ -18,7 +18,7 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-connectssh() {
+linenoise() {
   local target failmsg
   target="${1:?No target specified}"
   failmsg="(connectssh) FATAL ERROR: ${target} unreachable!"

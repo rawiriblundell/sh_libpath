@@ -74,3 +74,71 @@ strip() {
   export trim_stdout trim_rc
 }
 
+str_ltrim() {
+  LC_CTYPE=C
+  _ltrim_str="${*}"
+  while true; do
+    ltrim_stdout="${_ltrim_str#[[:space:]]}"
+    [[ "${ltrim_stdout}" = "${_ltrim_str}" ]] && break
+    _ltrim_str="${ltrim_stdout}"
+  done
+  ltrim_rc="${?}"
+  unset -v _ltrim_str
+  export ltrim_stdout ltrim_rc
+}
+
+ltrim() {
+  LC_CTYPE=C
+  _ltrim_str="${*}"
+  while true; do
+    ltrim_stdout="${_ltrim_str#[[:space:]]}"
+    [[ "${ltrim_stdout}" = "${_ltrim_str}" ]] && break
+    _ltrim_str="${ltrim_stdout}"
+  done
+  printf -- '%s\n' "${_ltrim_str}"
+  unset -v _ltrim_str
+}
+
+# Strip whitespace from both left and right of a string
+# Additionally, compact down multiple spaces inside the string
+str_ntrim() {
+  LC_CTYPE=C
+  ntrim_stdout=$(printf -- '%s' "${*}" | xargs)
+  ntrim_rc="${?}"
+  unset -v _ntrim_str
+  export ntrim_stdout ntrim_rc
+}
+
+ntrim() {
+  LC_CTYPE=C
+  printf -- '%s' "${*}" | xargs
+}
+
+# Strip whitespace from the right hand side of a string.
+# This works by using two vars, constantly removing a single char and re-assigning
+# before comparing the two vars.  When they finally do match, all the whitespace
+# will be gone, and the loop can exit
+str_rtrim() {
+  LC_CTYPE=C
+  _rtrim_str="${*}"
+  while true; do
+    rtrim_stdout="${_rtrim_str#[[:space:]]}"
+    [[ "${rtrim_stdout}" = "${_rtrim_str}" ]] && break
+    _rtrim_str="${rtrim_stdout}"
+  done
+  rtrim_rc="${?}"
+  unset -v _rtrim_str
+  export rtrim_stdout rtrim_rc
+}
+
+rtrim() {
+  LC_CTYPE=C
+  _rtrim_str="${*}"
+  while true; do
+    rtrim_stdout="${_rtrim_str#[[:space:]]}"
+    [[ "${rtrim_stdout}" = "${_rtrim_str}" ]] && break
+    _rtrim_str="${rtrim_stdout}"
+  done
+  printf -- '%s\n' "${_rtrim_str}"
+  unset -v _rtrim_str
+}
