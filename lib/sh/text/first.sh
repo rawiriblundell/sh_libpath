@@ -17,48 +17,21 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-# Return the first n lines, defaults to 1
-# A convoluted remapping of `head` to set its default behaviour to one line
+# A basic function to return either the first char, column or line of a given input
 first() {
-  while (( "${#}" > 0 )); do
-    case "${1}" in
-      (-[0-9]|[0-9]*) _first_count="${1}"; shift 1 ;;
-      (-n)            _first_count="${2}"; shift 2 ;;
-      (*)             _first_params="${1}"; shift 1 ;;
-    esac
-  done
-
-  # Re-build our positional parameters
-  # shellcheck disable=SC2086
-  set -- ${_first_params}
-
-  # Strip any non-numeric chars from _first_count
-  _first_count="$(printf -- '%s\n' "${_first_count}" | sed 's/[^0-9.]//g')"
-
-  # Get the first n lines
-  head -n "${_first_count:-1}" "${@}"
-
-  unset -v _first_count _first_params 
+  case "${1}" in
+    (char)       shift 1; read -r line; printf -- '%.1s' "${line}" ;;
+    (col|column) shift 1; awk '{print $1}' "${@}" ;;
+    (row|line)   shift 1; head -n 1 "${@}" ;;
+    (*)          head -n 1 "${@}" ;;
+  esac
 }
 
 str_first() {
-  while (( "${#}" > 0 )); do
-    case "${1}" in
-      (-[0-9]|[0-9]*) _first_count="${1}"; shift 1 ;;
-      (-n)            _first_count="${2}"; shift 2 ;;
-      (*)             _first_params="${1}"; shift 1 ;;
-    esac
-  done
-
-  # Re-build our positional parameters
-  # shellcheck disable=SC2086
-  set -- ${_first_params}
-
-  # Strip any non-numeric chars from _first_count
-  _first_count="$(printf -- '%s\n' "${_first_count}" | sed 's/[^0-9.]//g')"
-
-  # Get the first n lines
-  head -n "${_first_count:-1}" "${@}"
-
-  unset -v _first_count _first_params 
+  case "${1}" in
+    (char)       shift 1; read -r line; printf -- '%.1s' "${line}" ;;
+    (col|column) shift 1; awk '{print $1}' "${@}" ;;
+    (row|line)   shift 1; head -n 1 "${@}" ;;
+    (*)          head -n 1 "${@}" ;;
+  esac
 }
