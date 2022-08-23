@@ -19,9 +19,35 @@
 
 # Functions for testing if an array contains an element
 
-# Boolean test
+# Simply return 0 or return 1 (i.e. Boolean test)
+# if there is an element in the array that contains a pattern
+# Usage: array_contains needle haystack
+# e.g. array_contains needle "${haystack[@]}"
+# This function intentionally uses a subshell
+array_contains() (
+  _needle="${1:?No search pattern provided}"
+  shift 1
+  printf -- '%s\n' "${@}" | grep "${_needle}" >/dev/null 2>&1
+)
 
-# index location
+# Find the indexes of elements that contain a pattern
+# TODO: This requires a lot of testing
+# Known bug: returns '0' if literally anything is given as a second param
+# Usage: array_index needle haystack
+# e.g. array_index needle "${haystack[@]}"
+# This function intentionally uses a subshell
+array_index() (
+  _needle="${1:?No search pattern provided}"
+  shift 1
+  # Print every element to its own line
+  # Number each line, 0-indexed, printed immediate left, semi-colon delimited
+  # Print the first field of any second field pattern matches via 'awk'
+  printf -- '%s\n' "${@}" |
+    nl -v 0 -w 1 -s';' |
+    awk -v pattern="${_needle}" -F ';' '$2 ~ pattern {print $1}'
+)
+
+# The below function is more portable than array_index, but slower at scale
 
 # This function looks for a keyword within a simple array (i.e. numerical index)
 # and prints out its location (index) within the array if found
@@ -35,7 +61,7 @@ getArrayIndex() {
   # This is how you'd do it with bash-3+
   #for index in "${!tempArray[@]}"; do
   #  if [[ "${tempArray[index]}" = "${searchString}" ]]; then
-  #    triggerCommand="${tempArray[@]:$(( index + 1 ))}"
+  #    do_something_with "${tempArray[@]:$(( index + 1 ))}"
   #  fi
   #done
   # Here's how we do it more portably by iterating through the array
