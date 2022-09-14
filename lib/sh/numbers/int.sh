@@ -25,3 +25,11 @@
 int() {
   printf -- '%s\n' "${1:?No float given}" | awk -F '.' '{print $1}'
 }
+
+is_odd() {
+    (( (${1:?No number specified} % 2) != 0 ))
+}
+
+is_even() {
+    (( (${1:?No number specified} % 2) == 0 ))
+}
