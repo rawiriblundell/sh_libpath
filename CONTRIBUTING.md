@@ -122,12 +122,14 @@ Curly braces are used on `${arrays[@]}` and `${variable/modif/ications}`. For co
 
 Curly braces around variables also improves readability when syntax colouring is not available. ${this_variable} stands out within this block of text, for example.
 
-Exception: When you're in an arithmetic context e.g. $(( time_metric + 10 ))
+Exception: When you're in an arithmetic context e.g. `$(( time_metric + 10 ))`
 
 Exceptions to the exception: If your var is an array element or requires transformation e.g.
 
-$(( "${time_metrics[2]}" + 20 ))
-$(( "${10#time_metric}" + 10 ))
+```bash
+$(( ${time_metrics[2]} + 20 ))
+$(( ${10#time_metric} + 10 ))
+```
 
 Try, also, to use meaningful names. This is meaningless:
 
@@ -145,7 +147,7 @@ for block_device in $(lsblk -ln -o NAME); do
 
 This also reduces/eliminates unexpected in-scope collisions.
 
-Exception: C-Style for (( i=0; i<max_count; i++ )); do style loops, as the var i is usually self-contained and is short-hand for 'integer'
+Exception: C-Style `for (( i=0; i<max_count; i++ )); do` style loops, as the var `i` is usually self-contained and is short-hand for 'integer' or 'iteration'
 
 It's generally good, but a highly uncommon, habit to unset your variables once you're done with them.  We should aspire to do this where we can.
 
@@ -175,9 +177,9 @@ Variables must be in the appropriate format for its "scope" as defined below:
 
 #### Environment
 
-We know from long-established convention that environment variables are almost always in UPPERCASE. You can see this in e.g. bash by running set and/or printenv.
+We know from long-established convention that environment variables are almost always in UPPERCASE. You can see this in e.g. `bash` by running `set` and/or `printenv`.
 
-We generally shouldn't need to put any variables into the environment, so you should avoid UPPERCASE as much as possible. If you do need a variable in the environment "scope" for whatever reason, use the form MK_VARNAME e.g. MK_VERSION
+We generally shouldn't need to put any variables into the environment, so you should avoid UPPERCASE as much as possible. If you do need a variable in the environment "scope" for whatever reason, namespace your variables by using a prefixed form like IDENTIFIER_VARNAME e.g. `MATH_SCRIPT_VERSION`
 
 You might often see this "scope" referred to as the global scope, or shell scope. This scope also contains shell builtin variables.
 
