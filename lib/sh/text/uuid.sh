@@ -295,25 +295,27 @@ uuid_gen() {
 
 # Known issue: 16#var will fail if var is 00
 validate_uuid() {
-  local hex_char uuid_string
-  uuid_string="${1:?No UUID provided}"
+  _uuid_string="${1:?No UUID provided}"
 
   # Validate the structure
-  # shellcheck disable=SC2086 # We want word splitting here
-  set -- ${uuid_string//-/ }
+  # shellcheck disable=SC2046 # We want word splitting here
+  set -- $(printf -- '%s\n' "${_uuid_string}" | tr '-' ' ')
   if (( ${#1} != 8 )) || (( ${#2} != 4 )) || (( ${#3} != 4 )) || (( ${#4} != 4 )) || (( ${#5} != 12 )); then
-    printf -- '%s: invalid structure\n' "${uuid_string}" >&2
+    printf -- '%s: invalid structure\n' "${_uuid_string}" >&2
+    unset -v _uuid_hex_char _uuid_string
     return 1
   fi
 
   # Validate the content
-  while read -r hex_char; do
-    if ! (( "16#${hex_char}" )); then
-      printf -- '%s: non-hex chars found: %s\n' "${uuid_string}" "${hex_char}">&2
+  while read -r _uuid_hex_char; do
+    if ! (( "16#${_uuid_hex_char}" )); then
+      printf -- '%s: non-hex chars found: %s\n' "${_uuid_string}" "${_uuid_hex_char}">&2
+      unset -v _uuid_hex_char _uuid_string
       return 1
     fi
-  done < <(fold -w 2 <<< "${uuid_string//-/}")
+  done < <(printf -- '%s\n' "${_uuid_string}" | tr -d '-' | fold -w 2)
 
   # No problems found?  Must be a legit UUID then!
+  unset -v _uuid_hex_char _uuid_string
   return 0
 }
