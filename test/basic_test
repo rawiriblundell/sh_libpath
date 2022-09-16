@@ -1,0 +1,13 @@
+#!/bin/bash
+
+source ~/git/sh_libpath/init.sh
+
+import text/case
+import text/greet
+import text/repeat
+import utils/puts
+
+get_greeting
+puts Hello world!
+str_repeat -n "$(altcaps $(puts Hello world!))" 10
+
