@@ -33,8 +33,14 @@ str_len() {
       printf -- '%d\n' "0"
     ;;
     (*)
-      str="${*}"
-      printf -- '%d\n' "${#str}"
+      # If the param is a readable file, we output a length for each line
+      # Otherwise we treat the whole input as a string
+      if [ -f "${1}" ] && [ -r "${1}" ]; then
+        awk '{ print length, $0 }' "${1}"
+      else
+        str="${*}"
+        printf -- '%d\n' "${#str}"
+      fi
     ;;
   esac
   unset -v str
@@ -56,8 +62,14 @@ strlen() {
       printf -- '%d\n' "0"
     ;;
     (*)
-      str="${*}"
-      printf -- '%d\n' "${#str}"
+      # If the param is a readable file, we output a length for each line
+      # Otherwise we treat the whole input as a string
+      if [ -f "${1}" ] && [ -r "${1}" ]; then
+        awk '{ print length, $0 }' "${1}"
+      else
+        str="${*}"
+        printf -- '%d\n' "${#str}"
+      fi
     ;;
   esac
   unset -v str
