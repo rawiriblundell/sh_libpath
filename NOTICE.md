@@ -28,7 +28,6 @@ permitted.
 - color.sh, MIT License (c) 2020 Ivan https://github.com/vaniacer/bash_color
 - various libraries as indicated in their headers, bashmenot, BSD 3-Clause License (c) 2014-2015, Miëtek Bak https://github.com/mietek/bashmenot/
 - various ideas as indicated by code comments, modernish, ISC License 2015-2021 Martijn Dekker <martijn@inlv.org> https://github.com/modernish/modernish
-<<<<<<< HEAD
 - shflags.sh, Apache License 2.0 (c) 2008-2020 Kate Ward.  https://github.com/kward/shflags
 - bash_opts.sh, MIT License (c) 2015-2016 Sven Fuchs <me@svenfuchs.com>.  https://github.com/svenfuchs/bash_opts
 - cmdarg.sh, MIT License (c) 2013 Andrew Kesterson <andrew@aklabs.net>.  https://github.com/akesterson/cmdarg
@@ -38,6 +37,7 @@ permitted.
 - realpaths.sh, CC0 1.0 Universal https://raw.githubusercontent.com/bashup/realpaths/master/realpaths
 - bash_loading_animations.sh, WTFPLv2 (c) 2022 Silejonu, https://github.com/Silejonu/bash_loading_animations/
 - http_status_codes.sh, CC-BY-SA 2.5 https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+- os.sh, XDG vars referenced from xdg (go).  MIT License (c) 2014 Adrian-George Bostan <adrg@epistack.com> https://github.com/adrg/xdg
 
 ## WTFPL
 
@@ -56,9 +56,6 @@ permitted.
 
   0. You just DO WHAT THE FUCK YOU WANT TO.
 ```
-=======
-- os.sh, XDG vars referenced from xdg (go).  MIT License (c) 2014 Adrian-George Bostan <adrg@epistack.com> https://github.com/adrg/xdg
->>>>>>> a881126... Add XDG var handling to os.sh
 
 ## BSD 3-Clause License
 
