@@ -190,8 +190,15 @@ uuid_v4() {
     return 0
   fi
   
+  # Linux already does this for us, if it's here, just cat it
   if [[ -r /proc/sys/kernel/random/uuid ]]; then
     cat /proc/sys/kernel/random/uuid
+    return 0
+  fi
+
+  # As above but for FreeBSD + Linux compat
+  if [[ -r /compat/linux/proc/sys/kernel/random/uuid ]]; then
+    cat /compat/linux/proc/sys/kernel/random/uuid
     return 0
   fi
 
