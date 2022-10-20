@@ -73,9 +73,9 @@ foo() {
 
 ## Portability
 
-This project will try to code on the more portable side.  Perhaps not strictly portable, but at least in a way that it can be refactored up or down the portability scale as/when required.
+This project will try to code on the more portable side.  Definitely not [strictly portable](https://www.gnu.org/software/autoconf/manual/autoconf-2.60/html_node/Portable-Shell.html), but at least in a way that it can be refactored up or down the portability scale as/when required.
 
-Fundamentally: POSIX plus named arrays as a minimum, but let's not beat around the bush here: `bash` is going to be the first class citizen, and other shells?  Not so much.
+Fundamentally speaking, our baseline is POSIX, plus named arrays as a minimum.  But let's not beat around the bush here: `bash` is going to be the first class citizen, and other shells?  Not so much.
 
 `echo` is a portability nightmare.  Prefer `printf` instead.
 
