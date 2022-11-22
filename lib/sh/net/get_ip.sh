@@ -51,6 +51,7 @@ get_ip() {
       # Failover to 'ifconfig'
       elif command -v ifconfig >/dev/null 2>&1; then
         ifconfig -a |
+          sed -e '/^docker/{N;N;d;}' |
           awk '/inet6 / && $2 !~ /::1/ {print $2; exit}' |
           sed 's/addr"//g'
         return "${?}"
@@ -64,6 +65,7 @@ get_ip() {
       # Failover to 'ifconfig'
       elif command -v ifconfig >/dev/null 2>&1; then
         ifconfig -a |
+          sed -e '/^docker/{N;N;d;}' |
           awk '/inet / && $2 !~ /127.0.0.1/ {print $2; exit}' |
           sed 's/addr"//g'
         return "${?}"
