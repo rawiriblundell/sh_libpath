@@ -211,6 +211,7 @@ See, also: [Master Foo and the Ten Thousand Lines](http://www.catb.org/~esr/writ
 
 In alphabetical order only for readability:
 
+* https://github.com/adoyle-h/lobash
 * https://github.com/aks/bash-lib
 * https://github.com/alebcay/awesome-shell
 * https://github.com/awesome-lists/awesome-bash
