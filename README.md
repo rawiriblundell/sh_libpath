@@ -224,6 +224,7 @@ In alphabetical order only for readability:
 * https://github.com/cyberark/bash-lib
 * https://github.com/DethByte64/BashLib
 * https://github.com/dzove855/bar
+* https://github.com/elibs/ebash
 * https://github.com/fidian/ansi
 * https://github.com/gruntwork-io/bash-commons
 * https://github.com/jandob/rebash
