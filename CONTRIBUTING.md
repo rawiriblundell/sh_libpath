@@ -257,7 +257,7 @@ One of the flaws - I think - with some of the other shell library projects, is t
 
 This practise should be heavily discouraged.
 
-Each library file should be as self-contained as possible, and should try as much as possible not to require the inclusion of any other library.  This ultimately keeps the end-user interface simple, it ultimately keeps the core functions of `import()` and `from()` simple, it improves code re-use for derivative works, and it doesn't bog the codebase down with frustrating and highly obnoxious namespacing.
+Each library file should be as self-contained as possible, and should try as much as possible not to require the inclusion of any other library.  This ultimately keeps the end-user interface simple, it ultimately keeps simple the core functionality of `include()`, it improves code re-use for derivative works, and it doesn't bog the codebase down with frustrating and highly obnoxious namespacing.
 
 ## The Unofficial Strict Mode
 

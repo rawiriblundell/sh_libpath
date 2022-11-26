@@ -2,10 +2,10 @@
 
 source ~/git/sh_libpath/init.sh
 
-import text/case
-import text/greet
-import text/repeat
-import utils/puts
+include text/case
+include text/greet
+include text/repeat
+include utils/puts
 
 get_greeting
 puts Hello world!
