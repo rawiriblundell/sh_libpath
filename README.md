@@ -243,6 +243,7 @@ In alphabetical order only for readability:
 * https://github.com/pioneerworks/lib-bash
 * https://github.com/Privex/shell-core
 * https://github.com/reale/bashlets
+* https://github.com/shellfire-dev
 * https://github.com/tests-always-included/mo
 * https://github.com/tomocafe/bash-boost
 * https://github.com/xsh-lib/core
