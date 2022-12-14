@@ -55,7 +55,7 @@ It also adds the following functions:
 
 ### `include`
 
-Similar to its `python` cousin, this is intended for loading libraries
+Similar to its `python` cousin `import` and/or its `perl` cousin `use`, this is intended for loading libraries
 
 ### `requires`
 
@@ -156,7 +156,12 @@ These projects also tend to be Linux and `bash` 4.0 or newer only.  Maybe there'
 
 ## Why use libraries and not just a package of scripts
 
-That's a good question for which I don't currently have a good answer?
+That's a good question.  The main reasons for using functions over standalone scripts are:
+
+* Once loaded into memory, functions can be called a lot faster than on-disk scripts.  So functions are advantageous for repeated use.
+* Functions assist with chunking shell code in a modular and organised way.  This makes them easier to develop and maintain.
+
+Libraries, insofar as they're presented in this project, are simply collections of functions.
 
 ### Story time to make this totally relatable
 
