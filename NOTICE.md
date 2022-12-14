@@ -37,6 +37,7 @@ permitted.
 - realpaths.sh, CC0 1.0 Universal https://raw.githubusercontent.com/bashup/realpaths/master/realpaths
 - bash_loading_animations.sh, WTFPLv2 (c) 2022 Silejonu, https://github.com/Silejonu/bash_loading_animations/
 - http_status_codes.sh, CC-BY-SA 2.5 https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+- os.sh, XDG vars referenced from xdg (go).  MIT License (c) 2014 Adrian-George Bostan <adrg@epistack.com> https://github.com/adrg/xdg
 
 ## WTFPL
 

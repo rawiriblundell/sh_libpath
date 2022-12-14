@@ -15,13 +15,13 @@ Making shell scripts more robust and readable with libraries
 
 # Import the function libraries that it provides
 # Without a given extension, ".sh" is assumed
-import sys/os
+include sys/os
 # Give a specific extension to load a shell specific lib
-import utils/git.zsh
+include utils/git.zsh
 # If you have a full path to a library for whatever reason
-import /opt/mycompany/some/full/path/to/a/specific/library.sh
+include /opt/mycompany/some/full/path/to/a/specific/library.sh
 # Or just load all libraries under the text libpath
-import text
+include text
 
 # Check that we have everything we need including shell version, commands and vars
 # This means self-documenting code and fail-fast are handled in one line
@@ -53,7 +53,7 @@ As well as hierarchical e.g.
 
 It also adds the following functions:
 
-### `import`
+### `include`
 
 Similar to its `python` cousin, this is intended for loading libraries
 
@@ -144,7 +144,7 @@ I have spent large parts of my career fixing other people's shell scripts.  Now,
 
 I keep seeing the same mistakes.  I keep seeing the same anti-patterns.  I keep seeing the same gnashing of teeth "rawrr use `python`" "arrgglleblarghle... my language of preference is so much better!" etc.  But quite often, shell, and `bash` specifically, *is* the appropriate language for the task at hand.  It's either the first, the only or the go-to language for many *nix sysadmins, and a lot of Devs approach it with a degree of ignorance.
 
-The thing about people who clamour for any other language is that they are used to being spoiled: all the nitty gritty code that they actually rely on is abstracted away; hidden in libraries/modules that they load up with `import` or `use`.  With shell, there's no solid ecosystem of libraries to depend on, no `pip` or `CPAN` for `bash`, so most scripts are like [inventing the universe](https://www.youtube.com/watch?v=zSgiXGELjbc) every time.  This usually leads to the same sub-optimal code being copied and pasted off StackOverflow, and the same sub-optimal practices being spread.
+The thing about people who clamour for any other language is that they are used to being spoiled: all the nitty gritty code that they actually rely on is abstracted away; hidden in libraries/modules that they load up with `include` or `use`.  With shell, there's no solid ecosystem of libraries to depend on, no `pip` or `CPAN` for `bash`, so most scripts are like [inventing the universe](https://www.youtube.com/watch?v=zSgiXGELjbc) every time.  This usually leads to the same sub-optimal code being copied and pasted off StackOverflow, and the same sub-optimal practices being spread.
 
 And if you find yourself reading a larger script, it'll usually have a whole bunch of functions, usually taking up 80-90% of the code, and this collation of all the code in one file, while potentially enabling immense portability, makes the task of reading the script psychologically more daunting than it needs to be.
 
@@ -183,7 +183,7 @@ This function used some shell-native techniques to join the array elements toget
 Now, on the other hand, had my PR simply been
 
 ```bash
-+ import arrays.sh
++ include arrays.sh
 
 ... (some time later) ...
 
@@ -211,6 +211,7 @@ See, also: [Master Foo and the Ten Thousand Lines](http://www.catb.org/~esr/writ
 
 In alphabetical order only for readability:
 
+* https://github.com/adoyle-h/lobash
 * https://github.com/aks/bash-lib
 * https://github.com/alebcay/awesome-shell
 * https://github.com/awesome-lists/awesome-bash
@@ -223,6 +224,7 @@ In alphabetical order only for readability:
 * https://github.com/cyberark/bash-lib
 * https://github.com/DethByte64/BashLib
 * https://github.com/dzove855/bar
+* https://github.com/elibs/ebash
 * https://github.com/fidian/ansi
 * https://github.com/gruntwork-io/bash-commons
 * https://github.com/jandob/rebash
@@ -241,7 +243,9 @@ In alphabetical order only for readability:
 * https://github.com/pioneerworks/lib-bash
 * https://github.com/Privex/shell-core
 * https://github.com/reale/bashlets
+* https://github.com/shellfire-dev
 * https://github.com/tests-always-included/mo
+* https://github.com/tomocafe/bash-boost
 * https://github.com/xsh-lib/core
 * https://github.com/zombieleet/bashify
 * https://loader.sourceforge.io/overview/

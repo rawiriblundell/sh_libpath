@@ -190,13 +190,29 @@ uuid_v4() {
     return 0
   fi
   
+  # Linux already does this for us, if it's here, just cat it
   if [[ -r /proc/sys/kernel/random/uuid ]]; then
     cat /proc/sys/kernel/random/uuid
     return 0
   fi
 
+  # As above but for FreeBSD + Linux compat
+  if [[ -r /compat/linux/proc/sys/kernel/random/uuid ]]; then
+    cat /compat/linux/proc/sys/kernel/random/uuid
+    return 0
+  fi
+
   # If we get to this point, we're generating one from scratch
-  _uuid_randchars 37 | _uuid_format v4
+  # This is bash native, based on libuuid's __uuid_generate_random()
+  printf -- '%04x%04x-%04x-%04x-%04x-%04x%04x%04x\n' \
+    "${RANDOM}" \
+    "${RANDOM}" \
+    "${RANDOM}" \
+    "$(( RANDOM & 0x0fff | 0x4000))" \
+    "$(( RANDOM & 0x3fff | 0x8000))" \
+    "${RANDOM}" \
+    "${RANDOM}" \
+    "${RANDOM}"
 }
 
 # uuid_v3 and uuid_v5 in one function.
