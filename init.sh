@@ -77,7 +77,7 @@ if (( ${#fpath} > 0 )); then
 fi
 
 # Now, de-duplicate
-SH_LIBPATH=$(printf -- '%s\n' "${SH_LIBPATH}" | tr ':' '\n' |  awk '!s[$0]++' | fold -d ':' -)
+SH_LIBPATH=$(printf -- '%s\n' "${SH_LIBPATH}" | tr ':' '\n' |  awk '!s[$0]++' | paste -sd ':' -)
 
 # Finally, export
 export SH_LIBPATH
