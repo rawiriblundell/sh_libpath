@@ -18,19 +18,19 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Figure out the lowest boundary for the available UID range
-uidMin=$(awk '/^UID_MIN/{print $2}' /etc/login.defs)
+_uid_min=$(awk '/^UID_MIN/{print $2}' /etc/login.defs)
 # Older releases of various Linux distros tended to use '500' as the minimum
 # So if we can't find it in login.defs, we'll default to '500'
-uidMin="${uidMin:-500}"
+_uid_min="${_uid_min:-500}"
 
 get_system_accounts() {
-  awk -F ':' -v min="${uidMin}" '{ if ( $3 < min ) print $1 }' /etc/passwd
+  awk -F ':' -v min="${_uid_min}" '{ if ( $3 < min ) print $1 }' /etc/passwd
 }
 
 get_system_uids() {
-  awk -F ':' -v min="${uidMin}" '{ if ( $3 < min ) print $3 }' /etc/passwd
+  awk -F ':' -v min="${_uid_min}" '{ if ( $3 < min ) print $3 }' /etc/passwd
 }
 
 get_user_uids() {
-  awk -F ':' -v min="${uidMin}" '{ if ( $3 >= min ) print $3 }' /etc/passwd
+  awk -F ':' -v min="${_uid_min}" '{ if ( $3 >= min ) print $3 }' /etc/passwd
 }
