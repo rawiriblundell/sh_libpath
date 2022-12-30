@@ -51,11 +51,9 @@ First, if you have larger changes in mind, [open an Issue](https://github.com/ra
 
 If that discussion is resolved to our mutual satisfaction, or if you're going to submit something smaller, the next steps are:
 
-Create a fork of the `main` branch.
+Create a new branch off the `main` branch e.g. `git checkout -b my_new_feature`
 
-Create your own branch from that e.g. `git checkout -b my_new_feature`
-
-Work on your code improvements.  Try to make smaller commits rather than large ones.  This makes it easier to trace the process of the code's development.
+Work on your code improvements inside this new branch..  Try to make smaller commits rather than large ones.  This makes it easier to trace the process of the code's development.
 
 When you're ready, put in a Pull Request with a small explanation of what you're submitting and why.
 
