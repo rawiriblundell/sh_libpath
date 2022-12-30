@@ -68,6 +68,7 @@ Be aware that while Shellcheck is an excellent tool, it's not perfect.  Sometime
 # shellcheck disable=SC2120
 foo() {
 ```
+Any time you use a `shellcheck disable` directive, you must also accompany it with a comment justifying its use.
 
 ## Portability
 
