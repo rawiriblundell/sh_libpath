@@ -166,5 +166,5 @@ if ! command -v include >/dev/null 2>&1; then
   fi
 fi
 
-# Now that we've got include bootstrapped, let's load requires
+# Now that we've got include() bootstrapped, let's load requires
 include core/requires.sh
