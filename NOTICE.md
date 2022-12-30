@@ -25,7 +25,6 @@ permitted.
 
 - Cryptography section, NOTICE.md.  https://github.com/eclipse/ditto-examples/blob/master/legal/NOTICE.md
 - jsonprint.sh, MIT License (c) 2020 Rawiri Blundell https://github.com/rawiriblundell/jsonprint
-- color.sh, MIT License (c) 2020 Ivan https://github.com/vaniacer/bash_color
 - various libraries as indicated in their headers, bashmenot, BSD 3-Clause License (c) 2014-2015, Miëtek Bak https://github.com/mietek/bashmenot/
 - various ideas as indicated by code comments, modernish, ISC License 2015-2021 Martijn Dekker <martijn@inlv.org> https://github.com/modernish/modernish
 - shflags.sh, Apache License 2.0 (c) 2008-2020 Kate Ward.  https://github.com/kward/shflags
