@@ -31,11 +31,9 @@ requires BASH51 git jq curl osstr=Linux
 wants /opt/secrets/squirrels.conf
 ```
 
-## OK... More information?
+## OK... Do you have more information?
 
-![Supertroopers!  Enhance!](https://media2.giphy.com/media/3ohc14lCEdXHSpnnSU/giphy.gif)
-
-This project proposes adding a library ecosystem to shell scripts.
+This project proposes adding a library ecosystem, primarily for use in shell scripts.
 
 `init.sh` bootstraps a few environment vars, most importantly:
 
@@ -140,17 +138,15 @@ So that's what `wants()` is about.  Originally, at least.
 
 Well, why not?
 
-I have spent large parts of my career fixing other people's shell scripts.  Now, to be clear and upfront: I'm not saying that I'm a scripting god - far from it.  I place myself somewhere on the right hand side of Dunning-Kruger's [Mount Stupid](https://psychology.stackexchange.com/questions/17825/what-is-the-primary-source-of-the-mount-stupid-graphic), but I still think that something needs to be done.
+I have spent large parts of my career fixing other people's shell scripts, and I keep seeing the same mistakes.  I keep seeing the same anti-patterns.  I keep seeing the same gnashing of teeth "More than 2 lines of shell and I use `python`" etc.  But quite often, shell, and `bash` specifically, *is* the appropriate language for the task at hand.  It's either the first, the only or the go-to language for many *nix sysadmins, and a lot of Devs approach it with a degree of ignorance.
 
-I keep seeing the same mistakes.  I keep seeing the same anti-patterns.  I keep seeing the same gnashing of teeth "rawrr use `python`" "arrgglleblarghle... my language of preference is so much better!" etc.  But quite often, shell, and `bash` specifically, *is* the appropriate language for the task at hand.  It's either the first, the only or the go-to language for many *nix sysadmins, and a lot of Devs approach it with a degree of ignorance.
+The thing about people who clamour for any other language is that many of them are blissfully unaware that they're spoiled: all the nitty gritty code that they actually rely on is abstracted away; hidden in libraries/modules that they load up with `import` or `use` or some similar loader.  With shell, there's no solid ecosystem of libraries to depend on, no `pip` or `CPAN` for `bash`, so most scripts are like [inventing the universe](https://www.youtube.com/watch?v=zSgiXGELjbc) every time.  This usually leads to the same sub-optimal code being copied and pasted off StackOverflow, and the same sub-optimal practices being spread.
 
-The thing about people who clamour for any other language is that they are used to being spoiled: all the nitty gritty code that they actually rely on is abstracted away; hidden in libraries/modules that they load up with `import` or `use` or some similar loader.  With shell, there's no solid ecosystem of libraries to depend on, no `pip` or `CPAN` for `bash`, so most scripts are like [inventing the universe](https://www.youtube.com/watch?v=zSgiXGELjbc) every time.  This usually leads to the same sub-optimal code being copied and pasted off StackOverflow, and the same sub-optimal practices being spread.
-
-And if you find yourself reading a larger script, it'll usually have a whole bunch of functions, usually taking up 80-90% of the code, and this collation of all the code in one file, while potentially enabling immense portability, makes the task of reading the script psychologically more daunting than it needs to be.
+And if you find yourself reading a larger script, it'll usually have a whole bunch of functions - assuming it has some basic semblence of structure.  These functions usually take up 80-90% of the code, and this collation of all the code in one file, while potentially enabling immense portability, makes the task of reading the script psychologically more daunting than it needs to be.
 
 I think that until something like the Oil Shell or NGS gains traction, we can abstract a bunch of the common stuff away to libraries and solidify the code.  As a result, our scripts will in turn become more robust, safer, easier to read and easier to debug.
 
-Now, there are existing shell library projects out there, but they usually use a license that is too restrictive, or they are so deeply self-referencing that you need to go on a drug laden vision-quest to make sense of their code, or they insist on ridiculous namespacing - if you're more familiar with another language, you're going to want to call `split`, _not_ `______awesome__shell_library______+5000______class::::text_______________________split____________`.  Hyperbolic example, sure, but not far removed from what some of these library projects are inflicting on their users.  Personally, if I want my code to be that obnoxious to write, I'll switch to PowerShell.
+Now, there are existing shell library projects out there, but they usually use a license that is too restrictive, or they are so deeply self-referencing that it's nearly impossible to make sense of their code.  Some will insist on ridiculous naming conventions: If you're more familiar with another language, you're going to want to call `split`, _not_ `____awesome__shell_library____+5000____class::::text__split__`.  Hyperbolic example, sure, but not far removed from what some of these library projects are inflicting on their users.  Personally, if I want my code to be that obnoxious to write, I'll switch to PowerShell.
 
 These projects also tend to be Linux and `bash` 4.0 or newer only.  Maybe there'll be the occassional attempt at MacOS compatibility, but that's it.
 
