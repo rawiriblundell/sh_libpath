@@ -29,8 +29,8 @@ str_chop() {
 
 # Remove last character from a string
 chop() {
+  local _chop_stdout
   _chop_stdout="${*}"
   _chop_stdout="${_chop_stdout%?}"
   printf -- '%s\n' "${_chop_stdout%?}"
-  unset -v _chop_stdout
 }

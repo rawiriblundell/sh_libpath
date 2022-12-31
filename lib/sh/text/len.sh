@@ -20,6 +20,7 @@
 # Make getting a string length a bit more familiar
 # for practitioners of other languages
 str_len() {
+  local str
   case "${1}" in
     (-b|--bytes)
       shift 1
@@ -52,47 +53,12 @@ str_len() {
       fi
     ;;
   esac
-  unset -v str
 }
 
 # Make getting a string length a bit more familiar
 # for practitioners of other languages
 strlen() {
-  case "${1}" in
-    (-b|--bytes)
-      shift 1
-      LANG_orig="${LANG}"; LC_ALL_orig="${LC_ALL}"
-      LANG=C; LC_ALL=C;
-      str="${*}"
-      printf -- '%d\n' "${#str}"
-      LANG="${LANG_orig}"; LC_ALL="${LC_ALL_orig}"
-    ;;
-    ('')
-      # Check for piped input
-      if [[ ! -t 0 ]]; then
-        while read -r; do
-          printf -- '%s\n' "${#REPLY} ${REPLY}"
-        done
-      # Otherwise there's no piped input and nothing given.
-      # The length of nothing is 0.
-      else
-        printf -- '%d\n' "0"
-      fi
-    ;;
-    (*)
-      # If the param is a readable file, we output a length for each line
-      # Otherwise we treat the whole input as a string
-      if [ -f "${1}" ] && [ -r "${1}" ]; then
-        awk '{ print length, $0 }' "${1}"
-      else
-      str="${*}"
-      printf -- '%d\n' "${#str}"
-    ;;
-  esac
-  unset -v str
-}
-
-len() {
+  local str
   case "${1}" in
     (-b|--bytes)
       shift 1
@@ -125,5 +91,40 @@ len() {
       fi
     ;;
   esac
-  unset -v str
+}
+
+len() {
+  local str
+  case "${1}" in
+    (-b|--bytes)
+      shift 1
+      LANG_orig="${LANG}"; LC_ALL_orig="${LC_ALL}"
+      LANG=C; LC_ALL=C;
+      str="${*}"
+      printf -- '%d\n' "${#str}"
+      LANG="${LANG_orig}"; LC_ALL="${LC_ALL_orig}"
+    ;;
+    ('')
+      # Check for piped input
+      if [[ ! -t 0 ]]; then
+        while read -r; do
+          printf -- '%s\n' "${#REPLY} ${REPLY}"
+        done
+      # Otherwise there's no piped input and nothing given.
+      # The length of nothing is 0.
+      else
+        printf -- '%d\n' "0"
+      fi
+    ;;
+    (*)
+      # If the param is a readable file, we output a length for each line
+      # Otherwise we treat the whole input as a string
+      if [ -f "${1}" ] && [ -r "${1}" ]; then
+        awk '{ print length, $0 }' "${1}"
+      else
+        str="${*}"
+        printf -- '%d\n' "${#str}"
+      fi
+    ;;
+  esac
 }

@@ -22,6 +22,7 @@
 # Longer Title...Page2
 # TODO: Add ability to customise width and delimiter
 str_padding() {
+  local _str_padding _str_padding_key _str_padding_val _str_padding_width
   _str_padding_width="${COLUMNS:-$(tput cols)}"
   case "${1}" in
     (-w|--width)
@@ -38,5 +39,4 @@ str_padding() {
   _str_padding_width=$(( _str_padding_width - "${#_str_padding_val}" ))
   _str_padding="$(printf -- '%*s' "${_str_padding_width}" | tr ' ' '.')"
   printf "%s%s%s\n" "${_str_padding_key}" "${_str_padding}" "${_str_padding_val}"
-  unset -v _str_padding _str_padding_key _str_padding_val _str_padding_width
 }

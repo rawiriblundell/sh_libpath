@@ -21,17 +21,16 @@
 # This simply removes dos line endings using 'tr'
 if ! command -v dos2unix >/dev/null 2>&1; then
   dos2unix() {
+    local _dos2unix_arg
     # Ensure that no options are supplied in any arg
     for _dos2unix_arg in "${@}"; do
       case "${_dos2unix_arg}" in
         (-*)
           printf -- '%s\n' "This is a simple step-in function, '${_dos2unix_arg}' isn't supported" >&2
-          unset -v _dos2unix_arg
           return 1
         ;;
       esac
     done
-    unset -v _dos2unix_arg
 
     # Determine if we are dealing with a file or files
     if (( "${#}" > 0 )); then

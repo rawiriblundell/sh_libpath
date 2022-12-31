@@ -27,8 +27,8 @@ str_chomp() {
 }
 
 chomp() {
+  local _chomp_stdout
   _chomp_stdout="${*}"
   _chomp_stdout="${_chomp_stdout%$'\n'}"
   printf -- '%s\n' "${_chomp_stdout}"
-  unset -v _chomp_stdout
 }

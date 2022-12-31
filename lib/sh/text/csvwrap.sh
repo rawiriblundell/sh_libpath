@@ -19,7 +19,7 @@
 
 # Wrap long comma separated lists by element count (default: 8 elements)
 csvwrap() {
+  local splitCount
   export splitCount="${1:-8}"
   perl -pe 's{,}{++$n % $ENV{splitCount} ? $& : ",\\\n"}ge'
-  unset -v splitCount
 }

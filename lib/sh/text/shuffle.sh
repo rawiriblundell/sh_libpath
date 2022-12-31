@@ -21,6 +21,9 @@
 # This uses a Knuth-Fisher-Yates shuffle method... kinda.
 # Note: This does not produce cryptographically secure random strings!
 str_shuffle() {
+  local _str_shuffle_missing _str_shuffle_dep _str_shuffle_missing
+  local _str_shuffle_chars _str_shuffle_charcount _str_shuffle_randmax
+  local _str_shuffle_chartmp word shuffled_word rand
   # Ensure that our dependencies are present
   for _str_shuffle_dep in fold paste; do
     if ! command -v "${_str_shuffle_dep}" >/dev/null 2>&1; then
@@ -35,7 +38,6 @@ str_shuffle() {
   if (( "${#_str_shuffle_missing}" > 0 )); then
     printf -- 'str_shuffle: %s\n' "The following requirements were not found in PATH" >&2
     printf -- '%s\n' "${_str_shuffle_missing/,/}" >&2
-    unset -v _str_shuffle_missing _str_shuffle_dep
     return 1
   fi
 
@@ -72,9 +74,6 @@ str_shuffle() {
         printf -- '%s ' "${shuffled_word}"
       ;;
     esac
-    unset -v i word shuffled_word rand
   done
   printf -- '%s\n' ""
-  unset -v _str_shuffle_deps _str_shuffle_missing _str_shuffle_chars
-  unset -v _str_shuffle_charcount _str_shuffle_randmax _str_shuffle_chartmp
 }

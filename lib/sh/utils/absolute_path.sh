@@ -21,6 +21,8 @@
 # A slightly adjusted version sourced from
 # https://stackoverflow.com/a/23002317
 get_absolute_path() {
+  local _filename
+
   _filename="${1:?No filename specified}"
   # Ensure that a customised CDPATH doesn't interfere
   CDPATH=''
@@ -43,5 +45,4 @@ get_absolute_path() {
       printf -- '%s\n' "${PWD:-$(pwd)}/${_filename}"
     fi
   fi
-  unset -v _filename
 }

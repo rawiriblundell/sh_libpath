@@ -19,6 +19,7 @@
 
 str_ltrim() {
   LC_CTYPE=C
+  local _ltrim_str
   _ltrim_str="${*}"
   while true; do
     ltrim_stdout="${_ltrim_str#[[:space:]]}"
@@ -26,12 +27,12 @@ str_ltrim() {
     _ltrim_str="${ltrim_stdout}"
   done
   ltrim_rc="${?}"
-  unset -v _ltrim_str
   export ltrim_stdout ltrim_rc
 }
 
 ltrim() {
   LC_CTYPE=C
+  local _ltrim_str
   _ltrim_str="${*}"
   while true; do
     ltrim_stdout="${_ltrim_str#[[:space:]]}"
@@ -39,5 +40,4 @@ ltrim() {
     _ltrim_str="${ltrim_stdout}"
   done
   printf -- '%s\n' "${_ltrim_str}"
-  unset -v _ltrim_str
 }

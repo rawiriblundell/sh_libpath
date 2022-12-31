@@ -27,6 +27,7 @@ mapfile -t _pretty_allowed_colors < <(printf -- '%d\n' {0..255} "${_pretty_block
 
 # A function to generate a random color code using the above arrays
 _pretty_select_random_color() {
+  local _pretty_color
   # Define our initial color code
   _pretty_color=$(( RANDOM % 255 ))
   # Ensure that our color code is an allowed one.  If not, regenerate until it is.
@@ -35,7 +36,6 @@ _pretty_select_random_color() {
   done
   # Emit our selected color number
   printf -- '%d\n' "${_pretty_color}"
-  unset -v _pretty_color
 }
 
 # Randomize text color for every fed line

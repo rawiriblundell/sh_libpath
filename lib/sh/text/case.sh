@@ -172,6 +172,7 @@ _str_altcaps_uppercase(){
 }
 
 str_altcaps() {
+    local _str_altcaps_lastswitch _str_altcaps_count _str_altcaps_word _str_altcaps_char
     _str_altcaps_lastswitch=lower
     _str_altcaps_count=0
     for _str_altcaps_word in "${@}"; do
@@ -192,10 +193,10 @@ str_altcaps() {
     done
 
     printf -- '%s\n' ""
-    unset -v _str_altcaps_lastswitch _str_altcaps_count _str_altcaps_word _str_altcaps_char
 }
 
 altcaps() {
+    local _str_altcaps_lastswitch _str_altcaps_count _str_altcaps_word _str_altcaps_char
     _str_altcaps_lastswitch=lower
     _str_altcaps_count=0
     for _str_altcaps_word in "${@}"; do
@@ -216,5 +217,4 @@ altcaps() {
     done
 
     printf -- '%s\n' ""
-    unset -v _str_altcaps_lastswitch _str_altcaps_count _str_altcaps_word _str_altcaps_char
 }

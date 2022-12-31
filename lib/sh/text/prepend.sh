@@ -23,6 +23,7 @@
 # Command: str_prepend -d ':' bar foo
 # Output : foo:bar
 str_prepend() {
+  local _prepend_delimiter
   case "${1}" in
     (-d|--delimiter)
       _prepend_delimiter="${2}"
@@ -31,11 +32,11 @@ str_prepend() {
   esac
   prepend_stdout="${1}${_prepend_delimiter:- }${2}"
   prepend_rc="${?}"
-  unset -v _prepend_delimiter
   export prepend_stdout prepend_rc
 }
 
 prepend() {
+  local _prepend_delimiter
   case "${1}" in
     (-d|--delimiter)
       _prepend_delimiter="${2}"
@@ -44,6 +45,5 @@ prepend() {
   esac
   prepend_stdout="${1}${_prepend_delimiter:- }${2}"
   prepend_rc="${?}"
-  unset -v _prepend_delimiter
   export prepend_stdout prepend_rc
 }

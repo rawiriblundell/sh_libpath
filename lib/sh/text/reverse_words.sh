@@ -18,11 +18,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 reverse_words() {
+    local _reverse_words_word _reverse_words_output
     # shellcheck disable=SC2068 # We want word splitting here
     for _reverse_words_word in ${@}; do
         _reverse_words_output="${_reverse_words_word} ${_reverse_words_output}"
     done
     printf -- '%s\n' "${_reverse_words_output}"
-    unset -v _reverse_words_word _reverse_words_output
 }
-

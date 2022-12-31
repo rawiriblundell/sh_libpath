@@ -67,19 +67,19 @@ k_to_c()  {
 # Fahrenheit to Kelvin
 # Formula: There's a couple of formulas out there, the simplest is literally f -> c -> k
 f_to_k() {
+    local _temp_k
     _temp_number_validation "${1}" || { printf -- '%s\n' "null"; return 1; }
     _temp_k=$(printf -- '%s\n' "scale=2;(${1} - 32) * 5 / 9" | bc)
     printf -- '%s\n' "scale=2;${_temp_k} + 273.15" | bc
-    unset -v _temp_k
 }
 
 # Kelvin to Fahrenheit
 # Formula: Reverse of the above - k -> c -> f
 k_to_f() {
+    local _temp_f
     _temp_number_validation "${1}" || { printf -- '%s\n' "null"; return 1; }
     _temp_f=$(printf -- '%s\n' "scale=2;${1} - 273.15" | bc)
     printf -- '%s\n' "scale=2;(${_temp_f} * 9 / 5) + 32" | bc
-    unset -v _temp_f
 }
 
 #TODO: Any thirst for Reaumur and/or Rankine? :)

@@ -19,6 +19,7 @@
 
 # TODO: Add stdin parsing
 str_quote() {
+    local _str_quote_left _str_quote_right
     case "${1}" in
         (-s|--single)
             _str_quote_left="'"; _str_quote_right="'"; shift 1
@@ -46,5 +47,4 @@ str_quote() {
         ;;
     esac
     printf -- '%s\n' "${_str_quote_left}${*}${_str_quote_right}"
-    unset -v _str_quote_left _str_quote_right
 }

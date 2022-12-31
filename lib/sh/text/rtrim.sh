@@ -23,6 +23,7 @@
 # will be gone, and the loop can exit
 str_rtrim() {
   LC_CTYPE=C
+  local _rtrim_str
   _rtrim_str="${*}"
   while true; do
     rtrim_stdout="${_rtrim_str#[[:space:]]}"
@@ -30,12 +31,12 @@ str_rtrim() {
     _rtrim_str="${rtrim_stdout}"
   done
   rtrim_rc="${?}"
-  unset -v _rtrim_str
   export rtrim_stdout rtrim_rc
 }
 
 rtrim() {
   LC_CTYPE=C
+  local _rtrim_str
   _rtrim_str="${*}"
   while true; do
     rtrim_stdout="${_rtrim_str#[[:space:]]}"
@@ -43,5 +44,4 @@ rtrim() {
     _rtrim_str="${rtrim_stdout}"
   done
   printf -- '%s\n' "${_rtrim_str}"
-  unset -v _rtrim_str
 }

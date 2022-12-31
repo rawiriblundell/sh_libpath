@@ -20,6 +20,8 @@
 # Repeat a string n number of times
 # Supports '-n' to suppress newlines while iterating
 str_repeat() {
+  local _str_repeat_str _str_repeat_count _str_repeat_newlines
+
   case "${1}" in
     (-n) _str_repeat_newlines=no; shift 1 ;;
   esac
@@ -44,6 +46,4 @@ str_repeat() {
       return 1
     ;;
   esac
-
-  unset -v _str_repeat_str _str_repeat_count _str_repeat_newlines
 }

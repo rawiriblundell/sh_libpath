@@ -109,6 +109,9 @@ _uuid_format() {
 # Reason: The date of the Gregorian reform to the Christian calendar.
 # See: https://datatracker.ietf.org/doc/html/rfc4122
 _uuid_gettime() {
+  local _uuid_lillian _uuid_unix _uuid_epoch _uuid_g1582 _uuid_g1582ns100
+  local _uuid_ns100_now _uuid_nano_100
+
   # TODO: Rope in get_epoch()
   if ! date +%s 2>&1 | grep "^[0-9].*$" >/dev/null 2>&1; then
     printf -- 'uuid: %s\n' "This library requires a version of 'date' that supports epoch time" >&2
@@ -136,9 +139,6 @@ _uuid_gettime() {
 
   # We pre-prend with '1', add the lot and emit it in hex format
   printf -- '1%x' "$(( _uuid_ns100_now + _uuid_nano_100 + _uuid_g1582ns100 ))"
-
-  unset -v _uuid_lillian _uuid_unix _uuid_epoch _uuid_g1582 _uuid_g1582ns100
-  unset -v _uuid_ns100_now _uuid_nano_100
 }
 
 uuid_nil() {
@@ -149,6 +149,8 @@ uuid_nil() {
 # TODO: Figure out "value too great for base" error that pops up from time to time.
 #       This looks like an issue with _uuid_gettime()
 uuid_v1() {
+  local _uuid_i _uuid_char _uuid_time _uuid_node
+
   if command -v uuidgen >/dev/null 2>&1; then
     uuidgen --time
     return 0
@@ -170,8 +172,6 @@ uuid_v1() {
   printf -- '%s\n' "${_uuid_time}${UUID_CLOCK}${_uuid_node}" | 
     fold -w 1 | 
     _uuid_format v1
-
-  unset -v _uuid_i _uuid_char _uuid_time _uuid_node
 }
 
 # Date-time and mac address, DCE security version
@@ -311,6 +311,7 @@ uuid_gen() {
 
 # Known issue: 16#var will fail if var is 00
 validate_uuid() {
+    local _uuid_hex_char _uuid_string
   _uuid_string="${1:?No UUID provided}"
 
   # Validate the structure
@@ -318,7 +319,6 @@ validate_uuid() {
   set -- $(printf -- '%s\n' "${_uuid_string}" | tr '-' ' ')
   if (( ${#1} != 8 )) || (( ${#2} != 4 )) || (( ${#3} != 4 )) || (( ${#4} != 4 )) || (( ${#5} != 12 )); then
     printf -- '%s: invalid structure\n' "${_uuid_string}" >&2
-    unset -v _uuid_hex_char _uuid_string
     return 1
   fi
 
@@ -326,12 +326,10 @@ validate_uuid() {
   while read -r _uuid_hex_char; do
     if ! (( "16#${_uuid_hex_char}" )); then
       printf -- '%s: non-hex chars found: %s\n' "${_uuid_string}" "${_uuid_hex_char}">&2
-      unset -v _uuid_hex_char _uuid_string
       return 1
     fi
   done < <(printf -- '%s\n' "${_uuid_string}" | tr -d '-' | fold -w 2)
 
   # No problems found?  Must be a legit UUID then!
-  unset -v _uuid_hex_char _uuid_string
   return 0
 }

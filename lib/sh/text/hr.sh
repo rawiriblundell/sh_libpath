@@ -18,13 +18,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 _hr_width_helper() {
+  local _hr_height _hr_width
   command -v get_terminal_size >/dev/null 2>&1 || return
 # heredocs can't be indented unless you use dirty hard tabs
 IFS= read -r _hr_height _hr_width << EOF
 $(get_terminal_size)
 EOF
   printf -- '%s\n' "${_hr_width}"
-  unset -v _hr_height _hr_width
 }
 
 # Write a horizontal line using any character
@@ -33,6 +33,7 @@ EOF
 # Note: You will need to escape characters that have special shell meaning
 # e.g. 'hr 40 \&'
 hr() {
+  local _hr_width
   # Figure out if we're in an interactive shell, then try to figure the width
   case "${-}" in
     (*i*) _hr_width="${COLUMNS:-$(_hr_width_helper)}" ;;
@@ -43,8 +44,6 @@ hr() {
 
   # shellcheck disable=SC2183
   printf -- '%*s\n' "${1:-$_hr_width}" | tr ' ' "${2:-#}"
-
-  unset -v _hr_width
 }
 
 # hr() {
@@ -97,7 +96,6 @@ BLOCKED_COLORS=(0 1 7 9 11 {15..18} {154..161} {190..197} {226..235} {250..255})
 
 # Define another array that is an inversion of the above
 mapfile -t ALLOWED_COLORS < <(printf -- '%d\n' {0..255} "${BLOCKED_COLORS[@]}" | sort -n | uniq -u)
-
 
 # A function to generate a random color code using the above arrays
 _select_random_color() {

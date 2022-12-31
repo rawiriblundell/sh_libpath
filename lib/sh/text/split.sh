@@ -21,6 +21,8 @@
 # and save the output into an array, 'STR_SPLIT[@]'
 # Avoiding 'readarray'/'mapfile' intentionally here to increase portability
 str_split() {
+  local _str_split_delim _str_split_counter
+
   STR_SPLIT=()
   case "${1}" in
     (-d|--delimiter)
@@ -35,5 +37,4 @@ str_split() {
     (*) STR_SPLIT=( "${@}" ) ;;
   esac
   export STR_SPLIT
-  unset -v _str_split_delim _str_split_counter
 }

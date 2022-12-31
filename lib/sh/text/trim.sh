@@ -20,6 +20,7 @@
 # Trim whitespace either side of text
 str_trim() {
   LC_CTYPE=C
+  local _trim_str
   _trim_str="${*}"
   while true; do
     trim_stdout="${_trim_str#[[:space:]]}"     # Strip whitespace to the left
@@ -28,12 +29,12 @@ str_trim() {
     _trim_str="${trim_stdout}"
   done
   trim_rc="${?}"
-  unset -v _trim_str
   export trim_stdout trim_rc
 }
 
 trim() {
   LC_CTYPE=C
+  local _trim_str
   _trim_str="${*}"
   while true; do
     trim_stdout="${_trim_str#[[:space:]]}"     # Strip whitespace to the left
@@ -42,12 +43,12 @@ trim() {
     _trim_str="${trim_stdout}"
   done
   trim_rc="${?}"
-  unset -v _trim_str
   export trim_stdout trim_rc
 }
 
 str_strip() {
   LC_CTYPE=C
+  local _trim_str
   _trim_str="${*}"
   while true; do
     trim_stdout="${_trim_str#[[:space:]]}"     # Strip whitespace to the left
@@ -56,12 +57,12 @@ str_strip() {
     _trim_str="${trim_stdout}"
   done
   trim_rc="${?}"
-  unset -v _trim_str
   export trim_stdout trim_rc
 }
 
 strip() {
   LC_CTYPE=C
+  local _trim_str
   _trim_str="${*}"
   while true; do
     trim_stdout="${_trim_str#[[:space:]]}"     # Strip whitespace to the left
@@ -70,12 +71,12 @@ strip() {
     _trim_str="${trim_stdout}"
   done
   trim_rc="${?}"
-  unset -v _trim_str
   export trim_stdout trim_rc
 }
 
 str_ltrim() {
   LC_CTYPE=C
+  local _ltrim_str
   _ltrim_str="${*}"
   while true; do
     ltrim_stdout="${_ltrim_str#[[:space:]]}"
@@ -83,12 +84,12 @@ str_ltrim() {
     _ltrim_str="${ltrim_stdout}"
   done
   ltrim_rc="${?}"
-  unset -v _ltrim_str
   export ltrim_stdout ltrim_rc
 }
 
 ltrim() {
   LC_CTYPE=C
+  local _ltrim_str
   _ltrim_str="${*}"
   while true; do
     ltrim_stdout="${_ltrim_str#[[:space:]]}"
@@ -96,7 +97,6 @@ ltrim() {
     _ltrim_str="${ltrim_stdout}"
   done
   printf -- '%s\n' "${_ltrim_str}"
-  unset -v _ltrim_str
 }
 
 # Strip whitespace from both left and right of a string
@@ -105,7 +105,6 @@ str_ntrim() {
   LC_CTYPE=C
   ntrim_stdout=$(printf -- '%s' "${*}" | xargs)
   ntrim_rc="${?}"
-  unset -v _ntrim_str
   export ntrim_stdout ntrim_rc
 }
 
@@ -120,6 +119,7 @@ ntrim() {
 # will be gone, and the loop can exit
 str_rtrim() {
   LC_CTYPE=C
+  local _rtrim_str
   _rtrim_str="${*}"
   while true; do
     rtrim_stdout="${_rtrim_str#[[:space:]]}"
@@ -127,12 +127,12 @@ str_rtrim() {
     _rtrim_str="${rtrim_stdout}"
   done
   rtrim_rc="${?}"
-  unset -v _rtrim_str
   export rtrim_stdout rtrim_rc
 }
 
 rtrim() {
   LC_CTYPE=C
+  local _rtrim_str
   _rtrim_str="${*}"
   while true; do
     rtrim_stdout="${_rtrim_str#[[:space:]]}"
@@ -140,5 +140,4 @@ rtrim() {
     _rtrim_str="${rtrim_stdout}"
   done
   printf -- '%s\n' "${_rtrim_str}"
-  unset -v _rtrim_str
 }

@@ -21,6 +21,8 @@
 # Ensure a config file is only made up of only shell-importable key=vals
 # Otherwise fail out.  Ignores blanks and comments.
 validate_config() {
+  local _validate_config_file _validate_config_count
+
   _validate_config_file="${1:?No config file defined}"
 
   # Filter blank lines and comments
@@ -31,10 +33,8 @@ validate_config() {
   )
   
   if (( _validate_config_count == 0 )); then
-    unset -v _validate_config_file _validate_config_count
     return 0
   else
-    unset -v _validate_config_file _validate_config_count
     return 1
   fi
 }

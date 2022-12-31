@@ -21,6 +21,8 @@
 # Replace all instances of a match with a replacement
 # Usage: str_replace [string] [match] [replacement] [count (defaults to all)]
 str_replace() {
+  local _str_replace_string _str_replace_match
+  local _str_replace_replacement _str_replace_count _str_replace_i
   _str_replace_string="${1}"
   _str_replace_match="${2}"
   _str_replace_replacement="${3}"
@@ -41,10 +43,6 @@ str_replace() {
         printf -- '%s\n' "${_str_replace_string}" |
           sed "s/${_str_replace_match}/${_str_replace_replacement}/"
       done
-      unset -v _str_replace_i
     ;;
   esac
-
-  unset -v _str_replace_string _str_replace_match
-  unset -v _str_replace_replacement _str_replace_count
 }

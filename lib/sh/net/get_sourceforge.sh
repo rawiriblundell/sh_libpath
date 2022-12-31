@@ -19,6 +19,7 @@
 
 # Usage: get_sourceforge [project] [linux|mac|windows]
 get_sourceforge() {
+  local binary fail_count
   # We require 'curl' and 'jq'
   for binary in curl jq; do
     fail_count=0
@@ -27,7 +28,6 @@ get_sourceforge() {
       (( fail_count++ ))
     fi
     (( fail_count > 0 )) && return 1
-    unset -v binary fail_count
   done
   local sf_proj os_str curl_opts curl_target element remote_target
   sf_proj="${1:?No sourceforge project defined}"
