@@ -18,6 +18,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 cidr_prefix_to_mask() {
+  local _subnet_mask
   case "${1}" in
     (/32|32)  _subnet_mask="255.255.255.255" ;;
     (/31|31)  _subnet_mask="255.255.255.254" ;;
@@ -58,7 +59,6 @@ cidr_prefix_to_mask() {
     ;;
   esac
   printf -- '%s\n' "${_subnet_mask}"
-  unset -v _subnet_mask
   return 0
 }
 
@@ -75,10 +75,10 @@ cidr_prefix_to_mask() {
 # }
 
 cidr_prefix_table() {
+  local _prefix_int
   for (( _prefix_int=32; _prefix_int>=0; _prefix_int-- )); do
     printf -- '%s\n' "+-----+-----------------+"
     printf -- '| /%-2s | %-15s |\n' "${_prefix_int}" "$(cidr_prefix_to_mask "${_prefix_int}")"
   done
   printf -- '%s\n' "+-----+-----------------+"
-  unset -v _prefix_int
 }

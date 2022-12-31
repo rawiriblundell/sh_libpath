@@ -41,6 +41,7 @@ is-azure() {
 # From https://serverfault.com/a/903599
 # See also: 
 # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/identify_ec2_instances.html
+# TODO: Update for IMDSv2
 is-aws() {
   local docUrl="http://169.254.169.254/latest/dynamic/instance-identity/document"
   if grep -q "^ec2" /sys/hypervisor/uuid 2>/dev/null; then

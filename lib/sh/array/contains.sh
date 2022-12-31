@@ -25,6 +25,7 @@
 # e.g. array_contains needle "${haystack[@]}"
 # This function intentionally uses a subshell
 array_contains() (
+  local _needle
   _needle="${1:?No search pattern provided}"
   shift 1
   printf -- '%s\n' "${@}" | grep "${_needle}" >/dev/null 2>&1
@@ -37,6 +38,7 @@ array_contains() (
 # e.g. array_index needle "${haystack[@]}"
 # This function intentionally uses a subshell
 array_index() (
+  local _needle
   _needle="${1:?No search pattern provided}"
   shift 1
   # Print every element to its own line

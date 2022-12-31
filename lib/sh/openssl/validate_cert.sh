@@ -27,6 +27,7 @@ fi
 # If the key and/or csr are not explicitly defined, we will assume the same basename as the crt
 # e.g. for 'example.com.crt', 'example.com.key' and 'example.com.csr' will be assumed
 validate_cert() {
+    local _validate_cert _validate_key _validate_csr _cert_hash _key_hash _csr_hash
     _validate_cert="${1}"
     _validate_key="${2}"
     _validate_csr="${3}"
@@ -61,13 +62,10 @@ validate_cert() {
     _cert_hash="$(openssl x509 -noout -modulus -in "${_validate_cert}" | openssl md5)"
     _key_hash="$(openssl rsa -noout -modulus -in "${_validate_key}" | openssl md5)"
     _csr_hash="$(openssl req -noout -modulus -in "${_validate_csr}" | openssl md5)"
-    unset -v _validate_cert _validate_key _validate_csr
 
     if [ "${_cert_hash}" = "${_key_hash}" ] && [ "${_cert_hash}" = "${_csr_hash}" ]; then
-        unset -v _cert_hash _key_hash _csr_hash
         return 0
     fi
 
-    unset -v _cert_hash _key_hash _csr_hash
     return 1
 }

@@ -25,6 +25,7 @@ fi
 # Used for converting SSL cert datestamps on systems with 'date' that doesn't support '-d'
 # Expected format example: "Nov 10 2034 21:19:01"
 convert_time_to_epoch() {
+    local _sec _min _hours _day _month _year _timestamp
     # Read our incoming date/time information into our variables
     _month="${1:?No date provided}"; _day="${2}"; _year="${3}"; _timestamp="${4}"
     write "${_timestamp}" | while IFS=':' read -r _hours _min _sec; do
@@ -48,5 +49,4 @@ convert_time_to_epoch() {
         perl -e 'use Time::Local; print timegm(@ARGV[0,1,2,3,4], $ARGV[5]-1900)."\n";' \
             "${_sec}" "${_min}" "${_hours}" "${_day}" "${_month}" "${_year}"
     done
-    unset -v _sec _min _hours _day _month _year _timestamp
 }

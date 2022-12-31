@@ -23,6 +23,7 @@ if ! command -v openssl >/dev/null 2>&1; then
 fi
 
 convert_pem_to_p12() {
+    local _pem_to_p12_key _pem_to_p12_cert _pem_to_p12_ca _pem_to_p12_out
     _pem_to_p12_key="${1}"
     _pem_to_p12_cert="${2}"
     _pem_to_p12_ca="${3}"
@@ -51,6 +52,4 @@ convert_pem_to_p12() {
       -in "${_pem_to_p12_cert}" \
       -certfile "${_pem_to_p12_ca}" \
       -out "${_pem_to_p12_out}"
-
-    unset -v _pem_to_p12_key _pem_to_p12_cert _pem_to_p12_ca _pem_to_p12_out
 }

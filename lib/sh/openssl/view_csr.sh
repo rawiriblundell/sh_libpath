@@ -23,6 +23,7 @@ if ! command -v openssl >/dev/null 2>&1; then
 fi
 
 view_csr () {
+    local _view_csr_in
     _view_csr_in="${1}"
 
     if (( "${#_view_csr_in}" == 0 )); then
@@ -31,11 +32,10 @@ view_csr () {
     fi
 
     openssl req -text -noout -verify -in "${_view_csr_in}"
-
-    unset -v _view_csr_in
 }
 
 view_csr_modulus() {
+    local _view_csr_modulus_in
     _view_csr_modulus_in="${1}"
 
     if (( "${#_view_csr_modulus_in}" == 0 )); then
@@ -44,6 +44,4 @@ view_csr_modulus() {
     fi
 
     openssl req -noout -modulus -in "${_view_csr_modulus_in}" | shasum -a 256
-
-    unset -v _view_csr_modulus_in
 }

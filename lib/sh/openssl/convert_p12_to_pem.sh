@@ -23,6 +23,7 @@ if ! command -v openssl >/dev/null 2>&1; then
 fi
 
 convert_p12_to_pem() {
+    local _p12_to_pem_in _p12_to_pem_out
     _p12_to_pem_in="${1}"
     _p12_to_pem_out="${2}"
 
@@ -42,6 +43,4 @@ convert_p12_to_pem() {
     fi
 
     openssl pkcs12 -nodes -in "${_p12_to_pem_in}" -out "${_p12_to_pem_out}"
-
-    unset -v _p12_to_pem_in _p12_to_pem_out
 }

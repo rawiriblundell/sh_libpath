@@ -25,6 +25,7 @@
 # $ date '+%B %-d%o'
 # February 8th
 date() {
+  local _date_suffix
   case "${@}" in
     (*"%o"*) 
       declare -a args1
@@ -48,5 +49,4 @@ date() {
       command date "${@}"
     ;;
   esac
-  unset -v _date_suffix
 }

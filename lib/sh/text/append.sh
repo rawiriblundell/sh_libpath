@@ -23,6 +23,7 @@
 # Command: str_append -d ':' foo bar
 # Output : foo:bar
 str_append() {
+  local _append_delimiter
   case "${1}" in
     (-d|--delimiter)
       _append_delimiter="${2}"
@@ -31,11 +32,11 @@ str_append() {
   esac
   append_stdout="${1}${_append_delimiter:- }${2}"
   append_rc="${?}"
-  unset -v _append_delimiter
   export append_stdout append_rc
 }
 
 append() {
+  local _append_delimiter
   case "${1}" in
     (-d|--delimiter)
       _append_delimiter="${2}"
@@ -44,6 +45,5 @@ append() {
   esac
   append_stdout="${1}${_append_delimiter:- }${2}"
   append_rc="${?}"
-  unset -v _append_delimiter
   export append_stdout append_rc
 }

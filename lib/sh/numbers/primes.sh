@@ -25,6 +25,7 @@
 # If it leaves a remainder of 3 when divided by 6 then it is divisible by 3 and therefore non-prime (unless it is 3).
 # That leaves just the remainders 1 and 5, or in other words, numbers of the form  6k±1 .
 is_prime() {
+    local _prime_verbose _prime_test
     # Check whether we're in verbose mode or not
     case "${1}" in
         (-v|--verbose)
@@ -41,7 +42,6 @@ is_prime() {
         if [[ "${_prime_verbose}" = "true" ]]; then
             printf -- '%s\n' "'${_prime_test}' does not appear to be a number" >&2
         fi
-        unset -v _prime_verbose _prime_test
         return 1
     fi
 
@@ -51,7 +51,6 @@ is_prime() {
         if [[ "${_prime_verbose}" = "true" ]]; then
             printf -- '%s\n' "'${_prime_test}' is not a prime"
         fi
-        unset -v _prime_verbose _prime_test
         return 1
     fi
 
@@ -60,7 +59,6 @@ is_prime() {
         if [[ "${_prime_verbose}" = "true" ]]; then
             printf -- '%s\n' "'${_prime_test}' is a prime"
         fi
-        unset -v _prime_verbose _prime_test
         return 0
     fi
 
@@ -69,14 +67,12 @@ is_prime() {
             if [[ "${_prime_verbose}" = "true" ]]; then
                 printf -- '%s\n' "'${_prime_test}' is not a prime"
             fi
-            unset -v _prime_verbose _prime_test
             return 1
         ;;
         (*)
             if [[ "${_prime_verbose}" = "true" ]]; then
                 printf -- '%s\n' "'${_prime_test}' is a prime"
             fi
-            unset -v _prime_verbose _prime_test
             return 0
         ;;
     esac

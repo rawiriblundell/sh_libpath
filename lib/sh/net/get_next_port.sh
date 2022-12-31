@@ -39,5 +39,5 @@ get_next_port() {
         fi
         # If we get to this point, iterate the port number up and try again
         (( test_port++ ))
-    done  
+    done
 }

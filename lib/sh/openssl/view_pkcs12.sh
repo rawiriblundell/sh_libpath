@@ -23,6 +23,7 @@ if ! command -v openssl >/dev/null 2>&1; then
 fi
 
 view_pkcs12 () {
+    local _view_pkcs12_in
     _view_pkcs12_in="${1}"
 
     if (( "${#_view_pkcs12_in}" == 0 )); then
@@ -31,6 +32,4 @@ view_pkcs12 () {
     fi
 
     openssl pkcs12 -info -in "${_view_pkcs12_in}"
-
-    unset -v _view_pkcs12_in
 }

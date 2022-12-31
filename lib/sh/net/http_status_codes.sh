@@ -12,13 +12,13 @@
 # SPDX-License-Identifier: CC-BY-SA-2.5, CC BY-SA-3.0
 
 explain_http_status_code() {
+  local _code _http_status_code _http_status_description 
   case "${1}" in
     ([iI]nfo|[iI]nformational)
       for _code in 100 101 102 103; do
         explain_http_status_code "${_code}"
         printf -- '%s\n' ""
       done
-      unset -v _code
       return 0
     ;;
     ([sS]uccess|[sS]uccessful)
@@ -26,7 +26,6 @@ explain_http_status_code() {
         explain_http_status_code "${_code}"
         printf -- '%s\n' ""
       done
-      unset -v _code
       return 0
     ;;
     ([rR]edirection)
@@ -34,7 +33,6 @@ explain_http_status_code() {
         explain_http_status_code "${_code}"
         printf -- '%s\n' ""
       done
-      unset -v _code
       return 0
     ;;
     ([cC]lient|[cC]lient_[eE]rrors)
@@ -42,7 +40,6 @@ explain_http_status_code() {
         explain_http_status_code "${_code}"
         printf -- '%s\n' ""
       done
-      unset -v _code
       return 0
     ;;
     ([sS]erver|[sS]erver_[eE]rrors)
@@ -50,7 +47,6 @@ explain_http_status_code() {
         explain_http_status_code "${_code}"
         printf -- '%s\n' ""
       done
-      unset -v _code
       return 0
     ;;
     (100)
@@ -466,7 +462,6 @@ explain_http_status_code() {
 
   # TODO: add more output formats
   printf -- '%s %s\n%s\n' "${1}" "${_http_status_code}" "${_http_status_description}"
-  unset -v _http_status_number _http_status_code _http_status_description
   return 0
 }
  

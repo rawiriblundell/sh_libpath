@@ -23,6 +23,7 @@ if ! command -v puttygen >/dev/null 2>&1; then
 fi
 
 convert_pem_to_ppk() {
+    local _pem_to_ppk_in _pem_to_ppk_out
     _pem_to_ppk_in="${1}"
     _pem_to_ppk_out="${2}"
 
@@ -43,6 +44,4 @@ convert_pem_to_ppk() {
     fi
 
     puttygen "${_pem_to_ppk_in}" -O private -o "${_pem_to_ppk_out}"
-
-    unset -v _pem_to_ppk_in _pem_to_ppk_out _pem_to_ppk_enctype
 }

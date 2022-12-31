@@ -26,6 +26,7 @@ fi
 # https://github.com/rawiriblundell/scripts/blob/master/ssl_audit
 # (c) 2019 Rawiri Blundell, Datacom Compute.  MIT License.
 view_certificate () {
+    local _view_certificate_algorithm _view_certificate_host _view_certificate_port _view_certificate_in
     _view_certificate_in="${2}"
 
     if (( "${#_view_certificate_in}" == 0 )); then
@@ -51,7 +52,6 @@ view_certificate () {
             esac
 
             printf -- '%s\n' "${_view_certificate_algorithm:-UNKNOWN}"
-            unset -v _view_certificate_algorithm
         ;;
         (CN|cn|[Cc]ommon[Nn]ame)
             openssl x509 -in "${_view_certificate_in}" -subject -noout -nameopt multiline |
@@ -75,7 +75,6 @@ view_certificate () {
                 echo | openssl s_client -showcerts -host "${_view_certificate_host}" -port "${_view_certificate_port}" 2>&1 \
                     | openssl x509 -inform pem -noout -enddate \
                     | cut -d "=" -f 2
-                unset -v _view_certificate_host _view_certificate_port
             fi
         ;;
         ([Ff]ingerprint)
@@ -119,6 +118,4 @@ view_certificate () {
             openssl x509 -text -noout -in "${_view_certificate_in}"
         ;;
     esac
-
-    unset -v _view_certificate_in
 }

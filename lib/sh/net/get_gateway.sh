@@ -18,6 +18,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 get_gateway() {
+  local _get_gwaddr
   # Default Gateway
   if command -v ip >/dev/null 2>&1; then
     _get_gwaddr=$(ip route show | awk '/^default|^0.0.0.0/{ print $3 }')
@@ -34,5 +35,4 @@ get_gateway() {
     _get_gwaddr=$(route -n | awk '/^default|^0.0.0.0/{ print $2 }')
   fi
   printf -- '%s\n' "${_get_gwaddr}"
-  unset -v _get_gwaddr
 }

@@ -23,6 +23,7 @@ if ! command -v openssl >/dev/null 2>&1; then
 fi
 
 key_to_hpkp_pin() {
+    local _key_to_hpkp_pin_in
     _key_to_hpkp_pin_in="${1}"
 
     if (( "${#_key_to_hpkp_pin_in}" == 0 )); then

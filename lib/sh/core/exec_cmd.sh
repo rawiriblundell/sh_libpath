@@ -41,6 +41,6 @@ exec_cmd() {
         (*)
             printf -- "${err_fmt}" "${output}" "${?}"
             [[ "${die}" = "yes" ]] && exit 1
-        ;;            
+        ;;
     esac
 }

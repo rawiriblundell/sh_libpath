@@ -19,10 +19,10 @@
 
 # http://stackoverflow.com/questions/15770879/unix-timestamp-to-ldap-timestamp
 ldaptime_to_epoch() {
+  local _ldap_timestamp _ldap_offset
   _ldap_timestamp="${1:?No ldap timestamp supplied}"
   _ldap_timestamp=$(( _ldap_timestamp / 10000000 ))
   # Calculated as '( (1970-1601) * 365 -3 + ((1970-1601)/4) ) * 86400'
   _ldap_offset=11644473600
   printf -- '%s\n' "$(( _ldap_timestamp - _ldap_offset ))"
-  unset -v _ldap_timestamp _ldap_offset
 }

@@ -23,6 +23,7 @@ if ! command -v openssl >/dev/null 2>&1; then
 fi
 
 convert_cer_to_crt() {
+    local _cer_to_crt_in _cer_to_crt_out _cer_to_crt_enctype
     _cer_to_crt_in="${1}"
     _cer_to_crt_out="${2}"
 
@@ -44,6 +45,4 @@ convert_cer_to_crt() {
     grep "TRUSTED" "${_cer_to_crt_in}" >/dev/null 2>&1 || _cer_to_crt_enctype="DER"
 
     openssl x509 -inform "${_cer_to_crt_enctype:-PEM}" -in "${_cer_to_crt_in}" -out "${_cer_to_crt_out}"
-
-    unset -v _cer_to_crt_in _cer_to_crt_out _cer_to_crt_enctype
 }

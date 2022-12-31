@@ -23,6 +23,7 @@ if ! command -v openssl >/dev/null 2>&1; then
 fi
 
 convert_pem_to_crt() {
+    local _pem_to_crt_in _pem_to_crt_out _pem_to_crt_enctype
     _pem_to_crt_in="${1}"
     _pem_to_crt_out="${2}"
     _pem_to_crt_out="${3}"
@@ -43,6 +44,4 @@ convert_pem_to_crt() {
     fi
 
     openssl x509 -outform "${_pem_to_crt_enctype:-PEM}" -in "${_pem_to_crt_in}" -out "${_pem_to_crt_out}"
-
-    unset -v _pem_to_crt_in _pem_to_crt_out _pem_to_crt_enctype
 }

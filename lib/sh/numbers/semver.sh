@@ -21,6 +21,7 @@
 # This zero pads, to double digits, the second and third numbers and removes any non-numerical chars
 # e.g. 'openssl 1.0.2k-fips' -> '10002'
 semver_to_int() {
+    local _sem_ver
     _sem_ver="${1:?No version number supplied}"
 
     # Strip the variable of any non-numerics or dots
@@ -33,8 +34,6 @@ semver_to_int() {
 
     # Assemble and print our integer
     printf -- '%d%02d%02d' "${1}" "${2:-0}" "${3:-0}"
-
-    unset -v _sem_ver
 }
 
 # In pure bash, the above would look like this:

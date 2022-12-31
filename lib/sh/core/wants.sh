@@ -18,6 +18,7 @@
 # Sometimes you might want to load a file only if it exists,
 # but otherwise it's not critical and your script can move on.
 wants() {
+  local _fstarget
   _fstarget="${1:?No target specified}"
   [ -e "${_fstarget}" ] || return
 
@@ -31,10 +32,8 @@ wants() {
         exit 1
       fi
     }
-    unset -v _fstarget
   else
     printf -- 'wants: %s\n' "${_fstarget} exists but isn't readable" >&2
-    unset -v _fstarget
     if [ -t 0 ]; then
       return 1
     else

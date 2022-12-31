@@ -23,6 +23,7 @@ if ! command -v openssl >/dev/null 2>&1; then
 fi
 
 ssl_encrypt() {
+    local _ssl_encrypt_in _ssl_encrypt_out
     _ssl_encrypt_in="${1}"
     _ssl_encrypt_out="${2}"
 
@@ -36,6 +37,4 @@ ssl_encrypt() {
     fi
 
     openssl aes-256-cbc -a -salt -pbkdf2 -in "${_ssl_encrypt_in}" -out "${_ssl_encrypt_out}"
-
-    unset -v _ssl_encrypt_in _ssl_encrypt_out
 }

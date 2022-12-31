@@ -23,6 +23,7 @@ if ! command -v openssl >/dev/null 2>&1; then
 fi
 
 ssl_connect () {
+    local _ssl_connect_remote_host _ssl_connect_remote_port
     _ssl_connect_remote_host="${1}"
     _ssl_connect_remote_port="${2:-443}"
 
@@ -32,6 +33,4 @@ ssl_connect () {
     fi
 
     openssl s_client -status -connect "${_ssl_connect_remote_host}:${_ssl_connect_remote_port}"
-
-    unset -v _ssl_connect_remote_host _ssl_connect_remote_port
 }

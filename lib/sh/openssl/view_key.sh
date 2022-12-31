@@ -23,6 +23,7 @@ if ! command -v openssl >/dev/null 2>&1; then
 fi
 
 view_key () {
+    local _view_key_in
     _view_key_in="${1}"
 
     if (( "${#_view_key_in}" == 0 )); then
@@ -31,11 +32,10 @@ view_key () {
     fi
 
     openssl rsa -check -in "${_view_key_in}"
-
-    unset -v _view_key_in
 }
 
 view_key_modulus() {
+    local _view_key_modulus_in
     _view_key_modulus_in="${1}"
 
     if (( "${#_view_key_modulus_in}" == 0 )); then
@@ -44,7 +44,4 @@ view_key_modulus() {
     fi
 
     openssl rsa -noout -modulus -in "${_view_key_modulus_in}" | shasum -a 256
-
-    unset -v _view_key_modulus_in
 }
-

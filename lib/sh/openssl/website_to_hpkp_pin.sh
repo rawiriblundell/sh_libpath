@@ -23,6 +23,7 @@ if ! command -v openssl >/dev/null 2>&1; then
 fi
 
 website_to_hpkp_pin() {
+    local _website_to_hpkp_pin_in
     _website_to_hpkp_pin_in="${1}"
 
     if (( "${#_website_to_hpkp_pin_in}" == 0 )); then
@@ -30,7 +31,7 @@ website_to_hpkp_pin() {
         return 1
     fi
 
-    openssl s_client -connect ${_website_to_hpkp_pin_in}:443 |
+    openssl s_client -connect "${_website_to_hpkp_pin_in}:443" |
         openssl x509 -pubkey -noout |
         openssl rsa -pubin -outform der |
         openssl dgst -sha256 -binary |

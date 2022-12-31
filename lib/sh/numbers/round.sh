@@ -50,6 +50,7 @@
 
 # Usage: round [--common (optional)] [float] [precision (optional)]
 round() {
+  local _round_float _round_precision _round_fractional
   # First, we test if we are in common rounding mode
   case "${1}" in
     (--common*)
@@ -74,7 +75,6 @@ round() {
             awk -v precision="${_round_precision}" '{ printf("%." precision "f\n", $1) }'
         ;;
       esac
-      unset -v _round_float _round_precision _round_fractional
       return 0
     ;;
   esac

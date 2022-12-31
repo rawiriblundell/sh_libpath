@@ -29,6 +29,7 @@
 # array_slice x:y arrayname => prints range of elements between x and y
 # array_slice x:y:z arrayname => prints every zth element beween x and y
 array_slice() {
+  local _slice_mode _slice_start _slice_end _slice_incr
   _slice_mode=''
   until (( "${#_slice_mode}" > 0 )); do
     if printf -- '%s\n' "${1}" | grep -E -- "^-?[0-9]+$" >/dev/null 2>&1; then
@@ -98,8 +99,6 @@ array_slice() {
       printf -- '%s\n' "${_slice_tmp[@]}"
     ;;
   esac
-
-  unset -v _slice_mode _slice_start _slice_end _slice_incr
 }
 
 # >>> nums = [1, 3, 5, 7, 8, 13, 20]
