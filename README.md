@@ -247,6 +247,7 @@ In alphabetical order only for readability:
 * https://github.com/shellfire-dev
 * https://github.com/tests-always-included/mo
 * https://github.com/tomocafe/bash-boost
+* https://github.com/Wuageorg/bashkit
 * https://github.com/xsh-lib/core
 * https://github.com/zombieleet/bashify
 * https://loader.sourceforge.io/overview/
