@@ -250,6 +250,7 @@ In alphabetical order only for readability:
 * https://github.com/Wuageorg/bashkit
 * https://github.com/xsh-lib/core
 * https://github.com/zombieleet/bashify
+* https://hyperupcall.github.io/basalt
 * https://loader.sourceforge.io/overview/
 
 ## List of projects that may be inspirational
