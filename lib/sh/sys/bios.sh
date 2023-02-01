@@ -20,28 +20,24 @@
 case "${OSSTR:-$(uname -s)}" in
   ([lL]inux)
     if iscommand dmidecode; then
-      sysBios=$(dmidecode | grep -m 1 -A 2 Vendor | awk -F ':' '{print $2}' | paste -sd '' - | trim)
+      sys_bios=$(dmidecode | grep -m 1 -A 2 Vendor | awk -F ':' '{print $2}' | paste -sd '' - | trim)
     fi
   ;;
   (SunOS|solaris)
     # BIOS Version
     if iscommand prtdiag; then
       if prtdiag >/dev/null 2>&1; then
-        sysBios=$(prtdiag -v | grep -E '^OBP|^BIOS')
+        sys_bios=$(prtdiag -v | grep -E '^OBP|^BIOS')
       fi
     elif smbios -t SMB_TYPE_BIOS >/dev/null 2>&1; then
-      sysBios=$( \
+      sys_bios=$( \
         smbios -t SMB_TYPE_BIOS \
         | grep -E 'Vendor|Version|Release' \
         | awk -F ':' '{print $2}' \
         | paste -sd ' ' - \
         | trim)
     else
-      sysBios=unknown
+      sys_bios=unknown
     fi
   ;;
 esac
-
-
-
-
