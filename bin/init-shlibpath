@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+#!/usr/bin/env bash
 
 # Copyright 2022 Rawiri Blundell
 #
