@@ -228,6 +228,7 @@ In alphabetical order only for readability:
 * https://github.com/elibs/ebash
 * https://github.com/fidian/ansi
 * https://github.com/gruntwork-io/bash-commons
+* https://github.com/hyperupcall/bash-term
 * https://github.com/HariSekhon/DevOps-Bash-tools
 * https://github.com/jandob/rebash
 * https://github.com/jmcantrell/bashful
