@@ -57,7 +57,14 @@ Similar to its `python` cousin `import` and/or its `perl` cousin `use`, this is 
 
 ### `requires`
 
-This function serves multiple purposes.  A lot of shell scripts just _assume_ that binaries are present and don't fail nicely if these binaries aren't.  A lot of shell scripts don't really serve themselves well in terms of internal documentation.  A lot of shell scripts don't fail-early.  `requires()` fixes all of that and more.
+This function serves multiple purposes.  A lot of shell scripts:
+
+* just _assume_ that binaries are present
+* don't fail nicely if these binaries aren't
+* don't really serve themselves well in terms of internal documentation
+* don't fail-early.
+
+`requires()` fixes all of that and more.
 
 First, it works through multiple items so you only need to declare it once if you choose to.  It would typically be used to check for the existence of commands in `PATH` like this:
 
