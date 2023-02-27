@@ -20,64 +20,64 @@
 # requires curl sed awk /etc/someconf.cfg
 
 for _item in "${@}"; do
-# First, is this a variable check?
-# There has to be a cleaner/safer way to do this
-case "${_item}" in
-    (*=*)
-    _key="${_item%%=*}" # Everything left of the first '='
-    _val="${_item#*=}"  # Everything right of the first '='
-    eval [ \$"${_key}" = "${_val}" ] && continue
-    ;;
-    (BASH*)
-    # Shell version check e.g. 'requires BASH32' = we check for bash 3.2 or newer
-    # To strictly require a specific version, you could use the keyval test above
-    # TO-DO: Expand the "is greater than" logic, add extra shells
-    if [ "${#BASH_VERSION}" -gt 0 ]; then
-        # Get first three chars e.g. '4.3'
-        _bashver="${BASH_VERSION%${BASH_VERSION#???}}"
-        # Concat and remove dot e.g. 'BASH43'
-        _bashver="BASH${_bashver/./}"
-        # Test on string (e.g. BASH44 = BASH44)
-        [ "${1}" = "${_bashver}" ] && continue
-        # Test on integer by stripping "BASH" (e.g. 51 -ge 44)
-        [ "${1/BASH/}" -ge "${_bashver/BASH/}" ] && continue
-    fi
-    ;;
-    (KSH)
-    # At present we just check that we have one of the following env vars
-    [ "${#KSH_VERSION}" -gt 0 ] && continue
-    [ "${#.sh.version}" -gt 0 ] && continue
-    ;;
-    (ZSH*)
-    if [ "${#ZSH_VERSION}" -gt 0 ]; then
-        # ZSH_VERSION outputs a semantic number e.g. 5.7.1
-        # We use parameter expansion to pull out the dots e.g. ZSH571
-        # We do a string, then an int comparison just as with bash
-        [ "${1}" = "ZSH${ZSH_VERSION//./}" ] && continue
-        [ "${1/ZSH/}" -ge "${ZSH_VERSION//./}" ] && continue
-    fi
-    ;;
-    (root)
-    [ "${EUID:-$(id -u)}" -eq "0" ] && continue
-    ;;
-esac
+    # First, is this a variable check?
+    # There has to be a cleaner/safer way to do this
+    case "${_item}" in
+        (*=*)
+        _key="${_item%%=*}" # Everything left of the first '='
+        _val="${_item#*=}"  # Everything right of the first '='
+        eval [ \$"${_key}" = "${_val}" ] && continue
+        ;;
+        (BASH*)
+        # Shell version check e.g. 'requires BASH32' = we check for bash 3.2 or newer
+        # To strictly require a specific version, you could use the keyval test above
+        # TO-DO: Expand the "is greater than" logic, add extra shells
+        if [ "${#BASH_VERSION}" -gt 0 ]; then
+            # Get first three chars e.g. '4.3'
+            _bashver="${BASH_VERSION%${BASH_VERSION#???}}"
+            # Concat and remove dot e.g. 'BASH43'
+            _bashver="BASH${_bashver/./}"
+            # Test on string (e.g. BASH44 = BASH44)
+            [ "${1}" = "${_bashver}" ] && continue
+            # Test on integer by stripping "BASH" (e.g. 51 -ge 44)
+            [ "${1/BASH/}" -ge "${_bashver/BASH/}" ] && continue
+        fi
+        ;;
+        (KSH)
+        # At present we just check that we have one of the following env vars
+        [ "${#KSH_VERSION}" -gt 0 ] && continue
+        [ "${#.sh.version}" -gt 0 ] && continue
+        ;;
+        (ZSH*)
+        if [ "${#ZSH_VERSION}" -gt 0 ]; then
+            # ZSH_VERSION outputs a semantic number e.g. 5.7.1
+            # We use parameter expansion to pull out the dots e.g. ZSH571
+            # We do a string, then an int comparison just as with bash
+            [ "${1}" = "ZSH${ZSH_VERSION//./}" ] && continue
+            [ "${1/ZSH/}" -ge "${ZSH_VERSION//./}" ] && continue
+        fi
+        ;;
+        (root)
+        [ "${EUID:-$(id -u)}" -eq "0" ] && continue
+        ;;
+    esac
 
-# Next, try to determine if it's a command
-command -v "${_item}" >/dev/null 2>&1 && continue
+    # Next, try to determine if it's a command
+    command -v "${_item}" >/dev/null 2>&1 && continue
 
-# Next, see if it's an executable file e.g. a script to call
-[ -x ./"${_item}" ] && continue
+    # Next, see if it's an executable file e.g. a script to call
+    [ -x ./"${_item}" ] && continue
 
-# Next, let's see if it's a library in SH_LIBPATH
-for _target_lib in ${SH_LIBPATH//://$_item }/${_item}; do
-    [ -r "${_target_lib}" ] && continue
-done
+    # Next, let's see if it's a library in SH_LIBPATH
+    for _target_lib in ${SH_LIBPATH//://$_item }/${_item}; do
+        [ -r "${_target_lib}" ] && continue
+    done
 
-# Next, let's see if it's a readable file e.g. a cfg file to load
-[ -r "${_item}" ] && continue
+    # Next, let's see if it's a readable file e.g. a cfg file to load
+    [ -r "${_item}" ] && continue
 
-# If we get to this point, add it to our list of failures
-_failures="${_failures} ${_item}"
+    # If we get to this point, add it to our list of failures
+    _failures="${_failures} ${_item}"
 done
 
 # Strip any leading space from the construction of _failures
@@ -85,15 +85,15 @@ _failures="${_failures# }"
 
 # If we have no failures, then no news is good news - return quietly
 if [ "${#_failures}" -eq "0" ]; then
-unset -v _item _failures _target_lib _bashver
-return 0
-# Otherwise, we error out and exit immediately
+    unset -v _item _failures _target_lib _bashver
+    return 0
+    # Otherwise, we error out and exit immediately
 else
-printf -- '%s\n' "The following requirements were not met:" "${_failures}" >&2
-unset -v _item _failures _target_lib _bashver
-if [ -t 0 ]; then
-    return 1
-else
-    exit 1
-fi
+    printf -- '%s\n' "The following requirements were not met:" "${_failures}" >&2
+    unset -v _item _failures _target_lib _bashver
+    if [ -t 0 ]; then
+        return 1
+    else
+        exit 1
+    fi
 fi
