@@ -235,6 +235,8 @@ In alphabetical order only for readability:
 * https://github.com/elibs/ebash
 * https://github.com/fidian/ansi
 * https://github.com/gruntwork-io/bash-commons
+* https://github.com/hyperupcall/bash-term
+* https://github.com/HariSekhon/DevOps-Bash-tools
 * https://github.com/jandob/rebash
 * https://github.com/jmcantrell/bashful
 * https://github.com/jneen/balls
@@ -253,7 +255,9 @@ In alphabetical order only for readability:
 * https://github.com/reale/bashlets
 * https://github.com/shellfire-dev
 * https://github.com/tests-always-included/mo
+* https://github.com/timo-reymann/bash-tui-toolkit
 * https://github.com/tomocafe/bash-boost
+* https://github.com/vlisivka/bash-modules
 * https://github.com/Wuageorg/bashkit
 * https://github.com/xsh-lib/core
 * https://github.com/zombieleet/bashify
