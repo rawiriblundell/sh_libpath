@@ -248,6 +248,7 @@ In alphabetical order only for readability:
 * https://github.com/reale/bashlets
 * https://github.com/shellfire-dev
 * https://github.com/tests-always-included/mo
+* https://github.com/timo-reymann/bash-tui-toolkit
 * https://github.com/tomocafe/bash-boost
 * https://github.com/vlisivka/bash-modules
 * https://github.com/Wuageorg/bashkit
