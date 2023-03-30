@@ -85,11 +85,7 @@ export SH_LIBPATH
 # Check the length of the var again and fail out if it's empty
 if (( "${#SH_LIBPATH}" == 0 )); then
   printf -- '%s\n' "SH_LIBPATH appears to be empty" >&2
-  if [ -t 0 ]; then
-    return 1
-  else
-    exit 1
-  fi
+  exit 1
 fi
 
 sh_stack_add "SH_LIBPATH: ${SH_LIBPATH}"
@@ -131,40 +127,9 @@ _is_lib_loaded() {
   _is_lib_loaded_target="${1:?No library defined}"
   if [ "${SH_LIBS_LOADED#*"$_is_lib_loaded_target"}" != "${SH_LIBS_LOADED}" ]; then
     unset -v _is_lib_loaded_target
-    if [ -t 0 ]; then
-      return 0
-    else
-      exit 0
-    fi
+    exit 0
   else
     unset -v _is_lib_loaded_target
-    if [ -t 0 ]; then
-      return 1
-    else
-      exit 1
-    fi
-  fi
-}
-
-# Find and load include()
-for _sh_libdir_path in "${SH_LIBPATH_ARRAY[@]}"; do
-  if [ -r "${_sh_libdir_path}/core/include.sh" ]; then
-    . "${_sh_libdir_path}/core/include.sh"
-    unset -v _sh_libdir_path
-    break
-  fi
-done
-
-# Fail if include isn't loaded
-if ! command -v include >/dev/null 2>&1; then
-  printf -- '%s\n' "Unable to load include.sh from SH_LIBPATH" >&2
-  unset -v _sh_libdir_path
-  if [ -t 0 ]; then
-    return 1
-  else
     exit 1
   fi
-fi
-
-# Now that we've got include() bootstrapped, let's load requires
-include core/requires.sh
+}
