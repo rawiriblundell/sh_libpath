@@ -227,6 +227,7 @@ In alphabetical order only for readability:
 * https://github.com/Bash-it/bash-it
 * https://github.com/bashup/events
 * https://github.com/bpkg/bpkg
+* https://github.com/CecilWesterhof/BashLibrary
 * https://github.com/cloudflare/semver_bash
 * https://github.com/codeforester/base
 * https://github.com/cyberark/bash-lib
