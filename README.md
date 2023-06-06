@@ -238,6 +238,7 @@ In alphabetical order only for readability:
 * https://github.com/gruntwork-io/bash-commons
 * https://github.com/hyperupcall/bash-term
 * https://github.com/HariSekhon/DevOps-Bash-tools
+* https://github.com/kigster/bashmatic
 * https://github.com/jandob/rebash
 * https://github.com/jmcantrell/bashful
 * https://github.com/jneen/balls
