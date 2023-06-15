@@ -224,6 +224,7 @@ In alphabetical order only for readability:
 * https://github.com/alebcay/awesome-shell
 * https://github.com/awesome-lists/awesome-bash
 * https://github.com/basherpm/basher
+* https://github.com/bash-bastion/bash-core
 * https://github.com/Bash-it/bash-it
 * https://github.com/bashup/events
 * https://github.com/bpkg/bpkg
@@ -234,6 +235,7 @@ In alphabetical order only for readability:
 * https://github.com/DethByte64/BashLib
 * https://github.com/dzove855/bar
 * https://github.com/elibs/ebash
+* https://github.com/ElectricRCAircraftGuy/eRCaGuy_hello_world/tree/master/bash
 * https://github.com/fidian/ansi
 * https://github.com/gruntwork-io/bash-commons
 * https://github.com/hyperupcall/bash-term
@@ -256,6 +258,7 @@ In alphabetical order only for readability:
 * https://github.com/Privex/shell-core
 * https://github.com/reale/bashlets
 * https://github.com/shellfire-dev
+* https://github.com/SpicyLemon/SpicyLemon/tree/master/bash_fun
 * https://github.com/tests-always-included/mo
 * https://github.com/timo-reymann/bash-tui-toolkit
 * https://github.com/tomocafe/bash-boost
