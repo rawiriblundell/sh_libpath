@@ -36,5 +36,5 @@ ssl_decrypt() {
         _ssl_decrypt_out="${_ssl_decrypt_in}.decrypted"
     fi
 
-    openssl aes-256-cbc -d -a -pbkdf2 -in "${_ssl_decrypt_in}" -out "${_ssl_decrypt_out}"
+    openssl aes-256-cbc -d -a -pbkdf2 -iter 600000 -in "${_ssl_decrypt_in}" -out "${_ssl_decrypt_out}"
 }

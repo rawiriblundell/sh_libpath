@@ -36,5 +36,5 @@ ssl_encrypt() {
         _ssl_encrypt_out="${_ssl_encrypt_in}.crypted"
     fi
 
-    openssl aes-256-cbc -a -salt -pbkdf2 -in "${_ssl_encrypt_in}" -out "${_ssl_encrypt_out}"
+    openssl aes-256-cbc -a -salt -pbkdf2 -iter 600000 -in "${_ssl_encrypt_in}" -out "${_ssl_encrypt_out}"
 }
