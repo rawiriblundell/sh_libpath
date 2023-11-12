@@ -17,14 +17,6 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-swaphogs() {
-  {
-    for file in /proc/*/status ; do
-      awk '/VmSwap|Name/{printf $2 " " $3}END{ print ""}' "${file}" 2>/dev/null
-    done
-  } | grep " kB$" | sort -k 2 -n | column -t
-}
-
 # Function to display a list of users and their memory and cpu usage
 # Non-portable swap: for file in /proc/*/status ; do awk '/VmSwap|Name/{printf $2 " " $3}END{ print ""}' $file; done | sort -k 2 -n -r
 what() {

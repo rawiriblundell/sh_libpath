@@ -1,0 +1,71 @@
+# shellcheck shell=ksh
+
+# Copyright 2023 Rawiri Blundell
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+################################################################################
+# Provenance: https://github.com/rawiriblundell/sh_libpath
+# SPDX-License-Identifier: Apache-2.0
+
+# List processes by memory usage
+# This is usually better handled by tools like top and sar
+
+# With inspiration from https://gist.github.com/mlgill/b08b18fc1de2086d9c20
+
+# This function formats and colourises our output
+_memhogs_print_fmt() {
+    local print_fmt wrap_limit
+
+    case "${1}" in
+        (green)  print_fmt='\e[1;32m%s\t%4.2f%%\t%-s\e[0m\n'; shift 1 ;;
+        (yellow) print_fmt='\e[1;33m%s\t%4.2f%%\t%s\e[0m\n'; shift 1 ;;
+        (red)    print_fmt='\e[1;31m%s\t%4.2f%%\t%s\e[0m\n'; shift 1 ;;
+        (*)      print_fmt='%s\t%4.2f%%\t%s\n' ;;
+    esac
+
+    # Override if we're not being run interactively
+    [[ -t 1 ]] || print_fmt='%s\t%4.2f%%\t%s\n'
+
+    # Print using the format that we've settled on
+    # shellcheck disable=SC2059
+    printf -- "${print_fmt}" "${@}"
+}
+
+memhogs() {
+    local wrap_limit pid mem cmd
+    # Capture the width of the terminal window
+    wrap_limit="${COLUMNS:-$(tput cols)}"
+    # If we still don't have an answer, default to 80 columns
+    wrap_limit="${wrap_limit:-80}"
+    # Subtract plenty of space for the pid and percentage output
+    wrap_limit="$(( wrap_limit - 26 ))"
+
+    # Loop through and parse the output of 'ps'
+    while read -r pid mem cmd; do
+        # Truncate $cmd so that it doesn't wrap multiple lines
+        (( ${#cmd} > wrap_limit )) && cmd="${cmd:0:$wrap_limit}..."
+
+        # Truncate the float so that we have an integer to compare to
+        mem_use="${mem%%.*}"
+        # If we're over 20%, then print in red
+        if (( mem_use >= 20 )); then
+            _memhogs_print_fmt red "${pid}" "${mem}" "${cmd}"
+        # Likewise, if we're over 10%, then print in yellow
+        elif (( mem_use >= 10 )); then
+            _memhogs_print_fmt yellow "${pid}" "${mem}" "${cmd}"
+        # Otherwise, print in green
+        else
+            _memhogs_print_fmt green "${pid}" "${mem}" "${cmd}"
+        fi
+    done < <(ps -eo pid,%mem,cmd --sort=%mem | sed '1d')
+}
