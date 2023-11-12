@@ -43,7 +43,7 @@ prepend() {
       shift 2
     ;;
   esac
-  prepend_stdout="${1}${_prepend_delimiter:- }${2}"
-  prepend_rc="${?}"
-  export prepend_stdout prepend_rc
+  while read -r; do
+    printf -- '%s\n' "${1}${_prepend_delimiter:- }${REPLY}"
+  done
 }
