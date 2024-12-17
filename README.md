@@ -239,8 +239,9 @@ In alphabetical order only for readability:
 * https://github.com/ElectricRCAircraftGuy/eRCaGuy_hello_world/tree/master/bash
 * https://github.com/fidian/ansi
 * https://github.com/gruntwork-io/bash-commons
-* https://github.com/hyperupcall/bash-term
 * https://github.com/HariSekhon/DevOps-Bash-tools
+* https://github.com/hastec-fr/apash
+* https://github.com/hyperupcall/bash-term
 * https://github.com/kigster/bashmatic
 * https://github.com/jandob/rebash
 * https://github.com/jmcantrell/bashful
