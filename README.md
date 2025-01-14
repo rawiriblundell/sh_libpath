@@ -222,6 +222,7 @@ In alphabetical order only for readability:
 * https://github.com/adoyle-h/lobash
 * https://github.com/aks/bash-lib
 * https://github.com/alebcay/awesome-shell
+* https://github.com/antonrotar/command_runner
 * https://github.com/awesome-lists/awesome-bash
 * https://github.com/basherpm/basher
 * https://github.com/bash-bastion/bash-core
