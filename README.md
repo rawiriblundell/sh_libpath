@@ -236,6 +236,7 @@ In alphabetical order only for readability:
 * https://github.com/cyberark/bash-lib
 * https://github.com/DethByte64/BashLib
 * https://github.com/dzove855/bar
+* https://github.com/ekahPruthvi/basil
 * https://github.com/elibs/ebash
 * https://github.com/ElectricRCAircraftGuy/eRCaGuy_hello_world/tree/master/bash
 * https://github.com/fidian/ansi
