@@ -41,15 +41,24 @@ _cpuhogs_print_fmt() {
     printf -- "${print_fmt}" "${@}"
 }
 
-
 cpuhogs() {
-    local wrap_limit pid cpu cmd
+    local wrap_limit pid cpu cmd lines
     # Capture the width of the terminal window
     wrap_limit="${COLUMNS:-$(tput cols)}"
     # If we still don't have an answer, default to 80 columns
     wrap_limit="${wrap_limit:-80}"
     # Subtract plenty of space for the pid and percentage output
     wrap_limit="$(( wrap_limit - 26 ))"
+
+    # Try to factor for a line count similar to 'head' or 'tail'
+    case "${1}" in
+    (-n)
+        printf -- '%d' "${2}" >/dev/null 2>&1 && lines="${2}"
+    ;;
+    (*)
+        printf -- '%d' "${1}" >/dev/null 2>&1 && lines="${1}"
+    ;;
+    esac
 
     # Loop through and parse the output of 'ps'
     while read -r pid cpu cmd; do
@@ -68,5 +77,5 @@ cpuhogs() {
         else
             _cpuhogs_print_fmt green "${pid}" "${cpu}" "${cmd}"
         fi
-    done < <(ps -eo pid,%cpu,cmd --sort=%cpu | sed '1d')
+    done < <(ps -eo pid,%cpu,cmd --sort=%cpu | sed '1d' | tail -n "${lines:-10}")
 }

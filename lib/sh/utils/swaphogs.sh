@@ -36,7 +36,7 @@ _swaphogs_get_proc_info() {
       for file in /proc/*/status; do
         awk '/^Pid|VmSwap|Name/{printf $2 " "}END{ print ""}' "${file}" 2>/dev/null
       done
-  } | sort -k 3 -n
+  } | sort -k 3 -n | tail -n "${1:-10}"
 }
 
 # This function formats and colourises our output
@@ -59,7 +59,7 @@ _swaphogs_print_fmt() {
 }
 
 swaphogs() {
-  local wrap_limit swap swap_pct _swaphogs_swap_total
+  local wrap_limit swap swap_pct _swaphogs_swap_total lines
   # Capture the width of the terminal window
   wrap_limit="${COLUMNS:-$(tput cols)}"
   # If we still don't have an answer, default to 80 columns
@@ -72,6 +72,16 @@ swaphogs() {
     awk '/SwapTotal/{print $2}' /proc/meminfo 2>/dev/null ||
       free | awk '/Swap:/{print $2}'
   )
+
+  # Try to factor for a line count similar to 'head' or 'tail'
+  case "${1}" in
+    (-n)
+      printf -- '%d' "${2}" >/dev/null 2>&1 && lines="${2}"
+    ;;
+    (*)
+      printf -- '%d' "${1}" >/dev/null 2>&1 && lines="${1}"
+    ;;
+  esac
 
   while read -r cmd pid swap; do
     # Truncate $cmd so that it doesn't wrap multiple lines
@@ -99,5 +109,5 @@ swaphogs() {
     else
         _swaphogs_print_fmt green "${pid}" "${swap_pct}" "${cmd}"
     fi
-  done < <(_swaphogs_get_proc_info)
+  done < <(_swaphogs_get_proc_info "${lines}")
 }

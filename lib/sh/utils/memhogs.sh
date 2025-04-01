@@ -50,6 +50,16 @@ memhogs() {
     # Subtract plenty of space for the pid and percentage output
     wrap_limit="$(( wrap_limit - 26 ))"
 
+    # Try to factor for a line count similar to 'head' or 'tail'
+    case "${1}" in
+    (-n)
+        printf -- '%d' "${2}" >/dev/null 2>&1 && lines="${2}"
+    ;;
+    (*)
+        printf -- '%d' "${1}" >/dev/null 2>&1 && lines="${1}"
+    ;;
+    esac
+
     # Loop through and parse the output of 'ps'
     while read -r pid mem cmd; do
         # Truncate $cmd so that it doesn't wrap multiple lines
@@ -67,5 +77,5 @@ memhogs() {
         else
             _memhogs_print_fmt green "${pid}" "${mem}" "${cmd}"
         fi
-    done < <(ps -eo pid,%mem,cmd --sort=%mem | sed '1d')
+    done < <(ps -eo pid,%mem,cmd --sort=%mem | sed '1d' | tail -n "${lines:-10}")
 }
