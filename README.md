@@ -245,9 +245,11 @@ In alphabetical order only for readability:
 * https://github.com/gruntwork-io/bash-commons
 * https://github.com/HariSekhon/DevOps-Bash-tools
 * https://github.com/hastec-fr/apash
+* https://github.com/hornos/shf3
 * https://github.com/hyperupcall/bash-term
 * https://github.com/kigster/bashmatic
 * https://github.com/jandob/rebash
+* https://github.com/javier-lopez/learn/blob/master/sh/lib
 * https://github.com/jmcantrell/bashful
 * https://github.com/jneen/balls
 * https://github.com/juan131/bash-libraries
@@ -265,6 +267,7 @@ In alphabetical order only for readability:
 * https://github.com/reale/bashlets
 * https://github.com/shellfire-dev
 * https://github.com/SpicyLemon/SpicyLemon/tree/master/bash_fun
+* https://github.com/svn2github/oobash/tree/master/oobash
 * https://github.com/tests-always-included/mo
 * https://github.com/timo-reymann/bash-tui-toolkit
 * https://github.com/tomocafe/bash-boost
