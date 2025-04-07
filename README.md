@@ -275,6 +275,7 @@ In alphabetical order only for readability:
 * https://github.com/vlisivka/bash-modules
 * https://github.com/Wuageorg/bashkit
 * https://github.com/xsh-lib/core
+* https://github.com/zombieleet/cash/
 * https://github.com/zombieleet/bashify
 * https://hyperupcall.github.io/basalt
 * https://loader.sourceforge.io/overview/
