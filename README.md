@@ -271,6 +271,7 @@ In alphabetical order only for readability:
 * https://github.com/tests-always-included/mo
 * https://github.com/timo-reymann/bash-tui-toolkit
 * https://github.com/tomocafe/bash-boost
+* https://github.com/tsilvs/bashlib
 * https://github.com/UrNightmaree/Shocket
 * https://github.com/vlisivka/bash-modules
 * https://github.com/Wuageorg/bashkit
