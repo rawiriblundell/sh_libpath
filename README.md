@@ -247,6 +247,7 @@ In alphabetical order only for readability:
 * https://github.com/hastec-fr/apash
 * https://github.com/hornos/shf3
 * https://github.com/hyperupcall/bash-term
+* https://github.com/kamilcuk/L_lib/
 * https://github.com/kigster/bashmatic
 * https://github.com/jandob/rebash
 * https://github.com/javier-lopez/learn/blob/master/sh/lib
