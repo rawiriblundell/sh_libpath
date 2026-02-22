@@ -30,6 +30,8 @@
 
 # Helper function to pull a bunch of hex-ish looking chars from /dev/urandom
 # Takes one arg: the number of chars to pull.  Defaults to 36.
+# We use 'fold | head' rather than 'head -c' for portability.
+# '-c' is not defined in POSIX for 'head'
 _uuid_randchars() {
   tr -dc a-f0-9 < /dev/urandom | fold -w 1 | head -n "${1:-36}"
 }
@@ -84,7 +86,7 @@ _uuid_format() {
     (v[1-8]|[1-8]) _uuid_7th_byte="${1/v/}" ;;
     (*)
       printf -- 'uuid: %s\n' "Unrecognised version specifier" >&2
-      exit 1
+      return 1
     ;;
   esac
   _uuid_9th_byte=( 8 9 a b )
@@ -115,13 +117,13 @@ _uuid_gettime() {
   # TODO: Rope in get_epoch()
   if ! date +%s 2>&1 | grep "^[0-9].*$" >/dev/null 2>&1; then
     printf -- 'uuid: %s\n' "This library requires a version of 'date' that supports epoch time" >&2
-    exit 1
+    return 1
   fi
 
   # TODO: Failover to simply multiplying the output of get_epoch()
   if ! date +%N 2>&1 | grep "^[0-9].*$" >/dev/null 2>&1; then
     printf -- 'uuid: %s\n' "This library requires a version of 'date' that supports nanosecond time" >&2
-    exit 1
+    return 1
   fi
 
   # The following magical numbers sourced from Go's UUID implementation
