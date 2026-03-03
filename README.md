@@ -237,6 +237,7 @@ In alphabetical order only for readability:
 * https://github.com/codeforester/base
 * https://github.com/cyberark/bash-lib
 * https://github.com/DethByte64/BashLib
+* https://github.com/dolpa/dolpa-bash-utils/blob/main/bash-utils.sh
 * https://github.com/dzove855/bar
 * https://github.com/ekahPruthvi/basil
 * https://github.com/elibs/ebash
