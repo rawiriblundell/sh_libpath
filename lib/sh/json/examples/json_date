@@ -8,7 +8,7 @@
 # shellcheck disable=SC1090
 include() { . "${1}" || exit 1; }
 
-include ../lib/jsonprint.sh
+include ../jsonprint.sh
 
 # Generate the date format that our while read loop consumes
 get_date_output() {
