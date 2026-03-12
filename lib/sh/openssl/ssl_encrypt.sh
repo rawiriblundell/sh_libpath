@@ -38,3 +38,12 @@ ssl_encrypt() {
 
     openssl aes-256-cbc -a -salt -pbkdf2 -iter 600000 -in "${_ssl_encrypt_in}" -out "${_ssl_encrypt_out}"
 }
+
+# Generate keypair
+# Must be pem mode, not openssh format
+# ssh-keygen -t rsa -b 4096 -m pem -f "${HOME}/.ssh/ssl_encrypt" -N ''
+# Convert public key to pkcs8
+# ssh-keygen -f ~/.ssh/ssl_encrypt.pub -e -m pkcs8 > ~/.ssh/ssl_encrypt/radium.pkcs8
+# Rename private key
+# mv "${HOME}/.ssh/ssl_encrypt" "${HOME}/.ssh/ssl_encrypt.key"
+# openssl pkeyutl -encrypt -pubin -inkey radium.pkcs8 -in testfile -out testhashed

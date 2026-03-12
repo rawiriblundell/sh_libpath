@@ -38,3 +38,7 @@ ssl_decrypt() {
 
     openssl aes-256-cbc -d -a -pbkdf2 -iter 600000 -in "${_ssl_decrypt_in}" -out "${_ssl_decrypt_out}"
 }
+
+# Decrypt using private key
+# If key is not supplied, try "${HOME}/.ssh/ssl_encrypt.key"
+# openssl pkeyutl -decrypt -inkey radium -in testhashed -out testunhashed
