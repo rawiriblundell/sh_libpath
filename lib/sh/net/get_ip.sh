@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_net_get_ip+x}" ] && return 0
+_SH_LOADED_net_get_ip=1
+
 # External options
 # http https IPv DNS
 #            4 6

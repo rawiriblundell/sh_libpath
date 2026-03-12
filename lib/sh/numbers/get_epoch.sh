@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_numbers_get_epoch+x}" ] && return 0
+_SH_LOADED_numbers_get_epoch=1
+
 # Prioritise builtin approaches over externals to improve performance
 # We start by testing for the EPOCHSECONDS shell var (bash 5.0 and newer, zsh w/ datetime module)
 if [ -n "${EPOCHSECONDS}" ]; then

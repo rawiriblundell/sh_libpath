@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_utils_confirm+x}" ] && return 0
+_SH_LOADED_utils_confirm=1
+
 # A function to prompt/read an interactive y/n response
 # Stops reading after one character, meaning only 'y' or 'Y' will return 0
 # _anything_ else will return 1

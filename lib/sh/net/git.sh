@@ -32,6 +32,9 @@
 
 # Provenance: https://raw.githubusercontent.com/mietek/bashmenot/master/src/git.sh
 
+[ -n "${_SH_LOADED_net_git+x}" ] && return 0
+_SH_LOADED_net_git=1
+
 validate_git_url () {
 	local url
 	expect_args url -- "$@"

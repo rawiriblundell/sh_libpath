@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_utils_extract+x}" ] && return 0
+_SH_LOADED_utils_extract=1
+
 # Provide a function to compress common compressed Filetypes
 compress() {
   File=$1

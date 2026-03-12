@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_numbers_calc+x}" ] && return 0
+_SH_LOADED_numbers_calc=1
+
 # A stupidly simple wrapper for 'bc'
 # Requires its inputs to be quoted or put into a variable
 

@@ -1,5 +1,8 @@
 # shellcheck shell=ksh
 
+[ -n "${_SH_LOADED_core_wants+x}" ] && return 0
+_SH_LOADED_core_wants=1
+
 # Copyright 2022 Rawiri Blundell
 #
 # Licensed under the Apache License, Version 2.0 (the "License");

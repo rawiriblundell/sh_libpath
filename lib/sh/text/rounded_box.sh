@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_rounded_box+x}" ] && return 0
+_SH_LOADED_text_rounded_box=1
+
 # Print a given text within a rounded box
 # TODO: Accept heredoc inputs
 # TODO: Add coloured border handling e.g. red borders for warning messages

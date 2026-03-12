@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_sys_get_shell+x}" ] && return 0
+_SH_LOADED_sys_get_shell=1
+
 # Because $SHELL is an unreliable thing to test against, we provide this function
 # This won't work for 'fish', which needs 'ps -p %self' or similar
 # non-bourne-esque syntax.

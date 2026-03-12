@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_numbers_random+x}" ] && return 0
+_SH_LOADED_numbers_random=1
+
 # Function to generate a reliable seed for whatever method requires one
 # Because 'date +%s' isn't entirely portable, we try other methods to get the epoch
 random_seed() {

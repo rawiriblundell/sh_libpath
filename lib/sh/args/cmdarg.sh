@@ -1,5 +1,8 @@
 #!/bin/bash
 
+[ -n "${_SH_LOADED_args_cmdarg+x}" ] && return 0
+_SH_LOADED_args_cmdarg=1
+
 if (( BASH_VERSINFO[0] < 4 )); then
     echo "cmdarg is incompatible with bash versions < 4, please upgrade bash" >&2
     exit 1

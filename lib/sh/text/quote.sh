@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_quote+x}" ] && return 0
+_SH_LOADED_text_quote=1
+
 # TODO: Add stdin parsing
 str_quote() {
     local _str_quote_left _str_quote_right

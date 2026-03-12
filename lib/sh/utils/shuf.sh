@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_utils_shuf+x}" ] && return 0
+_SH_LOADED_utils_shuf=1
+
 ################################################################################
 # NOTE: This function is a work in progress
 ################################################################################

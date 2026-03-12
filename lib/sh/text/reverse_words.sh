@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_reverse_words+x}" ] && return 0
+_SH_LOADED_text_reverse_words=1
+
 reverse_words() {
     local _reverse_words_word _reverse_words_output
     # shellcheck disable=SC2068 # We want word splitting here

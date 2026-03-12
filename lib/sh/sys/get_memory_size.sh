@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_sys_get_memory_size+x}" ] && return 0
+_SH_LOADED_sys_get_memory_size=1
+
 get-memory-size() {
   if dmidecode -t 17 2>/dev/null | grep -q "Size.*MB"; then
     dmidecode -t 17 | awk '/Size.*MB/{ s+=$2 } END { print s }'

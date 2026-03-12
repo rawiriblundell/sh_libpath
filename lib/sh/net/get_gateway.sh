@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_net_get_gateway+x}" ] && return 0
+_SH_LOADED_net_get_gateway=1
+
 get_gateway() {
   local _get_gwaddr
   # Default Gateway

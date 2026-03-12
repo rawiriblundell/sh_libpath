@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_numbers_ceiling+x}" ] && return 0
+_SH_LOADED_numbers_ceiling=1
+
 # Description: Round a given float upwards to the nearest full integer
 # Example: 'ceiling 3.4' => 4
 

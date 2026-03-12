@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_scroll+x}" ] && return 0
+_SH_LOADED_text_scroll=1
+
 # Iterate through a file or stream line-by-line with a delay between each line
 scroll() {
   # Check that stdin isn't empty

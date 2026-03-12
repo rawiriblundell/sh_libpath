@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_users_get_gid+x}" ] && return 0
+_SH_LOADED_users_get_gid=1
+
 get_gid() {
   if awk -F : '{print $0}' /etc/passwd | grep ^"${username}" >/dev/null 2>&1; then
     gid=$(grep ^"${username}" /etc/passwd | awk -F : '{print $4}' )

@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_first+x}" ] && return 0
+_SH_LOADED_text_first=1
+
 # A basic function to return either the first char, column or line of a given input
 first() {
   case "${1}" in

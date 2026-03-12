@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_ltrim+x}" ] && return 0
+_SH_LOADED_text_ltrim=1
+
 str_ltrim() {
   LC_CTYPE=C
   local _ltrim_str

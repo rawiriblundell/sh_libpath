@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_numbers_trunc+x}" ] && return 0
+_SH_LOADED_numbers_trunc=1
+
 # Description: Remove any fractional precision from a given float
 # Example: 'trunc 3.7445' => 3
 

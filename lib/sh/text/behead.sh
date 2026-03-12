@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_behead+x}" ] && return 0
+_SH_LOADED_text_behead=1
+
 # Very simply removes the first line of output.
 # Good for removing headers
 behead() {

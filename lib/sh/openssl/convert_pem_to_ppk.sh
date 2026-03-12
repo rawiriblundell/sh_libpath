@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_openssl_convert_pem_to_ppk+x}" ] && return 0
+_SH_LOADED_openssl_convert_pem_to_ppk=1
+
 if ! command -v puttygen >/dev/null 2>&1; then
     printf -- 'convert_pem_to_ppk: %s\n' "This library requires 'puttygen', which was not found in PATH" >&2
     exit 1

@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_numbers_date_ordinal+x}" ] && return 0
+_SH_LOADED_numbers_date_ordinal=1
+
 # Overlay the 'date' command with ordinal suffixes
 # This adds a new specifier '%o' which would typically be coupled with '%d'
 # Example:

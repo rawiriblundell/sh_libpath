@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_core_debug+x}" ] && return 0
+_SH_LOADED_core_debug=1
+
 # https://www.reddit.com/r/bash/comments/g1yjfo/debugging_bash_scripts/
 # https://johannes.truschnigg.info/writing/2021-12_colodebug/
 

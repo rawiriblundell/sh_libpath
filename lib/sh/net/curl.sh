@@ -32,6 +32,9 @@
 
 # Provenance: https://raw.githubusercontent.com/mietek/bashmenot/master/src/curl.sh
 
+[ -n "${_SH_LOADED_net_curl+x}" ] && return 0
+_SH_LOADED_net_curl=1
+
 format_http_code_description () {
 	local code
 	expect_args code -- "$@"

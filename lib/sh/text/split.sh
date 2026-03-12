@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_split+x}" ] && return 0
+_SH_LOADED_text_split=1
+
 # Split a string on a given delimiter (defaults to whitespace splitting)
 # and save the output into an array, 'STR_SPLIT[@]'
 # Avoiding 'readarray'/'mapfile' intentionally here to increase portability

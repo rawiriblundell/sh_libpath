@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+[ -n "${_SH_LOADED_goodies_bash_loading_animations+x}" ] && return 0
+_SH_LOADED_goodies_bash_loading_animations=1
+
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#
 #%% Add the code between this box and its twin to the top of your script %%#

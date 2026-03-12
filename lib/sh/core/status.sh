@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_core_status+x}" ] && return 0
+_SH_LOADED_core_status=1
+
 # Functionalise the 'if $? =' idiom
 # Usage example:
 # somecommand

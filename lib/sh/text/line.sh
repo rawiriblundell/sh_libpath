@@ -32,6 +32,9 @@
 
 # Provenance: https://raw.githubusercontent.com/mietek/bashmenot/master/src/line.sh
 
+[ -n "${_SH_LOADED_text_line+x}" ] && return 0
+_SH_LOADED_text_line=1
+
 filter_first () {
 	head -n 1 || return 0
 }

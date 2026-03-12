@@ -18,6 +18,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_utils_validate_config+x}" ] && return 0
+_SH_LOADED_utils_validate_config=1
+
 # Ensure a config file is only made up of only shell-importable key=vals
 # Otherwise fail out.  Ignores blanks and comments.
 validate_config() {

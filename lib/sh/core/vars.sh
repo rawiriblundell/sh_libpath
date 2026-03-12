@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_core_vars+x}" ] && return 0
+_SH_LOADED_core_vars=1
+
 # Set these variable helper functions
 var_is_set() { [ "${1+x}" = "x" ] && [ "${#1}" -gt "0" ]; }     # set and not null
 var_is_unset() { [ -z "${1+x}" ]; }                             # unset

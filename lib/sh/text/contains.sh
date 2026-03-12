@@ -17,5 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_contains+x}" ] && return 0
+_SH_LOADED_text_contains=1
+
 # Quiet grep a file
 #grep >/dev/null 2>&1

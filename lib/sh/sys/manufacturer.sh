@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_sys_manufacturer+x}" ] && return 0
+_SH_LOADED_sys_manufacturer=1
+
 case "${OSSTR:-$(uname -s)}" in
   ([lL]inux)
     if nullgrep . /sys/devices/virtual/dmi/id/sys_vendor; then

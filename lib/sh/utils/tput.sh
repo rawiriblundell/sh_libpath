@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_utils_tput+x}" ] && return 0
+_SH_LOADED_utils_tput=1
+
 # Detect if our version of 'tput' is so old that it uses termcap syntax
 # If this is the case, overlay it so that newer terminfo style syntax works
 # Inspired by 'bashlib' and 'liquidprompt'

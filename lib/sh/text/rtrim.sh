@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_rtrim+x}" ] && return 0
+_SH_LOADED_text_rtrim=1
+
 # Strip whitespace from the right hand side of a string.
 # This works by using two vars, constantly removing a single char and re-assigning
 # before comparing the two vars.  When they finally do match, all the whitespace

@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_hash+x}" ] && return 0
+_SH_LOADED_text_hash=1
+
 _str_hash_not_found() {
   printf -- 'str_hash: %s\n' "${1:-Hashing} method not found" >&2
   exit 1

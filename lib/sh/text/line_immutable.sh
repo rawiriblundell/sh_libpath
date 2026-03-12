@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_line_immutable+x}" ] && return 0
+_SH_LOADED_text_line_immutable=1
+
 # Ensure that a line is in a file
 # Optional: give exact line number
 # Optional: give 'after' match

@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_numbers_date_to_epoch+x}" ] && return 0
+_SH_LOADED_numbers_date_to_epoch=1
+
 if ! command -v perl >/dev/null 2>&1; then
     printf -- 'date_to_epoch: %s\n' "This library requires 'perl', which was not found in PATH" >&2
     exit 1

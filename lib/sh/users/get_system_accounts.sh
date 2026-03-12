@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_users_get_system_accounts+x}" ] && return 0
+_SH_LOADED_users_get_system_accounts=1
+
 # Figure out the lowest boundary for the available UID range
 _uid_min=$(awk '/^UID_MIN/{print $2}' /etc/login.defs)
 # Older releases of various Linux distros tended to use '500' as the minimum

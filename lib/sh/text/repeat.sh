@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_repeat+x}" ] && return 0
+_SH_LOADED_text_repeat=1
+
 # Repeat a string n number of times
 # Supports '-n' to suppress newlines while iterating
 str_repeat() {

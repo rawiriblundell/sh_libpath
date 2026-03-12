@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_utils_tac+x}" ] && return 0
+_SH_LOADED_utils_tac=1
+
 # Provide a very simple 'tac' step-in function
 if ! command -v tac >/dev/null 2>&1; then
   tac() {

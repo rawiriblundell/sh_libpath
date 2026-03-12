@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_padding+x}" ] && return 0
+_SH_LOADED_text_padding=1
+
 # Print word pairs separated by delimiters e.g.
 # Title1.........Page1
 # Longer Title...Page2

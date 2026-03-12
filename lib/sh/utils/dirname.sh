@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_utils_dirname+x}" ] && return 0
+_SH_LOADED_utils_dirname=1
+
 # TODO: Handle dotfiles, tilde and other gotchas for these approaches
 # Check if 'dirname' is available, if not, enable a stop-gap function
 if ! command -v dirname >/dev/null 2>&1; then

@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_net_get_sourceforge+x}" ] && return 0
+_SH_LOADED_net_get_sourceforge=1
+
 # Usage: get_sourceforge [project] [linux|mac|windows]
 get_sourceforge() {
   local binary fail_count

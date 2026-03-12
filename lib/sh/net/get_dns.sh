@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_net_get_dns+x}" ] && return 0
+_SH_LOADED_net_get_dns=1
+
 get_dns() {
   case "${OSSTR:-$(uname -s)}" in
     (mac|Darwin)

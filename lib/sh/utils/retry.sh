@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_utils_retry+x}" ] && return 0
+_SH_LOADED_utils_retry=1
+
 retry() {
   local iter_count max_retries sleep_time
   while getopts ":m:s:" args; do

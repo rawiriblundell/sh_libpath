@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_sys_get_child_pids+x}" ] && return 0
+_SH_LOADED_sys_get_child_pids=1
+
 get_child_pids() {
   local _ppid
   _ppid="${1:?No PPID supplied}"

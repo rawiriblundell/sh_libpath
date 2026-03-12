@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_hr+x}" ] && return 0
+_SH_LOADED_text_hr=1
+
 _hr_width_helper() {
   local _hr_height _hr_width
   command -v get_terminal_size >/dev/null 2>&1 || return

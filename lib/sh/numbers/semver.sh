@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_numbers_semver+x}" ] && return 0
+_SH_LOADED_numbers_semver=1
+
 # Convert a three number style semantic version number to an integer for version comparisons
 # This zero pads, to double digits, the second and third numbers and removes any non-numerical chars
 # e.g. 'openssl 1.0.2k-fips' -> '10002'

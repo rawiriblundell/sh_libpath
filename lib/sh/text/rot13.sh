@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_rot13+x}" ] && return 0
+_SH_LOADED_text_rot13=1
+
 rot13 () {
   # If parameter is a file, or stdin is used, action that first
   if [[ -r "${1}" ]]||[[ ! -t 0 ]]; then

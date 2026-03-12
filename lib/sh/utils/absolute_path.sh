@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_utils_absolute_path+x}" ] && return 0
+_SH_LOADED_utils_absolute_path=1
+
 # Try to convert a relative path to an absolute one
 # A slightly adjusted version sourced from
 # https://stackoverflow.com/a/23002317

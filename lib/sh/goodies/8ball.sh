@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_goodies_8ball+x}" ] && return 0
+_SH_LOADED_goodies_8ball=1
+
 8ball() {
   ansArray=(
     "It is certain" "It is decidedly so" "Without a doubt"

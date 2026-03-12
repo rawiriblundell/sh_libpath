@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_utils_puts+x}" ] && return 0
+_SH_LOADED_utils_puts=1
+
 # 'puts()' abstracts the portability of 'printf' and solves the major portability headaches 
 # caused by various implementations of 'echo'.  This is called 'puts()' rather than using 
 # 'echo()' as  an override function, because some shells protect their builtins and complain.

@@ -18,6 +18,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_linenoise+x}" ] && return 0
+_SH_LOADED_text_linenoise=1
+
 linenoise() {
   local target failmsg
   target="${1:?No target specified}"

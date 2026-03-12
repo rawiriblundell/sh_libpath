@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_numbers_average+x}" ] && return 0
+_SH_LOADED_numbers_average=1
+
 average() {
   case "${#}" in
     (0)

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+[ -n "${_SH_LOADED_args_bash_opts+x}" ] && return 0
+_SH_LOADED_args_bash_opts=1
+
 # set -x
 
 declare -a __OPTS__=() __VARS__=()

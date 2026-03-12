@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_style+x}" ] && return 0
+_SH_LOADED_text_style=1
+
 # TO-DO:
 # * Check for $COLORTERM and fail out if/when possible
 # * Something with this:

@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_net_ssh_fingerprint+x}" ] && return 0
+_SH_LOADED_net_ssh_fingerprint=1
+
 # Display the fingerprint for a host
 ssh-fingerprint() {
   local fingerprint keyscanargs

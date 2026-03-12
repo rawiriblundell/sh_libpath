@@ -32,6 +32,9 @@
 
 # Provenance: https://raw.githubusercontent.com/mietek/bashmenot/master/src/hash.sh
 
+[ -n "${_SH_LOADED_utils_hash+x}" ] && return 0
+_SH_LOADED_utils_hash=1
+
 get_hash () {
 	local input
 	input=$( cat ) || true

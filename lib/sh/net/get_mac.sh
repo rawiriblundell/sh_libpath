@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_net_get_mac+x}" ] && return 0
+_SH_LOADED_net_get_mac=1
+
 # Takes word split mac address, uppercases and outputs in XX-YY-... format
 _sanitise_mac_addr() {
   for octet in ${rawMac}; do

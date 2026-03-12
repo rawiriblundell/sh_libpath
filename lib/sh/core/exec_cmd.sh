@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_core_exec_cmd+x}" ] && return 0
+_SH_LOADED_core_exec_cmd=1
+
 exec_cmd() {
     case "${1}" in
         (-e|--exit-on-fail) shift 1; die=yes ;;

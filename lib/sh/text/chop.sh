@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_chop+x}" ] && return 0
+_SH_LOADED_text_chop=1
+
 # Remove last character from a string
 # Retval as chop_stdout and chop_rc
 # TODO: retval 'chop_remainder'?

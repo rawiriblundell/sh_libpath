@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_net_probe+x}" ] && return 0
+_SH_LOADED_net_probe=1
+
 # A small function to test connectivity to a remote host's port.
 # Usage: probe-port [remote host] [port (default: 22)] [tcp/udp (default: tcp)]
 probe-port() {

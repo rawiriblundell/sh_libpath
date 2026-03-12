@@ -2,6 +2,9 @@
 # CC0 1.0 Universal
 # Provenance: https://raw.githubusercontent.com/bashup/realpaths/master/realpaths
 
+[ -n "${_SH_LOADED_utils_realpaths+x}" ] && return 0
+_SH_LOADED_utils_realpaths=1
+
 realpath.location(){ realpath.follow "$1"; realpath.absolute "$REPLY" ".."; }
 realpath.resolved(){ realpath.follow "$1"; realpath.absolute "$REPLY"; }
 realpath.dirname() { REPLY=.; ! [[ $1 =~ /+[^/]+/*$|^//$ ]] || REPLY="${1%${BASH_REMATCH[0]}}"; REPLY=${REPLY:-/}; }

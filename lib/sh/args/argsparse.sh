@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+[ -n "${_SH_LOADED_args_argsparse+x}" ] && return 0
+_SH_LOADED_args_argsparse=1
 # -*- tab-width: 4; encoding: utf-8; -*-
 #
 #########

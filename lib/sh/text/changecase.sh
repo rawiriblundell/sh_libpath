@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_changecase+x}" ] && return 0
+_SH_LOADED_text_changecase=1
+
 if (( BASH_VERSINFO >= 4 )); then
   tolower() {
     # If parameter is a file, or stdin is used, action that first

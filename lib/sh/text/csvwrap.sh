@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_csvwrap+x}" ] && return 0
+_SH_LOADED_text_csvwrap=1
+
 # Wrap long comma separated lists by element count (default: 8 elements)
 csvwrap() {
   local splitCount

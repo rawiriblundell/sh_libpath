@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_permissions+x}" ] && return 0
+_SH_LOADED_text_permissions=1
+
 get_permissions() {
     stat -c '%a %n' "${1:?No Target Defined}" 2>/dev/null || 
         stat -f "%OLp %N" "${1}" 2>/dev/null ||

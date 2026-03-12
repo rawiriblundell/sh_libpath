@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_sys_get_virtual_status+x}" ] && return 0
+_SH_LOADED_sys_get_virtual_status=1
+
 get-virtual-status() {
   if grep -q hypervisor /proc/cpuinfo; then
     printf '%s\n' "virtual"

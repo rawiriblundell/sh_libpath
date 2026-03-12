@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_chr+x}" ] && return 0
+_SH_LOADED_text_chr=1
+
 # Function to convert a decimal to an ascii character
 # See: https://www.ascii-code.com/
 chr() {

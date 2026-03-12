@@ -1,4 +1,7 @@
 # vim:et:ft=sh:sts=2:sw=2
+
+[ -n "${_SH_LOADED_args_shflags+x}" ] && return 0
+_SH_LOADED_args_shflags=1
 #
 # Copyright 2008-2020 Kate Ward. All Rights Reserved.
 # Released under the Apache License 2.0 license.

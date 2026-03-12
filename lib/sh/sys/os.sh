@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_sys_os+x}" ] && return 0
+_SH_LOADED_sys_os=1
+
 case $(uname -s) in
     ("AIX")
         OSSTR=aix

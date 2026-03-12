@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_array_shift+x}" ] && return 0
+_SH_LOADED_array_shift=1
+
 # array_shift <arr_name> [<n>]
 # From https://www.reddit.com/r/bash/comments/aj0xm0/quicktip_shifting_arrays/
 array_shift() {

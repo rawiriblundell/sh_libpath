@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_net_get_next_port+x}" ] && return 0
+_SH_LOADED_net_get_next_port=1
+
 # Get the next available local port for portforwarding
 # Usage: get_next_port [start port (9000)] [number of ports to scan (100)]
 get_next_port() {

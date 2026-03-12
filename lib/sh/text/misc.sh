@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_misc+x}" ] && return 0
+_SH_LOADED_text_misc=1
+
 # Convert comma separated list to long format e.g. id user | tr "," "\n"
 # See also n2c() and n2s() for the opposite behaviour
 c2n() {

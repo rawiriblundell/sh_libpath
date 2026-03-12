@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_net_ipv4_validate+x}" ] && return 0
+_SH_LOADED_net_ipv4_validate=1
+
 ipv4_validate_addr() {
   # Disable SC2086 for 'set -- ${*%/*}' as we require this to be word split
   # shellcheck disable=SC2086

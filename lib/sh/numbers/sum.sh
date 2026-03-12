@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_numbers_sum+x}" ] && return 0
+_SH_LOADED_numbers_sum=1
+
 # Add any number of integers together
 # There is a historical 'sum' program, it has long been superseded by now
 sum() {

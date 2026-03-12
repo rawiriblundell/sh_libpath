@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_numbers_round+x}" ] && return 0
+_SH_LOADED_numbers_round=1
+
 # Description: Round a given float to the nearest integer or fractional precision
 # Example: 'round 3.4445' => 3, 'round 3.4445 2' => 3.44
 

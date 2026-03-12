@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_wrap+x}" ] && return 0
+_SH_LOADED_text_wrap=1
+
 # Written for https://github.com/bash-my-aws/bash-my-aws/issues/216#issuecomment-1198807593
 # Convert long command to multi-line with vertically aligned continuation separators e.g.
 # aws s3api copy-object --copy-source "${example/release-$BUILD_NUMBER/index.html" --bucket "${DEPLOYMENT_BUCKET}" --key "search/" --content-type text/html --cache-control public,max-age=60,s-maxage=60 --metadata-directive REPLACE

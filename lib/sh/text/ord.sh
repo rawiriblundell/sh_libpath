@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_ord+x}" ] && return 0
+_SH_LOADED_text_ord=1
+
 # Convert ASCII char to a decimal
 # TODO: Validate input
 ord() {

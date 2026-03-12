@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_numbers_ldaptime_to_epoch+x}" ] && return 0
+_SH_LOADED_numbers_ldaptime_to_epoch=1
+
 # http://stackoverflow.com/questions/15770879/unix-timestamp-to-ldap-timestamp
 ldaptime_to_epoch() {
   local _ldap_timestamp _ldap_offset

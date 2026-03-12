@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_printline+x}" ] && return 0
+_SH_LOADED_text_printline=1
+
 # A function to print a specific line from a file
 # TO-DO: Update it to handle globs e.g. 'printline 4 *'
 printline() {

@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_carve+x}" ] && return 0
+_SH_LOADED_text_carve=1
+
 # TODO: Make this more robust, build in validation etc
 # This might wind up being a script in its own right rather than a function
 carve() {

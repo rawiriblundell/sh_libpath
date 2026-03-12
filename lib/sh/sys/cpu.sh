@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_sys_cpu+x}" ] && return 0
+_SH_LOADED_sys_cpu=1
+
 # Number of physical processors [int]
 # /sys and physical_package_id files proved to be unreliable, don't use those options
 get_cpu_slots() {

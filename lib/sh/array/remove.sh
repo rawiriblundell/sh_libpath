@@ -17,5 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_array_remove+x}" ] && return 0
+_SH_LOADED_array_remove=1
+
 #TODO
 # remove and reindex

@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_last+x}" ] && return 0
+_SH_LOADED_text_last=1
+
 # If you ain't first - you're last!
 
 # This function is the partner for 'first()' 

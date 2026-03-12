@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_sys_host2ip+x}" ] && return 0
+_SH_LOADED_sys_host2ip=1
+
 host2ip() {
   # If $1 is missing, print brief usage
   if [[ -n "$1" ]]; then

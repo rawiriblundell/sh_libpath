@@ -32,6 +32,9 @@
 
 # Provenance: https://raw.githubusercontent.com/mietek/bashmenot/master/src/platform.sh
 
+[ -n "${_SH_LOADED_sys_platform+x}" ] && return 0
+_SH_LOADED_sys_platform=1
+
 format_platform_description () {
 	case "$1" in
 	'freebsd-10.0-x86_64')		echo 'FreeBSD 10.0 (x86_64)';;

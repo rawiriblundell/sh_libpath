@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_array_insert+x}" ] && return 0
+_SH_LOADED_array_insert=1
+
 #TODO
 # Insert into element position and reindex
 array_insert() {

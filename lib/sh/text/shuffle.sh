@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_shuffle+x}" ] && return 0
+_SH_LOADED_text_shuffle=1
+
 # Randomise the characters within a string
 # This uses a Knuth-Fisher-Yates shuffle method... kinda.
 # Note: This does not produce cryptographically secure random strings!

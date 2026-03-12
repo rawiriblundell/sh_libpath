@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_sys_bios+x}" ] && return 0
+_SH_LOADED_sys_bios=1
+
 case "${OSSTR:-$(uname -s)}" in
   ([lL]inux)
     if iscommand dmidecode; then

@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_misc_strict+x}" ] && return 0
+_SH_LOADED_misc_strict=1
+
 ################################################################################
 # Please read CONTRIBUTING and research the Unofficial Strict Mode's flaws
 

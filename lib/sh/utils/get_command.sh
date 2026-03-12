@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_utils_get_command+x}" ] && return 0
+_SH_LOADED_utils_get_command=1
+
 # Functionalise 'command -v' to allow 'if get_command [command]' idiom
 get_command() {
   local errcount cmd

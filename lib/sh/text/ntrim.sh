@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_ntrim+x}" ] && return 0
+_SH_LOADED_text_ntrim=1
+
 # Strip whitespace from both left and right of a string
 # Additionally, compact down multiple spaces inside the string
 str_ntrim() {

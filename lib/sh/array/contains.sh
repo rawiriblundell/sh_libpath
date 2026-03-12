@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_array_contains+x}" ] && return 0
+_SH_LOADED_array_contains=1
+
 # Functions for testing if an array contains an element
 
 # Simply return 0 or return 1 (i.e. Boolean test)

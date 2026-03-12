@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_utils_stat_file+x}" ] && return 0
+_SH_LOADED_utils_stat_file=1
+
 stat_file() {
   case "${1}" in
     (atime)

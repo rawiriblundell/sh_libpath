@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_utils_rev+x}" ] && return 0
+_SH_LOADED_utils_rev=1
+
 # Check if 'rev' is available, if not, enable a stop-gap function
 if ! command -v rev >/dev/null 2>&1; then
   rev() {

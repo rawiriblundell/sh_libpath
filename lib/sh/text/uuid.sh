@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_uuid+x}" ] && return 0
+_SH_LOADED_text_uuid=1
+
 # RFC4122-style UUIDs
 # I just thought I'd take a brief moment for a shout-out. intl-spectrum.com had
 # a couple of great articles by Nathan Rector that I referenced for v1 and v4.

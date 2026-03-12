@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_color+x}" ] && return 0
+_SH_LOADED_text_color=1
+
 # Define an array of color numbers for the colors that are
 # hardest to see on either a black or white terminal background
 BLOCKED_COLORS=(0 1 7 9 11 {15..18} {154..161} {190..197} {226..235} {250..255})

@@ -11,6 +11,9 @@
 # Provenance: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#Unofficial_codes
 # SPDX-License-Identifier: CC-BY-SA-2.5, CC BY-SA-3.0
 
+[ -n "${_SH_LOADED_net_http_status_codes+x}" ] && return 0
+_SH_LOADED_net_http_status_codes=1
+
 explain_http_status_code() {
   local _code _http_status_code _http_status_description 
   case "${1}" in

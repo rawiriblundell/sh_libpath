@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_sys_get_terminal_size+x}" ] && return 0
+_SH_LOADED_sys_get_terminal_size=1
+
 get_terminal_size() {
   if [ "${#LINES}" -gt 0 ] && [ "${#COLUMNS}" -gt 0 ]; then
     printf '%d %d\n' "${LINES}" "${COLUMNS}"

@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_goodies_larson+x}" ] && return 0
+_SH_LOADED_goodies_larson=1
+
 # These functions setup a row of asterisks and then cycle through some text effects
 # This gives the 'look' of an animation of sorts - where each asterisk starts dim, 
 # then goes bright, then goes dim again, before moving on to its neighbour.

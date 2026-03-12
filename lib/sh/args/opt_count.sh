@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_args_opt_count+x}" ] && return 0
+_SH_LOADED_args_opt_count=1
+
 # Description: Test whether the number of given parameters is correct
 # Parameter 1: Desired number of parameters
 # Parameter 2: Actual number of parameters (usually "${#}")

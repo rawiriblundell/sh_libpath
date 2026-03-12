@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_helmet+x}" ] && return 0
+_SH_LOADED_text_helmet=1
+
 # This function does something tricky.  It slurps an input into an array.
 # It dumps the first n elements (default: 1) to stderr
 # It dumps everything after the first element to stdout

@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_utils_genphrase+x}" ] && return 0
+_SH_LOADED_utils_genphrase=1
+
 ################################################################################
 # genphrase passphrase generator
 ################################################################################

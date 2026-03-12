@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_greet+x}" ] && return 0
+_SH_LOADED_text_greet=1
+
 get_greeting() {
   local greet_moment
   if (( "${DayGreet:-$(date +%H)}" >= 18 )); then

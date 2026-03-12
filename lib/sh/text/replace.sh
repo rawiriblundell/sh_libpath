@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_replace+x}" ] && return 0
+_SH_LOADED_text_replace=1
+
 
 # Replace all instances of a match with a replacement
 # Usage: str_replace [string] [match] [replacement] [count (defaults to all)]

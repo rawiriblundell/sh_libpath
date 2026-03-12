@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_chomp+x}" ] && return 0
+_SH_LOADED_text_chomp=1
+
 # Remove trailing newlines from a string
 # Retval as chomp_stdout and chomp_rc
 str_chomp() {

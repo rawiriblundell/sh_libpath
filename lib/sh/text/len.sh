@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_len+x}" ] && return 0
+_SH_LOADED_text_len=1
+
 # Make getting a string length a bit more familiar
 # for practitioners of other languages
 str_len() {

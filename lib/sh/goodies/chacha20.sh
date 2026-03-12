@@ -1,5 +1,8 @@
 #!/bin/bash
 # SPDX-License-Identifier: MIT
+
+[ -n "${_SH_LOADED_goodies_chacha20+x}" ] && return 0
+_SH_LOADED_goodies_chacha20=1
 # Copyright (C) 2020 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
 
 

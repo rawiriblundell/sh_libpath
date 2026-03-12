@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_sys_brew+x}" ] && return 0
+_SH_LOADED_sys_brew=1
+
 brew_is_installed() {
   local failcount
   failcount=0

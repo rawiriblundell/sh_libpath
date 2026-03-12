@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_append+x}" ] && return 0
+_SH_LOADED_text_append=1
+
 # Append one string to another, export as $append_stdout
 # Optionally define a delimiter using '-d|--delimiter'
 # e.g.

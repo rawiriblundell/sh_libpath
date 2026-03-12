@@ -32,6 +32,9 @@
 
 # Provenance: https://raw.githubusercontent.com/mietek/bashmenot/master/src/file.sh
 
+[ -n "${_SH_LOADED_utils_file+x}" ] && return 0
+_SH_LOADED_utils_file=1
+
 get_tmp_file () {
 	local base
 	expect_args base -- "$@"

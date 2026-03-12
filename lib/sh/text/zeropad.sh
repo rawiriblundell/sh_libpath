@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_zeropad+x}" ] && return 0
+_SH_LOADED_text_zeropad=1
+
 zeropad_right() {
   int="${1:?No number provided}"
   len="${2:-3}"

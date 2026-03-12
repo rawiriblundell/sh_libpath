@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_numbers_int+x}" ] && return 0
+_SH_LOADED_numbers_int=1
+
 # TO-DO: differentiate this from trunc() by performing conversions
 # e.g. scientific notation to integers
 # Additionally, handle base (default 10)

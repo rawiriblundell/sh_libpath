@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_net_cidr+x}" ] && return 0
+_SH_LOADED_net_cidr=1
+
 cidr_prefix_to_mask() {
   local _subnet_mask
   case "${1}" in

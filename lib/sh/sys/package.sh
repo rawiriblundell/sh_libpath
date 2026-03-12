@@ -32,6 +32,9 @@
 
 # Provenance: https://raw.githubusercontent.com/mietek/bashmenot/master/src/package.sh
 
+[ -n "${_SH_LOADED_sys_package+x}" ] && return 0
+_SH_LOADED_sys_package=1
+
 fix_broken_links () {
 	local dst_dir
 	expect_args dst_dir -- "$@"

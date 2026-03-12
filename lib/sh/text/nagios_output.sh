@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_nagios_output+x}" ] && return 0
+_SH_LOADED_text_nagios_output=1
+
 # Setup our standardised output style functions
 # If no performance data is detected (var=value), then default to '-'
 printOut() {

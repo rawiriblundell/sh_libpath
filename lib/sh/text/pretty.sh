@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_pretty+x}" ] && return 0
+_SH_LOADED_text_pretty=1
+
 # Source: https://gist.github.com/hypergig/ea6a60469ab4075b2310b56fa27bae55
 # Define an array of color numbers for the colors that are hardest to see on
 # either a black or white terminal background

@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_misc_brew_use_gnu_coreutils+x}" ] && return 0
+_SH_LOADED_misc_brew_use_gnu_coreutils=1
+
 case "$(uname -s)" in
   (darwin)
     command -v brew >/dev/null 2>&1 || return 1

@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_text_prepend+x}" ] && return 0
+_SH_LOADED_text_prepend=1
+
 # Prepend one string to another, export as $prepend_stdout
 # Optionally define a delimiter using '-d|--delimiter'
 # e.g.

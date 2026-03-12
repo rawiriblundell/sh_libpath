@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_core_logging+x}" ] && return 0
+_SH_LOADED_core_logging=1
+
 log_info() {
  :
 }

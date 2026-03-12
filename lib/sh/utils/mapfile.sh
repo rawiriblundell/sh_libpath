@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_utils_mapfile+x}" ] && return 0
+_SH_LOADED_utils_mapfile=1
+
 # A portability function for older systems that don't have the mapfile builtin
 if ! command -v mapfile >/dev/null 2>&1; then
   mapfile() {

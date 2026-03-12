@@ -17,6 +17,9 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_utils_dos2unix+x}" ] && return 0
+_SH_LOADED_utils_dos2unix=1
+
 # Basic step-in function for systems that don't have dos2unix
 # This simply removes dos line endings using 'tr'
 if ! command -v dos2unix >/dev/null 2>&1; then

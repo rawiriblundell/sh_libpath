@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_numbers_range+x}" ] && return 0
+_SH_LOADED_numbers_range=1
+
 # If 'seq' is available, we simply map to it
 # Note:
 # Unlike 'seq', 'range' defaults to a 0 start rather than a 1 start

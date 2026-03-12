@@ -17,6 +17,9 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
+[ -n "${_SH_LOADED_numbers_floor+x}" ] && return 0
+_SH_LOADED_numbers_floor=1
+
 # Description: Round a given float downwards to the nearest full integer
 # Example: 'floor 3.7' => 3
 
