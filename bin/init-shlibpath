@@ -15,7 +15,24 @@
 # limitations under the License.
 ################################################################################
 
-# TODO: Test if SH_LIBPATH is already set
+# Ensure that this file is sourced, not executed, and bail out if already loaded
+# See: https://stackoverflow.com/a/28776166
+[ -n "${SH_LIBPATH_LOADED+x}" ] && return 0
+SH_LIBPATH_LOADED=0
+if [ -n "${ZSH_VERSION}" ]; then
+  case "${ZSH_EVAL_CONTEXT}" in (*:file) SH_LIBPATH_LOADED=1 ;; esac
+elif [ -n "${KSH_VERSION}" ]; then
+  [ "$(cd -- "$(dirname -- "$0")" && pwd -P)/$(basename -- "$0")" != "$(cd -- "$(dirname -- "${.sh.file}")" && pwd -P)/$(basename -- "${.sh.file}")" ] && SH_LIBPATH_LOADED=1
+elif [ -n "${BASH_VERSION}" ]; then
+  (return 0 2>/dev/null) && SH_LIBPATH_LOADED=1
+else
+  case "${0##*/}" in (sh|-sh|dash|-dash) SH_LIBPATH_LOADED=1 ;; esac
+fi
+
+if [ "${SH_LIBPATH_LOADED}" -eq 0 ]; then
+  printf -- '%s\n' "Error: init-shlibpath must be sourced, not executed" >&2
+  exit 1
+fi
 
 # TODO: Linux: Test if SH_LIBPATH is defined in /etc/profile.d/00_SH_LIBPATH
 
