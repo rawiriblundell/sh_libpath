@@ -62,7 +62,7 @@ linenoise() {
 
 # Because we're always returning to the saved location, it will appear as if each character is overwriting the previous one in place, giving a cycling effect.  Ultimately, you'll get an output that looks like:
 
-#     ▓▒░$ connectssh remotepants
+#     $ connectssh remotepants
 #     Connecting to remotepants, using additional hashing: CcJjeTt+KkEeWwpeJj9Y
 #     (connectssh) FATAL ERROR: remotepants unreachable!
 

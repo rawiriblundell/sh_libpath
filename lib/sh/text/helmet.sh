@@ -25,10 +25,10 @@
 
 # Example:
 #
-#     ▓▒░$ df -hP | helmet | grep shm
+#     $ df -hP | helmet | grep shm
 #     Filesystem      Size  Used Avail Use% Mounted on
 #     tmpfs           7.4G  1.2G  6.3G  16% /dev/shm
-#     ▓▒░$ df -hP | helmet 2 | grep shm
+#     $ df -hP | helmet 2 | grep shm
 #     Filesystem      Size  Used Avail Use% Mounted on
 #     udev            7.3G     0  7.3G   0% /dev
 #     tmpfs           7.4G  1.2G  6.3G  16% /dev/shm

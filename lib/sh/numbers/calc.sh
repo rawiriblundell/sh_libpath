@@ -20,25 +20,25 @@
 # A stupidly simple wrapper for 'bc'
 # Requires its inputs to be quoted or put into a variable
 
-# ▓▒░$ calc "4.2 + 2.6"
+# $ calc "4.2 + 2.6"
 # 6.8
-# ▓▒░$ calc "(4.2 + 2.6) - 3.5"
+# $ calc "(4.2 + 2.6) - 3.5"
 # 3.3
 
 # Unquoted = the shell tries to interpret it and fails:
 
-# ▓▒░$ calc (4.2 + 2.6) - 3.5
+# $ calc (4.2 + 2.6) - 3.5
 # bash: syntax error near unexpected token `4.2'
 
 # Hide it away in a var though:
 
-# ▓▒░$ calc="(4.2 + 2.6) - 3.5"
-# ▓▒░$ calc "${calc}"
+# $ calc="(4.2 + 2.6) - 3.5"
+# $ calc "${calc}"
 # 3.3
 
 # Even an unquoted var, a practice normally to be frowned on:
 
-# ▓▒░$ calc ${calc}
+# $ calc ${calc}
 # 3.3
 
 calc() { bc -l <<< "${*:?No input supplied}"; }

@@ -68,7 +68,7 @@ get_sourceforge() {
 
 # Demoed on my Macbook, first we leave it to figure out for itself what to default to, it correctly detects that I'm on a Mac and pulls that:
 
-#     ▓▒░$ get_sourceforge omegat
+#     $ get_sourceforge omegat
 #     Attempting to fetch https://netactuate.dl.sourceforge.net/project/omegat/OmegaT%20-%20Standard/OmegaT%204.3.2/OmegaT_4.3.2_Mac_Notarized.zip...
 #       % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
 #                                      Dload  Upload   Total   Spent    Left  Speed
@@ -76,7 +76,7 @@ get_sourceforge() {
 
 # Next, I want to override the default and try for a linux installer, that seems to work too:
 
-#     ▓▒░$ get_sourceforge omegat linux
+#     $ get_sourceforge omegat linux
 #     Attempting to fetch https://newcontinuum.dl.sourceforge.net/project/omegat/OmegaT%20-%20Standard/OmegaT%204.3.2/OmegaT_4.3.2_Linux.tar.bz2...
 #       % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
 #                                      Dload  Upload   Total   Spent    Left  Speed

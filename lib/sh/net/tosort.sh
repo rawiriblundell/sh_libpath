@@ -50,7 +50,7 @@ It doesn't work because it's redirecting.  If you set yourself up with a functio
 
 In practice you'll get something that looks like this:
 
-    ▓▒░$ software::fetch "https://go.microsoft.com/fwlink/?LinkID=121721&arch=x64"
+   $ software::fetch "https://go.microsoft.com/fwlink/?LinkID=121721&arch=x64"
     Attempting to fetch https://definitionupdates.microsoft.com/download/DefinitionUpdates/VersionedSignatures/AM/1.329.689.0/amd64/mpam-fe.exe...
       % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
                                      Dload  Upload   Total   Spent    Left  Speed
