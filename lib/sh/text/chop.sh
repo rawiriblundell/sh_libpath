@@ -20,20 +20,25 @@
 [ -n "${_SH_LOADED_text_chop+x}" ] && return 0
 _SH_LOADED_text_chop=1
 
-# Remove last character from a string
-# Retval as chop_stdout and chop_rc
-# TODO: retval 'chop_remainder'?
+# Remove the last n characters from a string.
+# Defaults to removing 1 character (Perl chop semantics).
+# Usage: str_chop [-n count] string
+# Example:
+#     $ str_chop "hello,"
+#     hello
+#     $ str_chop -n 3 "hello..."
+#     hello
 str_chop() {
-  chop_stdout="${*}"
-  chop_stdout="${chop_stdout%?}"
-  chop_rc="${?}"
-  export chop_stdout chop_rc
+  local _n _input
+  _n=1
+  case "${1}" in
+    (-n) _n="${2:?str_chop -n requires a count}"; shift 2 ;;
+  esac
+  _input="${*}"
+  printf -- '%s\n' "${_input:0:$(( ${#_input} - _n ))}"
 }
 
-# Remove last character from a string
+# Convenience alias
 chop() {
-  local _chop_stdout
-  _chop_stdout="${*}"
-  _chop_stdout="${_chop_stdout%?}"
-  printf -- '%s\n' "${_chop_stdout%?}"
+  str_chop "${@}"
 }
