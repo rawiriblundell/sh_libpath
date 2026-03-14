@@ -35,40 +35,40 @@ log_warn() {
 # A function to log messages to the system log
 # http://hacking.elboulangero.com/2015/12/06/bash-logging.html may be useful
 logmsg() {
-  local optFlags logIdent printFmt stdOutArg OPTIND
-  unset optFlags logIdent printFmt stdOutArg OPTIND
-  while getopts ":t:s" optFlags; do
-    case "${optFlags}" in
-      (s)   stdOutArg='-s' ;;
-      (t)   logIdent="-t ${OPTARG}" ;;
-      (\?|:|*)  
+  local opt_flags log_ident print_fmt std_out_arg OPTIND
+  unset opt_flags log_ident print_fmt std_out_arg OPTIND
+  while getopts ":t:s" opt_flags; do
+    case "${opt_flags}" in
+      (s)   std_out_arg='-s' ;;
+      (t)   log_ident="-t ${OPTARG}" ;;
+      (\?|:|*)
         printf -- '%s\n' "Usage: logmsg [-s(tdout) -t tag] message" >&2
         return 1
       ;;
     esac
   done
   shift "$(( OPTIND - 1 ))"
-  case "${logIdent}" in
-    ('')  printFmt="$(date '+%b %d %T') ${HOSTNAME%%.*}:" ;;
-    (*)   printFmt="$(date '+%b %d %T') ${HOSTNAME%%.*} ${logIdent/-t /}:" ;;
+  case "${log_ident}" in
+    ('')  print_fmt="$(date '+%b %d %T') ${HOSTNAME%%.*}:" ;;
+    (*)   print_fmt="$(date '+%b %d %T') ${HOSTNAME%%.*} ${log_ident/-t /}:" ;;
   esac
   if command -v systemd-cat >/dev/null 2>&1; then
-    [[ "${stdOutArg}" = "-s" ]] && printf -- '%s\n' "${printFmt} ${*}"
-    case "${logIdent}" in
+    [[ "${std_out_arg}" = "-s" ]] && printf -- '%s\n' "${print_fmt} ${*}"
+    case "${log_ident}" in
       ('') systemd-cat <<< "${*}" ;;
-      (*)  systemd-cat "${logIdent}" <<< "${*}" ;;
+      (*)  systemd-cat "${log_ident}" <<< "${*}" ;;
     esac
   elif command -v logger >/dev/null 2>&1; then
-    [[ "${stdOutArg}" = "-s" ]] && printf -- '%s\n' "${printFmt} ${*}"
-    logger "${logIdent}" "${*}"
+    [[ "${std_out_arg}" = "-s" ]] && printf -- '%s\n' "${print_fmt} ${*}"
+    logger "${log_ident}" "${*}"
   else
     [[ -w /var/log/messages ]] && logFile=/var/log/messages
     [[ -z "${logFile}" && -w /var/log/syslog ]] && logFile=/var/log/syslog
     [[ -z "${logFile}" ]] && logFile=/var/log/logmsg
-    if [[ "${stdOutArg}" = "-s" ]]; then
-      printf -- '%s\n' "${printFmt} ${*}" | tee -a "${logFile}" 2>&1
+    if [[ "${std_out_arg}" = "-s" ]]; then
+      printf -- '%s\n' "${print_fmt} ${*}" | tee -a "${logFile}" 2>&1
     else
-      printf -- '%s\n' "${printFmt} ${*}" >> "${logFile}" 2>&1
+      printf -- '%s\n' "${print_fmt} ${*}" >> "${logFile}" 2>&1
     fi
-  fi  
+  fi
 }

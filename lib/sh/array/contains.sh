@@ -60,20 +60,20 @@ array_index() (
 # Usage: getArrayIndex keyword array
 # e.g. getArrayIndex needle "${haystack[@]}"
 getArrayIndex() {
-  local searchString="$1"
+  local search_string="$1"
   shift
-  local tempArray=( "$@" )
+  local temp_array=( "$@" )
   # This is how you'd do it with bash-3+
-  #for index in "${!tempArray[@]}"; do
-  #  if [[ "${tempArray[index]}" = "${searchString}" ]]; then
-  #    do_something_with "${tempArray[@]:$(( index + 1 ))}"
+  #for index in "${!temp_array[@]}"; do
+  #  if [[ "${temp_array[index]}" = "${search_string}" ]]; then
+  #    do_something_with "${temp_array[@]:$(( index + 1 ))}"
   #  fi
   #done
   # Here's how we do it more portably by iterating through the array
   # This tests each element one-by-one against the keyword,
   # and prints and then breaks if a match is found
-  for (( index=0; index<"${#tempArray[@]}"; index++ )); do
-    if [[ "${tempArray[index]}" = "${searchString}" ]]; then
+  for (( index=0; index<"${#temp_array[@]}"; index++ )); do
+    if [[ "${temp_array[index]}" = "${search_string}" ]]; then
       printf '%s\n' "${index}"
       return 0
     fi

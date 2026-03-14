@@ -46,12 +46,12 @@ is-azure() {
 # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/identify_ec2_instances.html
 # TODO: Update for IMDSv2
 is-aws() {
-  local docUrl="http://169.254.169.254/latest/dynamic/instance-identity/document"
+  local doc_url="http://169.254.169.254/latest/dynamic/instance-identity/document"
   if grep -q "^ec2" /sys/hypervisor/uuid 2>/dev/null; then
     return 0
   elif grep -q "^EC2" /sys/devices/virtual/dmi/id/product_uuid 2>/dev/null; then
     return 0
-  elif curl -s -m 5 "${docUrl}" | grep -q availabilityZone; then
+  elif curl -s -m 5 "${doc_url}" | grep -q availabilityZone; then
     return 0
   else
     return 1
@@ -59,44 +59,44 @@ is-aws() {
 }
 
 if iscommand virt-what; then
-  sysType=$(virt-what 2>/dev/null | head -n 1)
+  sys_type=$(virt-what 2>/dev/null | head -n 1)
 fi
 
 # Function to parse the output of various commands
 # Attempts to figure out the virtualisation type, if any
 Fn_getVirt() {
-  local sysType
+  local sys_type
   if nullgrep -Ei "virtualbox|vbox"; then
-    sysType="virtualbox"
+    sys_type="virtualbox"
   elif nullgrep -i "vmware"; then
-    sysType="VMware"
+    sys_type="VMware"
   elif nullgrep -i "hvm.*domu"; then
-    sysType="Xen"
+    sys_type="Xen"
   elif nullgrep -Ei "rhev|ovirt"; then
-    sysType="kvm"
+    sys_type="kvm"
   elif nullgrep -i "qemu"; then
-    sysType="qemu"
+    sys_type="qemu"
   elif nullgrep hypervisor /proc/cpuinfo; then
-    sysType="Unknown virtual"
+    sys_type="Unknown virtual"
   fi
-  printf -- '%s\n' "${sysType}"
+  printf -- '%s\n' "${sys_type}"
 }
 
 # If virt-what doesn't exist or doesn't return anything, try the following
-if [[ -z "${sysType}" ]]; then
+if [[ -z "${sys_type}" ]]; then
   if nullgrep -E '^flags.*svm|^flags.*vmx' /proc/cpuinfo; then
-    sysType=Physical
+    sys_type=Physical
   elif iscommand facter; then
-    sysType=$(facter virtual  2>/dev/null)
+    sys_type=$(facter virtual  2>/dev/null)
   elif iscommand pciconf; then
-    sysType=$(pciconf -lv 2>/dev/null | Fn_getVirt)
+    sys_type=$(pciconf -lv 2>/dev/null | Fn_getVirt)
   elif iscommand dmidecode; then
-    sysType=$(dmidecode 2>/dev/null | Fn_getVirt)
+    sys_type=$(dmidecode 2>/dev/null | Fn_getVirt)
   elif iscommand lspci; then
-    sysType=$(lspci -v 2>/dev/null | Fn_getVirt)
+    sys_type=$(lspci -v 2>/dev/null | Fn_getVirt)
   elif [[ -d /dev/disk/by-id ]]; then
-    sysType=$(find /dev/disk/by-id | Fn_getVirt)
+    sys_type=$(find /dev/disk/by-id | Fn_getVirt)
   else
-    sysType=other
+    sys_type=other
   fi
 fi

@@ -22,7 +22,7 @@ _SH_LOADED_text_csvwrap=1
 
 # Wrap long comma separated lists by element count (default: 8 elements)
 csvwrap() {
-  local splitCount
-  export splitCount="${1:-8}"
-  perl -pe 's{,}{++$n % $ENV{splitCount} ? $& : ",\\\n"}ge'
+  local split_count
+  export split_count="${1:-8}"
+  perl -pe 's{,}{++$n % $ENV{split_count} ? $& : ",\\\n"}ge'
 }

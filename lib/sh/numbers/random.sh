@@ -35,14 +35,14 @@ random_seed() {
     # Portable workaround based on http://www.etalabs.net/sh_tricks.html
     # We take extra steps to try to prevent accidental octal interpretation
     else
-        secsVar=$(TZ=GMT0 date +%S)
-        minsVar=$(TZ=GMT0 date +%M)
-        hourVar=$(TZ=GMT0 date +%H)
-        dayVar=$(TZ=GMT0 date +%j | sed 's/^0*//')
-        yrOffset=$(( $(TZ=GMT0 date +%Y) - 1600 ))
-        yearVar=$(( (yrOffset * 365 + yrOffset / 4 - yrOffset / 100 + yrOffset / 400 + dayVar - 135140) * 86400 ))
+        secs_var=$(TZ=GMT0 date +%S)
+        mins_var=$(TZ=GMT0 date +%M)
+        hour_var=$(TZ=GMT0 date +%H)
+        day_var=$(TZ=GMT0 date +%j | sed 's/^0*//')
+        yr_offset=$(( $(TZ=GMT0 date +%Y) - 1600 ))
+        year_var=$(( (yr_offset * 365 + yr_offset / 4 - yr_offset / 100 + yr_offset / 400 + day_var - 135140) * 86400 ))
 
-        printf -- '%s\n' "$(( yearVar + (${hourVar#0} * 3600) + (${minsVar#0} * 60) + ${secsVar#0} ))"
+        printf -- '%s\n' "$(( year_var + (${hour_var#0} * 3600) + (${mins_var#0} * 60) + ${secs_var#0} ))"
     fi
 }
 
@@ -50,65 +50,65 @@ random_seed() {
 # See: https://rosettacode.org/wiki/Linear_congruential_generator
 # Usage: lcgrng (optional: number count, default:1) (optional: seed, default: epoch in seconds)
 random_lcg() {
-    rnCount="${1:-1}"
-    rnSeed="${2:-$(random_seed)}"
+    rn_count="${1:-1}"
+    rn_seed="${2:-$(random_seed)}"
 
     # Here's an unnecessary nod to FreeBSD's rand.c
-    if [ "${rnSeed}" = 0 ]; then
-        rnSeed=123459876
+    if [ "${rn_seed}" = 0 ]; then
+        rn_seed=123459876
     fi
 
-    while [ "${rnCount}" -gt 0 ]; do
+    while [ "${rn_count}" -gt 0 ]; do
         # BSD style modulus'ed against 2^31
-        rnSeed=$(( (1103515245 * rnSeed + 12345) % 2147483648 ))
+        rn_seed=$(( (1103515245 * rn_seed + 12345) % 2147483648 ))
 
         # Microsoft style
-        #rnSeed=$(( (214013 * rnSeed + 2531011) % 2147483648 ))
+        #rn_seed=$(( (214013 * rn_seed + 2531011) % 2147483648 ))
 
         # print the generated number as an unsigned int (i.e. positive decimal)
         # Divided by 2^16
-        printf -- "%u\n" "$(( rnSeed / 65536 ))"
+        printf -- "%u\n" "$(( rn_seed / 65536 ))"
 
         # Decrement the counter
-        rnCount=$(( rnCount - 1 ))
+        rn_count=$(( rn_count - 1 ))
     done
 }
 
 random_xorshift128plus() {
-    nCount="${1:-1}"
-    nMin="${2:-1}"
+    n_count="${1:-1}"
+    n_min="${2:-1}"
     seed0=4          # RFC 1149.5
     seed1="${4:-$(random_Seed)}"
 
-    # Figure out our default maxRand, using 'getconf'
+    # Figure out our default max_rand, using 'getconf'
     case "$(getconf LONG_BIT 2>/dev/null)" in
         (64)
             # 2^63-1
-            maxRand=9223372036854775807
+            max_rand=9223372036854775807
         ;;
         (32)
             # 2^31-1
-            maxRand=2147483647
+            max_rand=2147483647
         ;;
         (*)
             # 2^15-1
-            maxRand=32767
+            max_rand=32767
         ;;
     esac
 
-    nMax="${3:-maxRand}"
+    n_max="${3:-max_rand}"
 
-    nRange=$(( nMax - nMin + 1 ))
+    nRange=$(( n_max - n_min + 1 ))
 
     int0="${seed0}"
     int1="${seed1}"
-    while (( nCount > 0 )); do
+    while (( n_count > 0 )); do
         # This is required for modulo de-biasing
         # We figure out the number of problematic integers to skip
         # in order to bring modulo back into uniform alignment
         # This is significantly faster than naive rejection sampling
-        #skipInts=$(( ((maxRand % nMax) + 1) % nMax ))
-        skipInts=$(( (maxRand - nRange) % nRange ))
+        #skip_ints=$(( ((max_rand % n_max) + 1) % n_max ))
+        skip_ints=$(( (max_rand - nRange) % nRange ))
 
         # xorshift128+ with preselected triples
         int1=$(( int1 ^ int1 << 23 ))
@@ -119,10 +119,10 @@ random_xorshift128plus() {
         
         # If our generated int is larger than the number of problematic ints
         # Then we can modulo it safely, otherwise drop it and generate again
-        if (( (seed0 + seed1) > skipInts )); then
-            #printf '%u\n' "$(( ((seed0 + seed1) % nMax) + 1 ))"
-            printf -- '%u\n' "$(( ((seed0 + seed1) % nRange) + nMin))"
-            nCount=$(( nCount - 1 ))
+        if (( (seed0 + seed1) > skip_ints )); then
+            #printf '%u\n' "$(( ((seed0 + seed1) % n_max) + 1 ))"
+            printf -- '%u\n' "$(( ((seed0 + seed1) % nRange) + n_min))"
+            n_count=$(( n_count - 1 ))
         fi
     
     done 
@@ -130,22 +130,22 @@ random_xorshift128plus() {
 
 # Get a number of random integers using $RANDOM with debiased modulo
 randInt() {
-  local nCount nMin nMax nMod randThres i xInt
-  nCount="${1:-1}"
-  nMin="${2:-1}"
-  nMax="${3:-32767}"
-  nMod=$(( nMax - nMin + 1 ))
-  if (( nMod == 0 )); then return 3; fi
+  local n_count n_min n_max n_mod rand_thres i x_int
+  n_count="${1:-1}"
+  n_min="${2:-1}"
+  n_max="${3:-32767}"
+  n_mod=$(( n_max - n_min + 1 ))
+  if (( n_mod == 0 )); then return 3; fi
   # De-bias the modulo as best as possible
-  randThres=$(( -(32768 - nMod) % nMod ))
-  if (( randThres < 0 )); then
-    (( randThres = randThres * -1 ))
+  rand_thres=$(( -(32768 - n_mod) % n_mod ))
+  if (( rand_thres < 0 )); then
+    (( rand_thres = rand_thres * -1 ))
   fi
   i=0
-  while (( i < nCount )); do
-    xInt="${RANDOM}"
-    if (( xInt > ${randThres:-0} )); then
-      printf -- '%d\n' "$(( xInt % nMod + nMin ))"
+  while (( i < n_count )); do
+    x_int="${RANDOM}"
+    if (( x_int > ${rand_thres:-0} )); then
+      printf -- '%d\n' "$(( x_int % n_mod + n_min ))"
       (( i++ ))
     fi
   done

@@ -30,23 +30,23 @@ _SH_LOADED_utils_genpasswd=1
 genpasswd() {
   export LC_CTYPE=C
   # localise variables for safety
-  local OPTIND pwdChars pwdDigit pwdNum pwdSet pwdKoremutake pwdUpper \
-    pwdSpecial pwdSpecialChars pwdSyllables n t u v tmpArray
+  local OPTIND pwd_chars pwd_digit pwd_num pwd_set pwd_koremutake pwd_upper \
+    pwd_special pwd_special_chars pwd_syllables n t u v tmpArray
 
   # Default the vars
-  pwdChars=10
-  pwdDigit="false"
-  pwdNum=1
-  pwdSet="[:alnum:]"
-  pwdKoremutake="false"
-  pwdUpper="false"
-  pwdSpecial="false"
+  pwd_chars=10
+  pwd_digit="false"
+  pwd_num=1
+  pwd_set="[:alnum:]"
+  pwd_koremutake="false"
+  pwd_upper="false"
+  pwd_special="false"
   # shellcheck disable=SC1001
-  pwdSpecialChars=(\! \@ \# \$ \% \^ \( \) \_ \+ \? \> \< \~)
+  pwd_special_chars=(\! \@ \# \$ \% \^ \( \) \_ \+ \? \> \< \~)
 
   # Filtered koremutake syllables
   # http:#shorl.com/koremutake.php
-  pwdSyllables=( ba be bi bo bu by da de di 'do' du dy fe 'fi' fo fu fy ga ge \
+  pwd_syllables=( ba be bi bo bu by da de di 'do' du dy fe 'fi' fo fu fy ga ge \
     gi go gu gy ha he hi ho hu hy ja je ji jo ju jy ka ke ko ku ky la le li \
     lo lu ly ma me mi mo mu my na ne ni no nu ny pa pe pi po pu py ra re ri \
     ro ru ry sa se si so su sy ta te ti to tu ty va ve vi vo vu vy bra bre \
@@ -60,17 +60,17 @@ genpasswd() {
 
   while getopts ":c:DhKn:SsUY" Flags; do
     case "${Flags}" in
-      (c)  pwdChars="${OPTARG}";;
-      (D)  pwdDigit="true";;
+      (c)  pwd_chars="${OPTARG}";;
+      (D)  pwd_digit="true";;
       (h)  printf -- '%s\n' "" "genpasswd - a poor sysadmin's pwgen" \
              "" "Usage: genpasswd [options]" "" \
              "Optional arguments:" \
-             "-c [Number of characters. Minimum is 4. (Default:${pwdChars})]" \
+             "-c [Number of characters. Minimum is 4. (Default:${pwd_chars})]" \
              "-D [Require at least one digit (Default:off)]" \
              "-h [Help]" \
              "-K [Koremutake mode.  Uses syllables rather than characters, meaning more phonetical pwds." \
              "    Note: In this mode, character counts = syllable count and different defaults are used]" \
-             "-n [Number of passwords (Default:${pwdNum})]" \
+             "-n [Number of passwords (Default:${pwd_num})]" \
              "-s [Strong mode, seeds a limited amount of special characters into the mix (Default:off)]" \
              "-S [Stronger mode, complete mix of characters (Default:off)]" \
              "-U [Require at least one uppercase character (Default:off)]" \
@@ -78,14 +78,14 @@ genpasswd() {
              "" "Note1: Broken Pipe errors, (older bash versions) can be ignored" \
              "Note2: If you get umlauts, cyrillic etc, export LC_ALL= to something like en_US.UTF-8"
            return 0;;
-      (K)  pwdKoremutake="true";;
-      (n)  pwdNum="${OPTARG}";;
+      (K)  pwd_koremutake="true";;
+      (n)  pwd_num="${OPTARG}";;
       # Attempted to randomise special chars using 7 random chars from [:punct:] but reliably
       # got "reverse collating sequence order" errors.  Seeded 9 special chars manually instead.
-      (s)  pwdSet="[:alnum:]#$&+/<}^%@";;
-      (S)  pwdSet="[:graph:]";;
-      (U)  pwdUpper="true";;
-      (Y)  pwdSpecial="true";;
+      (s)  pwd_set="[:alnum:]#$&+/<}^%@";;
+      (S)  pwd_set="[:graph:]";;
+      (U)  pwd_upper="true";;
+      (Y)  pwd_special="true";;
       (\?)  printf -- '%s\n' "[ERROR] genpasswd: Invalid option: $OPTARG.  Try 'genpasswd -h' for usage." >&2
             return 1;;
       (:)  echo "[ERROR] genpasswd: Option '-$OPTARG' requires an argument, e.g. '-$OPTARG 5'." >&2
@@ -95,53 +95,53 @@ genpasswd() {
 
   # We need to check that the character length is more than 4 to protect against
   # infinite loops caused by the character checks.  i.e. 4 character checks on a 3 character password
-  if (( pwdChars < 4 )); then
+  if (( pwd_chars < 4 )); then
     printf -- '%s\n' "[ERROR] genpasswd: Password length must be greater than four characters." >&2
     return 1
   fi
 
-  if [[ "${pwdKoremutake}" = "true" ]]; then
-    for (( i=0; i<pwdNum; i++ )); do
+  if [[ "${pwd_koremutake}" = "true" ]]; then
+    for (( i=0; i<pwd_num; i++ )); do
       n=0
-      for int in $(randInt "${pwdChars:-7}" 1 $(( ${#pwdSyllables[@]} - 1 )) ); do
-        tmpArray[n]=$(printf -- '%s\n' "${pwdSyllables[int]}")
+      for int in $(randInt "${pwd_chars:-7}" 1 $(( ${#pwd_syllables[@]} - 1 )) ); do
+        tmpArray[n]=$(printf -- '%s\n' "${pwd_syllables[int]}")
         (( n++ ))
       done
       read -r t u v < <(randInt 3 0 $(( ${#tmpArray[@]} - 1 )) | paste -s -)
       #pwdLower is effectively guaranteed, so we skip it and focus on the others
-      if [[ "${pwdUpper}" = "true" ]]; then
+      if [[ "${pwd_upper}" = "true" ]]; then
         tmpArray[t]=$(capitalise "${tmpArray[t]}")
       fi
-      if [[ "${pwdDigit}" = "true" ]]; then
+      if [[ "${pwd_digit}" = "true" ]]; then
         while (( u == t )); do
           u="$(randInt 1 0 $(( ${#tmpArray[@]} - 1 )) )"
         done
         tmpArray[u]="$(randInt 1 0 9)"
       fi
-      if [[ "${pwdSpecial}" = "true" ]]; then
+      if [[ "${pwd_special}" = "true" ]]; then
         while (( v == t )); do
           v="$(randInt 1 0 $(( ${#tmpArray[@]} - 1 )) )"
         done
-        randSpecial=$(randInt 1 0 $(( ${#pwdSpecialChars[@]} - 1 )) )
-        tmpArray[v]="${pwdSpecialChars[randSpecial]}"
+        rand_special=$(randInt 1 0 $(( ${#pwd_special_chars[@]} - 1 )) )
+        tmpArray[v]="${pwd_special_chars[rand_special]}"
       fi
       printf -- '%s\n' "${tmpArray[@]}" | paste -sd '\0' -
     done
   else
-    for (( i=0; i<pwdNum; i++ )); do
+    for (( i=0; i<pwd_num; i++ )); do
       n=0
       while read -r; do
         tmpArray[n]="${REPLY}"
         (( n++ ))
-      done < <(tr -dc "${pwdSet}" < /dev/urandom | tr -d ' ' | fold -w 1 | head -n "${pwdChars}")
+      done < <(tr -dc "${pwd_set}" < /dev/urandom | tr -d ' ' | fold -w 1 | head -n "${pwd_chars}")
       read -r t u v < <(randInt 3 0 $(( ${#tmpArray[@]} - 1 )) | paste -s -)
       #pwdLower is effectively guaranteed, so we skip it and focus on the others
-      if [[ "${pwdUpper}" = "true" ]]; then
+      if [[ "${pwd_upper}" = "true" ]]; then
         if ! printf -- '%s\n' "tmpArray[@]}" | grep "[A-Z]" >/dev/null 2>&1; then
           tmpArray[t]=$(capitalise "${tmpArray[t]}")
         fi
       fi
-      if [[ "${pwdDigit}" = "true" ]]; then
+      if [[ "${pwd_digit}" = "true" ]]; then
         while (( u == t )); do
           u="$(randInt 1 0 $(( ${#tmpArray[@]} - 1 )) )"
         done
@@ -151,12 +151,12 @@ genpasswd() {
       fi
       # Because special characters aren't sucked up from /dev/urandom,
       # we have no reason to test for them, just swap one in
-      if [[ "${pwdSpecial}" = "true" ]]; then
+      if [[ "${pwd_special}" = "true" ]]; then
         while (( v == t )); do
           v="$(randInt 1 0 $(( ${#tmpArray[@]} - 1 )) )"
         done
-        randSpecial=$(randInt 1 0 $(( ${#pwdSpecialChars[@]} - 1 )) ) 
-        tmpArray[v]="${pwdSpecialChars[randSpecial]}"
+        rand_special=$(randInt 1 0 $(( ${#pwd_special_chars[@]} - 1 )) ) 
+        tmpArray[v]="${pwd_special_chars[rand_special]}"
       fi
       printf -- '%s\n' "${tmpArray[@]}" | paste -sd '\0' -
     done

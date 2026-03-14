@@ -21,44 +21,44 @@
 _SH_LOADED_sys_system_type=1
 
 if iscommand virt-what; then
-  sysType=$(virt-what 2>/dev/null | head -n 1)
+  sys_type=$(virt-what 2>/dev/null | head -n 1)
 fi
 
 # Function to parse the output of various commands
 # Attempts to figure out the virtualisation type, if any
 get_virt_type() {
-  local sysType
+  local sys_type
   if nullgrep -Ei "virtualbox|vbox"; then
-    sysType="virtualbox"
+    sys_type="virtualbox"
   elif nullgrep -i "vmware"; then
-    sysType="VMware"
+    sys_type="VMware"
   elif nullgrep -i "hvm.*domu"; then
-    sysType="Xen"
+    sys_type="Xen"
   elif nullgrep -Ei "rhev|ovirt"; then
-    sysType="kvm"
+    sys_type="kvm"
   elif nullgrep -i "qemu"; then
-    sysType="qemu"
+    sys_type="qemu"
   elif nullgrep hypervisor /proc/cpuinfo; then
-    sysType="Unknown virtual"
+    sys_type="Unknown virtual"
   fi
-  printf -- '%s\n' "${sysType}"
+  printf -- '%s\n' "${sys_type}"
 }
 
 # If virt-what doesn't exist or doesn't return anything, try the following
-if [[ -z "${sysType}" ]]; then
+if [[ -z "${sys_type}" ]]; then
   if nullgrep -E '^flags.*svm|^flags.*vmx' /proc/cpuinfo; then
-    sysType=Physical
+    sys_type=Physical
   elif iscommand facter; then
-    sysType=$(facter virtual  2>/dev/null)
+    sys_type=$(facter virtual  2>/dev/null)
   elif iscommand pciconf; then
-    sysType=$(pciconf -lv 2>/dev/null | get_virt_type)
+    sys_type=$(pciconf -lv 2>/dev/null | get_virt_type)
   elif iscommand dmidecode; then
-    sysType=$(dmidecode 2>/dev/null | get_virt_type)
+    sys_type=$(dmidecode 2>/dev/null | get_virt_type)
   elif iscommand lspci; then
-    sysType=$(lspci -v 2>/dev/null | get_virt_type)
+    sys_type=$(lspci -v 2>/dev/null | get_virt_type)
   elif [[ -d /dev/disk/by-id ]]; then
-    sysType=$(find /dev/disk/by-id | get_virt_type)
+    sys_type=$(find /dev/disk/by-id | get_virt_type)
   else
-    sysType=other
+    sys_type=other
   fi
 fi

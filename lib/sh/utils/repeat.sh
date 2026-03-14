@@ -25,13 +25,13 @@ repeat() {
   # check that $1 is a digit, if not error out, if so, set the repeatNum variable
   case "${1}" in
     (*[!0-9]*|'') printf -- '%s\n' "[ERROR]: '${1}' is not a number.  Usage: 'repeat n command'"; return 1;;
-    (*)           local repeatNum=$1;;
+    (*)           local repeat_num=$1;;
   esac
   # shift so that the rest of the line is the command to execute
   shift
 
-  # Run the command in a while loop repeatNum times
-  for (( i=0; i<repeatNum; i++ )); do
+  # Run the command in a while loop repeat_num times
+  for (( i=0; i<repeat_num; i++ )); do
     "$@"
   done
 }

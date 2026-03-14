@@ -30,13 +30,13 @@ linenoise() {
   printf -- '%s ' "Connecting to ${target}, using additional hashing:"
 
   for (( i=0; i<len; ++i )); do
-    until (( xInt <= 88 )); do
-      xInt="${RANDOM}"
+    until (( x_int <= 88 )); do
+      x_int="${RANDOM}"
     done
-    xInt="$(( xInt % 95 + 32 ))"
+    x_int="$(( x_int % 95 + 32 ))"
 
     tput sc
-    for (( j=32; j<xInt; j++ )); do 
+    for (( j=32; j<x_int; j++ )); do
       tput rc
       printf "\\$(printf -- '%03o' "${j}")"
     done
