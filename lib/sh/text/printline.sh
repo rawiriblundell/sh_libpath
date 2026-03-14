@@ -21,7 +21,7 @@
 _SH_LOADED_text_printline=1
 
 # A function to print a specific line from a file
-# TO-DO: Update it to handle globs e.g. 'printline 4 *'
+# TODO: Update it to handle globs e.g. 'printline 4 *'
 printline() {
   # Fail early: We require sed
   if ! command -v sed >/dev/null 2>&1; then

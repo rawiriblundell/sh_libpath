@@ -20,7 +20,7 @@
 [ -n "${_SH_LOADED_text_style+x}" ] && return 0
 _SH_LOADED_text_style=1
 
-# TO-DO:
+# TODO:
 # * Check for $COLORTERM and fail out if/when possible
 # * Something with this:
 # ** https://cubicspot.blogspot.com/2019/05/designing-better-terminal-text-color.html
@@ -150,7 +150,7 @@ text_n2c() { paste -sd ',' "${1:--}"; }
 text_n2s() { paste -sd ' ' "${1:--}"; }
 
 # A function to print a specific line from a file
-# TO-DO: Update it to handle globs e.g. 'printline 4 *'
+# TODO: Update it to handle globs e.g. 'printline 4 *'
 text_printline() {
   # If $1 is empty, print a usage message
   if [[ -z "${1}" ]]; then
@@ -472,7 +472,7 @@ text_capitalise() {
 # Convert text to lowercase
 # For a shell-native version, see:
 # See https://gist.github.com/rawiriblundell/7b6914a11d3fdcdbd9aebc45fd38b4a1
-# TO-DO: Maybe one day merge it in here?
+# TODO: Maybe one day merge it in here?
 # The chance of needing it (i.e. no 'awk' or 'tr') is virtually nonexistent...
 text_tolower() {
   if [[ -n "${1}" ]] && [[ ! -r "${1}" ]]; then

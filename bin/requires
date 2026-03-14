@@ -31,7 +31,7 @@ for _item in "${@}"; do
         (BASH*)
         # Shell version check e.g. 'requires BASH32' = we check for bash 3.2 or newer
         # To strictly require a specific version, you could use the keyval test above
-        # TO-DO: Expand the "is greater than" logic, add extra shells
+        # TODO: Expand the "is greater than" logic, add extra shells
         if [ "${#BASH_VERSION}" -gt 0 ]; then
             # Get first three chars e.g. '4.3'
             _bashver="${BASH_VERSION%${BASH_VERSION#???}}"

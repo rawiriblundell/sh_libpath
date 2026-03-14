@@ -23,11 +23,11 @@ _SH_LOADED_sys_get_shell=1
 # Because $SHELL is an unreliable thing to test against, we provide this function
 # This won't work for 'fish', which needs 'ps -p %self' or similar
 # non-bourne-esque syntax.
-# TO-DO: Investigate application of 'export PS_PERSONALITY="posix"'
+# TODO: Investigate application of 'export PS_PERSONALITY="posix"'
 get_shell() {
   if [ -r "/proc/$$/cmdline" ]; then
     # We use 'tr' because 'cmdline' files have NUL terminated lines
-    # TO-DO: Possibly handle multi-word output e.g. 'busybox ash'
+    # TODO: Possibly handle multi-word output e.g. 'busybox ash'
     printf -- '%s\n' "$(tr '\0' ' ' </proc/"$$"/cmdline)"
   elif ps -p "$$" >/dev/null 2>&1; then
     ps -p "$$" | awk -F'[\t /]' 'END {print $NF}'

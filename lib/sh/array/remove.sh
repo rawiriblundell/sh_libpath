@@ -20,5 +20,5 @@
 [ -n "${_SH_LOADED_array_remove+x}" ] && return 0
 _SH_LOADED_array_remove=1
 
-#TODO
+# TODO:
 # remove and reindex

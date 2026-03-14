@@ -141,7 +141,7 @@ json_require() {
     # First try to determine if it's a command
     command -v "${_fsobj}" >/dev/null 2>&1 && continue
 
-    # TO-DO: This may require more smarts
+    # TODO: This may require more smarts
     [[ -x ./"${_fsobj}" ]] && continue
 
     # Next, let's see if it's a readable file
@@ -302,7 +302,7 @@ json_append_obj() {
 # We then search for our undesirable octals and emit our replacements
 # Modified from https://stackoverflow.com/a/23166624
 # Some of these might not be strictly necessary... YMMV...
-# TO-DO: Add ability to process its $*/$@, at the moment it must be piped into
+# TODO: Add ability to process its $*/$@, at the moment it must be piped into
 # shellcheck disable=SC2059
 json_escape_str() {
     od -A n -t o1 -v | tr ' \t' '\n' | grep . |
@@ -365,7 +365,7 @@ json_append_str() {
 # With '-c' or '--comma', we return '"key": value,'
 # Without either arg, we return '"key": value'
 # If the value is not a number, an error will be thrown
-# TO-DO: Possibly extend to allow scientific notataion
+# TODO: Possibly extend to allow scientific notataion
 json_num() {
   case "${1}" in
     (-c|--comma) shift 1; _comma="," ;;
@@ -420,7 +420,7 @@ json_append_num() {
 # With '-c' or '--comma', we return '"key": value,'
 # Without either arg, we return '"key": value'
 # If the value is neither 'true' or 'false', an error will be thrown
-# TO-DO: Extend to map extra bools
+# TODO: Extend to map extra bools
 json_bool() {
   case "${1}" in
     (-c|--comma) shift 1; _comma="," ;;
@@ -445,7 +445,7 @@ json_bool() {
 # Add a boolean true/false keypair.  Booleans are unquoted.
 # This leads with a comma, allowing us to stack keypairs
 # If the value is neither 'true' or 'false', an error will be thrown
-# TO-DO: Extend to map extra bools
+# TODO: Extend to map extra bools
 json_append_bool() {
   # Clean and assign the _key and _value variables
   _key="$(json_sanitise "${1:-null}")"
@@ -507,7 +507,7 @@ json_from_dkvp() {
       _value="${_line##*=}"
     ;;
     (*)
-      # To-do: figure out a desired behaviour for this instance
+      # TODO: figure out a desired behaviour for this instance
       :
     ;;
   esac

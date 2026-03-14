@@ -20,7 +20,7 @@
 [ -n "${_SH_LOADED_numbers_int+x}" ] && return 0
 _SH_LOADED_numbers_int=1
 
-# TO-DO: differentiate this from trunc() by performing conversions
+# TODO: differentiate this from trunc() by performing conversions
 # e.g. scientific notation to integers
 # Additionally, handle base (default 10)
 

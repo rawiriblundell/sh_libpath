@@ -20,7 +20,7 @@
 [ -n "${_SH_LOADED_array_insert+x}" ] && return 0
 _SH_LOADED_array_insert=1
 
-#TODO
+# TODO:
 # Insert into element position and reindex
 array_insert() {
     local _array_insert_index _array_insert_name _array_insert_value

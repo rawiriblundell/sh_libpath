@@ -20,5 +20,5 @@
 [ -n "${_SH_LOADED_array_add+x}" ] && return 0
 _SH_LOADED_array_add=1
 
-#TODO
+# TODO:
 # append

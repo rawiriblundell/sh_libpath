@@ -53,7 +53,7 @@ else
 # We strip leading 0's in order to prevent unwanted octal math
 # This seems terse, but the vars are the same as their 'date' formats
     get_epoch() {
-        #TODO: Update format on these vars
+        # TODO: Update format on these vars
         local y j h m s yo
 
 # POSIX portable way to assign all our vars

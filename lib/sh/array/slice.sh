@@ -20,7 +20,7 @@
 [ -n "${_SH_LOADED_array_slice+x}" ] && return 0
 _SH_LOADED_array_slice=1
 
-#TODO
+# TODO:
 # Pluck out elements between a starting and ending position
 # Negative indices?
 # Every x element?
