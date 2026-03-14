@@ -30,13 +30,15 @@ if ! command -v shuf >/dev/null 2>&1; then
   shuf() {
     local OPTIND inputRange inputStrings nMin nMax nCount shufArray shufRepeat
 
-    # First test that $RANDOM is available and expands to a number
-    case "${RANDOM}" in
-      (''|*[!0-9]*)
-        printf -- '%s\n' "shuf: RANDOM global variable required but doesn't appear to be available" >&2
-        return 1
-      ;;
-    esac
+    # Test that $RANDOM is present and functioning as a pseudo-random source.
+    # Two reads of $RANDOM should produce different values; a static variable
+    # (e.g. RANDOM=5 in a shell without special $RANDOM support) would not.
+    # Note: there is a 1/32768 chance of a false negative if both reads
+    # happen to produce the same value, which is acceptable for this check.
+    if ! (( RANDOM != RANDOM )); then
+      printf -- '%s\n' "shuf: RANDOM global variable required but doesn't appear to be available" >&2
+      return 1
+    fi
 
     while getopts ":e:i:hn:rv:" optFlags; do
       case "${optFlags}" in
