@@ -7,7 +7,7 @@ _SH_LOADED_goodies_chacha20=1
 
 
 rol() {
-	echo $(( (($1 << $2) | ($1 >> (32 - $2))) & 0xffffffff ))
+	printf -- '%s\n' "$(( (($1 << $2) | ($1 >> (32 - $2))) & 0xffffffff ))"
 }
 
 quarter_round() {
@@ -23,7 +23,7 @@ quarter_round() {
 }
 
 c() {
-	echo $(( ($1 << 2) + $2 ))
+	printf -- '%s\n' "$(( ($1 << 2) + $2 ))"
 }
 
 double_round() {
@@ -51,7 +51,9 @@ twenty_rounds() {
 }
 
 le() {
-	echo $(( ($1 >> 0) & 0xff)) $(( ($1 >> 8) & 0xff)) $(( ($1 >> 16) & 0xff)) $(( ($1 >> 24) & 0xff))
+	printf -- '%d %d %d %d\n' \
+		"$(( ($1 >> 0) & 0xff))" "$(( ($1 >> 8) & 0xff))" \
+		"$(( ($1 >> 16) & 0xff))" "$(( ($1 >> 24) & 0xff))"
 }
 
 one_block() {
@@ -67,7 +69,7 @@ one_block() {
 }
 
 dehex() {
-	echo $(( (0x${1:0:2} << 0) | (0x${1:2:2} << 8) | (0x${1:4:2} << 16) | (0x${1:6:2} << 24) ))
+	printf -- '%s\n' "$(( (0x${1:0:2} << 0) | (0x${1:2:2} << 8) | (0x${1:4:2} << 16) | (0x${1:6:2} << 24) ))"
 }
 
 # Usage: chacha20 [HEX KEY] [NUMERIC NONCE] [HEX CIPHERTEXT]
@@ -81,11 +83,11 @@ chacha20() {
 	local ciphertext="$3"
 	local n=0
 	while true; do
-		[[ -n ${ciphertext:$n} ]] || { echo; return 0; }
+		[[ -n ${ciphertext:$n} ]] || { printf -- '\n'; return 0; }
 		local cstream=()
 		one_block cstate cstream
 		for (( i=0; i < 64; i++ )); do
-			[[ -n ${ciphertext:$n} ]] || { echo; return 0; }
+			[[ -n ${ciphertext:$n} ]] || { printf -- '\n'; return 0; }
 			printf '%02x' $(( cstream[$i] ^ 0x${ciphertext:$n:2} ))
 			(( n+=2 ))
 		done
@@ -98,8 +100,8 @@ test_vector() {
 	local key="a92075897e378548a3fb7be830a7e36ea6c17117c16c9bc2def0a719eccec653"
 	local nonce=5394271251748129296
 
-	[[ $(chacha20 "$key" "$nonce" "$ciphertext") == "$plaintext" ]] && echo pass || echo fail
-	[[ $(chacha20 "$key" "$nonce" "$plaintext") == "$ciphertext" ]] && echo pass || echo fail
+	[[ $(chacha20 "$key" "$nonce" "$ciphertext") == "$plaintext" ]] && printf -- '%s\n' pass || printf -- '%s\n' fail
+	[[ $(chacha20 "$key" "$nonce" "$plaintext") == "$ciphertext" ]] && printf -- '%s\n' pass || printf -- '%s\n' fail
 }
 
 test_vector

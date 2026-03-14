@@ -88,7 +88,7 @@ genpasswd() {
       (Y)  pwd_special="true";;
       (\?)  printf -- '%s\n' "[ERROR] genpasswd: Invalid option: $OPTARG.  Try 'genpasswd -h' for usage." >&2
             return 1;;
-      (:)  echo "[ERROR] genpasswd: Option '-$OPTARG' requires an argument, e.g. '-$OPTARG 5'." >&2
+      (:)  printf -- '%s\n' "[ERROR] genpasswd: Option '-${OPTARG}' requires an argument, e.g. '-${OPTARG} 5'." >&2
            return 1;;
     esac
   done

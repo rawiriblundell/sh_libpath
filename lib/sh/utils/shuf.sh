@@ -44,9 +44,9 @@ if ! command -v shuf >/dev/null 2>&1; then
       case "${opt_flags}" in
         (e) input_strings=true
             shuf_array=( "${OPTARG}" )
-            until [[ $(eval "echo \${$OPTIND:0:1}") = "-" ]] || [[ -z $(eval "echo \${$OPTIND}") ]]; do
+            until [[ $(eval "printf '%s' \"\${$OPTIND:0:1}\"") = "-" ]] || [[ -z $(eval "printf '%s' \"\${$OPTIND}\"") ]]; do
               # shellcheck disable=SC2207
-              shuf_array+=($(eval "echo \${$OPTIND}"))
+              shuf_array+=($(eval "printf '%s' \"\${$OPTIND}\""))
               OPTIND=$((OPTIND + 1))
             done;;
         (h)  printf -- '%s\n' "" "shuf - generate random permutations" \

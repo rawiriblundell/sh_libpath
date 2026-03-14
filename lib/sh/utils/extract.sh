@@ -30,7 +30,7 @@ compress() {
     (*.tgz)     tar czf "${File}" "$@"  ;;
     (*.zip)     zip "${File}" "$@"      ;;
     (*.rar)     rar "${File}" "$@"      ;;
-    (*)         echo "Filetype not recognized" ;;
+    (*)         printf -- '%s\n' "Filetype not recognized" ;;
   esac
 }
 

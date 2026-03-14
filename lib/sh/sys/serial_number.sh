@@ -35,10 +35,10 @@ case "${OSSTR:-$(uname -s)}" in
     # On some virtualised systems, the Serial Number might be blank or "0",
     # so we can try to use the system UUID instead.  Don't use
     # '[[ "${serialNumber}" -eq 0 ]]; then' for the second test as it can be interpreted as octal/hex!
-    if [[ -z "${serialNumber}" ]]|| echo "${serialNumber}" | grep -x "0"; then
+    if [[ -z "${serialNumber}" ]]|| grep -x "0" <<< "${serialNumber}"; then
       serialNumber=$(dmidecode | awk -F ':' '/UUID/{print $2; exit}' | trim)
       # If at this point, we still don't have anything, try 'hostid'
-      if [[ -z "${serialNumber}" ]]|| echo "${serialNumber}" | grep -x "0"; then
+      if [[ -z "${serialNumber}" ]]|| grep -x "0" <<< "${serialNumber}"; then
         if command -v hostid; then
           serialNumber=$(hostid)
         # Finally fail back to a generic option

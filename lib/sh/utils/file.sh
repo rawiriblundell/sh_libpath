@@ -52,7 +52,7 @@ get_tmp_file () {
 		return 1
 	fi
 
-	echo "${tmp_file}"
+	printf -- '%s\n' "${tmp_file}"
 }
 
 
@@ -73,7 +73,7 @@ get_tmp_dir () {
 		return 1
 	fi
 
-	echo "${tmp_dir}"
+	printf -- '%s\n' "${tmp_dir}"
 }
 
 
@@ -177,7 +177,7 @@ find_added () {
 			old_file="${old_dir}/${path}"
 
 			if [[ ! -f "${old_file}" ]]; then
-				echo "${path}"
+				printf -- '%s\n' "${path}"
 			fi
 		done || return 0
 }
@@ -197,7 +197,7 @@ find_changed () {
 			old_file="${old_dir}/${path}"
 
 			if [[ -f "${old_file}" ]] && ! cmp -s "${old_file}" "${new_file}"; then
-				echo "${path}"
+				printf -- '%s\n' "${path}"
 			fi
 		done || return 0
 }
@@ -217,7 +217,7 @@ find_not_changed () {
 			old_file="${old_dir}/${path}"
 
 			if [[ -f "${old_file}" ]] && cmp -s "${old_file}" "${new_file}"; then
-				echo "${path}"
+				printf -- '%s\n' "${path}"
 			fi
 		done || return 0
 }
@@ -237,7 +237,7 @@ find_removed () {
 			new_file="${new_dir}/${path}"
 
 			if [[ ! -f "${new_file}" ]]; then
-				echo "${path}"
+				printf -- '%s\n' "${path}"
 			fi
 		done || return 0
 }
@@ -270,7 +270,7 @@ expand_glob () {
 		local -a files_a
 		cd "${dir}" &&
 			IFS=$'\n' && files_a=( ${glob} ) &&
-			echo "${files_a[*]}"
+			printf -- '%s\n' "${files_a[*]}"
 	) || return 1
 }
 

@@ -81,9 +81,9 @@ genphrase() {
            seed_word="[${OPTARG}]";;
       (S)  phrase_seed_doc="True";;
       (w)  phrase_words="${OPTARG}";;
-      (\?)  echo "ERROR: Invalid option: '-$OPTARG'.  Try 'genphrase -h' for usage." >&2
+      (\?)  printf -- '%s\n' "ERROR: Invalid option: '-${OPTARG}'.  Try 'genphrase -h' for usage." >&2
             return 1;;
-      (:)  echo "Option '-$OPTARG' requires an argument. e.g. '-$OPTARG 10'" >&2
+      (:)  printf -- '%s\n' "Option '-${OPTARG}' requires an argument. e.g. '-${OPTARG} 10'" >&2
            return 1;;
     esac
   done

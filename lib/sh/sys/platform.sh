@@ -37,51 +37,51 @@ _SH_LOADED_sys_platform=1
 
 format_platform_description () {
 	case "$1" in
-	'freebsd-10.0-x86_64')		echo 'FreeBSD 10.0 (x86_64)';;
-	'freebsd-10.1-x86_64')		echo 'FreeBSD 10.1 (x86_64)';;
-	'linux-amzn-2014.09-x86_64')	echo 'Amazon Linux 2014.09 (x86_64)';;
-	'linux-arch-x86_64')		echo 'Arch Linux (x86_64)';;
-	'linux-centos-6-i386')		echo 'CentOS 6 (i386)';;
-	'linux-centos-6-x86_64')	echo 'CentOS 6 (x86_64)';;
-	'linux-centos-7-i386')		echo 'CentOS 7 (i386)';;
-	'linux-centos-7-x86_64')	echo 'CentOS 7 (x86_64)';;
-	'linux-debian-6-i386')		echo 'Debian 6 (i386)';;
-	'linux-debian-6-x86_64')	echo 'Debian 6 (x86_64)';;
-	'linux-debian-7-i386')		echo 'Debian 7 (i386)';;
-	'linux-debian-7-x86_64')	echo 'Debian 7 (x86_64)';;
-	'linux-debian-8-i386')		echo 'Debian 8 (i386)';;
-	'linux-debian-8-x86_64')	echo 'Debian 8 (x86_64)';;
-	'linux-exherbo-x86_64')		echo 'Exherbo Linux (x86_64)';;
-	'linux-fedora-19-i386')		echo 'Fedora 19 (i386)';;
-	'linux-fedora-19-x86_64')	echo 'Fedora 19 (x86_64)';;
-	'linux-fedora-20-i386')		echo 'Fedora 20 (i386)';;
-	'linux-fedora-20-x86_64')	echo 'Fedora 20 (x86_64)';;
-	'linux-fedora-21-x86_64')	echo 'Fedora 21 (x86_64)';;
-	'linux-gentoo-x86_64')		echo 'Gentoo Linux (x86_64)';;
-	'linux-opensuse-13.2-x86_64')	echo 'openSUSE 13.2 (x86_64)';;
-	'linux-rhel-6-i386')		echo 'Red Hat Enterprise Linux 6 (i386)';;
-	'linux-rhel-6-x86_64')		echo 'Red Hat Enterprise Linux 6 (x86_64)';;
-	'linux-rhel-7-x86_64')		echo 'Red Hat Enterprise Linux 7 (x86_64)';;
-	'linux-slackware-14.1-x86_64')	echo 'Slackware 14.1 (x86_64)';;
-	'linux-sles-11-i386')		echo 'SUSE Linux Enterprise Server 11 (i386)';;
-	'linux-sles-11-x86_64')		echo 'SUSE Linux Enterprise Server 11 (x86_64)';;
-	'linux-sles-12-x86_64')		echo 'SUSE Linux Enterprise Server 12 (x86_64)';;
-	'linux-ubuntu-10.04-i386')	echo 'Ubuntu 10.04 LTS (i386)';;
-	'linux-ubuntu-10.04-x86_64')	echo 'Ubuntu 10.04 LTS (x86_64)';;
-	'linux-ubuntu-12.04-i386')	echo 'Ubuntu 12.04 LTS (i386)';;
-	'linux-ubuntu-12.04-x86_64')	echo 'Ubuntu 12.04 LTS (x86_64)';;
-	'linux-ubuntu-14.04-i386')	echo 'Ubuntu 14.04 LTS (i386)';;
-	'linux-ubuntu-14.04-x86_64')	echo 'Ubuntu 14.04 LTS (x86_64)';;
-	'linux-ubuntu-14.10-i386')	echo 'Ubuntu 14.10 (i386)';;
-	'linux-ubuntu-14.10-x86_64')	echo 'Ubuntu 14.10 (x86_64)';;
-	'linux-ubuntu-15.04-i386')	echo 'Ubuntu 15.04 (i386)';;
-	'linux-ubuntu-15.04-x86_64')	echo 'Ubuntu 15.04 (x86_64)';;
-	'osx-10.6-x86_64')		echo 'OS X 10.6 (x86_64)';;
-	'osx-10.7-x86_64')		echo 'OS X 10.7 (x86_64)';;
-	'osx-10.8-x86_64')		echo 'OS X 10.8 (x86_64)';;
-	'osx-10.9-x86_64')		echo 'OS X 10.9 (x86_64)';;
-	'osx-10.10-x86_64')		echo 'OS X 10.10 (x86_64)';;
-	*)				echo 'unknown'
+	'freebsd-10.0-x86_64')		printf -- '%s\n' 'FreeBSD 10.0 (x86_64)';;
+	'freebsd-10.1-x86_64')		printf -- '%s\n' 'FreeBSD 10.1 (x86_64)';;
+	'linux-amzn-2014.09-x86_64')	printf -- '%s\n' 'Amazon Linux 2014.09 (x86_64)';;
+	'linux-arch-x86_64')		printf -- '%s\n' 'Arch Linux (x86_64)';;
+	'linux-centos-6-i386')		printf -- '%s\n' 'CentOS 6 (i386)';;
+	'linux-centos-6-x86_64')	printf -- '%s\n' 'CentOS 6 (x86_64)';;
+	'linux-centos-7-i386')		printf -- '%s\n' 'CentOS 7 (i386)';;
+	'linux-centos-7-x86_64')	printf -- '%s\n' 'CentOS 7 (x86_64)';;
+	'linux-debian-6-i386')		printf -- '%s\n' 'Debian 6 (i386)';;
+	'linux-debian-6-x86_64')	printf -- '%s\n' 'Debian 6 (x86_64)';;
+	'linux-debian-7-i386')		printf -- '%s\n' 'Debian 7 (i386)';;
+	'linux-debian-7-x86_64')	printf -- '%s\n' 'Debian 7 (x86_64)';;
+	'linux-debian-8-i386')		printf -- '%s\n' 'Debian 8 (i386)';;
+	'linux-debian-8-x86_64')	printf -- '%s\n' 'Debian 8 (x86_64)';;
+	'linux-exherbo-x86_64')		printf -- '%s\n' 'Exherbo Linux (x86_64)';;
+	'linux-fedora-19-i386')		printf -- '%s\n' 'Fedora 19 (i386)';;
+	'linux-fedora-19-x86_64')	printf -- '%s\n' 'Fedora 19 (x86_64)';;
+	'linux-fedora-20-i386')		printf -- '%s\n' 'Fedora 20 (i386)';;
+	'linux-fedora-20-x86_64')	printf -- '%s\n' 'Fedora 20 (x86_64)';;
+	'linux-fedora-21-x86_64')	printf -- '%s\n' 'Fedora 21 (x86_64)';;
+	'linux-gentoo-x86_64')		printf -- '%s\n' 'Gentoo Linux (x86_64)';;
+	'linux-opensuse-13.2-x86_64')	printf -- '%s\n' 'openSUSE 13.2 (x86_64)';;
+	'linux-rhel-6-i386')		printf -- '%s\n' 'Red Hat Enterprise Linux 6 (i386)';;
+	'linux-rhel-6-x86_64')		printf -- '%s\n' 'Red Hat Enterprise Linux 6 (x86_64)';;
+	'linux-rhel-7-x86_64')		printf -- '%s\n' 'Red Hat Enterprise Linux 7 (x86_64)';;
+	'linux-slackware-14.1-x86_64')	printf -- '%s\n' 'Slackware 14.1 (x86_64)';;
+	'linux-sles-11-i386')		printf -- '%s\n' 'SUSE Linux Enterprise Server 11 (i386)';;
+	'linux-sles-11-x86_64')		printf -- '%s\n' 'SUSE Linux Enterprise Server 11 (x86_64)';;
+	'linux-sles-12-x86_64')		printf -- '%s\n' 'SUSE Linux Enterprise Server 12 (x86_64)';;
+	'linux-ubuntu-10.04-i386')	printf -- '%s\n' 'Ubuntu 10.04 LTS (i386)';;
+	'linux-ubuntu-10.04-x86_64')	printf -- '%s\n' 'Ubuntu 10.04 LTS (x86_64)';;
+	'linux-ubuntu-12.04-i386')	printf -- '%s\n' 'Ubuntu 12.04 LTS (i386)';;
+	'linux-ubuntu-12.04-x86_64')	printf -- '%s\n' 'Ubuntu 12.04 LTS (x86_64)';;
+	'linux-ubuntu-14.04-i386')	printf -- '%s\n' 'Ubuntu 14.04 LTS (i386)';;
+	'linux-ubuntu-14.04-x86_64')	printf -- '%s\n' 'Ubuntu 14.04 LTS (x86_64)';;
+	'linux-ubuntu-14.10-i386')	printf -- '%s\n' 'Ubuntu 14.10 (i386)';;
+	'linux-ubuntu-14.10-x86_64')	printf -- '%s\n' 'Ubuntu 14.10 (x86_64)';;
+	'linux-ubuntu-15.04-i386')	printf -- '%s\n' 'Ubuntu 15.04 (i386)';;
+	'linux-ubuntu-15.04-x86_64')	printf -- '%s\n' 'Ubuntu 15.04 (x86_64)';;
+	'osx-10.6-x86_64')		printf -- '%s\n' 'OS X 10.6 (x86_64)';;
+	'osx-10.7-x86_64')		printf -- '%s\n' 'OS X 10.7 (x86_64)';;
+	'osx-10.8-x86_64')		printf -- '%s\n' 'OS X 10.8 (x86_64)';;
+	'osx-10.9-x86_64')		printf -- '%s\n' 'OS X 10.9 (x86_64)';;
+	'osx-10.10-x86_64')		printf -- '%s\n' 'OS X 10.10 (x86_64)';;
+	*)				printf -- '%s\n' 'unknown'
 	esac
 }
 
@@ -111,10 +111,10 @@ detect_os () {
 	raw_os=$( uname -s ) || true
 
 	case "${raw_os}" in
-	'FreeBSD')	echo 'freebsd';;
-	'Linux')	echo 'linux';;
-	'Darwin')	echo 'osx';;
-	*)		echo 'unknown'
+	'FreeBSD')	printf -- '%s\n' 'freebsd';;
+	'Linux')	printf -- '%s\n' 'linux';;
+	'Darwin')	printf -- '%s\n' 'osx';;
+	*)		printf -- '%s\n' 'unknown'
 	esac
 }
 
@@ -124,12 +124,12 @@ detect_arch () {
 	raw_arch=$( uname -m | tr '[:upper:]' '[:lower:]' ) || true
 
 	case "${raw_arch}" in
-	'amd64')	echo 'x86_64';;
-	'i686')		echo 'i386';;
-	'x64')		echo 'x86_64';;
-	'x86-64')	echo 'x86_64';;
-	'x86_64')	echo 'x86_64';;
-	*)		echo 'unknown'
+	'amd64')	printf -- '%s\n' 'x86_64';;
+	'i686')		printf -- '%s\n' 'i386';;
+	'x64')		printf -- '%s\n' 'x86_64';;
+	'x86-64')	printf -- '%s\n' 'x86_64';;
+	'x86_64')	printf -- '%s\n' 'x86_64';;
+	*)		printf -- '%s\n' 'unknown'
 	esac
 }
 
@@ -171,7 +171,7 @@ bashmenot_internal_detect_linux_label () {
 		esac
 	fi
 
-	echo "${label}"
+	printf -- '%s\n' "${label}"
 }
 
 
@@ -220,7 +220,7 @@ bashmenot_internal_detect_linux_version () {
 		esac
 	fi
 
-	echo "${version}"
+	printf -- '%s\n' "${version}"
 }
 
 
@@ -254,5 +254,5 @@ detect_platform () {
 		version="${version%%.*}"
 	fi
 
-	echo "${os}${label:+-${label}}${version:+-${version}}${arch:+-${arch}}"
+	printf -- '%s\n' "${os}${label:+-${label}}${version:+-${version}}${arch:+-${arch}}"
 }

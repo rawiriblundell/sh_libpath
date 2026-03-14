@@ -259,7 +259,7 @@ install_platform_packages () {
 	fi
 
 	local names
-	names=$( IFS=$'\n' && echo "${names_a[*]}" )
+	names=$( IFS=$'\n' && printf -- '%s\n' "${names_a[*]}" )
 
 	if is_debian_like "${platform}"; then
 		install_debian_packages "${names}" "${dst_dir}" || return 1

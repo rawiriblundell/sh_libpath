@@ -48,7 +48,7 @@ hex_to_rgba() {
   if (( ${#_} == 8 )); then
     # Hexadecimal value includes alpha channel
     ((r = 16#${_:0:2}, g = 16#${_:2:2}, b = 16#${_:4:2}, a = 16#${_:6:2}))
-    a=$(echo "scale=2; $a / 255" | bc)
+    a=$(bc <<< "scale=2; ${a} / 255")
   else
     # Hexadecimal value does not include alpha channel
     ((r = 16#${_:0:2}, g = 16#${_:2:2}, b = 16#${_:4:2}))

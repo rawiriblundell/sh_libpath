@@ -87,7 +87,7 @@ hash_newest_git_commit () {
 		return 0
 	fi
 
-	echo "${commit_hash}"
+	printf -- '%s\n' "${commit_hash}"
 }
 
 
@@ -177,7 +177,7 @@ git_acquire () {
 		copy_dir_over "${src_dir}/${thing}" "${dst_dir}/${name}" || return 1
 	fi
 
-	echo "${name}"
+	printf -- '%s\n' "${name}"
 }
 
 
@@ -198,7 +198,7 @@ git_acquire_all () {
 		names_a+=( "${name}" )
 	done <<<"${things}"
 
-	IFS=$'\n' && echo "${names_a[*]}"
+	IFS=$'\n' && printf -- '%s\n' "${names_a[*]}"
 }
 
 ################################################################################

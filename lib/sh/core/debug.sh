@@ -64,7 +64,7 @@ esac
 
 breakpoint(){
     local REPLY
-    echo 'Breakpoint hit. [opaAxXq]'
+    printf -- '%s\n' 'Breakpoint hit. [opaAxXq]'
     while read -r -k1; do case $REPLY in
         o) shopt -s; set -o ;;   # list options
         p) declare -p | less ;;  # list parameters
@@ -86,6 +86,6 @@ no_ctrl_c() {
 # in order to prevent an infinite recursion
 prevent_path_recursion() {
   curdir=$(realpath $(dirname ${BASH_SOURCE}))
-  export PATH=$(echo $PATH | tr ':' '\n' | \
+  export PATH=$(tr ':' '\n' <<< "${PATH}" | \
       awk '$0!="'${curdir}'"' | tr '\n' ':')
 }
