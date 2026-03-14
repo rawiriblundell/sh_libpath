@@ -20,42 +20,23 @@
 [ -n "${_SH_LOADED_array_toarray+x}" ] && return 0
 _SH_LOADED_array_toarray=1
 
-# some | pipeline | toarray
-# toarray < filename
-# toarray -u -> unique elements unsorted
-# toarray -s -> sorted
-# toarray -su -> sorted and unique
-
-toarray() {
-  while (( "${#}" > 0 )); do
-    case "${1}" in
-      (-u|--unique) _array_unique=true; shift 1 ;;
-      (-s|--sorted) _array_sort=true; shift 1 ;;
-      (-us|-su)
-        _array_unique=true
-        _array_sort=true
-        shift 1
-      ;;
-    esac
-  done
-
-  if [ "${_array_sort}" = "true" ] && [ "${_array_unique}" = "true" ]; then
-    TOARRAY=( $(printf -- '%s\n' "${TOARRAY[@]}" | sort | uniq) )
-  fi
-
-  if [ "${_array_unique}" = "true" ]; then
-    awk '!s[$0]++'
-  fi
-
-
+# toarray requires 'lastpipe' so that the array persists after the pipeline.
+# This shopt is set at load time so it applies to all subsequent pipelines.
+shopt -s lastpipe || {
+  printf -- '%s\n' "toarray: requires bash 4.2+ (lastpipe support)" >&2
+  return 1
 }
 
-
-
-  while (( "${#}" > 0 )); do
-    case "${1}" in
-      (-[0-9]|[0-9]*) _last_count="${1}"; shift 1 ;;
-      (-n)            _last_count="${2}"; shift 2 ;;
-      (*)             _last_params="${1}"; shift 1 ;;
-    esac
-  done
+# Collect stdin into a named array, for use as the last command in a pipeline.
+# Requires bash 4.2+ (lastpipe, enabled above).
+# Usage: some_command | toarray arr_name
+# Example:
+#     $ printf '%s\n' a b c | toarray myarr
+#     $ printf '%s\n' "${myarr[@]}"
+#     a
+#     b
+#     c
+toarray() {
+  local -n _arr="${1:?No array name given}"
+  readarray -t _arr
+}
