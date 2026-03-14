@@ -55,3 +55,15 @@ array_max() {
   done
   printf -- '%s\n' "${_max}"
 }
+
+# Multiply all numeric elements in a named array.
+# Usage: array_product arr_name
+array_product() {
+  local -n _arr="${1:?No array name given}"
+  local _item _total
+  _total=1
+  for _item in "${_arr[@]}"; do
+    (( _total *= _item ))
+  done
+  printf -- '%s\n' "${_total}"
+}

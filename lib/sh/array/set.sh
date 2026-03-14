@@ -50,6 +50,45 @@ array_diff() {
 #     $ array_intersect arr1 arr2
 #     b
 #     d
+array_intersect() {
+  local -n _arr_a="${1:?No first array name given}"
+  local -n _arr_b="${2:?No second array name given}"
+  local -A _seen
+  local _item
+  _seen=()
+  for _item in "${_arr_b[@]}"; do
+    _seen["${_item}"]=1
+  done
+  for _item in "${_arr_a[@]}"; do
+    [[ -n "${_seen[${_item}]+x}" ]] && printf -- '%s\n' "${_item}"
+  done
+}
+
+# Print all unique elements from both arrays (set union).
+# Usage: array_union arr_a arr_b
+# Example:
+#     $ arr1=( a b c )
+#     $ arr2=( b c d e )
+#     $ array_union arr1 arr2
+#     a
+#     b
+#     c
+#     d
+#     e
+array_union() {
+  local -n _arr_a="${1:?No first array name given}"
+  local -n _arr_b="${2:?No second array name given}"
+  local -A _seen
+  local _item
+  _seen=()
+  for _item in "${_arr_a[@]}" "${_arr_b[@]}"; do
+    if [[ -z "${_seen[${_item}]+x}" ]]; then
+      _seen["${_item}"]=1
+      printf -- '%s\n' "${_item}"
+    fi
+  done
+}
+
 # Remove duplicate elements from a named array in place, preserving order.
 # Usage: array_unique arr_name
 # Example:
@@ -74,18 +113,4 @@ array_unique() {
     fi
   done
   _arr=( "${_new_arr[@]}" )
-}
-
-array_intersect() {
-  local -n _arr_a="${1:?No first array name given}"
-  local -n _arr_b="${2:?No second array name given}"
-  local -A _seen
-  local _item
-  _seen=()
-  for _item in "${_arr_b[@]}"; do
-    _seen["${_item}"]=1
-  done
-  for _item in "${_arr_a[@]}"; do
-    [[ -n "${_seen[${_item}]+x}" ]] && printf -- '%s\n' "${_item}"
-  done
 }

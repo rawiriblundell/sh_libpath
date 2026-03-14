@@ -20,6 +20,13 @@
 [ -n "${_SH_LOADED_array_remove+x}" ] && return 0
 _SH_LOADED_array_remove=1
 
+# Empty a named array in place.
+# Usage: array_clear arr_name
+array_clear() {
+  local -n _arr="${1:?No array name given}"
+  _arr=()
+}
+
 # Remove all elements matching a value from a named array and reindex.
 # Usage: array_remove arr_name element
 # Example:
@@ -38,6 +45,34 @@ array_remove() {
   _new_arr=()
   for _item in "${_arr[@]}"; do
     [[ "${_item}" = "${_elem}" ]] || _new_arr+=( "${_item}" )
+  done
+  _arr=( "${_new_arr[@]}" )
+}
+
+# Remove only the first element matching a value from a named array and reindex.
+# Usage: array_remove_first arr_name element
+# Example:
+#     $ myarr=( a b c b d )
+#     $ array_remove_first myarr b
+#     $ printf '%s\n' "${myarr[@]}"
+#     a
+#     c
+#     b
+#     d
+array_remove_first() {
+  local -n _arr="${1:?No array name given}"
+  local _elem
+  local -a _new_arr
+  local _item _done
+  _elem="${2:?No element given}"
+  _new_arr=()
+  _done=0
+  for _item in "${_arr[@]}"; do
+    if (( ! _done )) && [[ "${_item}" = "${_elem}" ]]; then
+      _done=1
+    else
+      _new_arr+=( "${_item}" )
+    fi
   done
   _arr=( "${_new_arr[@]}" )
 }

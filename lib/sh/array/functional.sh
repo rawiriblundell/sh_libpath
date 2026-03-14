@@ -20,6 +20,26 @@
 [ -n "${_SH_LOADED_array_functional+x}" ] && return 0
 _SH_LOADED_array_functional=1
 
+# Remove empty elements from a named array in place.
+# Usage: array_compact arr_name
+# Example:
+#     $ myarr=( a '' b '' c )
+#     $ array_compact myarr
+#     $ printf '%s\n' "${myarr[@]}"
+#     a
+#     b
+#     c
+array_compact() {
+  local -n _arr="${1:?No array name given}"
+  local -a _new_arr
+  local _item
+  _new_arr=()
+  for _item in "${_arr[@]}"; do
+    [[ -n "${_item}" ]] && _new_arr+=( "${_item}" )
+  done
+  _arr=( "${_new_arr[@]}" )
+}
+
 # Print elements of a named array matching a glob pattern.
 # Usage: array_filter arr_name pattern
 # Example:

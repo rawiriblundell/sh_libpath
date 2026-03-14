@@ -33,6 +33,21 @@ _SH_LOADED_array_concat=1
 #     d
 #     e
 #     f
+# Copy a named array to another named array.
+# Usage: array_copy src_arr_name dst_arr_name
+# Example:
+#     $ myarr=( a b c )
+#     $ array_copy myarr copy
+#     $ printf '%s\n' "${copy[@]}"
+#     a
+#     b
+#     c
+array_copy() {
+  local -n _src="${1:?No source array name given}"
+  local -n _dst="${2:?No destination array name given}"
+  _dst=( "${_src[@]}" )
+}
+
 array_concat() {
   local -n _dst="${1:?No destination array name given}"
   local _src_name

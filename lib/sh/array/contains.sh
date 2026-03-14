@@ -90,6 +90,22 @@ array_last_index() {
   printf -- '%s\n' "${_last}"
 }
 
+# Print the first element matching a glob pattern.
+# Returns 1 if not found.
+# Usage: array_find arr_name pattern
+array_find() {
+  local -n _arr="${1:?No array name given}"
+  local _pattern _item
+  _pattern="${2:?No pattern given}"
+  for _item in "${_arr[@]}"; do
+    if [[ "${_item}" = ${_pattern} ]]; then
+      printf -- '%s\n' "${_item}"
+      return 0
+    fi
+  done
+  return 1
+}
+
 # Print the last element matching a glob pattern.
 # Usage: array_find_last arr_name pattern
 array_find_last() {

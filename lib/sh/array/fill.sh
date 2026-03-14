@@ -38,3 +38,47 @@ array_fill() {
     _arr+=( "${_value}" )
   done
 }
+
+# Pad a named array to a minimum length by appending a fill value.
+# Has no effect if the array is already at or above the minimum length.
+# Usage: array_pad arr_name min_length value
+# Example:
+#     $ myarr=( a b c )
+#     $ array_pad myarr 5 x
+#     $ printf '%s\n' "${myarr[@]}"
+#     a
+#     b
+#     c
+#     x
+#     x
+array_pad() {
+  local -n _arr="${1:?No array name given}"
+  local _min_len _value _i
+  _min_len="${2:?No minimum length given}"
+  _value="${3:?No pad value given}"
+  for (( _i = ${#_arr[@]}; _i < _min_len; _i++ )); do
+    _arr+=( "${_value}" )
+  done
+}
+
+# Generate a named array of integers from start to end, with optional step.
+# Usage: array_range arr_name start end [step]
+# Example:
+#     $ array_range myarr 1 5
+#     $ printf '%s\n' "${myarr[@]}"
+#     1
+#     2
+#     3
+#     4
+#     5
+array_range() {
+  local -n _arr="${1:?No array name given}"
+  local _start _end _step _i
+  _start="${2:?No start given}"
+  _end="${3:?No end given}"
+  _step="${4:-1}"
+  _arr=()
+  for (( _i = _start; _i <= _end; _i += _step )); do
+    _arr+=( "${_i}" )
+  done
+}
