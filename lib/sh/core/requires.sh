@@ -21,25 +21,182 @@
 [ -n "${_SH_LOADED_core_requires+x}" ] && return 0
 _SH_LOADED_core_requires=1
 
+# Attempt to extract a version string from a command.
+# Tries --version, then 'version' subcommand, then -version (Java style).
+# Deliberately avoids -v and -V to prevent ambiguity (e.g. grep -v).
+# Outputs the first semver-style string found, or returns 1 if none found.
+_requires_get_version() {
+    local _cmd
+    local _ver
+    _cmd="${1}"
+
+    _ver=$("${_cmd}" --version 2>&1 | grep -Eo '([0-9]+\.){1,2}[0-9]+' | head -1)
+    [ -n "${_ver}" ] && { printf -- '%s\n' "${_ver}"; return 0; }
+
+    _ver=$("${_cmd}" version 2>&1 | grep -Eo '([0-9]+\.){1,2}[0-9]+' | head -1)
+    [ -n "${_ver}" ] && { printf -- '%s\n' "${_ver}"; return 0; }
+
+    _ver=$("${_cmd}" -version 2>&1 | grep -Eo '([0-9]+\.){1,2}[0-9]+' | head -1)
+    [ -n "${_ver}" ] && { printf -- '%s\n' "${_ver}"; return 0; }
+
+    return 1
+}
+
+# Compare two version strings using an operator.
+# Usage: _requires_version_cmp <have> <op> <want>
+# Operators: == != >= <= > <
+# Returns 0 if the comparison holds, 1 otherwise.
+_requires_version_cmp() {
+    local _have _op _want _lesser
+    _have="${1}"
+    _op="${2}"
+    _want="${3}"
+
+    _lesser=$(printf -- '%s\n%s\n' "${_have}" "${_want}" | sort -V | head -1)
+
+    case "${_op}" in
+        ('==') [ "${_have}" =  "${_want}" ] ;;
+        ('!=') [ "${_have}" != "${_want}" ] ;;
+        ('>=') [ "${_lesser}" = "${_want}" ] ;;
+        ('<=') [ "${_lesser}" = "${_have}" ] ;;
+        ('>')  [ "${_lesser}" = "${_want}" ] && [ "${_have}" != "${_want}" ] ;;
+        ('<')  [ "${_lesser}" = "${_have}" ] && [ "${_have}" != "${_want}" ] ;;
+        (*)    return 1 ;;
+    esac
+}
+
+# Check a command against one or more comma-separated version constraints.
+# Usage: _requires_check_constraints <cmd> <constraints>
+# Example: _requires_check_constraints curl '>=7.0,<8.0'
+# Returns: 0 on pass, 1 on fail, 2 if version cannot be determined.
+_requires_check_constraints() {
+    local _cmd _constraints _remaining _constraint _op _ver _found_ver
+    _cmd="${1}"
+    _constraints="${2}"
+
+    command -v "${_cmd}" >/dev/null 2>&1 || return 1
+
+    _found_ver=$(_requires_get_version "${_cmd}")
+    [ -z "${_found_ver}" ] && return 2
+
+    _remaining="${_constraints}"
+    while [ -n "${_remaining}" ]; do
+        _constraint="${_remaining%%,*}"
+        [ "${_constraint}" = "${_remaining}" ] && _remaining="" || _remaining="${_remaining#*,}"
+
+        if [[ "${_constraint}" =~ ^([><!]?=|[><])([0-9][0-9.]*)$ ]]; then
+            _op="${BASH_REMATCH[1]}"
+            _ver="${BASH_REMATCH[2]}"
+        else
+            return 1
+        fi
+
+        _requires_version_cmp "${_found_ver}" "${_op}" "${_ver}" || return 1
+    done
+
+    return 0
+}
+
 # Work through a list of commands and/or files and fail on any unmet requirements.
-# Usage: requires curl sed awk /etc/someconf.cfg
+#
+# Usage:
+#   requires curl sed awk /etc/someconf.cfg
+#   requires 'curl>=7.0' 'git>=2.30,<3.0'   # quote to prevent shell interpretation
+#   requires -r requirements.txt             # load requirements from a file
+#   requires -r requirements.txt extra-tool  # file plus additional args
+#
+# Requirements file format (one entry per line, # comments supported):
+#   curl>=7.0
+#   git>=2.30,<3.0
+#   jq
+#   /etc/myapp/config.cfg
 requires() {
+    local OPTIND
+    local _opt
+    local _req_file
+    local _req_line
     local _item
     local _key
     local _val
     local _bashver
     local _target_lib
     local _failures
+    local _req_cmd
+    local _req_constraints
+    local _req_status
+    local _req_found_ver
+    local -a _items
 
-    for _item in "${@}"; do
-        # First, is this a variable check?
-        # There has to be a cleaner/safer way to do this
+    while getopts ':r:' _opt; do
+        case "${_opt}" in
+            (r)
+            _req_file="${OPTARG}"
+            if [ ! -r "${_req_file}" ]; then
+                printf -- 'requires: %s\n' "Cannot read requirements file: ${_req_file}" >&2
+                return 1
+            fi
+            ;;
+            (:)
+            printf -- 'requires: %s\n' "Option -${OPTARG} requires an argument" >&2
+            return 1
+            ;;
+            (?)
+            printf -- 'requires: %s\n' "Unknown option: -${OPTARG}" >&2
+            return 1
+            ;;
+        esac
+    done
+    shift $(( OPTIND - 1 ))
+
+    _items=()
+
+    if [ -n "${_req_file}" ]; then
+        while IFS= read -r _req_line; do
+            case "${_req_line}" in
+                ('#'*|'') continue ;;
+            esac
+            _items+=( "${_req_line}" )
+        done < "${_req_file}"
+    fi
+
+    _items+=( "${@}" )
+
+    for _item in "${_items[@]}"; do
         case "${_item}" in
+            # Version constraints must come before *=* to avoid misparse.
+            # Operators >, < are unambiguous; == and != contain = so must be
+            # listed explicitly to take priority over the variable-check branch.
+            (*'>'*|*'<'*|*'!='*|*'=='*)
+            if [[ "${_item}" =~ ^([A-Za-z0-9_./-]+)([><=!].*)$ ]]; then
+                _req_cmd="${BASH_REMATCH[1]}"
+                _req_constraints="${BASH_REMATCH[2]}"
+                _requires_check_constraints "${_req_cmd}" "${_req_constraints}"
+                _req_status="${?}"
+                case "${_req_status}" in
+                    (0) ;;
+                    (2) _failures="${_failures} ${_item} (version undetermined)" ;;
+                    (*)
+                    _req_found_ver=$(_requires_get_version "${_req_cmd}" 2>/dev/null)
+                    if [ -n "${_req_found_ver}" ]; then
+                        _failures="${_failures} ${_item} (found ${_req_found_ver})"
+                    else
+                        _failures="${_failures} ${_item}"
+                    fi
+                    ;;
+                esac
+            else
+                _failures="${_failures} ${_item}"
+            fi
+            continue
+            ;;
+
+            # Variable check: KEY=VALUE
             (*=*)
             _key="${_item%%=*}" # Everything left of the first '='
             _val="${_item#*=}"  # Everything right of the first '='
             eval [ \$"${_key}" = "${_val}" ] && continue
             ;;
+
             (BASH*)
             # Shell version check e.g. 'requires BASH32' = we check for bash 3.2 or newer
             # To strictly require a specific version, you could use the keyval test above
@@ -55,11 +212,13 @@ requires() {
                 [ "${_item/BASH/}" -ge "${_bashver/BASH/}" ] && continue
             fi
             ;;
+
             (KSH)
             # At present we just check that we have one of the following env vars
             [ "${#KSH_VERSION}" -gt 0 ] && continue
             [ "${#.sh.version}" -gt 0 ] && continue
             ;;
+
             (ZSH*)
             if [ "${#ZSH_VERSION}" -gt 0 ]; then
                 # ZSH_VERSION outputs a semantic number e.g. 5.7.1
@@ -69,6 +228,7 @@ requires() {
                 [ "${_item/ZSH/}" -ge "${ZSH_VERSION//./}" ] && continue
             fi
             ;;
+
             (root)
             [ "${EUID:-$(id -u)}" -eq "0" ] && continue
             ;;
