@@ -54,12 +54,36 @@ if (( "${#}" == 0 )); then
     fi
 fi
 
+# Derive the sentinel variable name from a resolved full path.
+# Strips the matching SH_LIBPATH prefix, then converts the relative path
+# to a valid variable name: slashes and hyphens become underscores, .sh stripped.
+# Example: /usr/local/lib/sh/text/color.sh -> _SH_LOADED_text_color
+_include_sentinel() {
+    local _path _rel _element
+    _path="${1}"
+    for _element in "${SH_LIBPATH_ARRAY[@]}"; do
+        if [ "${_path#${_element}/}" != "${_path}" ]; then
+            _rel="${_path#${_element}/}"
+            break
+        fi
+    done
+    # Fallback for full paths not under any known SH_LIBPATH element
+    : "${_rel:=$(basename "$(dirname "${_path}")")/$(basename "${_path}")}"
+    _rel="${_rel%.sh}"
+    _rel="${_rel//\//_}"
+    _rel="${_rel//-/_}"
+    printf -- '%s\n' "_SH_LOADED_${_rel}"
+}
+
+# Check if a library's sentinel variable is set
+_include_is_loaded() {
+    local _sentinel
+    _sentinel=$(_include_sentinel "${1}")
+    eval "[ -n \"\${${_sentinel}+x}\" ]"
+}
+
 # Assign our target to a var
 _include_target="${1}"
-
-# Ensure that it's not already loaded
-# TO-DO: Add option to include() to ignore this test and (forcibly?) reload
-_is_lib_loaded "${_include_target}" && return 0
 
 # Is it a full path to a readable file?
 # Example: include /opt/something/specific/library.sh
@@ -67,14 +91,10 @@ sh_stack_add -2 "Is '${_include_target}' a full path to a file?"
 if [ -f "${_include_target}" ]; then
     sh_stack_add -3 "Full path: '${_include_target}' exists.  Is it readable?"
     if [ -r "${_include_target}" ]; then
+        _include_is_loaded "${_include_target}" && { unset -v _include_target; return 0; }
         sh_stack_add -4 "Full path: '${_include_target}' readable.  Loading."
         # shellcheck disable=SC1090
         if . "${_include_target}"; then
-            # Add the library to SH_LIBS_LOADED
-            SH_LIBS_LOADED="${SH_LIBS_LOADED} ${_include_target}"
-            # Strip the leading space char
-            SH_LIBS_LOADED="${SH_LIBS_LOADED# }"
-            export SH_LIBS_LOADED
             unset -v _include_target
             return 0
         else
@@ -115,37 +135,32 @@ for _element in "${SH_LIBPATH_ARRAY[@]}"; do
         _subdir="${_element}/${_include_target}"
         sh_stack_add -3 "Loading all libraries and functions from '${_subdir}'"
         for _load_target in "${_subdir}"/*.sh; do
-            # Ensure that it's not already loaded
-            _is_lib_loaded "${_load_target}" && continue
+            _include_is_loaded "${_load_target}" && continue
             if [ -r "${_load_target}" ]; then
                 # shellcheck disable=SC1090
                 . "${_load_target}" || {
                 sh_stack_dump
                 printf -- 'include: %s\n' "Failed to load '${_load_target}'" >&2
                 unset -v _element _subdir _load_target _include_target
-                if  [ -t 0 ]; then
+                if [ -t 0 ]; then
                     return 1
                 else
                     exit 1
                 fi
                 }
-                SH_LIBS_LOADED="${SH_LIBS_LOADED} ${_load_target}"
-                SH_LIBS_LOADED="${SH_LIBS_LOADED# }"
-                unset -v _element _subdir _load_target _include_target
             else
                 sh_stack_dump
                 printf -- 'include: %s\n' "Insufficient permissions while includeing '${_load_target}'" >&2
                 unset -v _element _subdir _load_target _include_target
-                if  [ -t 0 ]; then
-                return 1
+                if [ -t 0 ]; then
+                    return 1
                 else
-                exit 1
+                    exit 1
                 fi
             fi
         done
-        export SH_LIBS_LOADED
         unset -v _element _subdir _load_target _include_target
-        if  [ -t 0 ]; then
+        if [ -t 0 ]; then
             return 0
         else
             exit 0
@@ -159,7 +174,7 @@ for _element in "${SH_LIBPATH_ARRAY[@]}"; do
     # include subdir/library           (e.g. include text/tolower)
     #     This scenario defaults to the .sh extension i.e. text/tolower = text/tolower.sh
     sh_stack_add -2 "Is '${_include_target}' a relative path within ${_element}?"
-    if [ -f "${_element}/${_include_target}" ]||[ -f "${_element}/${_include_target}.sh" ]; then
+    if [ -f "${_element}/${_include_target}" ] || [ -f "${_element}/${_include_target}.sh" ]; then
         sh_stack_add -3 "Relative path: '${_element}/${_include_target}' exists.  Is it readable?"
         if [ -r "${_element}/${_include_target}" ]; then
             _load_target="${_element}/${_include_target}"
@@ -169,24 +184,24 @@ for _element in "${SH_LIBPATH_ARRAY[@]}"; do
             sh_stack_dump
             printf -- 'include: %s\n' "Insufficient permissions while includeing '${_include_target}' from '${_element}'" >&2
             unset -v _element _include_target
-            if  [ -t 0 ]; then
+            if [ -t 0 ]; then
                 return 1
             else
                 exit 1
             fi
         fi
 
+        _include_is_loaded "${_load_target}" && { unset -v _element _include_target _load_target; return 0; }
+
         # shellcheck disable=SC1090
         . "${_load_target}" || {
         printf -- 'include: %s\n' "Failed to load '${_load_target}'" >&2
-        if  [ -t 0 ]; then
+        if [ -t 0 ]; then
             return 1
         else
             exit 1
         fi
         }
-        SH_LIBS_LOADED="${SH_LIBS_LOADED} ${_load_target}"
-        SH_LIBS_LOADED="${SH_LIBS_LOADED# }"
         unset -v _element _include_target _load_target
         return 0
     else
@@ -198,7 +213,7 @@ done
 sh_stack_dump
 printf -- 'include: %s\n' "Unspecified error while executing 'include ${*}'" >&2
 unset -v _subdir _function _subdir_path _include_target
-if  [ -t 0 ]; then
+if [ -t 0 ]; then
     return 1
 else
     exit 1

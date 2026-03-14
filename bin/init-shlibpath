@@ -139,14 +139,3 @@ ls_shlibs() {
 _is_function_loaded() {
   typeset -f "${1:?No function defined}" >/dev/null
 }
-
-_is_lib_loaded() {
-  _is_lib_loaded_target="${1:?No library defined}"
-  if [ "${SH_LIBS_LOADED#*"$_is_lib_loaded_target"}" != "${SH_LIBS_LOADED}" ]; then
-    unset -v _is_lib_loaded_target
-    exit 0
-  else
-    unset -v _is_lib_loaded_target
-    exit 1
-  fi
-}

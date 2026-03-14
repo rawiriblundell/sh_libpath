@@ -39,7 +39,8 @@ This project proposes adding a library ecosystem, primarily for use in shell scr
 
 * `SH_LIBPATH` - this is a colon seperated list of library paths, just like `PATH`
 * `SH_LIBPATH_ARRAY` - the same as above, just in an array
-* `SH_LIBS_LOADED` - a colon separated list of libraries that are already loaded.  This is used as one method to prevent attempts at multiple loadings of the same library code
+* `SH_LIBPATH_LOADED` - sentinel variable set when `init-shlibpath` is sourced, preventing re-initialisation
+* `_SH_LOADED_<category>_<name>` - per-library sentinel variables set when each library is sourced, preventing duplicate loads
 
 The proposed library structure caters for both monolithic libraries e.g.
 
