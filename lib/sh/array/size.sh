@@ -20,4 +20,13 @@
 [ -n "${_SH_LOADED_array_size+x}" ] && return 0
 _SH_LOADED_array_size=1
 
-# Print the size of a given array
+# Print the number of elements in a named array.
+# Usage: array_size arr_name
+# Example:
+#     $ myarr=( a b c )
+#     $ array_size myarr
+#     3
+array_size() {
+  local -n _arr="${1:?No array name given}"
+  printf -- '%s\n' "${#_arr[@]}"
+}

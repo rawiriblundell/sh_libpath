@@ -20,5 +20,24 @@
 [ -n "${_SH_LOADED_array_remove+x}" ] && return 0
 _SH_LOADED_array_remove=1
 
-# TODO:
-# remove and reindex
+# Remove all elements matching a value from a named array and reindex.
+# Usage: array_remove arr_name element
+# Example:
+#     $ myarr=( a b c b d )
+#     $ array_remove myarr b
+#     $ printf '%s\n' "${myarr[@]}"
+#     a
+#     c
+#     d
+array_remove() {
+  local -n _arr="${1:?No array name given}"
+  local _elem
+  local -a _new_arr
+  local _item
+  _elem="${2:?No element given}"
+  _new_arr=()
+  for _item in "${_arr[@]}"; do
+    [[ "${_item}" = "${_elem}" ]] || _new_arr+=( "${_item}" )
+  done
+  _arr=( "${_new_arr[@]}" )
+}
