@@ -20,7 +20,7 @@
 [ -n "${_SH_LOADED_net_get_mac+x}" ] && return 0
 _SH_LOADED_net_get_mac=1
 
-# Takes word split mac address, uppercases and outputs in XX-YY-... format
+# @internal
 _sanitise_mac_addr() {
   for octet in ${rawMac}; do
     if [[ "${#octet}" -eq "1" ]]; then
@@ -31,10 +31,13 @@ _sanitise_mac_addr() {
   done | tr '[:lower:]' '[:upper:]' | cut -d- -f1-6
 }
 
-# MAC Address, start with the newer ip command, failover to ifconfig
-# ifconfig has unexplored issues in Azure/Openshift
-# AIX may need to use netstat -ia
-# HPUX may need to use lanscan
+# @description Get the MAC address of the primary UP network interface.
+#   Tries 'ip' first, then 'ifconfig', then 'dladm' (Solaris), then 'arp'.
+#   ifconfig has unexplored issues in Azure/OpenShift.
+#   AIX may need netstat -ia; HPUX may need lanscan.
+#
+# @stdout The MAC address in XX-YY-ZZ-AA-BB-CC format (uppercase)
+# @exitcode 0 Always
 get_mac() {
   if command -v ip >/dev/null 2>&1; then
     macAddr=$(ip -brief link | awk '$2 == "UP" {print $3; exit}' | tr ":" "-")

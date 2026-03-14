@@ -20,6 +20,20 @@
 [ -n "${_SH_LOADED_numbers_range+x}" ] && return 0
 _SH_LOADED_numbers_range=1
 
+# @description Generate a sequence of integers.
+#   Argument order follows Python's range(): [last] | [first last] | [first last step].
+#   With one argument, generates 0..n-1. With two, generates first..last.
+#   With three, generates first..last stepping by step.
+#   Uses seq when available, otherwise falls back to a pure-shell implementation.
+#
+# @arg $1 int Last value (exclusive) when only arg, or first value
+# @arg $2 int Last value (inclusive) when two args given
+# @arg $3 int Step size when three args given
+#
+# @stdout One integer per line
+# @exitcode 0 Always
+# @exitcode 1 No arguments given
+#
 # If 'seq' is available, we simply map to it
 # Note:
 # Unlike 'seq', 'range' defaults to a 0 start rather than a 1 start

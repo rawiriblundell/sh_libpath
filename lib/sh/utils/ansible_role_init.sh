@@ -22,7 +22,14 @@ _SH_LOADED_utils_ansible_role_init=1
 
 # TODO: Overlay 'ansible' command i.e. 'ansible init [rolename]' or something to that effect
 
-# Create the file structure for an Ansible role
+# @description Create the standard directory and file structure for an Ansible role
+#   in the current directory. Creates defaults, files, handlers, meta, templates,
+#   tasks, and vars subdirectories, each with a stub main.yml.
+#
+# @arg $1 string Role name (used as the top-level directory name)
+#
+# @exitcode 0 Role structure created successfully
+# @exitcode 1 No role name given, current directory not writable, or role already exists
 rolesetup() {
   if [[ -z "${1}" ]]; then
     printf -- '%s\n' "rolesetup - setup the file structure for an Ansible role." \

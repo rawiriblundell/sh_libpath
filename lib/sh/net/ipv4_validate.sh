@@ -20,6 +20,17 @@
 [ -n "${_SH_LOADED_net_ipv4_validate+x}" ] && return 0
 _SH_LOADED_net_ipv4_validate=1
 
+# @description Validate that a string is a well-formed IPv4 address. Strips optional
+#   CIDR notation and double quotes before checking. Runs in a subshell.
+#
+# @arg $1 string IPv4 address to validate, optionally with CIDR (e.g. 192.168.1.1/24)
+#
+# @example
+#   ipv4_validate_addr 192.168.1.1    # => exit 0
+#   ipv4_validate_addr 999.1.1.1      # => exit 1
+#
+# @exitcode 0 Valid IPv4 address
+# @exitcode 1 Invalid or malformed address
 ipv4_validate_addr() {
   # Disable SC2086 for 'set -- ${*%/*}' as we require this to be word split
   # shellcheck disable=SC2086

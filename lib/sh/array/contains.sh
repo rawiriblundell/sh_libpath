@@ -22,12 +22,19 @@ _SH_LOADED_array_contains=1
 
 # Functions for searching and testing array membership
 
-# Test if any element in the array matches a grep regex pattern.
-# Passes array elements by value (expand with "${arr[@]}").
-# For a nameref-based glob test, see array_some.
-# Usage: array_grep needle "${arr[@]}"
-# e.g. array_grep '^foo' "${myarr[@]}"
-# This function intentionally uses a subshell
+# @description Test if any element in the array matches a grep regex pattern.
+#   Passes array elements by value (expand with "${arr[@]}").
+#   For a nameref-based glob test, see array_some.
+#   This function intentionally uses a subshell.
+#
+# @arg $1 string The grep regex pattern to search for.
+# @arg $@ string Array elements passed by value.
+#
+# @example
+#   array_grep '^foo' "${myarr[@]}"
+#
+# @exitcode 0 At least one element matched.
+# @exitcode 1 No elements matched.
 array_grep() (
   local _needle
   _needle="${1:?No search pattern provided}"
@@ -35,10 +42,18 @@ array_grep() (
   printf -- '%s\n' "${@}" | grep "${_needle}" >/dev/null 2>&1
 )
 
-# Print the index of the first element that exactly matches a value.
-# Returns 1 if not found.
-# Usage: array_index arr_name element
-# e.g. array_index myarr needle
+# @description Print the index of the first element that exactly matches a value.
+#
+# @arg $1 string Name of the array variable.
+# @arg $2 string The value to search for.
+#
+# @example
+#   myarr=( a b c )
+#   array_index myarr b  # => 1
+#
+# @stdout The zero-based index of the first matching element.
+# @exitcode 0 Element found.
+# @exitcode 1 Element not found.
 array_index() {
   local -n _arr="${1:?No array name given}"
   local _elem _i
@@ -52,8 +67,17 @@ array_index() {
   return 1
 }
 
-# Return 0 if any element of a named array matches a glob pattern.
-# Usage: array_some arr_name pattern
+# @description Return 0 if any element of a named array matches a glob pattern.
+#
+# @arg $1 string Name of the array variable.
+# @arg $2 string Glob pattern to test against each element.
+#
+# @example
+#   myarr=( apple banana cherry )
+#   array_some myarr 'ban*'  # => 0
+#
+# @exitcode 0 At least one element matched.
+# @exitcode 1 No elements matched.
 array_some() {
   local -n _arr="${1:?No array name given}"
   local _pattern _item
@@ -64,8 +88,17 @@ array_some() {
   return 1
 }
 
-# Return 0 if every element of a named array matches a glob pattern.
-# Usage: array_every arr_name pattern
+# @description Return 0 if every element of a named array matches a glob pattern.
+#
+# @arg $1 string Name of the array variable.
+# @arg $2 string Glob pattern that all elements must match.
+#
+# @example
+#   myarr=( apple apricot avocado )
+#   array_every myarr 'a*'  # => 0
+#
+# @exitcode 0 All elements matched.
+# @exitcode 1 At least one element did not match.
 array_every() {
   local -n _arr="${1:?No array name given}"
   local _pattern _item
@@ -76,8 +109,18 @@ array_every() {
   return 0
 }
 
-# Print the last index of an element that exactly matches value.
-# Usage: array_last_index arr_name element
+# @description Print the last index of an element that exactly matches a value.
+#
+# @arg $1 string Name of the array variable.
+# @arg $2 string The value to search for.
+#
+# @example
+#   myarr=( a b c b d )
+#   array_last_index myarr b  # => 3
+#
+# @stdout The zero-based index of the last matching element.
+# @exitcode 0 Element found.
+# @exitcode 1 Element not found.
 array_last_index() {
   local -n _arr="${1:?No array name given}"
   local _elem _i _last
@@ -90,9 +133,18 @@ array_last_index() {
   printf -- '%s\n' "${_last}"
 }
 
-# Print the first element matching a glob pattern.
-# Returns 1 if not found.
-# Usage: array_find arr_name pattern
+# @description Print the first element matching a glob pattern.
+#
+# @arg $1 string Name of the array variable.
+# @arg $2 string Glob pattern to match against.
+#
+# @example
+#   myarr=( apple banana cherry )
+#   array_find myarr 'b*'  # => banana
+#
+# @stdout The first matching element.
+# @exitcode 0 A match was found.
+# @exitcode 1 No match found.
 array_find() {
   local -n _arr="${1:?No array name given}"
   local _pattern _item
@@ -106,8 +158,18 @@ array_find() {
   return 1
 }
 
-# Print the last element matching a glob pattern.
-# Usage: array_find_last arr_name pattern
+# @description Print the last element matching a glob pattern.
+#
+# @arg $1 string Name of the array variable.
+# @arg $2 string Glob pattern to match against.
+#
+# @example
+#   myarr=( apple banana cherry apricot )
+#   array_find_last myarr 'a*'  # => apricot
+#
+# @stdout The last matching element.
+# @exitcode 0 A match was found.
+# @exitcode 1 No match found.
 array_find_last() {
   local -n _arr="${1:?No array name given}"
   local _pattern _item _last _found

@@ -20,8 +20,11 @@
 [ -n "${_SH_LOADED_numbers_random+x}" ] && return 0
 _SH_LOADED_numbers_random=1
 
-# Function to generate a reliable seed for whatever method requires one
-# Because 'date +%s' isn't entirely portable, we try other methods to get the epoch
+# @description Generate a numeric seed suitable for use with PRNG functions.
+#   Prefers /dev/urandom+od, falls back to date +%s, then a portable shell calculation.
+#
+# @stdout A large positive integer suitable for use as a PRNG seed
+# @exitcode 0 Always
 random_seed() {
     # First we check if /dev/urandom is available.
     # We used to have a method_urandom.  /dev/urandom can generate numbers fast
@@ -46,9 +49,14 @@ random_seed() {
     fi
 }
 
-# A BSD-style Linear Congruential Generator, range 0-32767, just like $RANDOM
-# See: https://rosettacode.org/wiki/Linear_congruential_generator
-# Usage: lcgrng (optional: number count, default:1) (optional: seed, default: epoch in seconds)
+# @description Generate random integers using a BSD-style Linear Congruential Generator.
+#   Produces values in the range 0-32767, matching the range of $RANDOM.
+#
+# @arg $1 int Optional: count of numbers to generate (default: 1)
+# @arg $2 int Optional: seed value (default: epoch seconds via random_seed)
+#
+# @stdout One random integer per line
+# @exitcode 0 Always
 random_lcg() {
     rn_count="${1:-1}"
     rn_seed="${2:-$(random_seed)}"
@@ -74,6 +82,16 @@ random_lcg() {
     done
 }
 
+# @description Generate random integers using xorshift128+ with debiased modulo.
+#   Selects the word size automatically via getconf LONG_BIT.
+#
+# @arg $1 int Optional: count of numbers to generate (default: 1)
+# @arg $2 int Optional: minimum value (default: 1)
+# @arg $3 int Optional: maximum value (default: architecture max)
+# @arg $4 int Optional: seed for seed1 (default: random_seed)
+#
+# @stdout One random integer per line within [min, max]
+# @exitcode 0 Always
 random_xorshift128plus() {
     n_count="${1:-1}"
     n_min="${2:-1}"
@@ -128,7 +146,15 @@ random_xorshift128plus() {
     done 
 }
 
-# Get a number of random integers using $RANDOM with debiased modulo
+# @description Generate random integers using $RANDOM with debiased modulo.
+#
+# @arg $1 int Optional: count of numbers to generate (default: 1)
+# @arg $2 int Optional: minimum value inclusive (default: 1)
+# @arg $3 int Optional: maximum value inclusive (default: 32767)
+#
+# @stdout One random integer per line within [min, max]
+# @exitcode 0 Success
+# @exitcode 3 min equals max (zero-range)
 randInt() {
   local n_count n_min n_max n_mod rand_thres i x_int
   n_count="${1:-1}"

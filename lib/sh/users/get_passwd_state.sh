@@ -20,6 +20,13 @@
 [ -n "${_SH_LOADED_users_get_passwd_state+x}" ] && return 0
 _SH_LOADED_users_get_passwd_state=1
 
+# @description Print the password state for a user from /etc/shadow.
+#   Returns 'P' (password set), 'LK' (locked), or 'NP' (no password).
+#
+# @arg $1 string Username to check
+#
+# @stdout 'P', 'LK', or 'NP'
+# @exitcode 0 Always
 get_passwd_state() {
   case $(awk -F ':' -v user="${1}" '{if ($1 == user) print $2}' /etc/shadow) in
     (\$[1256]*)

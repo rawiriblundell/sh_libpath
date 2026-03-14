@@ -20,8 +20,17 @@
 [ -n "${_SH_LOADED_utils_mapfile+x}" ] && return 0
 _SH_LOADED_utils_mapfile=1
 
-# A portability function for older systems that don't have the mapfile builtin
 if ! command -v mapfile >/dev/null 2>&1; then
+  # @description Step-in replacement for bash's 'mapfile' (readarray) builtin.
+  #   Reads lines from stdin into an indexed array. Strips trailing newlines by
+  #   default (equivalent to always running with -t). Exports MAPFILE as the
+  #   default array name; renames to the named array if one is given.
+  #   Note: -n, -s, and -u options from the real mapfile are not supported.
+  #
+  # @arg $1 string Optional: '-t' (accepted but ignored for compatibility)
+  # @arg $2 string Optional: target array name (default: MAPFILE)
+  #
+  # @exitcode 0 Always
   mapfile() {
     local _arrName i IFS
     unset MAPFILE

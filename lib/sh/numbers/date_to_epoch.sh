@@ -25,8 +25,17 @@ if ! command -v perl >/dev/null 2>&1; then
     exit 1
 fi
 
-# Used for converting SSL cert datestamps on systems with 'date' that doesn't support '-d'
-# Expected format example: "Nov 10 2034 21:19:01"
+# @description Convert an SSL-style date/time string to a Unix epoch using perl.
+#   Intended for systems where date(1) does not support the -d flag.
+#   Expected input format: "Nov 10 2034 21:19:01"
+#
+# @arg $1 string Month (e.g. Nov)
+# @arg $2 int Day of month
+# @arg $3 int Four-digit year
+# @arg $4 string Time as HH:MM:SS
+#
+# @stdout Unix epoch integer
+# @exitcode 0 Always
 convert_time_to_epoch() {
     local _sec _min _hours _day _month _year _timestamp
     # Read our incoming date/time information into our variables

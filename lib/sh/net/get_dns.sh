@@ -20,6 +20,13 @@
 [ -n "${_SH_LOADED_net_get_dns+x}" ] && return 0
 _SH_LOADED_net_get_dns=1
 
+# @description Get the DNS server addresses for the current host. Tries a range of
+#   methods in order: scutil (macOS), resolvectl, systemd-resolve, nm-tool, nmcli,
+#   host, and finally parsing /etc/resolv.conf or /var/run/resolv.conf.
+#
+# @stdout Comma-separated DNS server IP addresses
+# @exitcode 0 Success
+# @exitcode 1 Unable to determine any DNS servers
 get_dns() {
   case "${OSSTR:-$(uname -s)}" in
     (mac|Darwin)

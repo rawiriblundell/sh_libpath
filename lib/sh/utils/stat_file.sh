@@ -20,6 +20,14 @@
 [ -n "${_SH_LOADED_utils_stat_file+x}" ] && return 0
 _SH_LOADED_utils_stat_file=1
 
+# @description Portable 'stat' dispatcher that retrieves a single file attribute.
+#   Tries GNU stat (-c format), then BSD stat (-f format), then perl as a fallback.
+#
+# @arg $1 string Attribute to retrieve: atime, ctime, mtime, size, or owner
+# @arg $2 string Path to the target file
+#
+# @stdout Requested attribute value (epoch seconds for times, bytes for size, username for owner)
+# @exitcode 0 Success
 stat_file() {
   case "${1}" in
     (atime)
@@ -51,12 +59,23 @@ stat_file() {
   esac
 }
 
-# Function to get the owner of a file
+# @description Print the username of the owner of a file.
+#
+# @arg $1 string Path to the file
+#
+# @stdout Username of the file owner
+# @exitcode 0 Success
 whoowns() {
   stat_file owner "${1}"
 }
 
-# Test a file's age in seconds
+# @description Return how many seconds ago a file was last modified.
+#
+# @arg $1 string Path to the file
+#
+# @stdout Age of the file in seconds
+# @exitcode 0 Success
+# @exitcode 1 File does not exist or is unreadable
 get_file_age() {
   if [[ -f "${1:?No file specified}" ]]; then
     printf -- '%s\n' "$(( $(date +%s) - $(stat_file mtime "${1}") ))"

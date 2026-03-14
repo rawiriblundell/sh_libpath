@@ -24,6 +24,12 @@ case $(uname -s) in
     ("AIX")
         OSSTR=aix
         #OSVER=
+        # @description Print system uptime in seconds. Defined per-OS in a case block;
+        #   output format varies by platform (Linux: /proc/uptime format, BSD/macOS: epoch
+        #   difference, AIX: parsed uptime string, Solaris: includes additional sysinfo).
+        #
+        # @stdout Uptime in seconds (platform-dependent format)
+        # @exitcode 0 Always
         # Known uptime formats
         # 12:55pm  up 105 days, 21 hrs,  2 users, load average: 0.26, 0.26, 0.26 --> 9147600
         # 1:41pm   up 105 days, 21:46,   2 users, load average: 0.28, 0.28, 0.27 --> 9150360

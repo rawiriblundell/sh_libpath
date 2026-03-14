@@ -20,7 +20,16 @@
 [ -n "${_SH_LOADED_utils_fetch+x}" ] && return 0
 _SH_LOADED_utils_fetch=1
 
-# Usage: get_sourceforge [project] [linux|mac|windows]
+# @description Download the best release of a SourceForge project for the current
+#   (or specified) platform using curl and the SourceForge best_release JSON API.
+#   Requires curl and jq. Follows redirects to resolve the final download URL.
+#
+# @arg $1 string SourceForge project name
+# @arg $2 string Optional: target platform: linux, mac, or windows (default: auto-detect)
+#
+# @stdout Progress message with the resolved download URL
+# @exitcode 0 Download succeeded
+# @exitcode 1 curl or jq not found, or download failed
 fetch_sourceforge() {
   # We require 'curl' and 'jq'
   fail_count=0
@@ -69,15 +78,32 @@ fetch_sourceforge() {
   curl -O "${remote_target}" || return 1
 }
 
+# @description Follow redirects on a URL and download the final target file,
+#   saving it under its remote filename into the local_dir directory.
+#
+# @arg $1 string URL to fetch
+#
+# @exitcode 0 Download succeeded
+# @exitcode 1 Download failed
 software::fetch() {
   local local_target remote_target
   remote_target="${1:?No target specified}"
   remote_target="$(curl "${remote_target}" -s -L -I -o /dev/null -w '%{url_effective}')"
   local_target="${remote_target##*/}"
   printf -- '%s\n' "Attempting to fetch ${remote_target}..."
-  curl "${remote_target}" > "${local_dir}"/"${local_target}" || return 1  
+  curl "${remote_target}" > "${local_dir}"/"${local_target}" || return 1
 }
 
+# @description Minimal curl wrapper that fetches a URL and streams it to stdout.
+#   With a single URL, uses HTTP/1.0 for broader compatibility. With additional
+#   arguments, passes them all directly to curl.
+#
+# @arg $1 string URL to fetch
+# @arg $2 string Optional: additional curl arguments
+#
+# @stdout Response body
+# @exitcode 0 Success
+# @exitcode 1 curl failed
 fetch() {
   case "${2}" in
     ('') curl -sL -0 "${1}" ;;

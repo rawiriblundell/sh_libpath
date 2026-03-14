@@ -20,6 +20,15 @@
 [ -n "${_SH_LOADED_core_exec_cmd+x}" ] && return 0
 _SH_LOADED_core_exec_cmd=1
 
+# @description Execute a command while logging its timestamp, output and exit code.
+#   Uses colour when stdout is a terminal. Pass -e/--exit-on-fail to abort on error.
+#
+# @arg $1 string Optional: -e or --exit-on-fail to exit on non-zero return
+# @arg $@ string The command and its arguments to execute
+#
+# @stdout Formatted execution log with timestamp, command output and exit code
+# @exitcode 0 Command succeeded
+# @exitcode 1 Command failed and -e/--exit-on-fail was given
 exec_cmd() {
     case "${1}" in
         (-e|--exit-on-fail) shift 1; die=yes ;;

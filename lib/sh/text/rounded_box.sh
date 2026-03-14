@@ -20,9 +20,16 @@
 [ -n "${_SH_LOADED_text_rounded_box+x}" ] && return 0
 _SH_LOADED_text_rounded_box=1
 
-# Print a given text within a rounded box
-# TODO: Accept heredoc inputs
-# TODO: Add coloured border handling e.g. red borders for warning messages
+# @description Print text wrapped in a Unicode rounded box.
+#   Supports an optional title in the top border and custom width.
+#   Long lines are wrapped with fold. Literal \n in content is treated as a newline.
+#
+# @arg $1 string Optional: -t TITLE to set a title in the top border
+# @arg $2 string Optional: -w WIDTH to set the box width in columns (default: 80)
+# @arg $@ string Content to display inside the box
+#
+# @stdout Text enclosed in a rounded Unicode border box
+# @exitcode 0 Always
 rounded_box() {
     local u_left u_right b_left b_right h_bar v_bar h_width title content
     u_left="\xe2\x95\xad"   # upper left corner

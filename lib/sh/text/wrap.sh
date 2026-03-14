@@ -20,19 +20,17 @@
 [ -n "${_SH_LOADED_text_wrap+x}" ] && return 0
 _SH_LOADED_text_wrap=1
 
-# Written for https://github.com/bash-my-aws/bash-my-aws/issues/216#issuecomment-1198807593
-# Convert long command to multi-line with vertically aligned continuation separators e.g.
-# aws s3api copy-object --copy-source "${example/release-$BUILD_NUMBER/index.html" --bucket "${DEPLOYMENT_BUCKET}" --key "search/" --content-type text/html --cache-control public,max-age=60,s-maxage=60 --metadata-directive REPLACE
+# @description Format a long command into multi-line with vertically aligned backslash continuations.
+#   Each flag/option starting with ' -' is placed on its own line, indented by two spaces.
+#   Backslash continuations are right-aligned to the longest line.
 #
-# Becomes:
+# @arg $@ string The command string to wrap
 #
-# aws s3api copy-object                                        \
-#   --copy-source "${example/release-$BUILD_NUMBER/index.html" \
-#   --bucket "${DEPLOYMENT_BUCKET}"                            \
-#   --key "search/"                                            \
-#   --content-type text/html                                   \
-#   --cache-control public,max-age=60,s-maxage=60              \
-#   --metadata-directive REPLACE
+# @example
+#   wrap_code_block aws s3api copy-object --bucket foo --key bar
+#
+# @stdout Multi-line command with aligned backslash continuations
+# @exitcode 0 Always
 wrap_code_block() {
   # Search for a leading space and a dash, to capture ` -a` and `--arg` style options
   # Replace with a newline and two space indentation, slurp each line into an array

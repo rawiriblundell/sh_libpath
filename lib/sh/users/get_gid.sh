@@ -20,6 +20,12 @@
 [ -n "${_SH_LOADED_users_get_gid+x}" ] && return 0
 _SH_LOADED_users_get_gid=1
 
+# @description Print the primary GID of a user by looking up the global variable
+#   $username in /etc/passwd.
+#
+# @stdout Primary GID of the user
+# @exitcode 0 User found
+# @exitcode 1 User not found (calls func.Erruser)
 get_gid() {
   if awk -F : '{print $0}' /etc/passwd | grep ^"${username}" >/dev/null 2>&1; then
     gid=$(grep ^"${username}" /etc/passwd | awk -F : '{print $4}' )

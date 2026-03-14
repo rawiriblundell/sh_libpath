@@ -20,7 +20,12 @@
 [ -n "${_SH_LOADED_numbers_2dp+x}" ] && return 0
 _SH_LOADED_numbers_2dp=1
 
-# Function to convert number to two decimal places
+# @description Format one or more numbers to two decimal places.
+#
+# @arg $@ number One or more numeric values
+#
+# @stdout Each value formatted to two decimal places, one per line
+# @exitcode 0 Always
 2dp() {
   printf -- '%0.2f\n' "${@}"
 }

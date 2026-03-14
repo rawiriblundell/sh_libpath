@@ -20,6 +20,10 @@
 [ -n "${_SH_LOADED_goodies_8ball+x}" ] && return 0
 _SH_LOADED_goodies_8ball=1
 
+# @description Print a random Magic 8-Ball response.
+#
+# @stdout One random response from the standard 8-ball set
+# @exitcode 0 Always
 8ball() {
   ansArray=(
     "It is certain" "It is decidedly so" "Without a doubt"

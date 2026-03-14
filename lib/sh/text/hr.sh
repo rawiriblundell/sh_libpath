@@ -20,6 +20,7 @@
 [ -n "${_SH_LOADED_text_hr+x}" ] && return 0
 _SH_LOADED_text_hr=1
 
+# @internal
 _hr_width_helper() {
   local _hr_height _hr_width
   command -v get_terminal_size >/dev/null 2>&1 || return
@@ -30,11 +31,16 @@ EOF
   printf -- '%s\n' "${_hr_width}"
 }
 
-# Write a horizontal line using any character
-# If run interactively, this defaults to the full width of the window
-# Otherwise it defaults to 60 columns
-# Note: You will need to escape characters that have special shell meaning
-# e.g. 'hr 40 \&'
+# @description Write a horizontal line using any character.
+#   In an interactive shell, defaults to the full terminal width.
+#   Otherwise defaults to 60 columns. Characters with special shell meaning
+#   must be escaped (e.g. 'hr 40 \&').
+#
+# @arg $1 int Optional: line width in columns (default: terminal width or 60)
+# @arg $2 string Optional: fill character (default: #)
+#
+# @stdout A horizontal line of the specified character and width
+# @exitcode 0 Always
 hr() {
   local _hr_width
   # Figure out if we're in an interactive shell, then try to figure the width
@@ -100,7 +106,7 @@ BLOCKED_COLORS=(0 1 7 9 11 {15..18} {154..161} {190..197} {226..235} {250..255})
 # Define another array that is an inversion of the above
 mapfile -t ALLOWED_COLORS < <(printf -- '%d\n' {0..255} "${BLOCKED_COLORS[@]}" | sort -n | uniq -u)
 
-# A function to generate a random color code using the above arrays
+# @internal
 _select_random_color() {
   local color
   # Define our initial color code
@@ -113,6 +119,11 @@ _select_random_color() {
   printf -- '%d\n' "${color}"
 }
 
+# @description Print a colored block-character horizontal rule, suitable for PS1 prompts.
+#   Uses a randomly selected visible color and Unicode block characters.
+#
+# @stdout A colored horizontal rule spanning the terminal width minus 6 columns
+# @exitcode 0 Always
 hrps1(){
   local color width
   # Figure out the width of the terminal window

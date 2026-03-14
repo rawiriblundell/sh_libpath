@@ -66,6 +66,10 @@ unset "active_loading_animation[0]"
 # Stop the animation and restore the normal cursor if the script is interrupted
 trap stop_loading_animation SIGINT
 
+# @description Display the active_loading_animation in a loop (run in background
+#   via start_loading_animation). Hides the cursor with tput civis.
+#
+# @exitcode 0 Always (loops indefinitely until killed)
 loading_animation() {
   tput civis
   while true ; do
@@ -76,11 +80,19 @@ loading_animation() {
   done
 }
 
+# @description Start the loading animation in the background and store its PID
+#   in $loading_animation_id for later use by stop_loading_animation.
+#
+# @exitcode 0 Always
 start_loading_animation() {
   loading_animation &
   loading_animation_id="${!}"
 }
 
+# @description Stop the loading animation and restore the terminal cursor.
+#   Kills the background animation process by $loading_animation_id.
+#
+# @exitcode 0 Always
 stop_loading_animation() {
   kill "${loading_animation_id}" &> /dev/null
   printf "\n"

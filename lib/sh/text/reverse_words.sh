@@ -20,6 +20,12 @@
 [ -n "${_SH_LOADED_text_reverse_words+x}" ] && return 0
 _SH_LOADED_text_reverse_words=1
 
+# @description Reverse the order of words in the given arguments.
+#
+# @arg $@ string One or more words to reverse
+#
+# @stdout Words in reversed order, space-separated
+# @exitcode 0 Always
 reverse_words() {
     local _reverse_words_word _reverse_words_output
     # shellcheck disable=SC2068 # We want word splitting here

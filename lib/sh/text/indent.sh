@@ -20,13 +20,21 @@
 [ -n "${_SH_LOADED_text_indent+x}" ] && return 0
 _SH_LOADED_text_indent=1
 
-# Function to indent text by n spaces (default: 2 spaces)
+# @description Indent each line of input by n spaces (default: 2).
+#   Reads from a file path or stdin.
+#
+# @arg $1 int Optional: number of spaces to indent (default: 2)
+# @arg $2 string Optional: file path (default: stdin)
+#
+# @stdout Indented text
+# @exitcode 0 Always
 str_indent() {
   _ident_width="${1:-2}"
   _ident_width=$(eval "printf -- '%.0s ' {1..${_ident_width}}")
   sed "s/^/${_ident_width}/" "${2:-/dev/stdin}"
 }
 
+# @description Alias for str_indent.
 indent() {
   _ident_width="${1:-2}"
   _ident_width=$(eval "printf -- '%.0s ' {1..${_ident_width}}")

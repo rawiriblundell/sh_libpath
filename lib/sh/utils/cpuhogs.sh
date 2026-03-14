@@ -25,7 +25,7 @@ _SH_LOADED_utils_cpuhogs=1
 
 # With inspiration from https://gist.github.com/mlgill/b08b18fc1de2086d9c20
 
-# This function formats and colourises our output
+# @internal
 _cpuhogs_print_fmt() {
     local print_fmt wrap_limit
 
@@ -44,6 +44,15 @@ _cpuhogs_print_fmt() {
     printf -- "${print_fmt}" "${@}"
 }
 
+# @description List processes sorted by CPU usage, colour-coded by percentage.
+#   Output is colour-coded: green (<10%), yellow (>=10%), red (>=20%).
+#   Colours are suppressed when not running interactively.
+#
+# @arg $1 int Optional: number of processes to show (default: 10). Accepts bare
+#   integer or '-n N' form.
+#
+# @stdout Table of PID, CPU%, and command name
+# @exitcode 0 Always
 cpuhogs() {
     local wrap_limit pid cpu cmd lines
     # Capture the width of the terminal window

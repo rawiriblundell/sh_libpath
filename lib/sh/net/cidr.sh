@@ -20,6 +20,18 @@
 [ -n "${_SH_LOADED_net_cidr+x}" ] && return 0
 _SH_LOADED_net_cidr=1
 
+# @description Convert a CIDR prefix length to a dotted-decimal subnet mask.
+#   Accepts the prefix with or without a leading slash (e.g. /24 or 24).
+#
+# @arg $1 string CIDR prefix length, e.g. 24 or /24
+#
+# @example
+#   cidr_prefix_to_mask 24   # => 255.255.255.0
+#   cidr_prefix_to_mask /16  # => 255.255.0.0
+#
+# @stdout The subnet mask in dotted-decimal notation
+# @exitcode 0 Success
+# @exitcode 1 No valid argument supplied
 cidr_prefix_to_mask() {
   local _subnet_mask
   case "${1}" in
@@ -77,6 +89,11 @@ cidr_prefix_to_mask() {
 #   echo ${1-0}.${2-0}.${3-0}.${4-0}
 # }
 
+# @description Print a table of all CIDR prefix lengths and their corresponding
+#   subnet masks, from /32 down to /0.
+#
+# @stdout Formatted table of prefix lengths and subnet masks
+# @exitcode 0 Always
 cidr_prefix_table() {
   local _prefix_int
   for (( _prefix_int=32; _prefix_int>=0; _prefix_int-- )); do

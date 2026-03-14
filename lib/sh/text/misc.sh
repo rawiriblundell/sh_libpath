@@ -20,19 +20,34 @@
 [ -n "${_SH_LOADED_text_misc+x}" ] && return 0
 _SH_LOADED_text_misc=1
 
-# Convert comma separated list to long format e.g. id user | tr "," "\n"
-# See also n2c() and n2s() for the opposite behaviour
+# @description Convert a comma-separated list to newline-separated format.
+#   Reads from stdin or a file. See also n2c() and n2s() for the inverse.
+#
+# @arg $1 string Optional: file path (default: stdin)
+#
+# @stdout One item per line
+# @exitcode 0 Always
 c2n() {
   while read -r; do 
     printf -- '%s\n' "${REPLY}" | tr "," "\\n"
   done < "${1:-/dev/stdin}"
 }
 
-# Convert multiple lines to comma separated format
-# See also c2n() for the opposite behaviour
+# @description Convert newline-separated input to a single comma-separated line.
+#   See also c2n() for the inverse.
+#
+# @arg $1 string Optional: file path (default: stdin)
+#
+# @stdout Comma-separated values on a single line
+# @exitcode 0 Always
 n2c() { paste -sd ',' "${1:--}"; }
 
-# Convert multiple lines to space separated format
+# @description Convert newline-separated input to a single space-separated line.
+#
+# @arg $1 string Optional: file path (default: stdin)
+#
+# @stdout Space-separated values on a single line
+# @exitcode 0 Always
 n2s() { paste -sd ' ' "${1:--}"; }
 
 # noext=${basename%%.*}

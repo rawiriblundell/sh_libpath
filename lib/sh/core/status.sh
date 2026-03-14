@@ -20,10 +20,17 @@
 [ -n "${_SH_LOADED_core_status+x}" ] && return 0
 _SH_LOADED_core_status=1
 
-# Functionalise the 'if $? =' idiom
-# Usage example:
-# somecommand
-# if status true; then
+# @description Test the exit status of the most recently run command against
+#   a named or numeric expectation. Functionalises the common 'if [ $? = ... ]' idiom.
+#
+# @arg $1 string Expected result: y/yes/0/true for success, n/no/1/false for failure
+#
+# @example
+#   somecommand
+#   if status true; then
+#
+# @exitcode 0 Last command's status matches the expectation
+# @exitcode 1 Last command's status does not match the expectation
 status() {
     # shellcheck disable=SC2181
     case "${1}" in
@@ -33,11 +40,18 @@ status() {
     esac
 }
 
-# Short-hand versions for the above
+# @description Return 0 if the last command succeeded (exit code 0). Alias shorthand for status().
+#
+# @exitcode 0 Last command succeeded
+# @exitcode 1 Last command failed
 status_true() {
     (( "${?}" == 0 ))
 }
 
+# @description Return 0 if the last command failed (exit code > 0). Alias shorthand for status().
+#
+# @exitcode 0 Last command failed
+# @exitcode 1 Last command succeeded
 status_false() {
     (( "${?}" > 0 ))
 }

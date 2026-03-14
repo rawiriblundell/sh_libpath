@@ -20,14 +20,21 @@
 [ -n "${_SH_LOADED_array_fill+x}" ] && return 0
 _SH_LOADED_array_fill=1
 
-# Fill a named array with a value repeated n times.
-# Usage: array_fill arr_name value n
-# Example:
-#     $ array_fill myarr x 3
-#     $ printf '%s\n' "${myarr[@]}"
-#     x
-#     x
-#     x
+# @description Fill a named array with a value repeated n times.
+#   Replaces any existing contents.
+#
+# @arg $1 string Name of the array variable.
+# @arg $2 string The value to fill with.
+# @arg $3 int The number of times to repeat the value.
+#
+# @example
+#   array_fill myarr x 3
+#   printf '%s\n' "${myarr[@]}"
+#   # => x
+#   # => x
+#   # => x
+#
+# @exitcode 0 Always
 array_fill() {
   local -n _arr="${1:?No array name given}"
   local _value _n _i
@@ -39,18 +46,24 @@ array_fill() {
   done
 }
 
-# Pad a named array to a minimum length by appending a fill value.
-# Has no effect if the array is already at or above the minimum length.
-# Usage: array_pad arr_name min_length value
-# Example:
-#     $ myarr=( a b c )
-#     $ array_pad myarr 5 x
-#     $ printf '%s\n' "${myarr[@]}"
-#     a
-#     b
-#     c
-#     x
-#     x
+# @description Pad a named array to a minimum length by appending a fill value.
+#   Has no effect if the array is already at or above the minimum length.
+#
+# @arg $1 string Name of the array variable.
+# @arg $2 int The minimum length to pad the array to.
+# @arg $3 string The value to pad with.
+#
+# @example
+#   myarr=( a b c )
+#   array_pad myarr 5 x
+#   printf '%s\n' "${myarr[@]}"
+#   # => a
+#   # => b
+#   # => c
+#   # => x
+#   # => x
+#
+# @exitcode 0 Always
 array_pad() {
   local -n _arr="${1:?No array name given}"
   local _min_len _value _i
@@ -61,16 +74,23 @@ array_pad() {
   done
 }
 
-# Generate a named array of integers from start to end, with optional step.
-# Usage: array_range arr_name start end [step]
-# Example:
-#     $ array_range myarr 1 5
-#     $ printf '%s\n' "${myarr[@]}"
-#     1
-#     2
-#     3
-#     4
-#     5
+# @description Generate a named array of integers from start to end, with optional step.
+#
+# @arg $1 string Name of the array variable.
+# @arg $2 int Start of the range (inclusive).
+# @arg $3 int End of the range (inclusive).
+# @arg $4 int Step between values (default: 1).
+#
+# @example
+#   array_range myarr 1 5
+#   printf '%s\n' "${myarr[@]}"
+#   # => 1
+#   # => 2
+#   # => 3
+#   # => 4
+#   # => 5
+#
+# @exitcode 0 Always
 array_range() {
   local -n _arr="${1:?No array name given}"
   local _start _end _step _i

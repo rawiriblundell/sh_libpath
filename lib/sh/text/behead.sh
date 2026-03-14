@@ -20,8 +20,11 @@
 [ -n "${_SH_LOADED_text_behead+x}" ] && return 0
 _SH_LOADED_text_behead=1
 
-# Very simply removes the first line of output.
-# Good for removing headers
+# @description Remove the first line of input. Reads from stdin.
+#   Good for stripping header lines from command output.
+#
+# @stdout Input with the first line removed
+# @exitcode 0 Always
 behead() {
   awk 'NR >=2 {print}'
 }

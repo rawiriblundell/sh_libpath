@@ -23,10 +23,7 @@ _SH_LOADED_core_include=1
 
 # TODO: include [url] --> download code to temporary location, source, destroy afterwards?
 
-# Derive the sentinel variable name from a resolved full path.
-# Strips the matching SH_LIBPATH prefix, then converts the relative path
-# to a valid variable name: slashes and hyphens become underscores, .sh stripped.
-# Example: /usr/local/lib/sh/text/color.sh -> _SH_LOADED_text_color
+# @internal
 _include_sentinel() {
     local _path _rel _element
     _path="${1}"
@@ -44,20 +41,25 @@ _include_sentinel() {
     printf -- '%s\n' "_SH_LOADED_${_rel}"
 }
 
-# Check if a library's sentinel variable is set
+# @internal
 _include_is_loaded() {
     local _sentinel
     _sentinel=$(_include_sentinel "${1}")
     eval "[ -n \"\${${_sentinel}+x}\" ]"
 }
 
-# Source a library from SH_LIBPATH or a full path.
+# @description Source a library from SH_LIBPATH or a full path.
 #
-# Usage examples:
-#   include /opt/company/libs/sh/library.sh   -- full path
-#   include units                              -- load all libs in a subdir
-#   include text/puts                          -- load by relative path (defaults to .sh)
-#   include text/puts.bash                     -- load by relative path with explicit extension
+# @arg $1 string Full path, subdirectory name, or relative path (with or without extension)
+#
+# @example
+#   include /opt/company/libs/sh/library.sh   # full path
+#   include units                              # load all .sh files in a subdir
+#   include text/puts                          # relative path, defaults to .sh
+#   include text/puts.bash                     # relative path with explicit extension
+#
+# @exitcode 0 Library loaded successfully
+# @exitcode 1 Library not found, unreadable, or failed to source
 include() {
     local _include_target
     local _element

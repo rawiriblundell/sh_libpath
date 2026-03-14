@@ -20,9 +20,15 @@
 [ -n "${_SH_LOADED_text_shuffle+x}" ] && return 0
 _SH_LOADED_text_shuffle=1
 
-# Randomise the characters within a string
-# This uses a Knuth-Fisher-Yates shuffle method... kinda.
-# Note: This does not produce cryptographically secure random strings!
+# @description Randomise the characters within each word of the input using a
+#   Knuth-Fisher-Yates shuffle. Single-character words are passed through unchanged.
+#   Note: Does not produce cryptographically secure output.
+#
+# @arg $@ string One or more words to shuffle
+#
+# @stdout Space-separated shuffled words followed by a newline
+# @exitcode 0 Success
+# @exitcode 1 Required dependencies (fold, paste, RANDOM) not found
 str_shuffle() {
   local _str_shuffle_missing _str_shuffle_dep _str_shuffle_missing
   local _str_shuffle_chars _str_shuffle_charcount _str_shuffle_randmax

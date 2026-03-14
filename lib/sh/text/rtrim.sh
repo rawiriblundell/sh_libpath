@@ -20,10 +20,12 @@
 [ -n "${_SH_LOADED_text_rtrim+x}" ] && return 0
 _SH_LOADED_text_rtrim=1
 
-# Strip whitespace from the right hand side of a string.
-# This works by using two vars, constantly removing a single char and re-assigning
-# before comparing the two vars.  When they finally do match, all the whitespace
-# will be gone, and the loop can exit
+# @description Strip trailing whitespace from a string, exporting the result as $rtrim_stdout.
+#   Iteratively removes one trailing space character at a time until none remain.
+#
+# @arg $@ string The input string
+#
+# @exitcode 0 Always
 str_rtrim() {
   LC_CTYPE=C
   local _rtrim_str
@@ -37,6 +39,12 @@ str_rtrim() {
   export rtrim_stdout rtrim_rc
 }
 
+# @description Strip trailing whitespace from a string and print the result.
+#
+# @arg $@ string The input string
+#
+# @stdout Input string with trailing whitespace removed
+# @exitcode 0 Always
 rtrim() {
   LC_CTYPE=C
   local _rtrim_str

@@ -25,7 +25,7 @@ if ! command -v bc >/dev/null 2>&1; then
     return 1
 fi
 
-# Validate that the input is a number (integer or float, signed or unsigned)
+# @internal
 _temp_validate() {
     printf -- '%d' "${1:-null}" >/dev/null 2>&1 && return 0
     printf -- '%f' "${1:-null}" >/dev/null 2>&1 && return 0
@@ -33,32 +33,63 @@ _temp_validate() {
 }
 
 ########## Celsius <-> Fahrenheit
-# Formula: F = (C * 9/5) + 32
+# @description Convert Celsius to Fahrenheit. Formula: F = (C * 9/5) + 32
+#
+# @arg $1 number Temperature in Celsius
+#
+# @stdout Temperature in Fahrenheit to 2 decimal places, or "null" on invalid input
+# @exitcode 0 Success
+# @exitcode 1 Invalid input
 celsius_to_fahrenheit() {
     _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
     printf -- '%s\n' "scale=2;(${1} * 9 / 5) + 32" | bc
 }
 
-# Formula: C = (F - 32) * 5/9
+# @description Convert Fahrenheit to Celsius. Formula: C = (F - 32) * 5/9
+#
+# @arg $1 number Temperature in Fahrenheit
+#
+# @stdout Temperature in Celsius to 2 decimal places, or "null" on invalid input
+# @exitcode 0 Success
+# @exitcode 1 Invalid input
 fahrenheit_to_celsius() {
     _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
     printf -- '%s\n' "scale=2;(${1} - 32) * 5 / 9" | bc
 }
 
 ########## Celsius <-> Kelvin
-# Formula: K = C + 273.15
+# @description Convert Celsius to Kelvin. Formula: K = C + 273.15
+#
+# @arg $1 number Temperature in Celsius
+#
+# @stdout Temperature in Kelvin to 2 decimal places, or "null" on invalid input
+# @exitcode 0 Success
+# @exitcode 1 Invalid input
 celsius_to_kelvin() {
     _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
     printf -- '%s\n' "scale=2;${1} + 273.15" | bc
 }
 
-# Formula: C = K - 273.15
+# @description Convert Kelvin to Celsius. Formula: C = K - 273.15
+#
+# @arg $1 number Temperature in Kelvin
+#
+# @stdout Temperature in Celsius to 2 decimal places, or "null" on invalid input
+# @exitcode 0 Success
+# @exitcode 1 Invalid input
 kelvin_to_celsius() {
     _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
     printf -- '%s\n' "scale=2;${1} - 273.15" | bc
 }
 
 ########## Fahrenheit <-> Kelvin (via Celsius)
+# @description Convert Fahrenheit to Kelvin via Celsius.
+#
+# @arg $1 number Temperature in Fahrenheit
+#
+# @stdout Temperature in Kelvin to 2 decimal places, or "null" on invalid input
+# @exitcode 0 Success
+# @exitcode 1 Invalid input
 fahrenheit_to_kelvin() {
     local _c
     _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
@@ -66,6 +97,13 @@ fahrenheit_to_kelvin() {
     printf -- '%s\n' "scale=2;${_c} + 273.15" | bc
 }
 
+# @description Convert Kelvin to Fahrenheit via Celsius.
+#
+# @arg $1 number Temperature in Kelvin
+#
+# @stdout Temperature in Fahrenheit to 2 decimal places, or "null" on invalid input
+# @exitcode 0 Success
+# @exitcode 1 Invalid input
 kelvin_to_fahrenheit() {
     local _c
     _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
@@ -74,92 +112,176 @@ kelvin_to_fahrenheit() {
 }
 
 ########## Celsius <-> Rankine
-# Formula: R = (C + 273.15) * 9/5
+# @description Convert Celsius to Rankine. Formula: R = (C + 273.15) * 9/5
+#
+# @arg $1 number Temperature in Celsius
+#
+# @stdout Temperature in Rankine to 2 decimal places, or "null" on invalid input
+# @exitcode 0 Success
+# @exitcode 1 Invalid input
 celsius_to_rankine() {
     _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
     printf -- '%s\n' "scale=2;(${1} + 273.15) * 9 / 5" | bc
 }
 
-# Formula: C = R * 5/9 - 273.15
+# @description Convert Rankine to Celsius. Formula: C = R * 5/9 - 273.15
+#
+# @arg $1 number Temperature in Rankine
+#
+# @stdout Temperature in Celsius to 2 decimal places, or "null" on invalid input
+# @exitcode 0 Success
+# @exitcode 1 Invalid input
 rankine_to_celsius() {
     _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
     printf -- '%s\n' "scale=2;${1} * 5 / 9 - 273.15" | bc
 }
 
 ########## Fahrenheit <-> Rankine (direct: no intermediate needed)
-# Formula: R = F + 459.67
+# @description Convert Fahrenheit to Rankine. Formula: R = F + 459.67
+#
+# @arg $1 number Temperature in Fahrenheit
+#
+# @stdout Temperature in Rankine to 2 decimal places, or "null" on invalid input
+# @exitcode 0 Success
+# @exitcode 1 Invalid input
 fahrenheit_to_rankine() {
     _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
     printf -- '%s\n' "scale=2;${1} + 459.67" | bc
 }
 
-# Formula: F = R - 459.67
+# @description Convert Rankine to Fahrenheit. Formula: F = R - 459.67
+#
+# @arg $1 number Temperature in Rankine
+#
+# @stdout Temperature in Fahrenheit to 2 decimal places, or "null" on invalid input
+# @exitcode 0 Success
+# @exitcode 1 Invalid input
 rankine_to_fahrenheit() {
     _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
     printf -- '%s\n' "scale=2;${1} - 459.67" | bc
 }
 
 ########## Kelvin <-> Rankine (direct: no intermediate needed)
-# Formula: R = K * 9/5
+# @description Convert Kelvin to Rankine. Formula: R = K * 9/5
+#
+# @arg $1 number Temperature in Kelvin
+#
+# @stdout Temperature in Rankine to 2 decimal places, or "null" on invalid input
+# @exitcode 0 Success
+# @exitcode 1 Invalid input
 kelvin_to_rankine() {
     _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
     printf -- '%s\n' "scale=2;${1} * 9 / 5" | bc
 }
 
-# Formula: K = R * 5/9
+# @description Convert Rankine to Kelvin. Formula: K = R * 5/9
+#
+# @arg $1 number Temperature in Rankine
+#
+# @stdout Temperature in Kelvin to 2 decimal places, or "null" on invalid input
+# @exitcode 0 Success
+# @exitcode 1 Invalid input
 rankine_to_kelvin() {
     _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
     printf -- '%s\n' "scale=2;${1} * 5 / 9" | bc
 }
 
 ########## Celsius <-> Newton
-# Formula: N = C * 33/100
+# @description Convert Celsius to Newton. Formula: N = C * 33/100
+#
+# @arg $1 number Temperature in Celsius
+#
+# @stdout Temperature in Newton to 2 decimal places, or "null" on invalid input
+# @exitcode 0 Success
+# @exitcode 1 Invalid input
 celsius_to_newton() {
     _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
     printf -- '%s\n' "scale=2;${1} * 33 / 100" | bc
 }
 
-# Formula: C = N * 100/33
+# @description Convert Newton to Celsius. Formula: C = N * 100/33
+#
+# @arg $1 number Temperature in Newton
+#
+# @stdout Temperature in Celsius to 2 decimal places, or "null" on invalid input
+# @exitcode 0 Success
+# @exitcode 1 Invalid input
 newton_to_celsius() {
     _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
     printf -- '%s\n' "scale=2;${1} * 100 / 33" | bc
 }
 
 ########## Celsius <-> Rømer
-# Formula: Ro = C * 21/40 + 7.5
+# @description Convert Celsius to Rømer. Formula: Ro = C * 21/40 + 7.5
+#
+# @arg $1 number Temperature in Celsius
+#
+# @stdout Temperature in Rømer to 2 decimal places, or "null" on invalid input
+# @exitcode 0 Success
+# @exitcode 1 Invalid input
 celsius_to_romer() {
     _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
     printf -- '%s\n' "scale=2;${1} * 21 / 40 + 7.5" | bc
 }
 
-# Formula: C = (Ro - 7.5) * 40/21
+# @description Convert Rømer to Celsius. Formula: C = (Ro - 7.5) * 40/21
+#
+# @arg $1 number Temperature in Rømer
+#
+# @stdout Temperature in Celsius to 2 decimal places, or "null" on invalid input
+# @exitcode 0 Success
+# @exitcode 1 Invalid input
 romer_to_celsius() {
     _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
     printf -- '%s\n' "scale=2;(${1} - 7.5) * 40 / 21" | bc
 }
 
 ########## Celsius <-> Delisle
-# Note: Delisle is an inverted scale — water boils at 0°De, freezes at 150°De
-# Formula: De = (100 - C) * 3/2
+# @description Convert Celsius to Delisle. Formula: De = (100 - C) * 3/2
+#   Note: Delisle is an inverted scale — water boils at 0°De, freezes at 150°De.
+#
+# @arg $1 number Temperature in Celsius
+#
+# @stdout Temperature in Delisle to 2 decimal places, or "null" on invalid input
+# @exitcode 0 Success
+# @exitcode 1 Invalid input
 celsius_to_delisle() {
     _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
     printf -- '%s\n' "scale=2;(100 - ${1}) * 3 / 2" | bc
 }
 
-# Formula: C = 100 - De * 2/3
+# @description Convert Delisle to Celsius. Formula: C = 100 - De * 2/3
+#
+# @arg $1 number Temperature in Delisle
+#
+# @stdout Temperature in Celsius to 2 decimal places, or "null" on invalid input
+# @exitcode 0 Success
+# @exitcode 1 Invalid input
 delisle_to_celsius() {
     _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
     printf -- '%s\n' "scale=2;100 - ${1} * 2 / 3" | bc
 }
 
 ########## Celsius <-> Réaumur
-# Formula: Ré = C * 4/5
+# @description Convert Celsius to Réaumur. Formula: Ré = C * 4/5
+#
+# @arg $1 number Temperature in Celsius
+#
+# @stdout Temperature in Réaumur to 2 decimal places, or "null" on invalid input
+# @exitcode 0 Success
+# @exitcode 1 Invalid input
 celsius_to_reaumur() {
     _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
     printf -- '%s\n' "scale=2;${1} * 4 / 5" | bc
 }
 
-# Formula: C = Ré * 5/4
+# @description Convert Réaumur to Celsius. Formula: C = Ré * 5/4
+#
+# @arg $1 number Temperature in Réaumur
+#
+# @stdout Temperature in Celsius to 2 decimal places, or "null" on invalid input
+# @exitcode 0 Success
+# @exitcode 1 Invalid input
 reaumur_to_celsius() {
     _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
     printf -- '%s\n' "scale=2;${1} * 5 / 4" | bc
@@ -167,9 +289,7 @@ reaumur_to_celsius() {
 
 ########## Dispatcher helpers (internal)
 
-# Convert any supported unit to Celsius
-# Usage: _temp_to_celsius <value> <unit>
-# Units: C F K R N Ro De Re (case-insensitive)
+# @internal
 _temp_to_celsius() {
     case "${2}" in
         ([Cc])       printf -- '%s\n' "${1}" ;;
@@ -184,8 +304,7 @@ _temp_to_celsius() {
     esac
 }
 
-# Convert Celsius to any supported unit
-# Usage: _temp_from_celsius <value> <unit>
+# @internal
 _temp_from_celsius() {
     case "${2}" in
         ([Cc])       printf -- '%s\n' "${1}" ;;
@@ -202,9 +321,19 @@ _temp_from_celsius() {
 
 ########## Public API
 
-# Convert a temperature between any two supported units
-# Usage: temp_convert <value> <from_unit> <to_unit>
-# Example: temp_convert 100 C F
+# @description Convert a temperature value between any two supported units.
+#   Supported units: C, F, K, R (Rankine), N (Newton), Ro (Rømer), De (Delisle), Re (Réaumur).
+#
+# @arg $1 number Temperature value to convert
+# @arg $2 string Source unit (case-insensitive)
+# @arg $3 string Target unit (case-insensitive)
+#
+# @example
+#   temp_convert 100 C F   # => 212.00
+#
+# @stdout Converted temperature to 2 decimal places, or "null" on invalid input
+# @exitcode 0 Success
+# @exitcode 1 Invalid input or unknown unit
 temp_convert() {
     local _celsius
     _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
@@ -212,9 +341,17 @@ temp_convert() {
     _temp_from_celsius "${_celsius}" "${3}"
 }
 
-# Display a temperature converted to all supported units
-# Usage: temp_convert_all <value> <from_unit>
-# Example: temp_convert_all 100 C
+# @description Display a temperature converted from a given unit to all supported units.
+#
+# @arg $1 number Temperature value to convert
+# @arg $2 string Source unit (case-insensitive)
+#
+# @example
+#   temp_convert_all 100 C
+#
+# @stdout Labelled conversion for each supported unit
+# @exitcode 0 Success
+# @exitcode 1 Invalid input or unknown unit
 temp_convert_all() {
     local _celsius
     _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }

@@ -20,10 +20,15 @@
 [ -n "${_SH_LOADED_sys_get_shell+x}" ] && return 0
 _SH_LOADED_sys_get_shell=1
 
-# Because $SHELL is an unreliable thing to test against, we provide this function
-# This won't work for 'fish', which needs 'ps -p %self' or similar
-# non-bourne-esque syntax.
-# TODO: Investigate application of 'export PS_PERSONALITY="posix"'
+# @description Print the name of the currently running shell.
+#   Tries /proc/$$cmdline, then various 'ps' invocations, then procstat (FreeBSD),
+#   then falls back to inspecting version variables. $SHELL is intentionally not
+#   used as it reflects the login shell, not the running shell. Does not work for
+#   fish shell, which requires non-Bourne-compatible introspection.
+#
+# @stdout Shell name, e.g. "bash", "ksh", "zsh"
+# @exitcode 0 Success
+# @exitcode 1 Unable to determine the running shell
 get_shell() {
   if [ -r "/proc/$$/cmdline" ]; then
     # We use 'tr' because 'cmdline' files have NUL terminated lines

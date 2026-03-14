@@ -20,17 +20,13 @@
 [ -n "${_SH_LOADED_core_types+x}" ] && return 0
 _SH_LOADED_core_types=1
 
-# Classify a string value by its apparent type.
-# Outputs one of: empty, integer, float, bool, string
-# Classification is ordered most-specific to least:
-#   empty   - zero-length or unset
-#   integer - whole number (includes negative)
-#   float   - decimal number (includes negative)
-#   bool    - true/false/yes/no/on/off (not 0/1 - those resolve to integer)
-#   string  - anything else
+# @description Classify a string value by its apparent type.
+#   Classification order (most to least specific): empty, integer, float, bool, string.
+#   Note: 0 and 1 classify as integer, not bool.
 #
-# Usage: string_type <value>
-# Example:
+# @arg $1 string Value to classify
+#
+# @example
 #   case "$(string_type "${var}")" in
 #     (integer) ...;;
 #     (float)   ...;;
@@ -38,6 +34,9 @@ _SH_LOADED_core_types=1
 #     (empty)   ...;;
 #     (string)  ...;;
 #   esac
+#
+# @stdout One of: empty, integer, float, bool, string
+# @exitcode 0 Always
 string_type() {
     [ -z "${1:-}" ] && { printf -- '%s\n' "empty"; return 0; }
     printf -- '%d' "${1}" >/dev/null 2>&1 && { printf -- '%s\n' "integer"; return 0; }

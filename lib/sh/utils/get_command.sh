@@ -20,7 +20,16 @@
 [ -n "${_SH_LOADED_utils_get_command+x}" ] && return 0
 _SH_LOADED_utils_get_command=1
 
-# Functionalise 'command -v' to allow 'if get_command [command]' idiom
+# @description Check whether one or more commands exist in PATH. With -v/--verbose,
+#   prints the resolved path of each found command and an error for each missing one.
+#   Without -v, suppresses all output and simply returns 0 or 1.
+#
+# @arg $1 string Optional: '-v' or '--verbose' to print paths and missing-command errors
+# @arg $2 string One or more command names to check
+#
+# @stdout (verbose only) Path of each found command; error message for each missing one
+# @exitcode 0 All specified commands were found
+# @exitcode 1 One or more commands were not found
 get_command() {
   local errcount cmd
   case "${1}" in
@@ -50,10 +59,14 @@ get_command() {
   return 1
 }
 
-# This function is more PowerShell-esque
-# `get-cmd` will dump out a list of all your available commands
-# `get-cmd user` will filter that list to all commands with 'user' in them.  DO NOT use globbing here e.g. `get-cmd *user*`
-# `get-cmd user grep perl` will filter the list to all matches for those
+# @description List all commands available in the current shell environment,
+#   optionally filtered by one or more search strings. Powered by compgen -c.
+#   Do not use glob patterns; pass plain substrings instead.
+#
+# @arg $1 string Optional: one or more substrings to filter the command list
+#
+# @stdout Matching command names, one per line
+# @exitcode 0 Always
 get-cmd() {
   local needle
   case "${1}" in

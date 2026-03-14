@@ -20,8 +20,13 @@
 [ -n "${_SH_LOADED_array_shift+x}" ] && return 0
 _SH_LOADED_array_shift=1
 
-# array_shift <arr_name> [<n>]
-# From https://www.reddit.com/r/bash/comments/aj0xm0/quicktip_shifting_arrays/
+# @description Remove the first n elements from a named array in place.
+#   From https://www.reddit.com/r/bash/comments/aj0xm0/quicktip_shifting_arrays/
+#
+# @arg $1 string Name of the array variable.
+# @arg $2 int Number of elements to shift off (default: 1).
+#
+# @exitcode 0 Always
 array_shift() {
   # Create nameref to real array
   local -n arr="$1"
@@ -29,18 +34,23 @@ array_shift() {
   arr=("${arr[@]:${n}}")
 }
 
-# Rotate elements of a named array left by n positions.
-# Negative n rotates right.
-# Usage: array_rotate arr_name [n]
-# Example:
-#     $ myarr=( a b c d e )
-#     $ array_rotate myarr 2
-#     $ printf '%s\n' "${myarr[@]}"
-#     c
-#     d
-#     e
-#     a
-#     b
+# @description Rotate elements of a named array left by n positions.
+#   Negative n rotates right.
+#
+# @arg $1 string Name of the array variable.
+# @arg $2 int Number of positions to rotate left (default: 1). Negative rotates right.
+#
+# @example
+#   myarr=( a b c d e )
+#   array_rotate myarr 2
+#   printf '%s\n' "${myarr[@]}"
+#   # => c
+#   # => d
+#   # => e
+#   # => a
+#   # => b
+#
+# @exitcode 0 Always
 array_rotate() {
   local -n _arr="${1:?No array name given}"
   local _n _len

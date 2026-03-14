@@ -20,8 +20,17 @@
 [ -n "${_SH_LOADED_text_carve+x}" ] && return 0
 _SH_LOADED_text_carve=1
 
-# TODO: Make this more robust, build in validation etc
-# This might wind up being a script in its own right rather than a function
+# @description Extract a substring between two delimiters by ordinal position.
+#   Reads from stdin. Specify positions using short ordinals ('1st', '2nd', 'first', 'last')
+#   and delimiters.
+#
+# @arg $@ string Parsing expression in the form: ORDINAL DELIM1 to ORDINAL DELIM2
+#
+# @example
+#   printf '%s\n' "a/b:c/d:e" | carve 2nd '/' to 3rd ':'
+#
+# @stdout Carved substring
+# @exitcode 0 Always
 carve() {
   read -r count1 delim1 _ count2 delim2 <<< "${@}"
   case "${count1}" in

@@ -20,7 +20,20 @@
 [ -n "${_SH_LOADED_net_ssh_fingerprint+x}" ] && return 0
 _SH_LOADED_net_ssh_fingerprint=1
 
-# Display the fingerprint for a host
+# @description Display the SSH key fingerprint(s) for one or more remote hosts.
+#   With '-a' or '--append', the scanned keys are merged into ~/.ssh/known_hosts.
+#   Prefers ed25519 where the local SSH client supports it.
+#
+# @arg $1 string Optional: '-a' or '--append' to add keys to known_hosts
+# @arg $2 string One or more hostnames or IP addresses
+#
+# @example
+#   ssh-fingerprint example.com
+#   ssh-fingerprint --append example.com 10.0.0.1
+#
+# @stdout SSH key fingerprints (without --append)
+# @exitcode 0 Success
+# @exitcode 1 No host resolved or empty keyscan result
 ssh-fingerprint() {
   local fingerprint keyscanargs
   fingerprint=$(mktemp)

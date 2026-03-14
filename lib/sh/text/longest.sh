@@ -20,7 +20,10 @@
 [ -n "${_SH_LOADED_text_longest+x}" ] && return 0
 _SH_LOADED_text_longest=1
 
-# Get the longest line
+# @description Return the longest line from stdin.
+#
+# @stdout The longest line read from stdin
+# @exitcode 0 Always
 longest() {
   local lastreply
   lastreply=''

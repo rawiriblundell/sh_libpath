@@ -20,22 +20,30 @@
 [ -n "${_SH_LOADED_array_remove+x}" ] && return 0
 _SH_LOADED_array_remove=1
 
-# Empty a named array in place.
-# Usage: array_clear arr_name
+# @description Empty a named array in place.
+#
+# @arg $1 string Name of the array variable.
+#
+# @exitcode 0 Always
 array_clear() {
   local -n _arr="${1:?No array name given}"
   _arr=()
 }
 
-# Remove all elements matching a value from a named array and reindex.
-# Usage: array_remove arr_name element
-# Example:
-#     $ myarr=( a b c b d )
-#     $ array_remove myarr b
-#     $ printf '%s\n' "${myarr[@]}"
-#     a
-#     c
-#     d
+# @description Remove all elements matching a value from a named array and reindex.
+#
+# @arg $1 string Name of the array variable.
+# @arg $2 string The value to remove.
+#
+# @example
+#   myarr=( a b c b d )
+#   array_remove myarr b
+#   printf '%s\n' "${myarr[@]}"
+#   # => a
+#   # => c
+#   # => d
+#
+# @exitcode 0 Always
 array_remove() {
   local -n _arr="${1:?No array name given}"
   local _elem
@@ -49,16 +57,21 @@ array_remove() {
   _arr=( "${_new_arr[@]}" )
 }
 
-# Remove only the first element matching a value from a named array and reindex.
-# Usage: array_remove_first arr_name element
-# Example:
-#     $ myarr=( a b c b d )
-#     $ array_remove_first myarr b
-#     $ printf '%s\n' "${myarr[@]}"
-#     a
-#     c
-#     b
-#     d
+# @description Remove only the first element matching a value from a named array and reindex.
+#
+# @arg $1 string Name of the array variable.
+# @arg $2 string The value whose first occurrence to remove.
+#
+# @example
+#   myarr=( a b c b d )
+#   array_remove_first myarr b
+#   printf '%s\n' "${myarr[@]}"
+#   # => a
+#   # => c
+#   # => b
+#   # => d
+#
+# @exitcode 0 Always
 array_remove_first() {
   local -n _arr="${1:?No array name given}"
   local _elem
@@ -77,15 +90,20 @@ array_remove_first() {
   _arr=( "${_new_arr[@]}" )
 }
 
-# Remove and print the last element of a named array.
-# Usage: array_pop arr_name
-# Example:
-#     $ myarr=( a b c )
-#     $ array_pop myarr
-#     c
-#     $ printf '%s\n' "${myarr[@]}"
-#     a
-#     b
+# @description Remove and print the last element of a named array.
+#
+# @arg $1 string Name of the array variable.
+#
+# @example
+#   myarr=( a b c )
+#   array_pop myarr
+#   # => c
+#   printf '%s\n' "${myarr[@]}"
+#   # => a
+#   # => b
+#
+# @stdout The removed last element.
+# @exitcode 0 Always
 array_pop() {
   local -n _arr="${1:?No array name given}"
   local _last
@@ -94,18 +112,26 @@ array_pop() {
   _arr=( "${_arr[@]:0:$(( ${#_arr[@]} - 1 ))}" )
 }
 
-# Remove elements from a named array at a given position, optionally inserting replacements.
-# Prints the removed elements.
-# Usage: array_splice arr_name start [delete_count [element ...]]
-# Example:
-#     $ myarr=( a b c d e )
-#     $ array_splice myarr 1 2
-#     b
-#     c
-#     $ printf '%s\n' "${myarr[@]}"
-#     a
-#     d
-#     e
+# @description Remove elements from a named array at a given position, optionally inserting replacements.
+#   Prints the removed elements.
+#
+# @arg $1 string Name of the array variable.
+# @arg $2 int Start index (supports negative indices from end).
+# @arg $3 int Number of elements to delete (default: all remaining from start).
+# @arg $@ string Optional replacement elements to insert at the start position.
+#
+# @example
+#   myarr=( a b c d e )
+#   array_splice myarr 1 2
+#   # => b
+#   # => c
+#   printf '%s\n' "${myarr[@]}"
+#   # => a
+#   # => d
+#   # => e
+#
+# @stdout The removed elements, one per line.
+# @exitcode 0 Always
 array_splice() {
   local -n _arr="${1:?No array name given}"
   local _start _count _i

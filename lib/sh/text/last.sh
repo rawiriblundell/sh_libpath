@@ -20,10 +20,14 @@
 [ -n "${_SH_LOADED_text_last+x}" ] && return 0
 _SH_LOADED_text_last=1
 
-# If you ain't first - you're last!
-
-# This function is the partner for 'first()' 
-# It returns the last line, column or character of a given input
+# @description Return the last character, column, or line of input.
+#   Without a subcommand, returns the last line from stdin or a file.
+#
+# @arg $1 string Optional: 'char', 'col'/'column', or 'row'/'line' to select what to return
+# @arg $2 string Optional: file path (for col/row modes)
+#
+# @stdout Last character, column, or line of the input
+# @exitcode 0 Always
 last() {
   case "${1}" in
     (char)       shift 1; read -r line; printf -- '%s' "${line#"${line%?}"}" ;;
@@ -33,6 +37,7 @@ last() {
   esac
 }
 
+# @description Alias for last().
 str_last() {
   case "${1}" in
     (char)       shift 1; read -r line; printf -- '%s' "${line#"${line%?}"}" ;;

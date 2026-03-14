@@ -21,6 +21,14 @@
 [ -n "${_SH_LOADED_text_linenoise+x}" ] && return 0
 _SH_LOADED_text_linenoise=1
 
+# @description Simulate a fake SSH connection attempt with animated ASCII noise.
+#   Cycles through ASCII characters in-place for a visual "hashing" effect,
+#   then prints a fatal error message to give the appearance of a failed connection.
+#
+# @arg $1 string Target hostname to display in the connection message
+#
+# @stdout Animated connection noise followed by a fatal error line
+# @exitcode 0 Always
 linenoise() {
   local target failmsg
   target="${1:?No target specified}"

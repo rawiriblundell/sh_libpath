@@ -35,6 +35,12 @@
 [ -n "${_SH_LOADED_net_git+x}" ] && return 0
 _SH_LOADED_net_git=1
 
+# @description Check whether a string looks like a valid git URL (https, ssh, git@, file, http, git).
+#
+# @arg $1 string URL to validate (via expect_args)
+#
+# @exitcode 0 Recognised git URL scheme
+# @exitcode 1 Not a recognised git URL scheme
 validate_git_url () {
 	local url
 	expect_args url -- "$@"
@@ -51,6 +57,14 @@ validate_git_url () {
 }
 
 
+# @description Run a git subcommand inside a given working directory.
+#
+# @arg $1 string Working directory path (via expect_args)
+# @arg $2 string Git subcommand (via expect_args)
+# @arg $3 string Additional arguments passed to git
+#
+# @exitcode 0 Git command succeeded
+# @exitcode 1 Directory does not exist or git command failed
 git_do () {
 	local work_dir cmd
 	expect_args work_dir cmd -- "$@"
@@ -65,6 +79,14 @@ git_do () {
 }
 
 
+# @description Run a git subcommand silently, discarding all output.
+#
+# @arg $1 string Working directory path (via expect_args)
+# @arg $2 string Git subcommand (via expect_args)
+# @arg $3 string Additional arguments passed to git
+#
+# @exitcode 0 Git command succeeded
+# @exitcode 1 Directory does not exist or git command failed
 quiet_git_do () {
 	local work_dir cmd
 	expect_args work_dir cmd -- "$@"
@@ -76,6 +98,13 @@ quiet_git_do () {
 }
 
 
+# @description Print the short commit hash of the most recent commit in a directory.
+#   Returns silently (exit 0) if no commits exist yet.
+#
+# @arg $1 string Directory path (via expect_args)
+#
+# @stdout Short commit hash, or nothing if the repo has no commits
+# @exitcode 0 Always
 hash_newest_git_commit () {
 	local dir
 	expect_args dir -- "$@"
@@ -91,6 +120,15 @@ hash_newest_git_commit () {
 }
 
 
+# @description Clone a git repository URL into a directory, replacing it if it already
+#   exists. Checks out the specified branch (default: master) and initialises submodules.
+#
+# @arg $1 string Repository URL, optionally with branch suffix (#branch)
+# @arg $2 string Destination directory path
+#
+# @stdout Short commit hash of the cloned HEAD
+# @exitcode 0 Success
+# @exitcode 1 Clone or checkout failed
 git_clone_over () {
 	local url dir
 	expect_args url dir -- "$@"
@@ -118,6 +156,15 @@ git_clone_over () {
 }
 
 
+# @description Update an existing git repository to match a URL and branch, performing
+#   a hard reset to origin and updating submodules.
+#
+# @arg $1 string Repository URL, optionally with branch suffix (#branch)
+# @arg $2 string Existing repository directory path
+#
+# @stdout Short commit hash of the updated HEAD
+# @exitcode 0 Success
+# @exitcode 1 Fetch, reset, or submodule update failed
 git_update_into () {
 	local url dir
 	expect_args url dir -- "$@"
@@ -146,6 +193,16 @@ git_update_into () {
 }
 
 
+# @description Acquire a git repository or local directory into a destination. If
+#   'thing' is a git URL, clone or update it; otherwise copy the local directory.
+#
+# @arg $1 string Source directory for local things (via expect_args)
+# @arg $2 string Git URL or local subdirectory name (via expect_args)
+# @arg $3 string Destination directory (via expect_args)
+#
+# @stdout The name of the acquired directory
+# @exitcode 0 Success
+# @exitcode 1 Failure
 git_acquire () {
 	local src_dir thing dst_dir
 	expect_args src_dir thing dst_dir -- "$@"
@@ -181,6 +238,16 @@ git_acquire () {
 }
 
 
+# @description Acquire multiple git repositories or local directories into a destination
+#   by calling git_acquire for each line of a newline-delimited list.
+#
+# @arg $1 string Source directory for local things (via expect_args)
+# @arg $2 string Newline-delimited list of git URLs or local names (via expect_args)
+# @arg $3 string Destination directory (via expect_args)
+#
+# @stdout Newline-separated list of acquired directory names
+# @exitcode 0 Success
+# @exitcode 1 Any acquisition failed
 git_acquire_all () {
 	local src_dir things dst_dir
 	expect_args src_dir things dst_dir -- "$@"
@@ -203,12 +270,28 @@ git_acquire_all () {
 
 ################################################################################
 
+# @description Print the commit date of the most recent commit that touched a file,
+#   in epoch seconds followed by a relative date string, for easy sorting.
+#
+# @arg $1 string File path to query
+#
+# @example
+#   get_newest_commit_date README.md   # => 1710000000 (3 weeks ago)
+#
+# @stdout Epoch time and relative date, e.g. "1710000000 (3 weeks ago)"
+# @exitcode 0 Always
 get_newest_commit_date() {
     # Output in epoch time for easy sorting, followed by relative date
     git --no-pager log -1 --pretty=format:'%ct (%cr)' -- "${1:?No file specified}"
 }
 
-# Go to the top of our git tree
+# @description Change directory to the top of the current git repository tree,
+#   optionally appending a subdirectory path.
+#
+# @arg $1 string Optional subdirectory path relative to the repo root
+#
+# @exitcode 0 Success
+# @exitcode 1 Not in a git repository or cd failed
 gcd() {
   case "$(git rev-parse --show-toplevel 2>&1)" in
     (fatal*) return 1 ;;
@@ -216,6 +299,13 @@ gcd() {
   esac
 }
 
+# @description Delete one or more git branches locally, remotely, or both. With no
+#   branch argument, launches an fzf multi-select prompt.
+#
+# @arg $1 string Optional mode flag: --local (default), --remote, or --both
+# @arg $2 string Branch name(s) to delete, or omit to use fzf interactive selection
+#
+# @exitcode 0 Always (individual git commands may fail silently)
 delete-branch() {
   local unwanted_branches current_branch mode
   current_branch="$(git symbolic-ref -q HEAD)"
@@ -265,6 +355,14 @@ delete-branch() {
 # There's no one true way to get the current git branch, they all have pros/cons
 # See e.g. https://stackoverflow.com/q/6245570
 if command -v git >/dev/null 2>&1; then
+  # @description Wrapper around the 'git' command that keeps GIT_BRANCH up to date
+  #   after every invocation and warns if a command references 'master' when the repo
+  #   uses 'main' instead.
+  #
+  # @arg $1 string Git subcommand and arguments (passed through to git)
+  #
+  # @exitcode 0 Git command succeeded
+  # @exitcode 1 'master' reference detected in a 'main'-only repo
   git() {
     # If the args contain any mention of a master branch, we check for the newer 
     # 'main' nomenclature.  We take no other position than to suggest the correct command.

@@ -20,6 +20,13 @@
 [ -n "${_SH_LOADED_sys_get_child_pids+x}" ] && return 0
 _SH_LOADED_sys_get_child_pids=1
 
+# @description List the PIDs of all direct child processes of a given parent PID.
+#   Uses pgrep if available, otherwise falls back to parsing 'ps -e'.
+#
+# @arg $1 int Parent PID to query
+#
+# @stdout One PID per line
+# @exitcode 0 Always
 get_child_pids() {
   local _ppid
   _ppid="${1:?No PPID supplied}"

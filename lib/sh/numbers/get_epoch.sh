@@ -20,6 +20,14 @@
 [ -n "${_SH_LOADED_numbers_get_epoch+x}" ] && return 0
 _SH_LOADED_numbers_get_epoch=1
 
+# @description Return the current Unix epoch in seconds.
+#   Selects the fastest available method at load time:
+#   EPOCHSECONDS (bash 5+ / zsh), printf %T (bash 4.2+), date, perl, curl,
+#   or a portable pure-shell fallback.
+#
+# @stdout Current Unix epoch as an integer
+# @exitcode 0 Always
+#
 # Prioritise builtin approaches over externals to improve performance
 # We start by testing for the EPOCHSECONDS shell var (bash 5.0 and newer, zsh w/ datetime module)
 if [ -n "${EPOCHSECONDS}" ]; then
@@ -69,7 +77,10 @@ EOF
     }
 fi
 
-# Calculate how many days since epoch
+# @description Return the number of complete days elapsed since the Unix epoch.
+#
+# @stdout Integer day count since epoch
+# @exitcode 0 Always
 epochdays() {
   printf -- '%s\n' "$(( $(epoch) / 86400 ))"
 }

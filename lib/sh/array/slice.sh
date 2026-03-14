@@ -20,17 +20,21 @@
 [ -n "${_SH_LOADED_array_slice+x}" ] && return 0
 _SH_LOADED_array_slice=1
 
-# TODO:
-# Pluck out elements between a starting and ending position
-# Negative indices?
-# Every x element?
-
-# Usage:
-# array_slice n arrayname => prints element at position n
-# array_slice :n arrayname => prints range of elements from 0 to n
-# array_slice ::n arrayname => prints every nth element from 0
-# array_slice x:y arrayname => prints range of elements between x and y
-# array_slice x:y:z arrayname => prints every zth element beween x and y
+# @description Print a slice of array elements using Python-style index notation.
+#   Supports single index, range, and step variants.
+#
+# @arg $1 string Slice specifier: n, :n, ::n, x:y, or x:y:z
+# @arg $2 string Name of the array variable (passed by name, not value).
+#
+# @example
+#   array_slice 2 myarr        # prints element at index 2
+#   array_slice :3 myarr       # prints elements at indices 0, 1, 2
+#   array_slice ::2 myarr      # prints every 2nd element from index 0
+#   array_slice 1:4 myarr      # prints elements at indices 1, 2, 3
+#   array_slice 0:6:2 myarr    # prints every 2nd element between indices 0 and 6
+#
+# @stdout Matching elements, one per line.
+# @exitcode 0 Always
 array_slice() {
   local _slice_mode _slice_start _slice_end _slice_incr
   _slice_mode=''
@@ -104,15 +108,19 @@ array_slice() {
   esac
 }
 
-# Print the element at index n in a named array (supports negative indices).
-# Pass --random as the index to select a random element.
-# Usage: array_at arr_name n|--random
-# Example:
-#     $ myarr=( a b c d e )
-#     $ array_at myarr -1
-#     e
-#     $ array_at myarr --random
-#     c
+# @description Print the element at index n in a named array.
+#   Supports negative indices (from end). Pass --random to select a random element.
+#
+# @arg $1 string Name of the array variable.
+# @arg $2 string Index (supports negative), or --random for a random element.
+#
+# @example
+#   myarr=( a b c d e )
+#   array_at myarr -1     # => e
+#   array_at myarr --random  # => (random element)
+#
+# @stdout The element at the given index.
+# @exitcode 0 Always
 array_at() {
   local -n _arr="${1:?No array name given}"
   local _idx
@@ -123,8 +131,13 @@ array_at() {
   printf -- '%s\n' "${_arr[${_idx}]}"
 }
 
-# Print the first n elements of a named array.
-# Usage: array_head arr_name [n]
+# @description Print the first n elements of a named array.
+#
+# @arg $1 string Name of the array variable.
+# @arg $2 int Number of elements to print from the start (default: 1).
+#
+# @stdout The first n elements, one per line.
+# @exitcode 0 Always
 array_head() {
   local -n _arr="${1:?No array name given}"
   local _n _i
@@ -134,8 +147,13 @@ array_head() {
   done
 }
 
-# Print the last n elements of a named array.
-# Usage: array_tail arr_name [n]
+# @description Print the last n elements of a named array.
+#
+# @arg $1 string Name of the array variable.
+# @arg $2 int Number of elements to print from the end (default: 1).
+#
+# @stdout The last n elements, one per line.
+# @exitcode 0 Always
 array_tail() {
   local -n _arr="${1:?No array name given}"
   local _n _start _i

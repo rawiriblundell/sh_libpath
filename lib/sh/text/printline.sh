@@ -20,8 +20,16 @@
 [ -n "${_SH_LOADED_text_printline+x}" ] && return 0
 _SH_LOADED_text_printline=1
 
-# A function to print a specific line from a file
-# TODO: Update it to handle globs e.g. 'printline 4 *'
+# @description Print a specific line number (or range) from a file or stdin.
+#   Requires sed. Accepts an optional second numeric argument for a line range.
+#
+# @arg $1 int Line number to print (required)
+# @arg $2 int Optional: end of line range
+# @arg $2 string Optional: file path (default: stdin)
+#
+# @stdout The specified line or range of lines
+# @exitcode 0 Success
+# @exitcode 1 Missing sed, invalid line number, or unreadable file
 printline() {
   # Fail early: We require sed
   if ! command -v sed >/dev/null 2>&1; then

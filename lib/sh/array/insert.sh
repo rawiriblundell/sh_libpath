@@ -20,18 +20,24 @@
 [ -n "${_SH_LOADED_array_insert+x}" ] && return 0
 _SH_LOADED_array_insert=1
 
-# Insert one or more elements into a named array at a given index.
-# Existing elements at and after the index are shifted right.
-# Usage: array_insert arr_name index element [element ...]
-# Example:
-#     $ myarr=( a b d e )
-#     $ array_insert myarr 2 c
-#     $ printf '%s\n' "${myarr[@]}"
-#     a
-#     b
-#     c
-#     d
-#     e
+# @description Insert one or more elements into a named array at a given index.
+#   Existing elements at and after the index are shifted right.
+#
+# @arg $1 string Name of the array variable.
+# @arg $2 int Zero-based index at which to insert.
+# @arg $@ string One or more elements to insert.
+#
+# @example
+#   myarr=( a b d e )
+#   array_insert myarr 2 c
+#   printf '%s\n' "${myarr[@]}"
+#   # => a
+#   # => b
+#   # => c
+#   # => d
+#   # => e
+#
+# @exitcode 0 Always
 array_insert() {
   local -n _arr="${1:?No array name given}"
   local _idx

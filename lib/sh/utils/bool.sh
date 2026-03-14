@@ -20,6 +20,13 @@
 [ -n "${_SH_LOADED_utils_bool+x}" ] && return 0
 _SH_LOADED_utils_bool=1
 
+# @description Evaluate a string as a boolean. Returns 0 (true) for '0', 'y', 'Y',
+#   'true', 'yes', or 'on' (case-insensitive); returns 1 (false) for anything else.
+#
+# @arg $1 string Value to evaluate
+#
+# @exitcode 0 Value is truthy
+# @exitcode 1 Value is falsy
 bool() {
   case "${1:?No input provided}" in
     (0|[yY]|[tT][rR][uU][eE]|[yY][eE][sS]|[oO][nN])  true ;;

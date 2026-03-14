@@ -20,7 +20,16 @@
 [ -n "${_SH_LOADED_numbers_ldaptime_to_epoch+x}" ] && return 0
 _SH_LOADED_numbers_ldaptime_to_epoch=1
 
-# http://stackoverflow.com/questions/15770879/unix-timestamp-to-ldap-timestamp
+# @description Convert a Windows/LDAP 100-nanosecond interval timestamp to a Unix epoch.
+#   The LDAP timestamp counts 100ns intervals since 1 January 1601.
+#
+# @arg $1 int LDAP timestamp (100-nanosecond intervals since 1601-01-01)
+#
+# @example
+#   ldaptime_to_epoch 132000000000000000   # => Unix epoch integer
+#
+# @stdout Unix epoch as an integer
+# @exitcode 0 Always
 ldaptime_to_epoch() {
   local _ldap_timestamp _ldap_offset
   _ldap_timestamp="${1:?No ldap timestamp supplied}"

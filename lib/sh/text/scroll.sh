@@ -20,7 +20,13 @@
 [ -n "${_SH_LOADED_text_scroll+x}" ] && return 0
 _SH_LOADED_text_scroll=1
 
-# Iterate through a file or stream line-by-line with a delay between each line
+# @description Print piped input line by line with a configurable delay between lines.
+#   Reads from stdin only. Default delay is 1 second.
+#
+# @arg $1 int Optional: delay in seconds between lines (default: 1)
+#
+# @stdout Input lines printed one at a time with delays
+# @exitcode 0 Always
 scroll() {
   # Check that stdin isn't empty
   if [[ -t 0 ]]; then

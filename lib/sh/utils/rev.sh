@@ -20,8 +20,16 @@
 [ -n "${_SH_LOADED_utils_rev+x}" ] && return 0
 _SH_LOADED_utils_rev=1
 
-# Check if 'rev' is available, if not, enable a stop-gap function
 if ! command -v rev >/dev/null 2>&1; then
+  # @description Step-in replacement for 'rev' on systems that lack it.
+  #   Reverses the characters in each line of a file, a string argument, or stdin.
+  #   Cannot accept both piped input and a positional argument simultaneously.
+  #
+  # @arg $1 string Optional: file path or string to reverse; reads stdin if omitted
+  #
+  # @stdout Each input line with its characters in reverse order
+  # @exitcode 0 Success
+  # @exitcode 1 Both piped input and a positional argument were provided
   rev() {
     # Check that stdin or $1 isn't empty
     if [[ -t 0 ]] && [[ -z "${1}" ]]; then

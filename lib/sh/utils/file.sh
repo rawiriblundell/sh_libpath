@@ -35,6 +35,14 @@
 [ -n "${_SH_LOADED_utils_file+x}" ] && return 0
 _SH_LOADED_utils_file=1
 
+# @description Generate a unique temporary filename using mktemp -u.
+#   Uses BASHMENOT_INTERNAL_TMP as the base directory if set, otherwise /tmp.
+#
+# @arg $1 string Base name prefix for the temp file (via expect_args)
+#
+# @stdout Path to the temporary filename (not yet created)
+# @exitcode 0 Success
+# @exitcode 1 mktemp failed
 get_tmp_file () {
 	local base
 	expect_args base -- "$@"
@@ -56,6 +64,14 @@ get_tmp_file () {
 }
 
 
+# @description Generate a unique temporary directory name using mktemp -du.
+#   Uses BASHMENOT_INTERNAL_TMP as the base directory if set, otherwise /tmp.
+#
+# @arg $1 string Base name prefix for the temp directory (via expect_args)
+#
+# @stdout Path to the temporary directory name (not yet created)
+# @exitcode 0 Success
+# @exitcode 1 mktemp failed
 get_tmp_dir () {
 	local base
 	expect_args base -- "$@"
@@ -77,6 +93,14 @@ get_tmp_dir () {
 }
 
 
+# @description Print the disk usage of a file or directory in human-readable form.
+#   Normalises K/M/G suffixes to KB/MB/GB.
+#
+# @arg $1 string Path to file or directory (via expect_args)
+#
+# @stdout Human-readable size, e.g. "1.2MB"
+# @exitcode 0 Success
+# @exitcode 1 du failed
 get_size () {
 	local thing
 	expect_args thing -- "$@"
@@ -89,6 +113,14 @@ get_size () {
 
 case $( uname -s ) in
 'Linux')
+	# @description Return the modification time of a file as a Unix epoch integer.
+	#   Uses 'stat -c %Y' on Linux and 'stat -f %m' on other systems.
+	#
+	# @arg $1 string File or directory path (via expect_args)
+	#
+	# @stdout Modification time as epoch seconds
+	# @exitcode 0 Success
+	# @exitcode 1 stat failed
 	get_modification_time () {
 		local thing
 		expect_args thing -- "$@"
@@ -106,6 +138,13 @@ case $( uname -s ) in
 esac
 
 
+# @description Return the absolute physical path of a directory, resolving symlinks.
+#
+# @arg $1 string Directory path (via expect_args)
+#
+# @stdout Absolute path with symlinks resolved
+# @exitcode 0 Success
+# @exitcode 1 Directory does not exist or cd/pwd failed
 get_dir_path () {
 	local dir
 	expect_args dir -- "$@"
@@ -116,6 +155,13 @@ get_dir_path () {
 }
 
 
+# @description Return the final path component (basename) of a directory.
+#
+# @arg $1 string Directory path (via expect_args)
+#
+# @stdout Directory name (last component only)
+# @exitcode 0 Success
+# @exitcode 1 Directory does not exist
 get_dir_name () {
 	local dir
 	expect_args dir -- "$@"
@@ -132,6 +178,15 @@ get_dir_name () {
 # TODO: Use realpath instead of readlink.
 case $( uname -s ) in
 'Linux')
+	# @description Resolve a symlink to its canonical absolute path.
+	#   Uses 'readlink -m' on Linux (resolves even non-existent paths) and
+	#   'greadlink -m' on other platforms (requires GNU coreutils).
+	#
+	# @arg $1 string Symlink path (via expect_args)
+	#
+	# @stdout Canonical absolute path
+	# @exitcode 0 Success
+	# @exitcode 1 readlink failed
 	get_link_path () {
 		local link
 		expect_args link -- "$@"
@@ -149,6 +204,15 @@ case $( uname -s ) in
 esac
 
 
+# @description Run find inside a directory and strip the leading './' from results.
+#   Returns silently (exit 0) if the directory does not exist.
+#   Additional find arguments can be passed after the directory.
+#
+# @arg $1 string Directory path (via expect_args)
+# @arg $2 string Additional arguments passed to find
+#
+# @stdout Relative file paths, one per line, without leading './'
+# @exitcode 0 Always
 find_tree () {
 	local dir
 	expect_args dir -- "$@"
@@ -163,6 +227,14 @@ find_tree () {
 }
 
 
+# @description Find files present in new_dir but not in old_dir.
+#
+# @arg $1 string Old directory path (via expect_args)
+# @arg $2 string New directory path (via expect_args)
+# @arg $3 string Additional arguments passed to find
+#
+# @stdout Relative paths of added files, one per line
+# @exitcode 0 Always
 find_added () {
 	local old_dir new_dir
 	expect_args old_dir new_dir -- "$@"
@@ -183,6 +255,14 @@ find_added () {
 }
 
 
+# @description Find files that exist in both directories but whose content differs.
+#
+# @arg $1 string Old directory path (via expect_args)
+# @arg $2 string New directory path (via expect_args)
+# @arg $3 string Additional arguments passed to find
+#
+# @stdout Relative paths of changed files, one per line
+# @exitcode 0 Always
 find_changed () {
 	local old_dir new_dir
 	expect_args old_dir new_dir -- "$@"
@@ -203,6 +283,14 @@ find_changed () {
 }
 
 
+# @description Find files that exist in both directories with identical content.
+#
+# @arg $1 string Old directory path (via expect_args)
+# @arg $2 string New directory path (via expect_args)
+# @arg $3 string Additional arguments passed to find
+#
+# @stdout Relative paths of unchanged files, one per line
+# @exitcode 0 Always
 find_not_changed () {
 	local old_dir new_dir
 	expect_args old_dir new_dir -- "$@"
@@ -223,6 +311,14 @@ find_not_changed () {
 }
 
 
+# @description Find files present in old_dir but not in new_dir.
+#
+# @arg $1 string Old directory path (via expect_args)
+# @arg $2 string New directory path (via expect_args)
+# @arg $3 string Additional arguments passed to find
+#
+# @stdout Relative paths of removed files, one per line
+# @exitcode 0 Always
 find_removed () {
 	local old_dir new_dir
 	expect_args old_dir new_dir -- "$@"
@@ -243,6 +339,15 @@ find_removed () {
 }
 
 
+# @description Compare two directory trees and print a diff-style summary of
+#   added (+), changed (*), unchanged (=), and removed (-) files.
+#
+# @arg $1 string Old directory path (via expect_args)
+# @arg $2 string New directory path (via expect_args)
+# @arg $3 string Additional arguments passed to find
+#
+# @stdout Lines prefixed with +, *, =, or - followed by the relative file path
+# @exitcode 0 Always
 compare_tree () {
 	local old_dir new_dir
 	expect_args old_dir new_dir -- "$@"
@@ -258,6 +363,15 @@ compare_tree () {
 }
 
 
+# @description Expand a glob pattern within a directory and print matching paths.
+#   Runs in a subshell to avoid affecting the caller's IFS or current directory.
+#
+# @arg $1 string Directory to expand within (via expect_args)
+# @arg $2 string Glob pattern to expand (via expect_args)
+#
+# @stdout Matching paths, one per line
+# @exitcode 0 Success
+# @exitcode 1 Directory does not exist
 expand_glob () {
 	local dir glob
 	expect_args dir glob -- "$@"
@@ -275,6 +389,11 @@ expand_glob () {
 }
 
 
+# @description Print the path of the most recently modified file under the
+#   current directory. Uses GNU stat -c; not portable to BSD stat.
+#
+# @stdout Path of the newest file
+# @exitcode 0 Always
 newest() {
 	find . -type f -print0 |
 	xargs -0 stat -c "%Y:%n" |

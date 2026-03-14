@@ -20,18 +20,23 @@
 [ -n "${_SH_LOADED_array_join+x}" ] && return 0
 _SH_LOADED_array_join=1
 
-# Join array elements with a delimiter and output a string
-
-# Example usage:
-
-#     $ array_join '|' a b c d
-#     a|b|c|d
-#     $ array_join '||||' a b c d
-#     a||||b||||c||||d
-#     $ testarray=( a 'b c' d e )
-#     $ array_join ',' "${testarray[@]}"
-#     a,b c,d,e
-
+# @description Join array elements with a delimiter and output a single string.
+#
+# @arg $1 string The delimiter string.
+# @arg $@ string Elements to join, passed by value.
+#
+# @example
+#   array_join '|' a b c d
+#   # => a|b|c|d
+#   array_join '||||' a b c d
+#   # => a||||b||||c||||d
+#   testarray=( a 'b c' d e )
+#   array_join ',' "${testarray[@]}"
+#   # => a,b c,d,e
+#
+# @stdout The joined string.
+# @exitcode 0 Success
+# @exitcode 1 No arguments given.
 array_join() {
   ((${#})) || return 1
   local -- delim="${1}" str IFS=

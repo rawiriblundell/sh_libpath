@@ -20,17 +20,41 @@
 [ -n "${_SH_LOADED_net_probe+x}" ] && return 0
 _SH_LOADED_net_probe=1
 
-# A small function to test connectivity to a remote host's port.
-# Usage: probe-port [remote host] [port (default: 22)] [tcp/udp (default: tcp)]
+# @description Test connectivity to a remote host's port via bash /dev/tcp or /dev/udp.
+#
+# @arg $1 string Remote hostname or IP address
+# @arg $2 int Port number (default: 22)
+# @arg $3 string Protocol: tcp or udp (default: tcp)
+#
+# @example
+#   probe-port example.com 443
+#   probe-port example.com 53 udp
+#
+# @exitcode 0 Port is reachable
+# @exitcode 1 Port is unreachable or timed out
 probe-port() {
   timeout 1 bash -c "</dev/${3:-tcp}/${1:?No target}/${2:-22}" 2>/dev/null
 }
 
-# Use probe-port to test a remote host's ssh connectivity
+# @description Test SSH connectivity to a remote host using probe-port.
+#
+# @arg $1 string Remote hostname or IP address
+# @arg $2 int SSH port (default: 22)
+#
+# @exitcode 0 SSH port is reachable
+# @exitcode 1 SSH port is unreachable or timed out
 probe-ssh() {
   probe-port "${1:?No target}" "${2:-22}"
 }
 
+# @description Check whether a remote port is open, trying telnet, nc, or nmap
+#   in that order. Exits with an error if none are available.
+#
+# @arg $1 string Remote hostname or IP address
+# @arg $2 int Port number
+#
+# @exitcode 0 Port is open
+# @exitcode 1 Port is closed, unreachable, or no tool found
 portcheck() {
   # Ensure that $1 and $2 are present
   if [[ -z $2 ]]||[[ -z $1 ]]; then

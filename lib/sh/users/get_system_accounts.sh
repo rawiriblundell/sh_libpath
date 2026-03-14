@@ -26,14 +26,26 @@ _uid_min=$(awk '/^UID_MIN/{print $2}' /etc/login.defs)
 # So if we can't find it in login.defs, we'll default to '500'
 _uid_min="${_uid_min:-500}"
 
+# @description Print the usernames of all system accounts (UIDs below UID_MIN).
+#
+# @stdout One username per line
+# @exitcode 0 Always
 get_system_accounts() {
   awk -F ':' -v min="${_uid_min}" '{ if ( $3 < min ) print $1 }' /etc/passwd
 }
 
+# @description Print the UIDs of all system accounts (UIDs below UID_MIN).
+#
+# @stdout One UID per line
+# @exitcode 0 Always
 get_system_uids() {
   awk -F ':' -v min="${_uid_min}" '{ if ( $3 < min ) print $3 }' /etc/passwd
 }
 
+# @description Print the UIDs of all regular user accounts (UIDs at or above UID_MIN).
+#
+# @stdout One UID per line
+# @exitcode 0 Always
 get_user_uids() {
   awk -F ':' -v min="${_uid_min}" '{ if ( $3 >= min ) print $3 }' /etc/passwd
 }

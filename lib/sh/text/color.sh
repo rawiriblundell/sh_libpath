@@ -27,7 +27,11 @@ BLOCKED_COLORS=(0 1 7 9 11 {15..18} {154..161} {190..197} {226..235} {250..255})
 # Define another array that is an inversion of the above
 mapfile -t ALLOWED_COLORS < <(printf -- '%d\n' {0..255} "${BLOCKED_COLORS[@]}" | sort -n | uniq -u)
 
-# A function to generate a random color code using the above arrays
+# @description Generate a random foreground color code from the allowed (visible) set.
+#   Excludes colors that are hard to see on black or white terminal backgrounds.
+#
+# @stdout A 256-color terminal color number (integer)
+# @exitcode 0 Always
 text_COLOR_FG_random() {
   local color
   # Define our initial color code

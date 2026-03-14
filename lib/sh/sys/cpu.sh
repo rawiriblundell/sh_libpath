@@ -20,8 +20,11 @@
 [ -n "${_SH_LOADED_sys_cpu+x}" ] && return 0
 _SH_LOADED_sys_cpu=1
 
-# Number of physical processors [int]
-# /sys and physical_package_id files proved to be unreliable, don't use those options
+# @description Populate the global cpuPhysCount with the number of physical CPU sockets.
+#   Tries lscpu, then dmidecode, then /proc/cpuinfo; defaults to 1 if undetermined.
+#   Note: /sys and physical_package_id files are unreliable and are not used.
+#
+# @exitcode 0 Always
 get_cpu_slots() {
   if command -v lscpu >/dev/null 2>&1; then
     cpuPhysCount=$(lscpu | awk 'BEGIN{IGNORECASE=1} /Socket\(s\):/{print $2; exit}')
@@ -38,8 +41,12 @@ get_cpu_slots() {
   fi
 }
 
-# Number of cores per socket [int]
-# /sys and core_id proved to be unreliable, don't use those options
+# @description Populate the global cpuCoreCount with the number of cores per socket.
+#   Tries lscpu, then dmidecode, then /proc/cpuinfo; defaults to 1 if undetermined.
+#   Also sets cpuCoreEnabled via dmidecode if that detail is available.
+#   Note: /sys and core_id files are unreliable and are not used.
+#
+# @exitcode 0 Always
 get_cpu_cores() {
   if command -v lscpu >/dev/null 2>&1; then
     cpuCoreCount=$(lscpu | awk '/^Core\(s\) per socket:/{print $4}')
@@ -68,7 +75,11 @@ get_cpu_cores() {
   fi
 }
 
-# Number of threads per core [int]
+# @description Populate the global cpuThreadCount with the number of hardware threads per core.
+#   Tries lscpu, then /proc/cpuinfo (Thread(s) per core), then sibling counts,
+#   then /sys/devices topology; defaults to 1 if undetermined.
+#
+# @exitcode 0 Always
 get_cpu_threads() {
   # First we try lscpu
   if command -v lscpu  >/dev/null 2>&1 && lscpu 2>/dev/null | grep -q "^Thread(s) per core"; then
@@ -107,13 +118,20 @@ get_cpu_threads() {
   fi
 }
 
-# Total vCPU's i.e. slots x cores x threads [int]
+# @description Populate the global cpuTotal with the total vCPU count
+#   (slots x cores x threads). Requires get_cpu_slots, get_cpu_cores, and
+#   get_cpu_threads to have been run first.
+#
+# @exitcode 0 Always
 get_cpu_count() {
   cpuTotal=$(( cpuPhysCount * cpuCoreCount * cpuThreadCount ))
 }
 
-# CPU speed in MHz [int]
-# We assume this is the same across multiple CPU's, so we just grab the first result
+# @description Populate the global cpuMhz with the CPU clock speed in MHz.
+#   Tries lscpu, then /sys/devices cpufreq, then the model name in /proc/cpuinfo.
+#   Assumes all sockets run at the same speed; only the first result is used.
+#
+# @exitcode 0 Always
 get_cpu_mhz() {
   if command -v lscpu >/dev/null 2>&1 && lscpu 2>/dev/null | grep -q "^CPU MHz"; then
     cpuMhz=$(lscpu | grep "^CPU MHz" | awk '{print $3}' | cut -d "." -f1)
@@ -133,22 +151,35 @@ get_cpu_mhz() {
   fi
 }
 
-# CPU Manufacturer [str]
-# We assume this is the same across multiple CPU's, so we just grab the first result
+# @description Print the CPU vendor/manufacturer string from /proc/cpuinfo.
+#   Assumes all sockets have the same vendor; only the first result is used.
+#
+# @stdout CPU vendor string, e.g. "GenuineIntel" or "AuthenticAMD"
+# @exitcode 0 Always
 get_cpu_manufacturer() {
   if [ -r /proc/cpuinfo ]; then
     awk -F ':' '/^vendor_id/{print $2; exit}' /proc/cpuinfo | trim
   fi
 }
 
-# CPU Model [str]
-# We assume this is the same across multiple CPU's, so we just grab the first result
+# @description Print the CPU model name string from /proc/cpuinfo.
+#   Assumes all sockets have the same model; only the first result is used.
+#
+# @stdout CPU model name string, e.g. "Intel(R) Core(TM) i7-8750H CPU @ 2.20GHz"
+# @exitcode 0 Always
 get_cpu_model() {
   if [ -r /proc/cpuinfo ]; then
     awk -F ':' '/^model name/{print $2; exit}' /proc/cpuinfo | trim
   fi
 }
 
+# @description Dispatcher for CPU information sub-commands. With no argument,
+#   prints a one-line summary of manufacturer, model, MHz, and vCPU count.
+#
+# @arg $1 string Sub-command: slots, cores, threads, count, mhz, manufacturer, model
+#
+# @stdout CPU information for the requested sub-command, or a summary line
+# @exitcode 0 Always
 get_cpu() {
   case "${1}" in
     (slots)           get_cpu_slots ;;

@@ -5,11 +5,24 @@
 [ -n "${_SH_LOADED_utils_realpaths+x}" ] && return 0
 _SH_LOADED_utils_realpaths=1
 
+# @description Resolve symlinks and return the parent directory of the target.
+#   Result is written to the global REPLY variable, not stdout.
+# @arg $1 string Path to resolve
 realpath.location(){ realpath.follow "$1"; realpath.absolute "$REPLY" ".."; }
+# @description Resolve symlinks and return the resulting absolute path.
+#   Result is written to the global REPLY variable, not stdout.
+# @arg $1 string Path to resolve
 realpath.resolved(){ realpath.follow "$1"; realpath.absolute "$REPLY"; }
+# @description Return the directory component of a path. Result is written to REPLY.
+# @arg $1 string Path to process
 realpath.dirname() { REPLY=.; ! [[ $1 =~ /+[^/]+/*$|^//$ ]] || REPLY="${1%${BASH_REMATCH[0]}}"; REPLY=${REPLY:-/}; }
+# @description Return the filename component of a path. Result is written to REPLY.
+# @arg $1 string Path to process
 realpath.basename(){ REPLY=/; ! [[ $1 =~ /*([^/]+)/*$ ]] || REPLY="${BASH_REMATCH[1]}"; }
 
+# @description Resolve all symlinks in a path without resolving path components.
+#   Detects symlink loops and stops. Result is written to REPLY.
+# @arg $1 string Path to follow
 realpath.follow() {
 	local target
 	while [[ -L "$1" ]] && target=$(readlink -- "$1"); do
@@ -24,6 +37,9 @@ realpath.follow() {
 	REPLY="$1"
 }
 
+# @description Compute an absolute path by resolving path components against PWD.
+#   Handles ., .., double-slash, and root. Result is written to REPLY.
+# @arg $1 string Path component(s) to resolve
 realpath.absolute() {
 	REPLY=$PWD; local eg=extglob; ! shopt -q $eg || eg=; ${eg:+shopt -s $eg}
 	while (($#)); do case $1 in
@@ -36,6 +52,9 @@ realpath.absolute() {
 	esac; done; ${eg:+shopt -u $eg}
 }
 
+# @description Recursively canonicalise a path: resolve symlinks and normalise
+#   all path components. Result is written to REPLY.
+# @arg $1 string Path to canonicalise
 realpath.canonical() {
 	realpath.follow "$1"; set -- "$REPLY"   # $1 is now resolved
 	realpath.basename "$1"; set -- "$1" "$REPLY"   # $2 = basename $1
@@ -44,6 +63,10 @@ realpath.canonical() {
 	realpath.absolute "$REPLY" "$2";   # combine canon parent w/basename
 }
 
+# @description Compute the relative path from a base directory to a target path.
+#   Defaults to PWD as the base if not given. Result is written to REPLY.
+# @arg $1 string Target path
+# @arg $2 string Optional: base directory (default: PWD)
 realpath.relative() {
 	local target=""
 	realpath.absolute "$1"; set -- "$REPLY" "${@:2}"; realpath.absolute "${2-$PWD}" X

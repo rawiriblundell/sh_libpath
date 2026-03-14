@@ -29,6 +29,15 @@ if ! command -v readlink; then
   exit 1
 fi
 
+# @description Portable implementation of 'readlink -f' for systems where readlink
+#   does not support the -f flag. Resolves symlink chains up to 20 levels deep.
+#   Runs in a subshell to avoid side effects. Requires readlink to be in PATH.
+#
+# @arg $1 string Symlink path to resolve
+#
+# @stdout Absolute canonical path of the resolved symlink
+# @exitcode 0 Success
+# @exitcode 1 Path does not exist, is not a symlink, or recursion limit reached
 readlink_f() {
   (
     _count=0

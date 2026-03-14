@@ -20,9 +20,17 @@
 [ -n "${_SH_LOADED_utils_dos2unix+x}" ] && return 0
 _SH_LOADED_utils_dos2unix=1
 
-# Basic step-in function for systems that don't have dos2unix
-# This simply removes dos line endings using 'tr'
 if ! command -v dos2unix >/dev/null 2>&1; then
+  # @description Strip DOS/Windows carriage return characters from files or stdin.
+  #   Step-in replacement for systems without the dos2unix command; uses 'tr -d \r'.
+  #   In-place conversion is performed by writing to a temp file and copying back.
+  #   No options are supported; option flags will produce an error.
+  #
+  # @arg $1 string Optional: one or more file paths to convert in place
+  #
+  # @stdout Converted content (when reading from stdin with no args)
+  # @exitcode 0 Success
+  # @exitcode 1 Unsupported option flag, or one or more files could not be written
   dos2unix() {
     local _dos2unix_arg
     # Ensure that no options are supplied in any arg

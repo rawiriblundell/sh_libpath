@@ -20,9 +20,17 @@
 [ -n "${_SH_LOADED_numbers_semver+x}" ] && return 0
 _SH_LOADED_numbers_semver=1
 
-# Convert a three number style semantic version number to an integer for version comparisons
-# This zero pads, to double digits, the second and third numbers and removes any non-numerical chars
-# e.g. 'openssl 1.0.2k-fips' -> '10002'
+# @description Convert a semantic version string to a zero-padded integer for numeric comparison.
+#   Strips non-numeric/non-dot characters, then formats as MMMMNNPP (major, 2-digit minor, 2-digit patch).
+#
+# @arg $1 string Version string (e.g. "1.0.2k-fips" or "openssl 1.0.2")
+#
+# @example
+#   semver_to_int "1.0.2k-fips"   # => 10002
+#   semver_to_int "2.31.0"        # => 23100
+#
+# @stdout Integer representation of the version
+# @exitcode 0 Always
 semver_to_int() {
     local _sem_ver
     _sem_ver="${1:?No version number supplied}"

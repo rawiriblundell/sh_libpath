@@ -18,8 +18,15 @@ _SH_LOADED_core_wants=1
 # limitations under the License.
 ################################################################################
 
-# Sometimes you might want to load a file only if it exists,
-# but otherwise it's not critical and your script can move on.
+# @description Source a file only if it exists; silently skip if it does not.
+#   Unlike include(), a missing file is not an error. An existing but unreadable
+#   or broken file still causes a failure.
+#
+# @arg $1 string Path to the file to source
+#
+# @stderr Warning if the file exists but cannot be read or fails to source
+# @exitcode 0 File sourced successfully or file does not exist
+# @exitcode 1 File exists but is unreadable or failed to source
 wants() {
   local _fstarget
   _fstarget="${1:?No target specified}"

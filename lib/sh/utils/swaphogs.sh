@@ -31,8 +31,7 @@ _SH_LOADED_utils_swaphogs=1
 #
 # The active code here is simply to align with memhogs and cpuhogs
 
-# Parse the contents of /proc/*/status
-# Outputs in the format: [cmd] [pid] [swap usage(kB)]
+# @internal
 _swaphogs_get_proc_info() {
   local file
   {
@@ -42,7 +41,7 @@ _swaphogs_get_proc_info() {
   } | sort -k 3 -n | tail -n "${1:-10}"
 }
 
-# This function formats and colourises our output
+# @internal
 _swaphogs_print_fmt() {
     local print_fmt wrap_limit
 
@@ -61,6 +60,15 @@ _swaphogs_print_fmt() {
     printf -- "${print_fmt}" "${@}"
 }
 
+# @description List processes sorted by swap usage, colour-coded by percentage.
+#   Reads from /proc/*/status. Output is colour-coded: green (<10%), yellow
+#   (>=10%), red (>=20%). Colours are suppressed when not running interactively.
+#
+# @arg $1 int Optional: number of processes to show (default: 10). Accepts bare
+#   integer or '-n N' form.
+#
+# @stdout Table of PID, swap%, and command name
+# @exitcode 0 Always
 swaphogs() {
   local wrap_limit swap swap_pct _swaphogs_swap_total lines
   # Capture the width of the terminal window

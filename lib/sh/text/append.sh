@@ -20,11 +20,18 @@
 [ -n "${_SH_LOADED_text_append+x}" ] && return 0
 _SH_LOADED_text_append=1
 
-# Append one string to another, export as $append_stdout
-# Optionally define a delimiter using '-d|--delimiter'
-# e.g.
-# Command: str_append -d ':' foo bar
-# Output : foo:bar
+# @description Append one string to another, exporting the result as $append_stdout.
+#   Optionally define a delimiter with -d|--delimiter (defaults to a single space).
+#
+# @arg $1 string Optional: -d|--delimiter followed by delimiter string
+# @arg $2 string First string
+# @arg $3 string Second string to append
+#
+# @example
+#   str_append -d ':' foo bar   # => append_stdout="foo:bar"
+#   str_append foo bar          # => append_stdout="foo bar"
+#
+# @exitcode 0 Always
 str_append() {
   local _append_delimiter
   case "${1}" in
@@ -38,6 +45,7 @@ str_append() {
   export append_stdout append_rc
 }
 
+# @description Alias for str_append.
 append() {
   local _append_delimiter
   case "${1}" in

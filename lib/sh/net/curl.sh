@@ -35,6 +35,12 @@
 [ -n "${_SH_LOADED_net_curl+x}" ] && return 0
 _SH_LOADED_net_curl=1
 
+# @description Convert an HTTP response code integer to a short human-readable label.
+#
+# @arg $1 string HTTP status code (via expect_args)
+#
+# @stdout Short label, e.g. 'done', '404 (not found)'
+# @exitcode 0 Always
 format_http_code_description () {
 	local code
 	expect_args code -- "$@"
@@ -97,6 +103,16 @@ format_http_code_description () {
 }
 
 
+# @description Return an exit code matching the HTTP status code class:
+#   2xx => 0, 3xx => 3, 4xx => 4, 5xx => 5, other => 1.
+#
+# @arg $1 string HTTP status code (via expect_args)
+#
+# @exitcode 0 2xx success
+# @exitcode 1 Unknown code
+# @exitcode 3 3xx redirect
+# @exitcode 4 4xx client error
+# @exitcode 5 5xx server error
 return_http_code_status () {
 	local code
 	expect_args code -- "$@"
@@ -111,6 +127,15 @@ return_http_code_status () {
 }
 
 
+# @description Execute a curl request with retry logic. Retries up to
+#   BASHMENOT_CURL_RETRIES (default 5) times with exponential backoff.
+#   4xx errors are not retried by default unless BASHMENOT_INTERNAL_CURL_RETRY_ALL is set.
+#
+# @arg $1 string URL to request (via expect_args)
+# @arg $2 string Additional curl arguments (passed through)
+#
+# @exitcode 0 2xx response received
+# @exitcode 1 Non-2xx response after all retries
 curl_do () {
 	local url
 	expect_args url -- "$@"
@@ -163,6 +188,14 @@ curl_do () {
 }
 
 
+# @description Download a remote file to a local path, creating parent directories
+#   as needed. Uses curl_do for retry behaviour.
+#
+# @arg $1 string Source URL (via expect_args)
+# @arg $2 string Destination file path (via expect_args)
+#
+# @exitcode 0 Download succeeded
+# @exitcode 1 Download failed
 curl_download () {
 	local src_file_url dst_file
 	expect_args src_file_url dst_file -- "$@"
@@ -179,6 +212,12 @@ curl_download () {
 }
 
 
+# @description Perform a HEAD request to check whether a URL is reachable.
+#
+# @arg $1 string URL to check (via expect_args)
+#
+# @exitcode 0 URL is reachable (2xx)
+# @exitcode 1 URL is not reachable
 curl_check () {
 	local src_url
 	expect_args src_url -- "$@"
@@ -191,6 +230,13 @@ curl_check () {
 }
 
 
+# @description Upload a local file to a remote URL using curl PUT.
+#
+# @arg $1 string Source file path (via expect_args)
+# @arg $2 string Destination URL (via expect_args)
+#
+# @exitcode 0 Upload succeeded
+# @exitcode 1 Upload failed or source file not found
 curl_upload () {
 	local src_file dst_file_url
 	expect_args src_file dst_file_url -- "$@"
@@ -205,6 +251,12 @@ curl_upload () {
 }
 
 
+# @description Send a DELETE request to a remote URL via curl.
+#
+# @arg $1 string Target URL (via expect_args)
+#
+# @exitcode 0 Delete succeeded
+# @exitcode 1 Delete failed
 curl_delete () {
 	local dst_url
 	expect_args dst_url -- "$@"

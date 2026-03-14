@@ -20,8 +20,17 @@
 [ -n "${_SH_LOADED_utils_seq+x}" ] && return 0
 _SH_LOADED_utils_seq=1
 
-# Check if 'seq' is available, if not, provide a basic replacement function
 if ! command -v seq >/dev/null 2>&1; then
+  # @description Step-in replacement for 'seq' on systems that lack it.
+  #   Supports the three standard forms: LAST, FIRST LAST, and FIRST INCR LAST.
+  #   No format options are supported; this is a basic numeric sequence generator.
+  #
+  # @arg $1 int LAST (or FIRST when two args are given, or FIRST with INCR and LAST)
+  # @arg $2 int Optional: LAST (two-arg form) or INCR (three-arg form)
+  # @arg $3 int Optional: LAST (three-arg form)
+  #
+  # @stdout One integer per line
+  # @exitcode 0 Always
   seq() {
     local first
     # If no parameters are given, print out usage

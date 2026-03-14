@@ -20,9 +20,14 @@
 [ -n "${_SH_LOADED_args_opt_count+x}" ] && return 0
 _SH_LOADED_args_opt_count=1
 
-# Description: Test whether the number of given parameters is correct
-# Parameter 1: Desired number of parameters
-# Parameter 2: Actual number of parameters (usually "${#}")
+# @description Test whether the number of given parameters is correct. Calls die() with
+#   a descriptive message if the count is wrong or if either argument is not an integer.
+#
+# @arg $1 int Desired number of parameters
+# @arg $2 int Actual number of parameters (usually "${#}")
+#
+# @exitcode 0 Correct number of parameters
+# @exitcode 1 Wrong count or non-integer argument (via die())
 opt_count() {
     local desired_count actual_count
     # Prevent irony

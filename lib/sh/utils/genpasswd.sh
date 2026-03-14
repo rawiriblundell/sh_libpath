@@ -20,13 +20,16 @@
 [ -n "${_SH_LOADED_utils_genpasswd+x}" ] && return 0
 _SH_LOADED_utils_genpasswd=1
 
-################################################################################
-# genpasswd password generator
-################################################################################
-# Password generator function for when 'pwgen' or 'apg' aren't available
-# Koremutake mode inspired by:
-# https:#raw.githubusercontent.com/lpar/kpwgen/master/kpwgen.go
-# http://shorl.com/koremutake.php
+# @description Generate random passwords when 'pwgen' or 'apg' are not available.
+#   Supports standard alphanumeric, special character, and Koremutake phonetic syllable
+#   modes. Options to require at least one digit, uppercase, or special character.
+#
+# @arg $1 string Optional flags: -c N (char count), -D (digit), -h (help), -K (Koremutake),
+#   -n N (count), -s (strong), -S (stronger), -U (uppercase), -Y (special char)
+#
+# @stdout One or more generated passwords, one per line
+# @exitcode 0 Success
+# @exitcode 1 Invalid option or password length less than 4
 genpasswd() {
   export LC_CTYPE=C
   # localise variables for safety

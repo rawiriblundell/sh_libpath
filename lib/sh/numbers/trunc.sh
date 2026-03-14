@@ -20,10 +20,15 @@
 [ -n "${_SH_LOADED_numbers_trunc+x}" ] && return 0
 _SH_LOADED_numbers_trunc=1
 
-# Description: Remove any fractional precision from a given float
-# Example: 'trunc 3.7445' => 3
-
-# Usage: trunc [float]
+# @description Remove the fractional part from a float, returning only the integer portion.
+#
+# @arg $1 float The value to truncate
+#
+# @example
+#   trunc 3.7445   # => 3
+#
+# @stdout Integer portion of the value
+# @exitcode 0 Always
 trunc() {
   printf -- '%s\n' "${1:?No float given}" | awk -F '.' '{print $1}'
 }

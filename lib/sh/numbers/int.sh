@@ -24,15 +24,32 @@ _SH_LOADED_numbers_int=1
 # e.g. scientific notation to integers
 # Additionally, handle base (default 10)
 
-# Usage: int [number]
+# @description Strip the fractional part from a number, returning the integer portion.
+#
+# @arg $1 float The value to truncate
+#
+# @stdout Integer portion of the value
+# @exitcode 0 Always
 int() {
   printf -- '%s\n' "${1:?No float given}" | awk -F '.' '{print $1}'
 }
 
+# @description Test whether an integer is odd.
+#
+# @arg $1 int Integer to test
+#
+# @exitcode 0 Number is odd
+# @exitcode 1 Number is even
 is_odd() {
     (( (${1:?No number specified} % 2) != 0 ))
 }
 
+# @description Test whether an integer is even.
+#
+# @arg $1 int Integer to test
+#
+# @exitcode 0 Number is even
+# @exitcode 1 Number is odd
 is_even() {
     (( (${1:?No number specified} % 2) == 0 ))
 }

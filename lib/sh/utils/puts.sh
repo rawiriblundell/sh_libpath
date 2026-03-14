@@ -20,11 +20,16 @@
 [ -n "${_SH_LOADED_utils_puts+x}" ] && return 0
 _SH_LOADED_utils_puts=1
 
-# 'puts()' abstracts the portability of 'printf' and solves the major portability headaches 
-# caused by various implementations of 'echo'.  This is called 'puts()' rather than using 
-# 'echo()' as  an override function, because some shells protect their builtins and complain.
-# Fun exercise: look at Oracle's man page for 'echo', specifically the USAGE section.
-# This also adds the '-j' option to output in json keypair format (no type-based formatting though)
+# @description Portable echo replacement that wraps printf. Supports a subset of
+#   echo flags (-e for escape sequences, -E to suppress them, -n/-end to suppress
+#   the trailing newline) plus -j to output a JSON key-value pair. Named 'puts'
+#   rather than overriding 'echo' because some shells protect their builtins.
+#
+# @arg $1 string Optional flag: -e, -E, -j, -n/--end, -en, -En, -ne, -nE
+# @arg $2 string Content to print (remaining args passed through)
+#
+# @stdout Formatted string per the selected mode
+# @exitcode 0 Always
 puts() {
     case "${1}" in
         (-e)

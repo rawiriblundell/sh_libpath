@@ -20,11 +20,17 @@
 [ -n "${_SH_LOADED_utils_tput+x}" ] && return 0
 _SH_LOADED_utils_tput=1
 
-# Detect if our version of 'tput' is so old that it uses termcap syntax
-# If this is the case, overlay it so that newer terminfo style syntax works
-# Inspired by 'bashlib' and 'liquidprompt'
-# For performance we only implement if 'tput ce' (a harmless test) works
 if tput ce 2>/dev/null; then
+  # @description Wrapper for 'tput' that translates terminfo capability names to
+  #   termcap equivalents on systems where 'tput' only understands termcap syntax.
+  #   Only active when 'tput ce' succeeds (i.e. the system uses termcap).
+  #   Handles platform-specific colour differences for FreeBSD and OpenBSD.
+  #
+  # @arg $1 string tput capability name (terminfo style)
+  # @arg $2 string Optional: argument to the capability (e.g. colour index for setaf/setab)
+  #
+  # @exitcode 0 Capability sent successfully
+  # @exitcode 1 Capability not supported
   tput() {
     ctput-null() { command tput "${@}" 2>/dev/null; }
     ctput() { command tput "${@}"; }

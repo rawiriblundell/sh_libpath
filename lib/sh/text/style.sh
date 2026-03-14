@@ -28,12 +28,23 @@ _SH_LOADED_text_style=1
 # * https://gist.github.com/XVilka/8346728
 # * https://stackoverflow.com/a/33206814
 
-# Remove leading number of lines.  Default: 1
+# @description Remove the first n lines from stdin (default: 1).
+#
+# @arg $1 int Optional: number of lines to remove (default: 1)
+#
+# @stdout Input with leading lines removed
+# @exitcode 0 Always
 text_behead() {
   awk -v head="${1:-1}" '{if (NR>head) {print}}'
 }
 
-# Convert text to slow blink
+# @description Apply slow blink ANSI formatting to text.
+#   Accepts input as an argument or via stdin/file.
+#
+# @arg $1 string Optional: file path or string to format
+#
+# @stdout Blink-formatted text
+# @exitcode 0 Always
 text_blink() {
   LC_CTYPE=C
   if [[ -r "${1}" ]]||[[ -z "${1}" ]]; then
@@ -45,7 +56,13 @@ text_blink() {
   fi
 }
 
-# Convert text to bold
+# @description Apply bold ANSI formatting to text.
+#   Accepts input as an argument or via stdin/file.
+#
+# @arg $1 string Optional: file path or string to format
+#
+# @stdout Bold-formatted text
+# @exitcode 0 Always
 text_bold() {
   LC_CTYPE=C
   # If an arg is given and it's readable, then it's a file
@@ -60,15 +77,27 @@ text_bold() {
   fi
 }
 
-# Convert comma separated list to long format e.g. id user | tr "," "\n"
-# See also text_n2c() and text_n2s() for the opposite behaviour
+# @description Convert a comma-separated list to newline-separated format.
+#   See also text_n2c() and text_n2s() for the inverse.
+#
+# @arg $1 string Optional: file path (default: stdin)
+#
+# @stdout One item per line
+# @exitcode 0 Always
 text_c2n() {
   while read -r; do 
     printf -- '%s\n' "${REPLY}" | tr "," "\\n"
   done < "${1:-/dev/stdin}"
 }
 
-# Print the given text in the center of the screen.
+# @description Center each line of input within the terminal width.
+#   Lines longer than the terminal width are folded and each segment centered.
+#   Accepts input via stdin or a file path.
+#
+# @arg $1 string Optional: file path (default: stdin)
+#
+# @stdout Each line centered within the terminal width
+# @exitcode 0 Always
 text_center() {
   local width
   width="${COLUMNS:-$(tput cols)}"
@@ -92,7 +121,13 @@ text_center() {
   [[ -n "${REPLY}" ]] && printf -- '%s\n' "${REPLY}"
 }
 
-# Convert text to faint
+# @description Apply faint/dim ANSI formatting to text.
+#   Accepts input as an argument or via stdin/file.
+#
+# @arg $1 string Optional: file path or string to format
+#
+# @stdout Faint-formatted text
+# @exitcode 0 Always
 text_faint() {
   LC_CTYPE=C
   if [[ -r "${1}" ]]||[[ -z "${1}" ]]; then
@@ -104,13 +139,25 @@ text_faint() {
   fi
 }
 
-# Write a horizontal line of characters
+# @description Write a horizontal line of characters.
+#
+# @arg $1 int Optional: line width in columns (default: $COLUMNS)
+# @arg $2 string Optional: fill character (default: #)
+#
+# @stdout A horizontal line of the specified character and width
+# @exitcode 0 Always
 text_hr() {
   # shellcheck disable=SC2183
   printf -- '%*s\n' "${1:-$COLUMNS}" | tr ' ' "${2:-#}"
 }
 
-# Function to indent text by n spaces (default: 2 spaces)
+# @description Indent each line of input by n spaces (default: 2).
+#
+# @arg $1 int Optional: number of spaces to indent (default: 2)
+# @arg $2 string Optional: file path (default: stdin)
+#
+# @stdout Indented text
+# @exitcode 0 Always
 text_indent() {
   local identWidth
   identWidth="${1:-2}"
@@ -118,7 +165,13 @@ text_indent() {
   sed "s/^/${identWidth}/" "${2:-/dev/stdin}"
 }
 
-# Swap the foreground and background colours
+# @description Swap foreground and background colors using ANSI invert formatting.
+#   Accepts input as an argument or via stdin/file.
+#
+# @arg $1 string Optional: file path or string to format
+#
+# @stdout Inverted-color text
+# @exitcode 0 Always
 text_invert() {
   LC_CTYPE=C
   if [[ -r "${1}" ]]||[[ -z "${1}" ]]; then
@@ -130,7 +183,13 @@ text_invert() {
   fi
 }
 
-# Convert text to italic
+# @description Apply italic ANSI formatting to text.
+#   Accepts input as an argument or via stdin/file.
+#
+# @arg $1 string Optional: file path or string to format
+#
+# @stdout Italic-formatted text
+# @exitcode 0 Always
 text_italic() {
   LC_CTYPE=C
   if [[ -r "${1}" ]]||[[ -z "${1}" ]]; then
@@ -142,15 +201,31 @@ text_italic() {
   fi
 }
 
-# Convert multiple lines to comma separated format
-# See also text_c2n() for the opposite behaviour
+# @description Convert newline-separated input to a single comma-separated line.
+#   See also text_c2n() for the inverse.
+#
+# @arg $1 string Optional: file path (default: stdin)
+#
+# @stdout Comma-separated values on a single line
+# @exitcode 0 Always
 text_n2c() { paste -sd ',' "${1:--}"; }
 
-# Convert multiple lines to space separated format
+# @description Convert newline-separated input to a single space-separated line.
+#
+# @arg $1 string Optional: file path (default: stdin)
+#
+# @stdout Space-separated values on a single line
+# @exitcode 0 Always
 text_n2s() { paste -sd ' ' "${1:--}"; }
 
-# A function to print a specific line from a file
-# TODO: Update it to handle globs e.g. 'printline 4 *'
+# @description Print a specific line number from a file or stdin.
+#
+# @arg $1 int Line number to print (required)
+# @arg $2 string Optional: file path (default: stdin)
+#
+# @stdout The specified line
+# @exitcode 0 Success
+# @exitcode 1 Invalid line number or unreadable file
 text_printline() {
   # If $1 is empty, print a usage message
   if [[ -z "${1}" ]]; then
@@ -194,7 +269,13 @@ text_printline() {
   fi
 }
 
-# Strikethrough the text
+# @description Apply strikethrough ANSI formatting to text.
+#   Accepts input as an argument or via stdin/file.
+#
+# @arg $1 string Optional: file path or string to format
+#
+# @stdout Strikethrough-formatted text
+# @exitcode 0 Always
 text_strike() {
   LC_CTYPE=C
   if [[ -r "${1}" ]]||[[ -z "${1}" ]]; then
@@ -206,7 +287,13 @@ text_strike() {
   fi
 }
 
-# Trim whitespace either side of text
+# @description Strip leading and trailing whitespace from text.
+#   Accepts input as an argument or via stdin/file.
+#
+# @arg $1 string Optional: file path or string to trim
+#
+# @stdout Trimmed text
+# @exitcode 0 Always
 text_trim() {
   LC_CTYPE=C
   local outLn=""
@@ -229,7 +316,13 @@ text_trim() {
   fi
 }
 
-# Convert text to be underlined
+# @description Apply underline ANSI formatting to text.
+#   Accepts input as an argument or via stdin/file.
+#
+# @arg $1 string Optional: file path or string to format
+#
+# @stdout Underlined text
+# @exitcode 0 Always
 text_underline() {
   LC_CTYPE=C
   if [[ -r "${1}" ]]||[[ -z "${1}" ]]; then
@@ -241,7 +334,14 @@ text_underline() {
   fi
 }
 
-# Function to wrap an input to n words per line
+# @description Wrap input to n words per line using xargs.
+#   Reads from stdin or a file.
+#
+# @arg $1 int Optional: number of words per line (default: 1)
+# @arg $2 string Optional: file path (default: stdin)
+#
+# @stdout Input rewrapped to the specified word count per line
+# @exitcode 0 Always
 text_wordwrap() {
   xargs -n "${1:-1}" < "${2:-/dev/stdin}"
 }
@@ -249,7 +349,15 @@ text_wordwrap() {
 ################################################################################
 # Colors / colours
 
-# Change the foreground (i.e. text) colour
+# @description Apply a foreground (text) color to input using ANSI 256-color codes.
+#   Named colors, numeric codes, and random ('rand') are supported.
+#   Accepts input as an argument or via stdin/file.
+#
+# @arg $1 string Color name or code: b, r, g, y, bl, m, c, w, o, rand, or a number 0-255
+# @arg $@ string Optional: text to color (default: stdin)
+#
+# @stdout Color-formatted text
+# @exitcode 0 Always
 text_fg() {
   LC_CTYPE=C
   local fg_colour
@@ -282,7 +390,15 @@ text_fg() {
   fi
 }
 
-# Change the background colour
+# @description Apply a background color to input using ANSI 256-color codes.
+#   Named colors, numeric codes, and random ('rand') are supported.
+#   Accepts input as an argument or via stdin/file.
+#
+# @arg $1 string Color name or code: b, r, g, y, bl, m, c, w, o, rand, or a number 0-255
+# @arg $@ string Optional: text to color (default: stdin)
+#
+# @stdout Background-color-formatted text
+# @exitcode 0 Always
 text_bg() {
   LC_CTYPE=C
   local bg_colour
@@ -315,7 +431,17 @@ text_bg() {
   fi
 }
 
-# Change the foreground colour (truecolor mode)
+# @description Apply a truecolor foreground color using RGB values (0-255 each).
+#   Random values are used for any omitted or non-numeric component.
+#   Accepts input as an argument or via stdin/file.
+#
+# @arg $1 int Red component (0-255, or omit for random)
+# @arg $2 int Green component (0-255, or omit for random)
+# @arg $3 int Blue component (0-255, or omit for random)
+# @arg $@ string Optional: text to color (default: stdin)
+#
+# @stdout Truecolor foreground-formatted text
+# @exitcode 0 Always
 text_rgb.fg() {
   local fg_red fg_green fg_blue fg_colour
   case "${1}" in
@@ -356,7 +482,17 @@ text_rgb.fg() {
   fi
 }
 
-# Change the background colour (truecolor mode)
+# @description Apply a truecolor background color using RGB values (0-255 each).
+#   Random values are used for any omitted or non-numeric component.
+#   Accepts input as an argument or via stdin/file.
+#
+# @arg $1 int Red component (0-255, or omit for random)
+# @arg $2 int Green component (0-255, or omit for random)
+# @arg $3 int Blue component (0-255, or omit for random)
+# @arg $@ string Optional: text to color (default: stdin)
+#
+# @stdout Truecolor background-formatted text
+# @exitcode 0 Always
 text_rgb.bg() {
   local bg_red bg_green bg_blue bg_colour
   case "${1}" in
@@ -400,14 +536,13 @@ text_rgb.bg() {
 ################################################################################
 # Case transformations
 
-# Setup a function for capitalising a single string
-# This is used by the above capitalise() function
-# The portable version depends on toupper() and trim()
 if (( BASH_VERSINFO >= 4 )); then
+  # @internal
   text_capitalise-string() {
     printf -- '%s\n' "${1^}"
   }
 else
+  # @internal
   text_capitalise-string() {
     # Split off the first character, uppercase it and trim
     # Next, print the string from the second character onwards
@@ -415,10 +550,15 @@ else
   }
 fi
 
-# Capitalise words
-# This is a bash-portable way to do this.
-# To achieve with awk, use awk '{for(i=1;i<=NF;i++)sub(/./,toupper(substr($i,1,1)),$i)}1')
-# Known problem: leading whitespace is chomped.
+# @description Capitalise the first letter of each word in the input.
+#   Accepts input as an argument or via stdin/file.
+#   Known limitation: leading whitespace is chomped.
+#
+# @arg $@ string Optional: one or more words (default: stdin)
+#
+# @stdout Capitalised text
+# @exitcode 0 Success
+# @exitcode 1 Both stdin and argument provided simultaneously
 text_capitalise() {
   # Ignore any instances of '*' that may be in a file
   local GLOBIGNORE="*"
@@ -469,11 +609,14 @@ text_capitalise() {
   local GLOBIGNORE=
 }
 
-# Convert text to lowercase
-# For a shell-native version, see:
-# See https://gist.github.com/rawiriblundell/7b6914a11d3fdcdbd9aebc45fd38b4a1
-# TODO: Maybe one day merge it in here?
-# The chance of needing it (i.e. no 'awk' or 'tr') is virtually nonexistent...
+# @description Convert text to lowercase. Accepts a string argument, file path, or stdin.
+#   Tries Bash 4 parameter expansion, then awk, then tr as fallbacks.
+#
+# @arg $1 string Optional: string to lowercase (default: stdin/file)
+#
+# @stdout Lowercased text
+# @exitcode 0 Success
+# @exitcode 1 No available conversion method found
 text_tolower() {
   if [[ -n "${1}" ]] && [[ ! -r "${1}" ]]; then
     if (( BASH_VERSINFO >= 4 )); then
@@ -503,7 +646,14 @@ text_tolower() {
   fi
 }
 
-# Convert text to uppercase
+# @description Convert text to uppercase. Accepts a string argument, file path, or stdin.
+#   Tries Bash 4 parameter expansion, then awk, then tr as fallbacks.
+#
+# @arg $1 string Optional: string to uppercase (default: stdin/file)
+#
+# @stdout Uppercased text
+# @exitcode 0 Success
+# @exitcode 1 No available conversion method found
 text_toupper() {
   if [[ -n "${1}" ]] && [[ ! -r "${1}" ]]; then
     if (( BASH_VERSINFO >= 4 )); then

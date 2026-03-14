@@ -20,7 +20,16 @@
 [ -n "${_SH_LOADED_text_quote+x}" ] && return 0
 _SH_LOADED_text_quote=1
 
-# TODO: Add stdin parsing
+# @description Wrap a string in quotes or bracket-style enclosures.
+#   Defaults to double quotes. Supports single quotes, backticks, parentheses,
+#   braces, brackets, and chevrons via flags.
+#
+# @arg $1 string Optional: -s|--single, -b|--backticks, -P|--parens,
+#   -C|--braces, -S|--brackets, -A|--chevrons, -d|--double
+# @arg $@ string The string to wrap
+#
+# @stdout The input string wrapped in the selected enclosure
+# @exitcode 0 Always
 str_quote() {
     local _str_quote_left _str_quote_right
     case "${1}" in

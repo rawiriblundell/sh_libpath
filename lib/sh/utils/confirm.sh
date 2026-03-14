@@ -20,23 +20,16 @@
 [ -n "${_SH_LOADED_utils_confirm+x}" ] && return 0
 _SH_LOADED_utils_confirm=1
 
-# A function to prompt/read an interactive y/n response
-# Stops reading after one character, meaning only 'y' or 'Y' will return 0
-# _anything_ else will return 1
-confirm() {
-  read -rn 1 -p "${*:-Continue} [y/N]? "
-  printf -- '%s\n' ""
-  case "${REPLY}" in
-    ([yY]) return 0 ;;
-    (*)    return 1 ;;
-  esac
-}
-
-# For a version that features a timeout:
-
-# A function to prompt/read an interactive y/n response
-# Stops reading after one character, meaning only 'y' or 'Y' will return 0
-# Any other character, or an optional timeout (-t|--timeout) will return 1
+# @description Prompt for an interactive yes/no confirmation. Reads a single
+#   character; only 'y' or 'Y' returns 0. Supports an optional timeout via
+#   -t or --timeout followed by a duration in seconds.
+#
+# @arg $1 string Optional: '-t' or '--timeout' followed by timeout in seconds
+# @arg $2 int Optional: timeout in seconds (when using -t/--timeout)
+# @arg $3 string Optional: custom prompt text (default: "Continue")
+#
+# @exitcode 0 User confirmed with 'y' or 'Y'
+# @exitcode 1 Any other input, or timeout expired
 confirm() {
   local confirm_args
   case "${1}" in

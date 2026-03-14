@@ -20,6 +20,14 @@
 [ -n "${_SH_LOADED_text_zeropad+x}" ] && return 0
 _SH_LOADED_text_zeropad=1
 
+# @description Right-pad an integer with zeros to reach a minimum length.
+#   If the integer is already at or above the target length, it is printed unchanged.
+#
+# @arg $1 int The integer to pad
+# @arg $2 int Optional: target minimum length (default: 3)
+#
+# @stdout Zero-right-padded integer
+# @exitcode 0 Always
 zeropad_right() {
   int="${1:?No number provided}"
   len="${2:-3}"

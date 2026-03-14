@@ -20,6 +20,13 @@
 [ -n "${_SH_LOADED_text_rot13+x}" ] && return 0
 _SH_LOADED_text_rot13=1
 
+# @description Apply ROT13 encoding to text. Accepts a file path, string argument, or stdin.
+#
+# @arg $1 string Optional: file path, or string to encode
+#
+# @stdout ROT13-encoded text
+# @exitcode 0 Success
+# @exitcode 1 No input given
 rot13 () {
   # If parameter is a file, or stdin is used, action that first
   if [[ -r "${1}" ]]||[[ ! -t 0 ]]; then

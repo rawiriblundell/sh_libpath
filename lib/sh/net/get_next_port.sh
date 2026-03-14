@@ -20,8 +20,19 @@
 [ -n "${_SH_LOADED_net_get_next_port+x}" ] && return 0
 _SH_LOADED_net_get_next_port=1
 
-# Get the next available local port for portforwarding
-# Usage: get_next_port [start port (9000)] [number of ports to scan (100)]
+# @description Find the next available local port for port-forwarding by scanning
+#   with 'ss'. Starts from a given port and scans up to a configurable limit.
+#
+# @arg $1 int Starting port number (default: 9000)
+# @arg $2 int Number of ports to scan before giving up (default: 100)
+#
+# @example
+#   get_next_port        # => 9000 (or next available above 9000)
+#   get_next_port 8080 50
+#
+# @stdout The first available port number
+# @exitcode 0 An available port was found
+# @exitcode 1 No available port found within the scan range
 get_next_port() {
     local test_port
     # Default to port 9000

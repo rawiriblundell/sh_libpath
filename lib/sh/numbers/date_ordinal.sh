@@ -20,13 +20,17 @@
 [ -n "${_SH_LOADED_numbers_date_ordinal+x}" ] && return 0
 _SH_LOADED_numbers_date_ordinal=1
 
-# Overlay the 'date' command with ordinal suffixes
-# This adds a new specifier '%o' which would typically be coupled with '%d'
-# Example:
-# $ date '+%B %-d'
-# February 8
-# $ date '+%B %-d%o'
-# February 8th
+# @description Wrapper around the system date(1) command that adds a %o format specifier
+#   for ordinal day suffixes (st, nd, rd, th). All other format strings pass through unchanged.
+#
+# @arg $@ string date(1) arguments; use %o in the format string for the ordinal suffix
+#
+# @example
+#   date '+%B %-d'    # => February 8
+#   date '+%B %-d%o'  # => February 8th
+#
+# @stdout Formatted date string
+# @exitcode 0 Always
 date() {
   local _date_suffix
   case "${@}" in

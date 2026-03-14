@@ -20,6 +20,11 @@
 [ -n "${_SH_LOADED_text_ltrim+x}" ] && return 0
 _SH_LOADED_text_ltrim=1
 
+# @description Strip leading whitespace from a string, exporting the result as $ltrim_stdout.
+#
+# @arg $@ string The input string
+#
+# @exitcode 0 Always
 str_ltrim() {
   LC_CTYPE=C
   local _ltrim_str
@@ -33,6 +38,12 @@ str_ltrim() {
   export ltrim_stdout ltrim_rc
 }
 
+# @description Strip leading whitespace from a string and print the result.
+#
+# @arg $@ string The input string
+#
+# @stdout Input string with leading whitespace removed
+# @exitcode 0 Always
 ltrim() {
   LC_CTYPE=C
   local _ltrim_str

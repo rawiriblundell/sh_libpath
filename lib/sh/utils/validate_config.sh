@@ -21,8 +21,14 @@
 [ -n "${_SH_LOADED_utils_validate_config+x}" ] && return 0
 _SH_LOADED_utils_validate_config=1
 
-# Ensure a config file is only made up of only shell-importable key=vals
-# Otherwise fail out.  Ignores blanks and comments.
+# @description Validate that a config file contains only shell-importable key=value
+#   pairs. Blank lines and comment lines are ignored. Any line not in the form
+#   'key=value' (alphanumeric characters only) causes a failure.
+#
+# @arg $1 string Path to the config file to validate
+#
+# @exitcode 0 All non-blank, non-comment lines are valid key=value pairs
+# @exitcode 1 One or more invalid lines found
 validate_config() {
   local _validate_config_file _validate_config_count
 

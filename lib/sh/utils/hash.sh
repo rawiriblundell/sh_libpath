@@ -35,6 +35,12 @@
 [ -n "${_SH_LOADED_utils_hash+x}" ] && return 0
 _SH_LOADED_utils_hash=1
 
+# @description Compute a SHA1 hash of stdin content.
+#   Returns silently (exit 0) if stdin is empty.
+#
+# @stdout SHA1 hex digest of the input
+# @exitcode 0 Success or empty input
+# @exitcode 1 openssl command failed
 get_hash () {
 	local input
 	input=$( cat ) || true
@@ -48,6 +54,16 @@ get_hash () {
 }
 
 
+# @description Compute a single SHA1 hash representing the contents of all files
+#   in a directory tree. Returns silently (exit 0) if the directory does not exist.
+#   Additional find arguments can be passed after the directory.
+#
+# @arg $1 string Directory path to hash (via expect_args)
+# @arg $2 string Additional arguments passed to find
+#
+# @stdout SHA1 hex digest of the sorted concatenation of all file hashes
+# @exitcode 0 Success or directory not found
+# @exitcode 1 Hashing failed
 hash_tree () {
 	local dir
 	expect_args dir -- "$@"

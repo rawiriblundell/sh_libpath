@@ -20,6 +20,12 @@
 [ -n "${_SH_LOADED_sys_get_memory_size+x}" ] && return 0
 _SH_LOADED_sys_get_memory_size=1
 
+# @description Print the total physical memory size in megabytes.
+#   Tries dmidecode type 17, then DirectMap entries in /proc/meminfo,
+#   then 'free -m'.
+#
+# @stdout Total memory in MB as an integer
+# @exitcode 0 Always
 get-memory-size() {
   if dmidecode -t 17 2>/dev/null | grep -q "Size.*MB"; then
     dmidecode -t 17 | awk '/Size.*MB/{ s+=$2 } END { print s }'

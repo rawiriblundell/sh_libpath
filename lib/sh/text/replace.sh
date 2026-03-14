@@ -21,8 +21,16 @@
 _SH_LOADED_text_replace=1
 
 
-# Replace all instances of a match with a replacement
-# Usage: str_replace [string] [match] [replacement] [count (defaults to all)]
+# @description Replace occurrences of a pattern in a string.
+#   Replaces all occurrences by default; pass a count to limit replacements.
+#
+# @arg $1 string The input string
+# @arg $2 string The pattern to search for (sed-compatible)
+# @arg $3 string The replacement string
+# @arg $4 int Optional: maximum number of replacements (default: all)
+#
+# @stdout String with replacements applied
+# @exitcode 0 Always
 str_replace() {
   local _str_replace_string _str_replace_match
   local _str_replace_replacement _str_replace_count _str_replace_i

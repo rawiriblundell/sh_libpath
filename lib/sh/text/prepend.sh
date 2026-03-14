@@ -20,11 +20,17 @@
 [ -n "${_SH_LOADED_text_prepend+x}" ] && return 0
 _SH_LOADED_text_prepend=1
 
-# Prepend one string to another, export as $prepend_stdout
-# Optionally define a delimiter using '-d|--delimiter'
-# e.g.
-# Command: str_prepend -d ':' bar foo
-# Output : foo:bar
+# @description Prepend one string to another, exporting the result as $prepend_stdout.
+#   Optionally define a delimiter with -d|--delimiter (defaults to a single space).
+#
+# @arg $1 string Optional: -d|--delimiter followed by delimiter string
+# @arg $2 string The string to prepend
+# @arg $3 string The string to prepend to
+#
+# @example
+#   str_prepend -d ':' bar foo  # => prepend_stdout="bar:foo"
+#
+# @exitcode 0 Always
 str_prepend() {
   local _prepend_delimiter
   case "${1}" in
@@ -38,6 +44,15 @@ str_prepend() {
   export prepend_stdout prepend_rc
 }
 
+# @description Prepend a string to each line of stdin.
+#   Accepts input via stdin.
+#   Optionally define a delimiter with -d|--delimiter (defaults to a single space).
+#
+# @arg $1 string Optional: -d|--delimiter followed by delimiter string
+# @arg $2 string The string to prepend to each line
+#
+# @stdout Each stdin line prefixed with the given string and delimiter
+# @exitcode 0 Always
 prepend() {
   local _prepend_delimiter
   case "${1}" in

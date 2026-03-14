@@ -20,34 +20,44 @@
 [ -n "${_SH_LOADED_array_concat+x}" ] && return 0
 _SH_LOADED_array_concat=1
 
-# Concatenate one or more named arrays into a destination named array.
-# Usage: array_concat dest_arr_name src_arr_name [src_arr_name ...]
-# Example:
-#     $ arr1=( a b c )
-#     $ arr2=( d e f )
-#     $ array_concat arr1 arr2
-#     $ printf '%s\n' "${arr1[@]}"
-#     a
-#     b
-#     c
-#     d
-#     e
-#     f
-# Copy a named array to another named array.
-# Usage: array_copy src_arr_name dst_arr_name
-# Example:
-#     $ myarr=( a b c )
-#     $ array_copy myarr copy
-#     $ printf '%s\n' "${copy[@]}"
-#     a
-#     b
-#     c
+# @description Copy a named array to another named array.
+#
+# @arg $1 string Name of the source array variable.
+# @arg $2 string Name of the destination array variable.
+#
+# @example
+#   myarr=( a b c )
+#   array_copy myarr copy
+#   printf '%s\n' "${copy[@]}"
+#   # => a
+#   # => b
+#   # => c
+#
+# @exitcode 0 Always
 array_copy() {
   local -n _src="${1:?No source array name given}"
   local -n _dst="${2:?No destination array name given}"
   _dst=( "${_src[@]}" )
 }
 
+# @description Concatenate one or more named arrays into a destination named array.
+#
+# @arg $1 string Name of the destination array variable.
+# @arg $@ string Names of one or more source array variables to concatenate in.
+#
+# @example
+#   arr1=( a b c )
+#   arr2=( d e f )
+#   array_concat arr1 arr2
+#   printf '%s\n' "${arr1[@]}"
+#   # => a
+#   # => b
+#   # => c
+#   # => d
+#   # => e
+#   # => f
+#
+# @exitcode 0 Always
 array_concat() {
   local -n _dst="${1:?No destination array name given}"
   local _src_name

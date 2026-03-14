@@ -20,6 +20,11 @@
 [ -n "${_SH_LOADED_sys_get_virtual_status+x}" ] && return 0
 _SH_LOADED_sys_get_virtual_status=1
 
+# @description Determine whether the host is a virtual machine or physical host
+#   by inspecting /proc/cpuinfo for hypervisor and virtualisation CPU flags.
+#
+# @stdout "virtual", "physical", or "unknown"
+# @exitcode 0 Always
 get-virtual-status() {
   if grep -q hypervisor /proc/cpuinfo; then
     printf '%s\n' "virtual"
@@ -30,6 +35,11 @@ get-virtual-status() {
   fi
 }
 
+# @description Detect whether the host is running on Microsoft Azure.
+#   Checks for waagent.log containing "Azure" as the primary indicator.
+#
+# @exitcode 0 Host appears to be on Azure
+# @exitcode 1 Host does not appear to be on Azure
 is-azure() {
   # All Azure hosts should have waagent.log
   grep -q -m 1 Azure /var/log/waagent.log 2>/dev/null && return "$?"
@@ -41,8 +51,14 @@ is-azure() {
   #dmesg | grep -q "Hardware name: Microsoft Corporation Virtual Machine/Virtual Machine"
 }
 
+# @description Detect whether the host is running on Amazon Web Services (EC2).
+#   Checks /sys/hypervisor/uuid, DMI product_uuid, and the instance identity
+#   document endpoint. Note: not updated for IMDSv2.
+#
+# @exitcode 0 Host appears to be on AWS EC2
+# @exitcode 1 Host does not appear to be on AWS EC2
 # From https://serverfault.com/a/903599
-# See also: 
+# See also:
 # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/identify_ec2_instances.html
 # TODO: Update for IMDSv2
 is-aws() {
@@ -62,8 +78,12 @@ if iscommand virt-what; then
   sys_type=$(virt-what 2>/dev/null | head -n 1)
 fi
 
-# Function to parse the output of various commands
-# Attempts to figure out the virtualisation type, if any
+# @description Parse stdin for known virtualisation product strings and print
+#   the detected hypervisor type. Intended to be used as a filter for the output
+#   of dmidecode, lspci, pciconf, or similar commands.
+#
+# @stdout Virtualisation type string, e.g. "virtualbox", "VMware", "Xen", "kvm", "qemu"
+# @exitcode 0 Always
 Fn_getVirt() {
   local sys_type
   if nullgrep -Ei "virtualbox|vbox"; then

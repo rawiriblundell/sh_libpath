@@ -21,10 +21,7 @@
 [ -n "${_SH_LOADED_core_requires+x}" ] && return 0
 _SH_LOADED_core_requires=1
 
-# Attempt to extract a version string from a command.
-# Tries --version, then 'version' subcommand, then -version (Java style).
-# Deliberately avoids -v and -V to prevent ambiguity (e.g. grep -v).
-# Outputs the first semver-style string found, or returns 1 if none found.
+# @internal
 _requires_get_version() {
     local _cmd
     local _ver
@@ -42,10 +39,7 @@ _requires_get_version() {
     return 1
 }
 
-# Compare two version strings using an operator.
-# Usage: _requires_version_cmp <have> <op> <want>
-# Operators: == != >= <= > <
-# Returns 0 if the comparison holds, 1 otherwise.
+# @internal
 _requires_version_cmp() {
     local _have _op _want _lesser
     _have="${1}"
@@ -65,10 +59,7 @@ _requires_version_cmp() {
     esac
 }
 
-# Check a command against one or more comma-separated version constraints.
-# Usage: _requires_check_constraints <cmd> <constraints>
-# Example: _requires_check_constraints curl '>=7.0,<8.0'
-# Returns: 0 on pass, 1 on fail, 2 if version cannot be determined.
+# @internal
 _requires_check_constraints() {
     local _cmd _constraints _remaining _constraint _op _ver _found_ver
     _cmd="${1}"
@@ -97,19 +88,21 @@ _requires_check_constraints() {
     return 0
 }
 
-# Work through a list of commands and/or files and fail on any unmet requirements.
+# @description Assert that a list of commands, files, shell versions or
+#   env variable values are all available. Fails with a summary of unmet items.
+#   Supports version constraints and a requirements file via -r.
 #
-# Usage:
+# @arg $1 string Optional: -r <file> to read requirements from a file
+# @arg $@ string Requirements: commands, paths, version specs, or KEY=VALUE pairs
+#
+# @example
 #   requires curl sed awk /etc/someconf.cfg
-#   requires 'curl>=7.0' 'git>=2.30,<3.0'   # quote to prevent shell interpretation
-#   requires -r requirements.txt             # load requirements from a file
-#   requires -r requirements.txt extra-tool  # file plus additional args
+#   requires 'curl>=7.0' 'git>=2.30,<3.0'
+#   requires -r requirements.txt
 #
-# Requirements file format (one entry per line, # comments supported):
-#   curl>=7.0
-#   git>=2.30,<3.0
-#   jq
-#   /etc/myapp/config.cfg
+# @stderr List of unmet requirements
+# @exitcode 0 All requirements met
+# @exitcode 1 One or more requirements not met
 requires() {
     local OPTIND
     local _opt

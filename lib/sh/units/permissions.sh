@@ -20,7 +20,7 @@
 [ -n "${_SH_LOADED_units_permissions+x}" ] && return 0
 _SH_LOADED_units_permissions=1
 
-# Internal: convert a single octal digit (0-7) to its rwx string.
+# @internal
 _perm_digit_to_rwx() {
   case "${1}" in
     (7) printf -- '%s' 'rwx' ;;
@@ -35,12 +35,17 @@ _perm_digit_to_rwx() {
   esac
 }
 
-# Get the octal permissions and path for a file or directory.
-# Tries GNU stat, then BSD stat, then falls back to perl.
-# Usage: get_permissions path
-# Example:
-#     $ get_permissions /etc/passwd
-#     644 /etc/passwd
+# @description Get the octal permission mode and path for a file or directory.
+#   Tries GNU stat, then BSD stat, then falls back to perl.
+#
+# @arg $1 string Path to the target file or directory
+#
+# @example
+#   get_permissions /etc/passwd   # => 644 /etc/passwd
+#
+# @stdout Octal mode and path separated by a space
+# @exitcode 0 Success
+# @exitcode 1 File not found (from perl fallback)
 get_permissions() {
   local _target
   _target="${1:?No target given}"
@@ -53,18 +58,20 @@ get_permissions() {
     ' "${_target}"
 }
 
-# Convert an octal permission mode to symbolic rwx notation.
-# Accepts 3-digit (755) or 4-digit (4755) modes.
-# A leading zero is stripped if present (0755 -> 755).
-# Handles setuid (s/S), setgid (s/S), and sticky (t/T) bits.
-# Usage: octal_to_rwx mode
-# Example:
-#     $ octal_to_rwx 755
-#     rwxr-xr-x
-#     $ octal_to_rwx 4755
-#     rwsr-xr-x
-#     $ octal_to_rwx 1777
-#     rwxrwxrwt
+# @description Convert an octal permission mode to symbolic rwx notation.
+#   Accepts 3-digit (755) or 4-digit (4755) modes; strips a leading zero if present.
+#   Handles setuid (s/S), setgid (s/S), and sticky (t/T) bits.
+#
+# @arg $1 string Octal permission mode (3 or 4 digits)
+#
+# @example
+#   octal_to_rwx 755    # => rwxr-xr-x
+#   octal_to_rwx 4755   # => rwsr-xr-x
+#   octal_to_rwx 1777   # => rwxrwxrwt
+#
+# @stdout 9-character symbolic permission string
+# @exitcode 0 Success
+# @exitcode 1 Invalid input
 octal_to_rwx() {
   local _octal _special _owner _group _other
   _octal="${1:?No octal mode given}"
@@ -113,17 +120,20 @@ octal_to_rwx() {
   printf -- '%s\n' "${_owner}${_group}${_other}"
 }
 
-# Convert a symbolic rwx permission string to octal.
-# Accepts 9-char (rwxr-xr-x) or 10-char (-rwxr-xr-x) input.
-# Handles setuid (s/S), setgid (s/S), and sticky (t/T) bits.
-# Usage: rwx_to_octal mode
-# Example:
-#     $ rwx_to_octal rwxr-xr-x
-#     755
-#     $ rwx_to_octal rwsr-xr-x
-#     4755
-#     $ rwx_to_octal -rwxr-xr-x
-#     755
+# @description Convert a symbolic rwx permission string to its octal representation.
+#   Accepts 9-char (rwxr-xr-x) or 10-char (-rwxr-xr-x) input.
+#   Handles setuid (s/S), setgid (s/S), and sticky (t/T) bits.
+#
+# @arg $1 string Symbolic permission string (9 or 10 characters)
+#
+# @example
+#   rwx_to_octal rwxr-xr-x    # => 755
+#   rwx_to_octal rwsr-xr-x    # => 4755
+#   rwx_to_octal -rwxr-xr-x   # => 755
+#
+# @stdout Octal permission string (3 or 4 digits)
+# @exitcode 0 Success
+# @exitcode 1 Invalid input
 rwx_to_octal() {
   local _sym _special _owner _group _other
   _sym="${1:?No symbolic mode given}"
@@ -175,13 +185,18 @@ rwx_to_octal() {
   fi
 }
 
-# Auto-detect and convert between octal and symbolic permission modes.
-# Usage: permissions_convert mode
-# Example:
-#     $ permissions_convert 755
-#     rwxr-xr-x
-#     $ permissions_convert rwxr-xr-x
-#     755
+# @description Auto-detect and convert between octal and symbolic permission modes.
+#   Delegates to octal_to_rwx() or rwx_to_octal() based on the input format.
+#
+# @arg $1 string Octal mode or symbolic permission string
+#
+# @example
+#   permissions_convert 755         # => rwxr-xr-x
+#   permissions_convert rwxr-xr-x   # => 755
+#
+# @stdout Converted permission representation
+# @exitcode 0 Success
+# @exitcode 1 Invalid input
 permissions_convert() {
   local _mode
   _mode="${1:?No permission mode given}"

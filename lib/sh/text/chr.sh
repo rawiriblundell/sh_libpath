@@ -20,8 +20,15 @@
 [ -n "${_SH_LOADED_text_chr+x}" ] && return 0
 _SH_LOADED_text_chr=1
 
-# Function to convert a decimal to an ascii character
-# See: https://www.ascii-code.com/
+# @description Convert a decimal integer to its ASCII character.
+#   Values below 32 are shifted up by 32; values above 126 are halved until in range.
+#   See: https://www.ascii-code.com/
+#
+# @arg $1 int Decimal integer to convert
+#
+# @stdout The ASCII character corresponding to the integer
+# @exitcode 0 Success
+# @exitcode 1 Input is not an integer
 chr() {
   local int
   int="${1:?No integer supplied}"

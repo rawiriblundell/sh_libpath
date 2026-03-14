@@ -28,46 +28,69 @@ _SH_LOADED_json_jsonprint=1
 # Author's note: This is an exercise for my own amusement/education.
 # If it works well for you, fantastic!  If you have ideas, please submit them :)
 
-# Our variant of die()
-# We used to call this json_vorhees.  Har har.
-# Note that in the parent script, extra logic may be necessary to die in subshells
-# See: https://gist.github.com/rawiriblundell/2dab6903848f73641652a8e95e872dcb
+# @description Print an error message to stderr and exit 1. Variant of die() for jsonprint.
+#   Note that in the parent script, extra logic may be necessary to die in subshells.
+#   See: https://gist.github.com/rawiriblundell/2dab6903848f73641652a8e95e872dcb
+#
+# @arg $1 string Error message
+#
+# @stderr Error message prefixed with '====> jsonprint exception:'
+# @exitcode 1 Always
 json_die() {
   printf -- '====> jsonprint exception: %s\n' "${@}" >&2
   exit 1
 }
 
-# You might like to call it this way instead.
+# @description Alias for json_die(). Print an error message to stderr and exit 1.
 json_exception() {
   printf -- '====> jsonprint exception: %s\n' "${@}" >&2
   exit 1
 }
 
-# A curly brace to denote the opening of something, usually the json block
+# @description Emit an opening curly brace to denote the start of a JSON block.
+#
+# @stdout '{'
+# @exitcode 0 Always
 json_open() {
   printf -- '%s' "{"
 }
 
-# The partner for json_open()
-# This emits a newline specifically for ndjson.
+# @description Emit a closing curly brace followed by a newline (for ndjson).
+#
+# @stdout '}\n'
+# @exitcode 0 Always
 json_close() {
   printf -- '%s\n' "}"
 }
 
-# A single comma
+# @description Emit a single comma.
+#
+# @stdout ','
+# @exitcode 0 Always
 json_comma() {
   printf -- '%s' ","
 }
 
-# Sometimes you may need to remove a trailing comma when processing a list
-# i.e. the last value, object, array etc
-# You should really try to structure your code to not need this
-# To use, pipe into this function e.g. some_code | json_decomma
+# @description Remove a trailing comma from stdin. Pipe input into this function.
+#   Use when you cannot avoid emitting a trailing comma on the last element.
+#
+# @example
+#   some_code | json_decomma
+#
+# @stdout Input with trailing comma removed
+# @exitcode 0 Always
 json_decomma() {
   sed 's/\(.*\),/\1 /'
 }
 
-# Apply a standard set of transformations to tidy up an input
+# @description Sanitise a string for use as a JSON key or value. Strips surrounding
+#   quotes, trailing ':' or '=', and leading/trailing whitespace. Accepts input as an
+#   argument or via stdin.
+#
+# @arg $1 string Optional: string to sanitise (reads from stdin if omitted)
+#
+# @stdout Sanitised string
+# @exitcode 0 Always
 json_sanitise() {
   if [[ -n "${1}" ]]; then
     _input="${1}"
@@ -100,6 +123,7 @@ json_sanitise() {
   unset -v _input
 }
 
+# @description US-English spelling alias for json_sanitise().
 json_sanitize() {
   if [[ -n "${1}" ]]; then
     _input="${1}"
@@ -132,9 +156,17 @@ json_sanitize() {
   unset -v _input
 }
 
-# A function to ensure that any commands or files that we need exist
-# On failure, this function generates simple warning keypairs e.g.
-# { "Warning": "lsblk not found or not readable." }
+# @description Verify that required commands or files exist. On failure, emits a JSON
+#   object containing Warning keypairs for each missing item and exits 1.
+#
+# @arg $@ string One or more command names or file paths to check
+#
+# @example
+#   json_require lsblk /proc/meminfo
+#
+# @stdout JSON Warning object if any required items are missing
+# @exitcode 0 All required items found
+# @exitcode 1 One or more items missing
 json_require() {
   # shellcheck disable=SC2048
   for _fsobj in ${*}; do
@@ -181,10 +213,13 @@ json_require() {
   exit 1
 }
 
-# UNIX shell variables are not typed.  But...
-# We need to know what we're dealing with in order to best assign a function
-# i.e. a string -> json_str(), a number -> json_num() etc...
-# Unfortunately we need to fork out to grep to keep this relatively portable
+# @description Determine the JSON type of a value: 'float', 'int', 'bool', or 'string'.
+#   Used internally to select the appropriate output function (json_str, json_num, etc.).
+#
+# @arg $1 string Value to inspect
+#
+# @stdout One of: float, int, bool, string
+# @exitcode 0 Always
 json_gettype() {
   # Floats
   if printf -- '%s\n' "${*}" | grep -E '^[-+]?[0-9]+\.[0-9]*$' >/dev/null 2>&1; then
@@ -222,9 +257,13 @@ json_gettype() {
   return 0
 }
 
-# Open an array block
-# If an arg is provided, we return '"name": ['
-# Without any arg, we simply return '['
+# @description Emit an opening array bracket. With a name argument, emits '"name": ['.
+#   Without an argument, emits '['.
+#
+# @arg $1 string Optional: array name
+#
+# @stdout '"name": [' or '['
+# @exitcode 0 Always
 json_open_arr() {
   case "${1}" in
     ('')  printf -- '%s' "[" ;;
@@ -232,9 +271,12 @@ json_open_arr() {
   esac
 }
 
-# Close an array block
-# With '-c' or -'--comma', we return '],'
-# Without either arg, we return ']'
+# @description Emit a closing array bracket. With '-c' or '--comma', appends a trailing comma.
+#
+# @arg $1 string Optional: '-c' or '--comma' to append a trailing comma
+#
+# @stdout ']' or '],'
+# @exitcode 0 Always
 json_close_arr() {
   case "${1}" in
     (-c|--comma) shift 1; _comma="," ;;
@@ -244,10 +286,15 @@ json_close_arr() {
   unset -v _comma
 }
 
-# Append an array to another
-# If an arg is provided, we return '],"name": ['
-# Otherwise, we simply return '],['
-# With '-n' or '--no-bracket', the leading bracket is omitted
+# @description Emit a closing-then-opening array bracket sequence to chain arrays.
+#   With '-n' or '--no-bracket', the leading ']' is omitted. With a name argument,
+#   emits '], "name": ['.
+#
+# @arg $1 string Optional: '-n'/'--no-bracket' to omit the leading bracket
+# @arg $2 string Optional: array name
+#
+# @stdout Array transition bracket(s)
+# @exitcode 0 Always
 json_append_arr() {
   case "${1}" in
     (-n|--no-bracket)
@@ -261,9 +308,13 @@ json_append_arr() {
   esac
 }
 
-# Open an object block
-# If an arg is provided, we return '"name": {'
-# Without any arg, we simply return '{'
+# @description Emit an opening object brace. With a name argument, emits '"name": {'.
+#   Without an argument, emits '{'.
+#
+# @arg $1 string Optional: object name
+#
+# @stdout '"name": {' or '{'
+# @exitcode 0 Always
 json_open_obj() {
   case "${1}" in
     ('')  printf -- '%s' "{" ;;
@@ -271,9 +322,12 @@ json_open_obj() {
   esac
 }
 
-# Close an object block
-# With '-c' or -'--comma', we return '},'
-# Without either arg, we return '}'
+# @description Emit a closing object brace. With '-c' or '--comma', appends a trailing comma.
+#
+# @arg $1 string Optional: '-c' or '--comma' to append a trailing comma
+#
+# @stdout '}' or '},'
+# @exitcode 0 Always
 # shellcheck disable=SC2120
 json_close_obj() {
   case "${1}" in
@@ -282,8 +336,15 @@ json_close_obj() {
   esac 
 }
 
-# Append an object to another
-# With '-n' or '--no-bracket', the leading bracket is omitted
+# @description Emit a closing-then-opening object brace sequence to chain objects.
+#   With '-n' or '--no-bracket', the leading '}' is omitted. With a name argument,
+#   emits '}, "name": {'.
+#
+# @arg $1 string Optional: '-n'/'--no-bracket' to omit the leading brace
+# @arg $2 string Optional: object name
+#
+# @stdout Object transition brace(s)
+# @exitcode 0 Always
 json_append_obj() {
   case "${1}" in
     (-n|--no-bracket)
@@ -297,12 +358,15 @@ json_append_obj() {
   esac
 }
 
-# A function to escape characters that must be escaped in JSON
-# This converts stdin into a single column of octals
-# We then search for our undesirable octals and emit our replacements
-# Modified from https://stackoverflow.com/a/23166624
-# Some of these might not be strictly necessary... YMMV...
-# TODO: Add ability to process its $*/$@, at the moment it must be piped into
+# @description Escape characters that must be escaped in JSON strings. Reads from stdin.
+#   Converts input to octals and substitutes control characters and special characters
+#   with their JSON escape sequences. Modified from https://stackoverflow.com/a/23166624
+#
+# @example
+#   printf '%s' 'hello "world"' | json_escape_str
+#
+# @stdout JSON-escaped string
+# @exitcode 0 Always
 # shellcheck disable=SC2059
 json_escape_str() {
     od -A n -t o1 -v | tr ' \t' '\n' | grep . |
@@ -330,10 +394,18 @@ json_escape_str() {
   unset -v _char
 }
 
-# Format a string keypair
-# With '-c' or '--comma', we return '"key": "value",'
-# Without either arg, we return '"key": "value"'
-# If the value is blank or literally 'null', we return 'null' unquoted
+# @description Emit a JSON string keypair. With '-c' or '--comma', appends a trailing comma.
+#   If the value is blank or literally 'null', emits null (unquoted).
+#
+# @arg $1 string Optional: '-c'/'--comma' for trailing comma, otherwise the key
+# @arg $2 string Value (or key if $1 is a flag)
+#
+# @example
+#   json_str name Alice          # => "name": "Alice"
+#   json_str -c name Alice       # => "name": "Alice",
+#
+# @stdout '"key": "value"' or '"key": null'
+# @exitcode 0 Always
 json_str() {
   case "${1}" in
     (-c|--comma) shift 1; _comma="," ;;
@@ -348,9 +420,14 @@ json_str() {
   unset -v _comma _key
 }
 
-# Add a string keypair to an object
-# This leads with a comma, allowing us to stack keypairs
-# If the value is blank or literally 'null', we return 'null' unquoted
+# @description Emit a comma-prefixed JSON string keypair for stacking inside an object.
+#   If the value is blank or literally 'null', emits null (unquoted).
+#
+# @arg $1 string Key
+# @arg $2 string Value
+#
+# @stdout ', "key": "value"' or ', "key": null'
+# @exitcode 0 Always
 json_append_str() {
   # Clean and assign the _key variable
   _key="$(json_sanitise "${1:-null}")"
@@ -361,11 +438,20 @@ json_append_str() {
   unset -v _key
 }
 
-# Format a number keypair using printf float notation.  Numbers are unquoted.
-# With '-c' or '--comma', we return '"key": value,'
-# Without either arg, we return '"key": value'
-# If the value is not a number, an error will be thrown
-# TODO: Possibly extend to allow scientific notataion
+# @description Emit a JSON number keypair. Numbers are unquoted. With '-c' or '--comma',
+#   appends a trailing comma. Integers strip leading zeros; floats use 2 decimal places.
+#   If the value is not a number, calls json_die().
+#
+# @arg $1 string Optional: '-c'/'--comma' for trailing comma, otherwise the key
+# @arg $2 string Numeric value
+#
+# @example
+#   json_num count 42            # => "count": 42
+#   json_num ratio 3.14          # => "ratio": 3.14
+#
+# @stdout '"key": value' or '"key": null'
+# @exitcode 0 Always
+# @exitcode 1 If value is not a number
 json_num() {
   case "${1}" in
     (-c|--comma) shift 1; _comma="," ;;
@@ -392,9 +478,15 @@ json_num() {
   unset -v _key _value _comma
 }
 
-# Add a number keypair using printf float natation.  Numbers are unquoted.
-# This leads with a comma, allowing us to stack keypairs
-# If the value is blank or literally 'null', we return 'null' unquoted
+# @description Emit a comma-prefixed JSON number keypair for stacking inside an object.
+#   Numbers are unquoted. If the value is blank or null, emits null (unquoted).
+#
+# @arg $1 string Key
+# @arg $2 string Numeric value
+#
+# @stdout ', "key": value' or ', "key": null'
+# @exitcode 0 Always
+# @exitcode 1 If value is not a number
 json_append_num() {
   # Clean and assign the _key and _value variables
   _key="$(json_sanitise "${1}")"
@@ -416,11 +508,16 @@ json_append_num() {
   unset -v _key _value
 }
 
-# Format a boolean true/false keypair.  Booleans are unquoted.
-# With '-c' or '--comma', we return '"key": value,'
-# Without either arg, we return '"key": value'
-# If the value is neither 'true' or 'false', an error will be thrown
-# TODO: Extend to map extra bools
+# @description Emit a JSON boolean keypair. Booleans are unquoted. With '-c' or '--comma',
+#   appends a trailing comma. Accepts true/false/yes/no/on/off (case-insensitive).
+#   Calls json_die() if the value is not a recognised boolean.
+#
+# @arg $1 string Optional: '-c'/'--comma' for trailing comma, otherwise the key
+# @arg $2 string Boolean value (true/false/yes/no/on/off)
+#
+# @stdout '"key": true' or '"key": false'
+# @exitcode 0 Always
+# @exitcode 1 If value is not a recognised boolean
 json_bool() {
   case "${1}" in
     (-c|--comma) shift 1; _comma="," ;;
@@ -442,10 +539,15 @@ json_bool() {
   unset -v _key _value _bool _comma
 }
 
-# Add a boolean true/false keypair.  Booleans are unquoted.
-# This leads with a comma, allowing us to stack keypairs
-# If the value is neither 'true' or 'false', an error will be thrown
-# TODO: Extend to map extra bools
+# @description Emit a comma-prefixed JSON boolean keypair for stacking inside an object.
+#   Accepts true/false/yes/no/on/off (case-insensitive). Calls json_die() for unrecognised values.
+#
+# @arg $1 string Key
+# @arg $2 string Boolean value (true/false/yes/no/on/off)
+#
+# @stdout ', "key": true' or ', "key": false'
+# @exitcode 0 Always
+# @exitcode 1 If value is not a recognised boolean
 json_append_bool() {
   # Clean and assign the _key and _value variables
   _key="$(json_sanitise "${1:-null}")"
@@ -463,8 +565,14 @@ json_append_bool() {
   unset -v _key _value _bool
 }
 
-# Attempt to automatically figure out how to address a key value pair
-# Untested, may change.
+# @description Emit a JSON keypair, automatically selecting the correct type function
+#   (json_num, json_bool, or json_str) based on the value. Experimental.
+#
+# @arg $1 string Key
+# @arg $2 string Value
+#
+# @stdout JSON keypair in the appropriate format
+# @exitcode 0 Always
 json_auto() {
   # Clean and assign the _key and _value variables
   _key="$(json_sanitise "${1}")"
@@ -477,8 +585,14 @@ json_auto() {
   unset -v _key _value
 }
 
-# Attempt to automatically figure out how to address a key value pair
-# Untested, may change.
+# @description Emit a comma-prefixed JSON keypair, automatically selecting the correct
+#   type function. Experimental.
+#
+# @arg $1 string Key
+# @arg $2 string Value
+#
+# @stdout Comma-prefixed JSON keypair in the appropriate format
+# @exitcode 0 Always
 json_append_auto() {
   # Clean and assign the _key and _value variables
   _key="$(json_sanitise "${1}")"
@@ -491,10 +605,16 @@ json_append_auto() {
   unset -v _key _value
 }
 
-# This function takes a comma or equals delimited key-value pair input
-# and emits it in a way that can be used by e.g. json_str()
-# Example: a variable named 'line' that contains "Bytes: 22"
-# json_num $(json_from_dkvp "${line}") -> "Bytes": 22
+# @description Parse a delimited key-value pair (using ':' or '=') and emit its
+#   key and value as separate quoted words suitable for passing to json_str() or json_num().
+#
+# @arg $1 string Delimited key-value pair (e.g. 'Bytes: 22' or 'Bytes=22')
+#
+# @example
+#   json_num $(json_from_dkvp "Bytes: 22")   # => "Bytes": 22
+#
+# @stdout '"key" "value"'
+# @exitcode 0 Always
 json_from_dkvp() {
   _line="${*}"
   case "${_line}" in
@@ -518,10 +638,19 @@ json_from_dkvp() {
   unset -v _line _key _value
 }
 
-# This function takes any number of parameters and blindly structures
-# every pair in the sequence into json keypairs.
-# Example: json_foreach a b c d
-# {"a": "b", "c": "d"}
+# @description Emit a complete JSON object from a flat list of alternating key-value pairs.
+#   Automatically selects the correct type function for each value. With '-n'/'--name',
+#   wraps the object under a named key.
+#
+# @arg $1 string Optional: '-n'/'--name' followed by an object name
+# @arg $@ string Alternating key value pairs
+#
+# @example
+#   json_foreach a b c d         # => {"a": "b", "c": "d"}
+#   json_foreach -n root a b     # => {"root": {"a": "b"}}
+#
+# @stdout Complete JSON object
+# @exitcode 0 Always
 # shellcheck disable=SC2048,SC2086,SC2183
 json_foreach() {
   case "${1}" in
@@ -569,8 +698,14 @@ json_foreach() {
   unset -v _iter_count _key _value
 }
 
-# Preliminary attempt at a function to automatically read input and build objects
-# do not use
+# @description Read key-value pairs from a file or stdin and emit a JSON object.
+#   Automatically selects the correct type function for each value.
+#   Preliminary implementation — do not use in production.
+#
+# @arg $1 string Optional: '-n'/'--name' followed by an object name, or a file path
+#
+# @stdout JSON object built from input key-value pairs
+# @exitcode 0 Always
 json_readloop() {
   _loop_iter=0
     case "${1}" in
@@ -601,8 +736,11 @@ json_readloop() {
   unset -v _loop_iter _key _value
 }
 
-# A function to append an object with a timestamp
-# This attempts the epoch first, and fails over to YYYYMMDDHHMMSS
+# @description Append a timestamp object to the current JSON output. Tries epoch first;
+#   falls back to YYYYMMDDHHMMSS format if epoch is unavailable.
+#
+# @stdout JSON object: {"timestamp": {"utc_epoch": N}} or {"timestamp": {"utc_YYYYMMDDHHMMSS": N}}
+# @exitcode 0 Always
 json_timestamp() {
   json_append_obj --no-bracket timestamp
     case "$(date '+%s' 2>&1)" in

@@ -20,6 +20,11 @@
 [ -n "${_SH_LOADED_net_get_gateway+x}" ] && return 0
 _SH_LOADED_net_get_gateway=1
 
+# @description Get the default gateway address. Tries 'ip route', then 'netstat',
+#   then 'route' in order. Handles Linux and Solaris differences via OSSTR.
+#
+# @stdout The default gateway IP address
+# @exitcode 0 Always
 get_gateway() {
   local _get_gwaddr
   # Default Gateway

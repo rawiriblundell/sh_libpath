@@ -25,7 +25,13 @@ trap "exit 1" TERM
 _self_pid="${$}"
 export _self_pid
 
-# Function to print an error message and exit
+# @description Print a formatted error message and terminate the script by
+#   sending SIGTERM to the top-level PID. Uses colour when stdout is a terminal.
+#
+# @arg $@ string Error message text
+#
+# @stderr Formatted error message prefixed with script name and line number
+# @exitcode 1 Always (via SIGTERM trap)
 die() {
   if [ -t 0 ]; then
     printf '\e[31;1m====>%s\e[0m\n' "${0}:(${LINENO}): ${*}" >&2
@@ -38,6 +44,12 @@ die() {
 
 Or in a terser form:
 
+# @description Terser form of die(). Selects colour format at runtime.
+#
+# @arg $@ string Error message text
+#
+# @stderr Formatted error message
+# @exitcode 1 Always (via SIGTERM trap)
 # shellcheck disable=SC2059
 die() {
   [ -t 0 ] && _diefmt='\e[31;1m====>%s\e[0m\n'
@@ -48,6 +60,13 @@ die() {
 
 With datestamps and [ERROR] tags:
 
+# @description die() variant that prefixes the message with an epoch timestamp
+#   and an [ERROR] tag.
+#
+# @arg $@ string Error message text
+#
+# @stderr Formatted error message with timestamp and [ERROR] tag
+# @exitcode 1 Always (via SIGTERM trap)
 die() {
   if [ -t 0 ]; then
     printf '\e[31;1m====>[%s] %s [ERROR]: %s\e[0m\n' "$(date +%s)" "${0}:${LINENO}" "${*}" >&2

@@ -20,6 +20,12 @@
 [ -n "${_SH_LOADED_sys_nics+x}" ] && return 0
 _SH_LOADED_sys_nics=1
 
+# @description Print information about all network interfaces on the host.
+#   Checks /sys/class/net, then 'ip a', then 'ifconfig -a', then ethtool per
+#   interface if available.
+#
+# @stdout Network interface details from available tools
+# @exitcode 0 Always
 get_nics() {
   # Let's check /sys/class/net
   if [[ -d /sys/class/net ]]; then

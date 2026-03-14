@@ -20,9 +20,14 @@
 [ -n "${_SH_LOADED_text_split+x}" ] && return 0
 _SH_LOADED_text_split=1
 
-# Split a string on a given delimiter (defaults to whitespace splitting)
-# and save the output into an array, 'STR_SPLIT[@]'
-# Avoiding 'readarray'/'mapfile' intentionally here to increase portability
+# @description Split a string on a delimiter and store the result in the STR_SPLIT array.
+#   Defaults to whitespace splitting when no delimiter is given.
+#   Uses portable read loop instead of readarray/mapfile.
+#
+# @arg $1 string Optional: -d|--delimiter followed by delimiter character
+# @arg $@ string The string to split
+#
+# @exitcode 0 Always
 str_split() {
   local _str_split_delim _str_split_counter
 

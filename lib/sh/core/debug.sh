@@ -23,11 +23,20 @@ _SH_LOADED_core_debug=1
 # https://www.reddit.com/r/bash/comments/g1yjfo/debugging_bash_scripts/
 # https://johannes.truschnigg.info/writing/2021-12_colodebug/
 
+# @description Enable ERR trap to call err_handler on any error.
+#
+# @exitcode 0 Always
 debug_trap_err() {
   set -o errtrace
   trap 'err_handler ${?}' ERR
 }
 
+# @description Handle ERR trap: print a stack trace and exit.
+#
+# @arg $1 int The exit code from the failing command
+#
+# @stderr Stack trace and error exit code
+# @exitcode 1 Always (exits the script)
 debug_err_handler() {
   trap - ERR
   i=0
@@ -39,13 +48,19 @@ debug_err_handler() {
   exit "${?}"
 }
 
+# @description Emit a debug trace when debug_mode is true.
+#   Uses the no-op colon builtin so output appears only in xtrace (-x) output.
+#
+# @exitcode 0 Always
 debug() {
   [[ "${debug_mode}" = "true" ]] || return 0
   : [DEBUG] "${*}"
   : ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 }
 
-# As above but with a pause 
+# @description Like debug(), but pauses for a keypress before continuing.
+#
+# @exitcode 0 Always
 step() {
   [[ "${debug_mode}" = "true" ]] || return 0
   : [DEBUG] "${*}"
@@ -62,6 +77,11 @@ case "${1}" in
   ;;
 esac
 
+# @description Drop into an interactive debug REPL at the call site.
+#   Keys: o=options, p=parameters, a=indexed arrays, A=assoc arrays,
+#   x=enable xtrace, X=disable xtrace, q=quit.
+#
+# @exitcode 0 Always
 breakpoint(){
     local REPLY
     printf -- '%s\n' 'Breakpoint hit. [opaAxXq]'
@@ -76,14 +96,19 @@ breakpoint(){
     esac; done
 }
 
-# Make Ctrl+C a no-op to prevent it killing the script
+# @description Make Ctrl+C a no-op to prevent it killing the script.
+#
+# @exitcode 0 Always
 no_ctrl_c() {
+  # @internal
   _no_ctrl_c() { :; }
   trap _no_ctrl_c INT
 }
 
-# Sometimes there may be a need to remove the current directory from PATH
-# in order to prevent an infinite recursion
+# @description Remove the directory containing the current script from PATH
+#   to prevent infinite recursion when a script shadows a system command.
+#
+# @exitcode 0 Always
 prevent_path_recursion() {
   curdir=$(realpath $(dirname ${BASH_SOURCE}))
   export PATH=$(tr ':' '\n' <<< "${PATH}" | \

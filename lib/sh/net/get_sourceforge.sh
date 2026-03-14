@@ -20,7 +20,18 @@
 [ -n "${_SH_LOADED_net_get_sourceforge+x}" ] && return 0
 _SH_LOADED_net_get_sourceforge=1
 
-# Usage: get_sourceforge [project] [linux|mac|windows]
+# @description Download the best release of a SourceForge project for the current
+#   (or specified) platform. Requires 'curl' and 'jq'.
+#
+# @arg $1 string SourceForge project name
+# @arg $2 string Target OS: linux, mac, or windows (default: auto-detect)
+#
+# @example
+#   get_sourceforge omegat
+#   get_sourceforge omegat linux
+#
+# @exitcode 0 Success
+# @exitcode 1 Missing dependency or download failure
 get_sourceforge() {
   local binary fail_count
   # We require 'curl' and 'jq'

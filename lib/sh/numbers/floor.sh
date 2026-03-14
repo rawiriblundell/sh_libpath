@@ -20,10 +20,15 @@
 [ -n "${_SH_LOADED_numbers_floor+x}" ] && return 0
 _SH_LOADED_numbers_floor=1
 
-# Description: Round a given float downwards to the nearest full integer
-# Example: 'floor 3.7' => 3
-
-# Usage: floor [float]
+# @description Round a float downwards to the nearest integer (truncate fractional part).
+#
+# @arg $1 float The value to round down
+#
+# @example
+#   floor 3.7   # => 3
+#
+# @stdout The floor integer value
+# @exitcode 0 Always
 floor() {
   printf -- '%s\n' "${1:?No float given}" | awk '{print int($0)}'
 }

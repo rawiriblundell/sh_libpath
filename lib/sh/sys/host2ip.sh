@@ -20,6 +20,14 @@
 [ -n "${_SH_LOADED_sys_host2ip+x}" ] && return 0
 _SH_LOADED_sys_host2ip=1
 
+# @description Resolve a hostname to an IPv4 address, or reverse-resolve an IP
+#   to its hostname. Uses 'host -4' for lookups.
+#
+# @arg $1 string Hostname or IPv4 address to look up
+#
+# @stdout The resolved IP address, or the hostname from a reverse lookup
+# @exitcode 0 Success
+# @exitcode 1 No argument supplied or unrecognised input
 host2ip() {
   # If $1 is missing, print brief usage
   if [[ -n "$1" ]]; then

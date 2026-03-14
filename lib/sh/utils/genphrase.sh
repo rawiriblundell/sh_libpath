@@ -20,13 +20,16 @@
 [ -n "${_SH_LOADED_utils_genphrase+x}" ] && return 0
 _SH_LOADED_utils_genphrase=1
 
-################################################################################
-# genphrase passphrase generator
-################################################################################
-# A passphrase generator, because: why not?
-# Note: This will only generate XKCD "Correct Horse Battery Staple" level phrases, 
-# which arguably aren't that secure without some character randomisation.
-# See the Schneier Method alternative i.e. "This little piggy went to market" = "tlpWENT2m"
+# @description Generate random passphrases from a word dictionary file (~/.pwords.dict).
+#   Produces XKCD "Correct Horse Battery Staple" style phrases; see -S for stronger
+#   alternatives. Requires the 'capitalise' function and optionally 'shuf' or 'rand'.
+#
+# @arg $1 string Optional flags: -h (help), -n N (count), -s word (seed word),
+#   -S (seed explanation), -w N (words per phrase)
+#
+# @stdout One or more passphrases, one per line
+# @exitcode 0 Success
+# @exitcode 1 Dictionary file unavailable, or required dependency missing
 genphrase() {
   # Some examples of methods to do this (fastest to slowest):
   # shuf:         printf -- '%s\n' "$(shuf -n 3 ~/.pwords.dict | tr -d "\n")"

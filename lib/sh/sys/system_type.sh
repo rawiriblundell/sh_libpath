@@ -24,8 +24,12 @@ if iscommand virt-what; then
   sys_type=$(virt-what 2>/dev/null | head -n 1)
 fi
 
-# Function to parse the output of various commands
-# Attempts to figure out the virtualisation type, if any
+# @description Parse stdin for known virtualisation product strings and print
+#   the detected hypervisor type. Intended to be used as a filter for the output
+#   of dmidecode, lspci, pciconf, or similar commands.
+#
+# @stdout Virtualisation type string, e.g. "virtualbox", "VMware", "Xen", "kvm", "qemu"
+# @exitcode 0 Always
 get_virt_type() {
   local sys_type
   if nullgrep -Ei "virtualbox|vbox"; then

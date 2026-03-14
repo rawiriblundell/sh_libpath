@@ -20,8 +20,17 @@
 [ -n "${_SH_LOADED_numbers_sum+x}" ] && return 0
 _SH_LOADED_numbers_sum=1
 
-# Add any number of integers together
-# There is a historical 'sum' program, it has long been superseded by now
+# @description Sum a sequence of integers from positional parameters or stdin.
+#   Non-integer values are silently skipped.
+#
+# @arg $@ int Integers to sum, or pipe values via stdin
+#
+# @example
+#   sum 1 2 3          # => 6
+#   printf '%s\n' 1 2 3 | sum   # => 6
+#
+# @stdout Integer sum
+# @exitcode 0 Always
 sum() {
   local param sum
   case "${1}" in

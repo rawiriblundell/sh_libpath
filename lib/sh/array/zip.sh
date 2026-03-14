@@ -20,16 +20,22 @@
 [ -n "${_SH_LOADED_array_zip+x}" ] && return 0
 _SH_LOADED_array_zip=1
 
-# Interleave elements from two arrays, pairing by index.
-# Stops at the shorter array's length.
-# Usage: array_zip arr_a arr_b
-# Example:
-#     $ keys=( a b c )
-#     $ vals=( 1 2 3 )
-#     $ array_zip keys vals
-#     a 1
-#     b 2
-#     c 3
+# @description Interleave elements from two arrays, pairing by index.
+#   Stops at the shorter array's length.
+#
+# @arg $1 string Name of the first array variable.
+# @arg $2 string Name of the second array variable.
+#
+# @example
+#   keys=( a b c )
+#   vals=( 1 2 3 )
+#   array_zip keys vals
+#   # => a 1
+#   # => b 2
+#   # => c 3
+#
+# @stdout Paired elements as space-separated lines.
+# @exitcode 0 Always
 array_zip() {
   local -n _arr_a="${1:?No first array name given}"
   local -n _arr_b="${2:?No second array name given}"

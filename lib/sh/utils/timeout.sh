@@ -20,8 +20,18 @@
 [ -n "${_SH_LOADED_utils_timeout+x}" ] && return 0
 _SH_LOADED_utils_timeout=1
 
-# Check if 'timeout' is available, if not, enable a stop-gap function
 if ! command -v timeout >/dev/null 2>&1; then
+  # @description Step-in replacement for 'timeout' on systems that lack it.
+  #   Runs a command and kills it if it is still running after the given duration.
+  #   Duration suffix: s (seconds, default), m (minutes), h (hours), d (days).
+  #   Uses perl if available; otherwise uses a shell background process approach.
+  #
+  # @arg $1 string Duration with optional suffix, e.g. "30", "5m", "2h"
+  # @arg $2 string Command and arguments to run
+  #
+  # @exitcode 0 Command completed within the timeout
+  # @exitcode 1 Invalid duration argument
+  # @exitcode 77 Command timed out (perl path only)
   timeout() {
     local duration
 

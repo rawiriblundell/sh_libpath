@@ -20,8 +20,16 @@
 [ -n "${_SH_LOADED_array_aggregate+x}" ] && return 0
 _SH_LOADED_array_aggregate=1
 
-# Sum all numeric elements in a named array.
-# Usage: array_sum arr_name
+# @description Sum all numeric elements in a named array.
+#
+# @arg $1 string Name of the array variable.
+#
+# @example
+#   nums=( 1 2 3 4 5 )
+#   array_sum nums  # => 15
+#
+# @stdout The sum of all elements.
+# @exitcode 0 Always
 array_sum() {
   local -n _arr="${1:?No array name given}"
   local _item _total
@@ -32,8 +40,16 @@ array_sum() {
   printf -- '%s\n' "${_total}"
 }
 
-# Print the minimum numeric value in a named array.
-# Usage: array_min arr_name
+# @description Print the minimum numeric value in a named array.
+#
+# @arg $1 string Name of the array variable.
+#
+# @example
+#   nums=( 3 1 4 1 5 9 )
+#   array_min nums  # => 1
+#
+# @stdout The minimum element value.
+# @exitcode 0 Always
 array_min() {
   local -n _arr="${1:?No array name given}"
   local _item _min
@@ -44,8 +60,16 @@ array_min() {
   printf -- '%s\n' "${_min}"
 }
 
-# Print the maximum numeric value in a named array.
-# Usage: array_max arr_name
+# @description Print the maximum numeric value in a named array.
+#
+# @arg $1 string Name of the array variable.
+#
+# @example
+#   nums=( 3 1 4 1 5 9 )
+#   array_max nums  # => 9
+#
+# @stdout The maximum element value.
+# @exitcode 0 Always
 array_max() {
   local -n _arr="${1:?No array name given}"
   local _item _max
@@ -56,8 +80,16 @@ array_max() {
   printf -- '%s\n' "${_max}"
 }
 
-# Multiply all numeric elements in a named array.
-# Usage: array_product arr_name
+# @description Multiply all numeric elements in a named array.
+#
+# @arg $1 string Name of the array variable.
+#
+# @example
+#   nums=( 2 3 4 )
+#   array_product nums  # => 24
+#
+# @stdout The product of all elements.
+# @exitcode 0 Always
 array_product() {
   local -n _arr="${1:?No array name given}"
   local _item _total

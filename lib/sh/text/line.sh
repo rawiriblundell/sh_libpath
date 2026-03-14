@@ -35,26 +35,48 @@
 [ -n "${_SH_LOADED_text_line+x}" ] && return 0
 _SH_LOADED_text_line=1
 
+# @description Return the first line of stdin.
+#
+# @stdout First line of input
+# @exitcode 0 Always
 filter_first () {
 	head -n 1 || return 0
 }
 
 
+# @description Return all lines of stdin except the first.
+#
+# @stdout All input lines after the first
+# @exitcode 0 Always
 filter_not_first () {
 	sed '1d' || return 0
 }
 
 
+# @description Return the last line of stdin.
+#
+# @stdout Last line of input
+# @exitcode 0 Always
 filter_last () {
 	tail -n 1 || return 0
 }
 
 
+# @description Return all lines of stdin except the last.
+#
+# @stdout All input lines except the last
+# @exitcode 0 Always
 filter_not_last () {
 	sed '$d' || return 0
 }
 
 
+# @description Return only lines from stdin matching a given pattern.
+#
+# @arg $1 string The pattern to match against
+#
+# @stdout Lines matching the pattern
+# @exitcode 0 Always
 filter_matching () {
 	local pattern
 	expect_args pattern -- "$@"
@@ -63,6 +85,12 @@ filter_matching () {
 }
 
 
+# @description Return only lines from stdin that do not match a given pattern.
+#
+# @arg $1 string The pattern to exclude
+#
+# @stdout Lines not matching the pattern
+# @exitcode 0 Always
 filter_not_matching () {
 	local pattern
 	expect_args pattern -- "$@"
@@ -71,6 +99,11 @@ filter_not_matching () {
 }
 
 
+# @description Pass stdin through only if it contains at most one line; fail if more.
+#
+# @stdout The single input line, or nothing if more than one line was present
+# @exitcode 0 Zero or one line present
+# @exitcode 1 More than one line present
 match_at_most_one () {
 	awk '	NR == 1 { line = $0 "\n" }
 		NR == 2 { line = ""; exit 1 }
@@ -78,16 +111,30 @@ match_at_most_one () {
 }
 
 
+# @description Pass stdin through only if it contains at least one non-empty line.
+#
+# @stdout Input passed through unchanged
+# @exitcode 0 At least one line present
+# @exitcode 1 No lines present
 match_at_least_one () {
 	grep '.' || return 1
 }
 
 
+# @description Pass stdin through only if it contains exactly one non-empty line.
+#
+# @stdout The single input line
+# @exitcode 0 Exactly one line present
+# @exitcode 1 Zero or more than one line present
 match_exactly_one () {
 	match_at_most_one | match_at_least_one || return 1
 }
 
 
+# @description Strip the trailing newline from stdin output.
+#
+# @stdout Input with no trailing newline
+# @exitcode 0 Always
 strip_trailing_newline () {
 	awk 'NR > 1 { printf "\n" } { printf "%s", $0 }' || return 0
 }

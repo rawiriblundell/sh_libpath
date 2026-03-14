@@ -38,6 +38,21 @@ _SH_LOADED_net_get_ip=1
 #
 # So we try to cater for both by searching for 'inet' and printing the next field with "addr:" stripped
 
+# @description Get the IP address of the local host or its external/public address.
+#   Supports IPv4 (default) and IPv6 via flags. Falls back through 'ip', 'ifconfig',
+#   and 'nslookup' in that order for local addresses. Uses ifconfig.io for external.
+#
+# @arg $1 string Optional: 'external' or 'public' for the external IP; '-4' for IPv4; '-6' for IPv6
+# @arg $2 string Optional: '-6' when combined with 'external' to request the IPv6 public address
+#
+# @example
+#   get_ip           # => local IPv4 address
+#   get_ip -6        # => local IPv6 address
+#   get_ip external  # => public IPv4 address
+#
+# @stdout The IP address(es), one per line
+# @exitcode 0 Success
+# @exitcode 1 Could not determine address
 get_ip() {
   case "${1}" in
     (external|public)

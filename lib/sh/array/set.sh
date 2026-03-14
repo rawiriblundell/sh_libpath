@@ -20,14 +20,20 @@
 [ -n "${_SH_LOADED_array_set+x}" ] && return 0
 _SH_LOADED_array_set=1
 
-# Print elements present in arr_a but not in arr_b.
-# Usage: array_diff arr_a arr_b
-# Example:
-#     $ arr1=( a b c d )
-#     $ arr2=( b d e )
-#     $ array_diff arr1 arr2
-#     a
-#     c
+# @description Print elements present in arr_a but not in arr_b.
+#
+# @arg $1 string Name of the first array variable.
+# @arg $2 string Name of the second array variable.
+#
+# @example
+#   arr1=( a b c d )
+#   arr2=( b d e )
+#   array_diff arr1 arr2
+#   # => a
+#   # => c
+#
+# @stdout Elements from arr_a not in arr_b, one per line.
+# @exitcode 0 Always
 array_diff() {
   local -n _arr_a="${1:?No first array name given}"
   local -n _arr_b="${2:?No second array name given}"
@@ -42,14 +48,20 @@ array_diff() {
   done
 }
 
-# Print elements present in both arr_a and arr_b.
-# Usage: array_intersect arr_a arr_b
-# Example:
-#     $ arr1=( a b c d )
-#     $ arr2=( b d e )
-#     $ array_intersect arr1 arr2
-#     b
-#     d
+# @description Print elements present in both arr_a and arr_b.
+#
+# @arg $1 string Name of the first array variable.
+# @arg $2 string Name of the second array variable.
+#
+# @example
+#   arr1=( a b c d )
+#   arr2=( b d e )
+#   array_intersect arr1 arr2
+#   # => b
+#   # => d
+#
+# @stdout Elements common to both arrays, one per line.
+# @exitcode 0 Always
 array_intersect() {
   local -n _arr_a="${1:?No first array name given}"
   local -n _arr_b="${2:?No second array name given}"
@@ -64,17 +76,23 @@ array_intersect() {
   done
 }
 
-# Print all unique elements from both arrays (set union).
-# Usage: array_union arr_a arr_b
-# Example:
-#     $ arr1=( a b c )
-#     $ arr2=( b c d e )
-#     $ array_union arr1 arr2
-#     a
-#     b
-#     c
-#     d
-#     e
+# @description Print all unique elements from both arrays (set union).
+#
+# @arg $1 string Name of the first array variable.
+# @arg $2 string Name of the second array variable.
+#
+# @example
+#   arr1=( a b c )
+#   arr2=( b c d e )
+#   array_union arr1 arr2
+#   # => a
+#   # => b
+#   # => c
+#   # => d
+#   # => e
+#
+# @stdout All unique elements from both arrays, one per line.
+# @exitcode 0 Always
 array_union() {
   local -n _arr_a="${1:?No first array name given}"
   local -n _arr_b="${2:?No second array name given}"
@@ -89,16 +107,20 @@ array_union() {
   done
 }
 
-# Remove duplicate elements from a named array in place, preserving order.
-# Usage: array_unique arr_name
-# Example:
-#     $ myarr=( a b a c b d )
-#     $ array_unique myarr
-#     $ printf '%s\n' "${myarr[@]}"
-#     a
-#     b
-#     c
-#     d
+# @description Remove duplicate elements from a named array in place, preserving order.
+#
+# @arg $1 string Name of the array variable.
+#
+# @example
+#   myarr=( a b a c b d )
+#   array_unique myarr
+#   printf '%s\n' "${myarr[@]}"
+#   # => a
+#   # => b
+#   # => c
+#   # => d
+#
+# @exitcode 0 Always
 array_unique() {
   local -n _arr="${1:?No array name given}"
   local -A _seen

@@ -20,6 +20,16 @@
 [ -n "${_SH_LOADED_utils_retry+x}" ] && return 0
 _SH_LOADED_utils_retry=1
 
+# @description Retry a command until it succeeds or the maximum retry count is reached.
+#   Prints a dot for each failed attempt. Sleep duration and retry count are configurable.
+#
+# @arg $1 string Optional: '-m N' to set max retries (default: 3)
+# @arg $2 string Optional: '-s N' to set sleep duration in seconds between retries (default: 5)
+# @arg $3 string Command and arguments to retry
+#
+# @stdout A dot per failed attempt, then a newline
+# @exitcode 0 Command eventually succeeded
+# @exitcode 1 Max retries reached without success
 retry() {
   local iter_count max_retries sleep_time
   while getopts ":m:s:" args; do

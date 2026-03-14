@@ -20,8 +20,14 @@
 [ -n "${_SH_LOADED_utils_what+x}" ] && return 0
 _SH_LOADED_utils_what=1
 
-# Function to display a list of users and their memory and cpu usage
-# Non-portable swap: for file in /proc/*/status ; do awk '/VmSwap|Name/{printf $2 " " $3}END{ print ""}' $file; done | sort -k 2 -n -r
+# @description Show per-user CPU and memory usage aggregated from 'ps'.
+#   Similar in spirit to 'who', but showing resource consumption instead of
+#   login info. Optionally sort by CPU (-c) or memory (-m) usage.
+#
+# @arg $1 string Optional flag: -c (sort by CPU), -m (sort by memory), -h (help)
+#
+# @stdout One line per user: username, memory (KiB), CPU (%)
+# @exitcode 0 Always
 what() {
   case "${1}" in
     (-h|--help)

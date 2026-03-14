@@ -20,16 +20,7 @@
 [ -n "${_SH_LOADED_goodies_larson+x}" ] && return 0
 _SH_LOADED_goodies_larson=1
 
-# These functions setup a row of asterisks and then cycle through some text effects
-# This gives the 'look' of an animation of sorts - where each asterisk starts dim, 
-# then goes bright, then goes dim again, before moving on to its neighbour.
-
-# half_larson scans left to right before starting at the far most left
-# full_larson scans left to right and back again right to left
-
-# These functions are named for the guy who developed this effect for the Cylons
-# in the original Battlestar Galactica, and for KITT in Knight Rider.
-
+# @internal
 _larson_reset() {
   tput sgr0     # Unset as many things that we've set as possible
   tput cnorm    # Display the cursor again
@@ -40,6 +31,14 @@ _larson_reset() {
 # Try to set things back the way they were, however we exit
 trap _larson_reset HUP INT QUIT TERM EXIT
 
+# @description Display a Larson scanner animation that sweeps left to right only,
+#   then resets to the left. Width and speed are configurable. Loops until interrupted.
+#   Named for Glen A. Larson, who developed this visual effect for the Cylons in
+#   Battlestar Galactica and for KITT in Knight Rider.
+#
+# @arg $1 int Optional: number of characters wide (default: 3)
+#
+# @exitcode 0 Always (loops indefinitely until killed)
 half_larson() {
   progWidth="${1:-3}"
   sleepTime="0.2"
@@ -67,6 +66,12 @@ half_larson() {
   done
 }
 
+# @description Display a full Larson scanner animation that sweeps left to right
+#   then right to left, continuously. Width and speed are configurable.
+#
+# @arg $1 int Optional: number of characters wide (default: 3)
+#
+# @exitcode 0 Always (loops indefinitely until killed)
 full_larson() {
   progWidth="${1:-3}"
   sleepTime="0.2"

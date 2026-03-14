@@ -20,6 +20,15 @@
 [ -n "${_SH_LOADED_sys_brew+x}" ] && return 0
 _SH_LOADED_sys_brew=1
 
+# @description Check whether one or more Homebrew packages are installed.
+#   Exits the process (exit 1) if brew itself is not found. Prints a status
+#   line for each package and returns 1 if any package is missing.
+#
+# @arg $1 string One or more package names (space-separated or multiple args)
+#
+# @stdout One status line per package indicating installed or not
+# @exitcode 0 All packages are installed
+# @exitcode 1 One or more packages are not installed, or brew is not found
 brew_is_installed() {
   local failcount
   failcount=0

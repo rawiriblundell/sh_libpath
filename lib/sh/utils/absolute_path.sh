@@ -20,9 +20,15 @@
 [ -n "${_SH_LOADED_utils_absolute_path+x}" ] && return 0
 _SH_LOADED_utils_absolute_path=1
 
-# Try to convert a relative path to an absolute one
-# A slightly adjusted version sourced from
-# https://stackoverflow.com/a/23002317
+# @description Convert a relative path to an absolute path without using readlink -f.
+#   Works for both files and directories that exist on disk. Returns 1 if the path
+#   does not exist. Temporarily clears CDPATH to avoid interference.
+#
+# @arg $1 string Relative or absolute file/directory path
+#
+# @stdout Absolute path
+# @exitcode 0 Success
+# @exitcode 1 Path does not exist
 get_absolute_path() {
   local _filename
 

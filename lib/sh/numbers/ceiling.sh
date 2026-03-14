@@ -20,10 +20,15 @@
 [ -n "${_SH_LOADED_numbers_ceiling+x}" ] && return 0
 _SH_LOADED_numbers_ceiling=1
 
-# Description: Round a given float upwards to the nearest full integer
-# Example: 'ceiling 3.4' => 4
-
-# Usage: ceiling [float]
+# @description Round a float upwards to the nearest integer.
+#
+# @arg $1 float The value to round up
+#
+# @example
+#   ceiling 3.4   # => 4
+#
+# @stdout The ceiling integer value
+# @exitcode 0 Always
 ceiling() {
   printf -- '%s\n' "${1:?No float given}" |
     awk '{print ($0-int($0)>0)?int($0)+1:int($0)}'

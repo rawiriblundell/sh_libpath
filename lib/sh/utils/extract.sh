@@ -20,7 +20,14 @@
 [ -n "${_SH_LOADED_utils_extract+x}" ] && return 0
 _SH_LOADED_utils_extract=1
 
-# Provide a function to compress common compressed Filetypes
+# @description Compress files into a common archive format determined by the
+#   output filename extension. Supports .tar.bz2, .tar.gz, .tgz, .zip, and .rar.
+#
+# @arg $1 string Output archive filename (extension determines format)
+# @arg $2 string One or more source files or directories to include
+#
+# @exitcode 0 Success
+# @exitcode 1 Unrecognised file extension
 compress() {
   File=$1
   shift
@@ -34,8 +41,14 @@ compress() {
   esac
 }
 
-# Function to extract common compressed file types
-# TODO: Check for atool and defer to it where possible...
+# @description Extract one or more archives, dispatching to the appropriate tool
+#   based on file extension. Supports tar variants, 7z, rar, zip, cpio, bz2, gz,
+#   xz, lzma, zpaq, arc, and others.
+#
+# @arg $1 string One or more archive file paths to extract
+#
+# @exitcode 0 All archives extracted successfully
+# @exitcode 1 One or more files were unreadable or had unrecognised extensions
 extract() {
   local xcmd rc fsobj
 

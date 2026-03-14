@@ -20,15 +20,19 @@
 [ -n "${_SH_LOADED_array_sort+x}" ] && return 0
 _SH_LOADED_array_sort=1
 
-# Sort a named array in place (lexicographic order).
-# Usage: array_sort arr_name
-# Example:
-#     $ myarr=( banana apple cherry )
-#     $ array_sort myarr
-#     $ printf '%s\n' "${myarr[@]}"
-#     apple
-#     banana
-#     cherry
+# @description Sort a named array in place using lexicographic order.
+#
+# @arg $1 string Name of the array variable.
+#
+# @example
+#   myarr=( banana apple cherry )
+#   array_sort myarr
+#   printf '%s\n' "${myarr[@]}"
+#   # => apple
+#   # => banana
+#   # => cherry
+#
+# @exitcode 0 Always
 array_sort() {
   local -n _arr="${1:?No array name given}"
   local -a _sorted
@@ -36,8 +40,11 @@ array_sort() {
   _arr=( "${_sorted[@]}" )
 }
 
-# Sort a named array in place using numeric order.
-# Usage: array_sort_numeric arr_name
+# @description Sort a named array in place using numeric order.
+#
+# @arg $1 string Name of the array variable.
+#
+# @exitcode 0 Always
 array_sort_numeric() {
   local -n _arr="${1:?No array name given}"
   local -a _sorted
@@ -45,17 +52,21 @@ array_sort_numeric() {
   _arr=( "${_sorted[@]}" )
 }
 
-# Reverse the order of elements in a named array in place.
-# Usage: array_reverse arr_name
-# Example:
-#     $ myarr=( a b c d e )
-#     $ array_reverse myarr
-#     $ printf '%s\n' "${myarr[@]}"
-#     e
-#     d
-#     c
-#     b
-#     a
+# @description Reverse the order of elements in a named array in place.
+#
+# @arg $1 string Name of the array variable.
+#
+# @example
+#   myarr=( a b c d e )
+#   array_reverse myarr
+#   printf '%s\n' "${myarr[@]}"
+#   # => e
+#   # => d
+#   # => c
+#   # => b
+#   # => a
+#
+# @exitcode 0 Always
 array_reverse() {
   local -n _arr="${1:?No array name given}"
   local _i _j _tmp
@@ -70,8 +81,11 @@ array_reverse() {
   done
 }
 
-# Shuffle a named array in place using Fisher-Yates.
-# Usage: array_shuffle arr_name
+# @description Shuffle a named array in place using the Fisher-Yates algorithm.
+#
+# @arg $1 string Name of the array variable.
+#
+# @exitcode 0 Always
 array_shuffle() {
   local -n _arr="${1:?No array name given}"
   local _i _j _tmp _len

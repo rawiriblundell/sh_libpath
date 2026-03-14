@@ -20,8 +20,12 @@
 [ -n "${_SH_LOADED_text_ord+x}" ] && return 0
 _SH_LOADED_text_ord=1
 
-# Convert ASCII char to a decimal
-# TODO: Validate input
+# @description Convert an ASCII character to its decimal value.
+#
+# @arg $1 string Single ASCII character to convert
+#
+# @stdout Decimal value of the character
+# @exitcode 0 Always
 ord() {
   printf -- '%d' "'${1}"
 }

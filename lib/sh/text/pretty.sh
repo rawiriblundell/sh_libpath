@@ -28,7 +28,7 @@ _pretty_blocked_colors=(0 1 7 9 11 {15..18} {154..161} {190..197} {226..235} {25
 # Define another array that is an inversion of the above
 mapfile -t _pretty_allowed_colors < <(printf -- '%d\n' {0..255} "${_pretty_blocked_colors[@]}" | sort -n | uniq -u)
 
-# A function to generate a random color code using the above arrays
+# @internal
 _pretty_select_random_color() {
   local _pretty_color
   # Define our initial color code
@@ -41,7 +41,14 @@ _pretty_select_random_color() {
   printf -- '%d\n' "${_pretty_color}"
 }
 
-# Randomize text color for every fed line
+# @description Print each line of input in a randomly selected visible color.
+#   Only runs in interactive shells. Accepts a file path, string argument, or stdin.
+#
+# @arg $1 string Optional: file path or string to colorize
+#
+# @stdout Each line printed in a random 256-color foreground color
+# @exitcode 0 Success
+# @exitcode 1 Not running in an interactive shell
 pretty () {
   # Check if we are in an interactive shell or not
   case "${-}" in

@@ -20,7 +20,14 @@
 [ -n "${_SH_LOADED_text_first+x}" ] && return 0
 _SH_LOADED_text_first=1
 
-# A basic function to return either the first char, column or line of a given input
+# @description Return the first character, column, or line of input.
+#   Without a subcommand, returns the first line from stdin or a file.
+#
+# @arg $1 string Optional: 'char', 'col'/'column', or 'row'/'line' to select what to return
+# @arg $2 string Optional: file path (for col/row modes)
+#
+# @stdout First character, column, or line of the input
+# @exitcode 0 Always
 first() {
   case "${1}" in
     (char)       shift 1; read -r line; printf -- '%.1s' "${line}" ;;
@@ -30,6 +37,7 @@ first() {
   esac
 }
 
+# @description Alias for first().
 str_first() {
   case "${1}" in
     (char)       shift 1; read -r line; printf -- '%.1s' "${line}" ;;

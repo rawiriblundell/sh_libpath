@@ -23,7 +23,11 @@ _SH_LOADED_misc_strict=1
 ################################################################################
 # Please read CONTRIBUTING and research the Unofficial Strict Mode's flaws
 
-# Enable Unofficial Strict Mode
+# @description Enable the Unofficial Strict Mode: errexit, errtrace, nounset, pipefail.
+#   WARNING: This mode has well-known flaws. Read the project CONTRIBUTING guide
+#   and research the risks before using it in production scripts.
+#
+# @exitcode 0 Always
 strict_euopipefail() {
   set -o errexit
   set -o errtrace
@@ -31,13 +35,18 @@ strict_euopipefail() {
   set -o pipefail
 }
 
-# Set IFS to '\t\n'
+# @description Set IFS to tab and newline, disabling word splitting on spaces.
+#
+# @exitcode 0 Always
 strict_nowhitesplitting() {
   IFS='\t\n'
 }
 
-# modernish-style 'safe' mode
-# https://github.com/modernish/modernish/blob/master/lib/modernish/mdl/safe.mm
+# @description Enable a modernish-style 'safe' mode: empty IFS (no word splitting),
+#   noglob (no pathname expansion), nounset (unset variable errors), and noclobber
+#   (prevent accidental file overwriting with >). Inspired by modernish safe.mm.
+#
+# @exitcode 0 Always
 safe() {
   IFS=''
   set -o noglob

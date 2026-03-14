@@ -20,8 +20,22 @@
 [ -n "${_SH_LOADED_core_vars+x}" ] && return 0
 _SH_LOADED_core_vars=1
 
-# Set these variable helper functions
+# @description Test whether a variable is set and non-empty.
+# @exitcode 0 Variable is set and non-empty
+# @exitcode 1 Otherwise
 var_is_set() { [ "${1+x}" = "x" ] && [ "${#1}" -gt "0" ]; }     # set and not null
+
+# @description Test whether a variable is unset.
+# @exitcode 0 Variable is unset
+# @exitcode 1 Variable is set (even if empty)
 var_is_unset() { [ -z "${1+x}" ]; }                             # unset
+
+# @description Test whether a variable is set but empty.
+# @exitcode 0 Variable is set and empty
+# @exitcode 1 Otherwise
 var_is_empty() { [ "${1+x}" = "x" ] && [ "${#1}" -eq "0" ]; }   # set and null
+
+# @description Test whether a variable is unset or empty.
+# @exitcode 0 Variable is unset or empty
+# @exitcode 1 Variable is set and non-empty
 var_is_blank() { var_is_unset "${1}" || var_is_empty "${1}"; }  # unset, or set and null

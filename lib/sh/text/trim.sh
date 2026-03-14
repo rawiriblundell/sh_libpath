@@ -20,7 +20,11 @@
 [ -n "${_SH_LOADED_text_trim+x}" ] && return 0
 _SH_LOADED_text_trim=1
 
-# Trim whitespace either side of text
+# @description Strip leading and trailing whitespace from a string, exporting the result as $trim_stdout.
+#
+# @arg $@ string The input string
+#
+# @exitcode 0 Always
 str_trim() {
   LC_CTYPE=C
   local _trim_str
@@ -35,6 +39,11 @@ str_trim() {
   export trim_stdout trim_rc
 }
 
+# @description Alias for str_trim. Strips leading and trailing whitespace, exporting as $trim_stdout.
+#
+# @arg $@ string The input string
+#
+# @exitcode 0 Always
 trim() {
   LC_CTYPE=C
   local _trim_str
@@ -49,6 +58,11 @@ trim() {
   export trim_stdout trim_rc
 }
 
+# @description Alias for str_trim. Strips leading and trailing whitespace, exporting as $trim_stdout.
+#
+# @arg $@ string The input string
+#
+# @exitcode 0 Always
 str_strip() {
   LC_CTYPE=C
   local _trim_str
@@ -63,6 +77,11 @@ str_strip() {
   export trim_stdout trim_rc
 }
 
+# @description Alias for str_trim. Strips leading and trailing whitespace, exporting as $trim_stdout.
+#
+# @arg $@ string The input string
+#
+# @exitcode 0 Always
 strip() {
   LC_CTYPE=C
   local _trim_str
@@ -77,6 +96,11 @@ strip() {
   export trim_stdout trim_rc
 }
 
+# @description Strip leading whitespace from a string, exporting the result as $ltrim_stdout.
+#
+# @arg $@ string The input string
+#
+# @exitcode 0 Always
 str_ltrim() {
   LC_CTYPE=C
   local _ltrim_str
@@ -90,6 +114,12 @@ str_ltrim() {
   export ltrim_stdout ltrim_rc
 }
 
+# @description Strip leading whitespace from a string and print the result.
+#
+# @arg $@ string The input string
+#
+# @stdout Input string with leading whitespace removed
+# @exitcode 0 Always
 ltrim() {
   LC_CTYPE=C
   local _ltrim_str
@@ -102,8 +132,12 @@ ltrim() {
   printf -- '%s\n' "${_ltrim_str}"
 }
 
-# Strip whitespace from both left and right of a string
-# Additionally, compact down multiple spaces inside the string
+# @description Strip leading and trailing whitespace and compact internal spaces.
+#   Exports the result as $ntrim_stdout.
+#
+# @arg $@ string The input string
+#
+# @exitcode 0 Always
 str_ntrim() {
   LC_CTYPE=C
   ntrim_stdout=$(printf -- '%s' "${*}" | xargs)
@@ -111,15 +145,22 @@ str_ntrim() {
   export ntrim_stdout ntrim_rc
 }
 
+# @description Strip leading and trailing whitespace and compact internal spaces, printing the result.
+#
+# @arg $@ string The input string
+#
+# @stdout Trimmed and compacted string
+# @exitcode 0 Always
 ntrim() {
   LC_CTYPE=C
   printf -- '%s' "${*}" | xargs
 }
 
-# Strip whitespace from the right hand side of a string.
-# This works by using two vars, constantly removing a single char and re-assigning
-# before comparing the two vars.  When they finally do match, all the whitespace
-# will be gone, and the loop can exit
+# @description Strip trailing whitespace from a string, exporting the result as $rtrim_stdout.
+#
+# @arg $@ string The input string
+#
+# @exitcode 0 Always
 str_rtrim() {
   LC_CTYPE=C
   local _rtrim_str
@@ -133,6 +174,12 @@ str_rtrim() {
   export rtrim_stdout rtrim_rc
 }
 
+# @description Strip trailing whitespace from a string and print the result.
+#
+# @arg $@ string The input string
+#
+# @stdout Input string with trailing whitespace removed
+# @exitcode 0 Always
 rtrim() {
   LC_CTYPE=C
   local _rtrim_str

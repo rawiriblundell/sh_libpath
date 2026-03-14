@@ -25,7 +25,12 @@ command -v zdump >/dev/null 2>&1 || {
   exit 1
 }
 
-# Function to figure out daylight savings dates for the current year
+# @description Print the DST transition dates for the current year.
+#   Reads TZ from the environment, and if unset attempts to detect it from
+#   timedatectl, /etc/sysconfig/clock, /etc/timezone, or Solaris equivalents.
+#
+# @stdout Two lines showing DST start and end: day month year
+# @exitcode 0 Always
 dst() {
   if (( "${#TZ}" == 0 )); then
     # RHEL7 / systemd

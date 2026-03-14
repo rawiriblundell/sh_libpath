@@ -20,8 +20,14 @@
 [ -n "${_SH_LOADED_utils_tac+x}" ] && return 0
 _SH_LOADED_utils_tac=1
 
-# Provide a very simple 'tac' step-in function
 if ! command -v tac >/dev/null 2>&1; then
+  # @description Step-in replacement for 'tac' on systems that lack it.
+  #   Reverses the line order of a file or stdin using perl, awk, or sed.
+  #
+  # @arg $1 string Optional: file path to reverse; reads stdin if omitted
+  #
+  # @stdout Lines in reverse order
+  # @exitcode 0 Always
   tac() {
     if command -v perl >/dev/null 2>&1; then
       perl -e 'print reverse<>' < "${1:-/dev/stdin}"

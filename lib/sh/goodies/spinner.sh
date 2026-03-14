@@ -23,12 +23,16 @@ _SH_LOADED_goodies_spinner=1
 # I believe I referenced this when creating this
 # https://linuxgazette.net/168/misc/lg/two_cent_tip__bash_script_to_create_animated_rotating_mark.html
 
-# Spinner, a wholly aesthetic spinning cursor!
-# Use like so:
-# begin_spinner &
-# SpinPID="${!}"
-# [start a long running task]
-# end_spinner "${1:-$?}"
+# @description Start an animated spinning cursor in the foreground (run in background
+#   with &). Stores its PID in $SpinPID so end_spinner can stop it.
+#
+# @example
+#   begin_spinner &
+#   SpinPID="${!}"
+#   some_long_task
+#   end_spinner "$?"
+#
+# @exitcode 0 Always (loops indefinitely until killed)
 begin_spinner() {
   SpinChars='/-\|'
   printf -- "%s" "Processing ${Host}, this might take a while... [ "
@@ -41,6 +45,12 @@ begin_spinner() {
   done
 }
 
+# @description Stop the spinner started by begin_spinner and print a status message
+#   based on the supplied exit code. Colour-coded if txtGrn/txtRed/txtRst are set.
+#
+# @arg $1 int Exit code from the task that was running: 0, 1, 2, 124, or other
+#
+# @exitcode 0 Always
 end_spinner() {
   kill "${SpinPID}"
   wait "${SpinPID}" 2>/dev/null

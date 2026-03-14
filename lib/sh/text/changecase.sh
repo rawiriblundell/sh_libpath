@@ -21,6 +21,13 @@
 _SH_LOADED_text_changecase=1
 
 if (( BASH_VERSINFO >= 4 )); then
+  # @description Convert text to lowercase. Accepts a file path, string argument, or stdin.
+  #
+  # @arg $1 string Optional: file path, or string to lowercase
+  #
+  # @stdout Lowercased text
+  # @exitcode 0 Success
+  # @exitcode 1 No input given
   tolower() {
     # If parameter is a file, or stdin is used, action that first
     if [[ -r "${1}" ]]||[[ ! -t 0 ]]; then
@@ -47,6 +54,7 @@ else
   # Example: printf '%d' "'A" => 65 (+32 = 97)
   #          printf '%o' "97" => 141
   #          printf \\141 => a
+  # @internal
   lc(){
     # shellcheck disable=SC2059
     case "${1}" in
@@ -58,6 +66,13 @@ else
       ;;
     esac
   }
+  # @description Convert text to lowercase (Bash < 4 fallback). Accepts a file path, string argument, or stdin.
+  #
+  # @arg $1 string Optional: file path, or string to lowercase
+  #
+  # @stdout Lowercased text
+  # @exitcode 0 Success
+  # @exitcode 1 No input given
   tolower() {
     if [[ -r "${1}" ]]||[[ ! -t 0 ]]; then
       eof=
@@ -82,6 +97,13 @@ else
 fi
 
 if (( BASH_VERSINFO >= 4 )); then
+  # @description Convert text to uppercase. Accepts a file path, string argument, or stdin.
+  #
+  # @arg $1 string Optional: file path, or string to uppercase
+  #
+  # @stdout Uppercased text
+  # @exitcode 0 Success
+  # @exitcode 1 No input given
   toupper() {
     # If parameter is a file, or stdin is used, action that first
     if [[ -r "${1}" ]]||[[ ! -t 0 ]]; then
@@ -108,6 +130,7 @@ else
   # Example: printf '%d' "'A" => 65 (+32 = 97)
   #          printf '%o' "97" => 141
   #          printf \\141 => a
+  # @internal
   uc(){
     # shellcheck disable=SC2059
     case "${1}" in
@@ -119,6 +142,13 @@ else
       ;;
     esac
   }
+  # @description Convert text to uppercase (Bash < 4 fallback). Accepts a file path, string argument, or stdin.
+  #
+  # @arg $1 string Optional: file path, or string to uppercase
+  #
+  # @stdout Uppercased text
+  # @exitcode 0 Success
+  # @exitcode 1 No input given
   toupper() {
     if [[ -r "${1}" ]]||[[ ! -t 0 ]]; then
       eof=
@@ -142,13 +172,7 @@ else
   }
 fi
 
-# This is the magic sauce - we convert the input character to a decimal (%d)
-# Then add 32 to move it 32 places on the ASCII table
-# Then we print it in unsigned octal (%o)
-# And finally print the char that matches the octal representation (\\)
-# Example: printf '%d' "'A" => 65 (+32 = 97)
-#          printf '%o' "97" => 141
-#          printf \\141 => a
+# @internal
 _str_altcaps_lowercase(){
     # shellcheck disable=SC2059
     case "${1}" in
@@ -161,7 +185,7 @@ _str_altcaps_lowercase(){
     esac
 }
 
-# And the inverse of the above for uppercasing
+# @internal
 _str_altcaps_uppercase(){
     # shellcheck disable=SC2059
     case "${1}" in
@@ -174,6 +198,12 @@ _str_altcaps_uppercase(){
     esac
 }
 
+# @description Convert text to alternating caps (mocking spongebob style).
+#
+# @arg $@ string One or more words to convert
+#
+# @stdout Text with alternating uppercase/lowercase characters
+# @exitcode 0 Always
 altcaps() {
     local _str_altcaps_lastswitch _str_altcaps_count _str_altcaps_word _str_altcaps_char
     _str_altcaps_lastswitch=lower

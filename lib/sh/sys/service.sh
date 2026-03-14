@@ -21,23 +21,54 @@
 _SH_LOADED_sys_service=1
 
 if command -v systemctl >/dev/null 2>&1; then
+  # @description Start a named system service. Dispatches to systemctl, sysvinit,
+  #   or init.d depending on what is available on the host.
+  #
+  # @arg $1 string Service name
+  #
+  # @exitcode 0 Service started successfully
+  # @exitcode 1 No service specified or start failed
   svc_start() {
     /bin/systemctl start "${1:?No service specified}"
   }
+  # @description Restart a named system service. Dispatches to systemctl, sysvinit,
+  #   or init.d depending on what is available on the host.
+  #
+  # @arg $1 string Service name
+  #
+  # @exitcode 0 Service restarted successfully
+  # @exitcode 1 No service specified or restart failed
   svc_restart() {
     /bin/systemctl restart "${1:?No service specified}"
   }
+  # @description Check whether a named system service is currently active.
+  #   Dispatches to systemctl, sysvinit, or init.d depending on availability.
+  #
+  # @arg $1 string Service name
+  #
+  # @exitcode 0 Service is active
+  # @exitcode 1 Service is inactive or not found
   svc_status() {
     /bin/systemctl --quiet is-active "${1:?No service specified}"
   }
 
-  # Check if a service is enabled
+  # @description Check whether a systemd service unit is enabled.
+  #
+  # @arg $1 string Service name
+  #
+  # @exitcode 0 Service is enabled
+  # @exitcode 1 Service is not enabled or not found
   get-service-enabled() {
     systemctl list-unit-files | grep -q "${1:?svc unset}.*enabled"
     return "$?"
   }
 
-  # Check if a service is active
+  # @description Check whether a systemd service unit is currently running.
+  #
+  # @arg $1 string Service name
+  #
+  # @exitcode 0 Service is running
+  # @exitcode 1 Service is not running or not found
   get-service-active() {
     systemctl | grep -q "${1:?svc unset}.service.*running"
     return "$?"

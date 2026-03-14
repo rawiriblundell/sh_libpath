@@ -14,6 +14,20 @@
 [ -n "${_SH_LOADED_net_http_status_codes+x}" ] && return 0
 _SH_LOADED_net_http_status_codes=1
 
+# @description Look up and print a description of an HTTP status code. Also accepts
+#   category names to print all codes in that category at once.
+#
+# @arg $1 string HTTP status code (e.g. 404) or category keyword:
+#   info, informational, success, successful, redirect, redirection,
+#   client, client_errors, server, server_errors
+#
+# @example
+#   explain_http_status_code 404
+#   explain_http_status_code server
+#
+# @stdout The numeric code, short name, and description
+# @exitcode 0 Success
+# @exitcode 1 No argument or unrecognised code
 explain_http_status_code() {
   local _code _http_status_code _http_status_description 
   case "${1}" in

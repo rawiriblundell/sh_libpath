@@ -20,7 +20,13 @@
 [ -n "${_SH_LOADED_utils_repeat+x}" ] && return 0
 _SH_LOADED_utils_repeat=1
 
-# A function to repeat an action any number of times
+# @description Execute a command a specified number of times.
+#
+# @arg $1 int Number of times to repeat the command
+# @arg $2 string Command and arguments to execute
+#
+# @exitcode 0 All repetitions completed
+# @exitcode 1 First argument is not a positive integer
 repeat() {
   # check that $1 is a digit, if not error out, if so, set the repeatNum variable
   case "${1}" in

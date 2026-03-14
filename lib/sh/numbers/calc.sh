@@ -20,28 +20,15 @@
 [ -n "${_SH_LOADED_numbers_calc+x}" ] && return 0
 _SH_LOADED_numbers_calc=1
 
-# A stupidly simple wrapper for 'bc'
-# Requires its inputs to be quoted or put into a variable
-
-# $ calc "4.2 + 2.6"
-# 6.8
-# $ calc "(4.2 + 2.6) - 3.5"
-# 3.3
-
-# Unquoted = the shell tries to interpret it and fails:
-
-# $ calc (4.2 + 2.6) - 3.5
-# bash: syntax error near unexpected token `4.2'
-
-# Hide it away in a var though:
-
-# $ calc="(4.2 + 2.6) - 3.5"
-# $ calc "${calc}"
-# 3.3
-
-# Even an unquoted var, a practice normally to be frowned on:
-
-# $ calc ${calc}
-# 3.3
-
+# @description Evaluate an arbitrary arithmetic expression using bc.
+#   Input must be quoted or stored in a variable to avoid shell interpretation.
+#
+# @arg $@ string A quoted arithmetic expression
+#
+# @example
+#   calc "4.2 + 2.6"         # => 6.8
+#   calc "(4.2 + 2.6) - 3.5" # => 3.3
+#
+# @stdout Result of the expression
+# @exitcode 0 Always
 calc() { bc -l <<< "${*:?No input supplied}"; }

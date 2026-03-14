@@ -27,15 +27,19 @@ shopt -s lastpipe || {
   return 1
 }
 
-# Collect stdin into a named array, for use as the last command in a pipeline.
-# Requires bash 4.2+ (lastpipe, enabled above).
-# Usage: some_command | toarray arr_name
-# Example:
-#     $ printf '%s\n' a b c | toarray myarr
-#     $ printf '%s\n' "${myarr[@]}"
-#     a
-#     b
-#     c
+# @description Collect stdin into a named array, for use as the last command in a pipeline.
+#   Requires bash 4.2+ (lastpipe, enabled at load time).
+#
+# @arg $1 string Name of the array variable.
+#
+# @example
+#   printf '%s\n' a b c | toarray myarr
+#   printf '%s\n' "${myarr[@]}"
+#   # => a
+#   # => b
+#   # => c
+#
+# @exitcode 0 Always
 toarray() {
   local -n _arr="${1:?No array name given}"
   readarray -t _arr

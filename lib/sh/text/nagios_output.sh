@@ -20,8 +20,16 @@
 [ -n "${_SH_LOADED_text_nagios_output+x}" ] && return 0
 _SH_LOADED_text_nagios_output=1
 
-# Setup our standardised output style functions
-# If no performance data is detected (var=value), then default to '-'
+# @description Emit a Nagios-formatted output line with status code and job name.
+#   If the second argument contains '=', it is treated as performance data;
+#   otherwise a '-' separator is inserted before the message.
+#
+# @arg $1 string Status code or prefix (e.g. 0, 1, 2, 3, P)
+# @arg $2 string Message or performance data string
+# @arg $@ string Optional: additional lines
+#
+# @stdout Nagios-formatted status line(s)
+# @exitcode 0 Always
 printOut() {
   if [[ "$2" == *"="* ]]; then
     printf '%s\n' "$1 ${thisJob} $2" "${@:3}"
@@ -30,6 +38,12 @@ printOut() {
   fi
 }
 
+# @description Emit a Nagios performance data output line, using printLong for multiple args.
+#
+# @arg $@ string Message or performance data
+#
+# @stdout Nagios-formatted output
+# @exitcode 0 Always
 printAuto() {
   if (( $# == 1 )); then
     printOut P "$*"
@@ -38,6 +52,12 @@ printAuto() {
   fi
 }
 
+# @description Emit a Nagios OK (status 0) output line.
+#
+# @arg $@ string Message or performance data
+#
+# @stdout Nagios OK output
+# @exitcode 0 Always
 printOK() {
   if (( $# == 1 )); then
     printOut 0 "$*"
@@ -46,6 +66,12 @@ printOK() {
   fi
 }
 
+# @description Emit a Nagios WARNING (status 1) output line.
+#
+# @arg $@ string Message or performance data
+#
+# @stdout Nagios WARNING output
+# @exitcode 0 Always
 printWarn() {
   if (( $# == 1 )); then
     printOut 1 "$*"
@@ -54,6 +80,12 @@ printWarn() {
   fi
 }
 
+# @description Emit a Nagios CRITICAL (status 2) output line.
+#
+# @arg $@ string Message or performance data
+#
+# @stdout Nagios CRITICAL output
+# @exitcode 0 Always
 printCrit() {
   if (( $# == 1 )); then
     printOut 2 "$*"
@@ -62,6 +94,12 @@ printCrit() {
   fi
 }
 
+# @description Emit a Nagios UNKNOWN/DEBUG (status 3) output line.
+#
+# @arg $@ string Message or performance data
+#
+# @stdout Nagios DEBUG output
+# @exitcode 0 Always
 printDebug() {
   if (( $# == 1 )); then
     printOut 3 "$*"
@@ -70,7 +108,11 @@ printDebug() {
   fi
 }
 
-# This function converts newlines to literal '\n' for multi-line output
+# @description Convert newlines to literal '\n' for Nagios multi-line output format.
+#   Reads from stdin.
+#
+# @stdout Input with actual newlines replaced by the literal string \n
+# @exitcode 0 Always
 printLong() {
   sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/\\n/g'
 }

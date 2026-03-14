@@ -20,8 +20,12 @@
 [ -n "${_SH_LOADED_text_ntrim+x}" ] && return 0
 _SH_LOADED_text_ntrim=1
 
-# Strip whitespace from both left and right of a string
-# Additionally, compact down multiple spaces inside the string
+# @description Strip leading and trailing whitespace and compact internal spaces.
+#   Exports the result as $ntrim_stdout.
+#
+# @arg $@ string The input string
+#
+# @exitcode 0 Always
 str_ntrim() {
   LC_CTYPE=C
   ntrim_stdout=$(printf -- '%s' "${*}" | xargs)
@@ -29,6 +33,12 @@ str_ntrim() {
   export ntrim_stdout ntrim_rc
 }
 
+# @description Strip leading and trailing whitespace and compact internal spaces, printing the result.
+#
+# @arg $@ string The input string
+#
+# @stdout Trimmed and compacted string
+# @exitcode 0 Always
 ntrim() {
   LC_CTYPE=C
   printf -- '%s' "${*}" | xargs

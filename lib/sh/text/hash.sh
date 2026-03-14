@@ -20,16 +20,19 @@
 [ -n "${_SH_LOADED_text_hash+x}" ] && return 0
 _SH_LOADED_text_hash=1
 
+# @internal
 _str_hash_not_found() {
   printf -- 'str_hash: %s\n' "${1:-Hashing} method not found" >&2
   exit 1
 }
 
+# @internal
 _str_hash_failed() {
   printf -- 'str_hash: %s\n' "${1:-Hashing} method failed" >&2
   exit 1
 }
 
+# @internal
 _str_hash_sha512() {
   if command -v sha512sum >/dev/null 2>&1; then
     printf -- '%s\n' "${*}" | sha512sum || _str_hash_failed "sha512sum"
@@ -42,6 +45,7 @@ _str_hash_sha512() {
   fi
 }
 
+# @internal
 _str_hash_sha384() {
   if command -v sha384sum >/dev/null 2>&1; then
     printf -- '%s\n' "${*}" | sha384sum || _str_hash_failed "sha384sum"
@@ -54,6 +58,7 @@ _str_hash_sha384() {
   fi
 }
 
+# @internal
 _str_hash_sha256() {
   if command -v sha256sum >/dev/null 2>&1; then
     printf -- '%s\n' "${*}" | sha256sum || _str_hash_failed "sha256sum"
@@ -66,6 +71,7 @@ _str_hash_sha256() {
   fi
 }
 
+# @internal
 _str_hash_sha224() {
   if command -v sha224sum >/dev/null 2>&1; then
     printf -- '%s\n' "${*}" | sha224sum || _str_hash_failed "sha224sum"
@@ -78,6 +84,7 @@ _str_hash_sha224() {
   fi
 }
 
+# @internal
 _str_hash_sha1() {
   if command -v sha1sum >/dev/null 2>&1; then
     printf -- '%s\n' "${*}" | sha1sum || _str_hash_failed "sha1sum"
@@ -90,6 +97,7 @@ _str_hash_sha1() {
   fi
 }
 
+# @internal
 _str_hash_md5() {
   if command -v md5sum >/dev/null 2>&1; then
     printf -- '%s\n' "${*}" | md5sum || _str_hash_failed "md5sum"
@@ -102,6 +110,16 @@ _str_hash_md5() {
   fi
 }
 
+# @description Hash a string using the specified algorithm.
+#   Defaults to md5 if no algorithm is specified.
+#   Tries multiple available system tools (sha*sum, shasum, digest) for each algorithm.
+#
+# @arg $1 string Hash algorithm: sha512, sha384, sha256, sha224, sha1, md5, ck
+# @arg $@ string The string to hash
+#
+# @stdout Hex digest of the hashed input
+# @exitcode 0 Success
+# @exitcode 1 Required hash tool not found
 str_hash() {
   case "${1}" in
     (sha512) shift 1; _str_hash_sha512 "${*}" | awk '{print $1}' ;;

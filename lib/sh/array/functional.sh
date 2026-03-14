@@ -20,15 +20,19 @@
 [ -n "${_SH_LOADED_array_functional+x}" ] && return 0
 _SH_LOADED_array_functional=1
 
-# Remove empty elements from a named array in place.
-# Usage: array_compact arr_name
-# Example:
-#     $ myarr=( a '' b '' c )
-#     $ array_compact myarr
-#     $ printf '%s\n' "${myarr[@]}"
-#     a
-#     b
-#     c
+# @description Remove empty elements from a named array in place.
+#
+# @arg $1 string Name of the array variable.
+#
+# @example
+#   myarr=( a '' b '' c )
+#   array_compact myarr
+#   printf '%s\n' "${myarr[@]}"
+#   # => a
+#   # => b
+#   # => c
+#
+# @exitcode 0 Always
 array_compact() {
   local -n _arr="${1:?No array name given}"
   local -a _new_arr
@@ -40,13 +44,19 @@ array_compact() {
   _arr=( "${_new_arr[@]}" )
 }
 
-# Print elements of a named array matching a glob pattern.
-# Usage: array_filter arr_name pattern
-# Example:
-#     $ myarr=( apple banana cherry apricot )
-#     $ array_filter myarr 'a*'
-#     apple
-#     apricot
+# @description Print elements of a named array matching a glob pattern.
+#
+# @arg $1 string Name of the array variable.
+# @arg $2 string Glob pattern to filter by.
+#
+# @example
+#   myarr=( apple banana cherry apricot )
+#   array_filter myarr 'a*'
+#   # => apple
+#   # => apricot
+#
+# @stdout Matching elements, one per line.
+# @exitcode 0 Always
 array_filter() {
   local -n _arr="${1:?No array name given}"
   local _pattern _item
@@ -56,14 +66,20 @@ array_filter() {
   done
 }
 
-# Apply a function to each element of a named array and print the results.
-# Usage: array_map arr_name function
-# Example:
-#     $ upper() { printf -- '%s\n' "${1^^}"; }
-#     $ myarr=( hello world )
-#     $ array_map myarr upper
-#     HELLO
-#     WORLD
+# @description Apply a function to each element of a named array and print the results.
+#
+# @arg $1 string Name of the array variable.
+# @arg $2 string Name of the function to apply to each element.
+#
+# @example
+#   upper() { printf -- '%s\n' "${1^^}"; }
+#   myarr=( hello world )
+#   array_map myarr upper
+#   # => HELLO
+#   # => WORLD
+#
+# @stdout The result of applying the function to each element, one per line.
+# @exitcode 0 Always
 array_map() {
   local -n _arr="${1:?No array name given}"
   local _fn _item
@@ -73,16 +89,23 @@ array_map() {
   done
 }
 
-# Reduce a named array to a single value using a binary function.
-# The function receives the accumulator as $1 and the current element as $2,
-# and must print the new accumulator to stdout.
-# If no initial value is given, the first element is used as the accumulator.
-# Usage: array_reduce arr_name function [initial]
-# Example:
-#     $ add() { printf -- '%s\n' "$(( $1 + $2 ))"; }
-#     $ myarr=( 1 2 3 4 5 )
-#     $ array_reduce myarr add 0
-#     15
+# @description Reduce a named array to a single value using a binary function.
+#   The function receives the accumulator as $1 and the current element as $2,
+#   and must print the new accumulator to stdout.
+#   If no initial value is given, the first element is used as the accumulator.
+#
+# @arg $1 string Name of the array variable.
+# @arg $2 string Name of the binary function to apply.
+# @arg $3 string Optional initial accumulator value.
+#
+# @example
+#   add() { printf -- '%s\n' "$(( $1 + $2 ))"; }
+#   myarr=( 1 2 3 4 5 )
+#   array_reduce myarr add 0
+#   # => 15
+#
+# @stdout The final accumulated value.
+# @exitcode 0 Always
 array_reduce() {
   local -n _arr="${1:?No array name given}"
   local _fn _acc _i _start

@@ -20,20 +20,37 @@
 [ -n "${_SH_LOADED_core_logging+x}" ] && return 0
 _SH_LOADED_core_logging=1
 
+# @description Log an informational message. Stub implementation.
+#
+# @exitcode 0 Always
 log_info() {
  :
 }
 
+# @description Log an error message. Stub implementation.
+#
+# @exitcode 0 Always
 log_error() {
  :
 }
 
+# @description Log a warning message. Stub implementation.
+#
+# @exitcode 0 Always
 log_warn() {
  :
 }
 
-# A function to log messages to the system log
-# http://hacking.elboulangero.com/2015/12/06/bash-logging.html may be useful
+# @description Log a message to the system log using systemd-cat, logger, or a fallback
+#   file. Accepts an optional -t tag and -s flag to also print to stdout.
+#
+# @arg $1 string Optional: -s to echo to stdout
+# @arg $1 string Optional: -t <tag> to set a syslog identifier
+# @arg $@ string Message text
+#
+# @stdout Message line when -s is given
+# @exitcode 0 Message logged successfully
+# @exitcode 1 Invalid option
 logmsg() {
   local opt_flags log_ident print_fmt std_out_arg OPTIND
   unset opt_flags log_ident print_fmt std_out_arg OPTIND

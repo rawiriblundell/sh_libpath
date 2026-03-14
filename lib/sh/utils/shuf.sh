@@ -20,13 +20,19 @@
 [ -n "${_SH_LOADED_utils_shuf+x}" ] && return 0
 _SH_LOADED_utils_shuf=1
 
-################################################################################
-# NOTE: This function is a work in progress
-################################################################################
-# Check if 'shuf' is available, if not, provide basic shuffle functionality
-# Check commit history for a range of alternative methods - ruby, perl, python etc
-# Requires: randInt function
 if ! command -v shuf >/dev/null 2>&1; then
+  # @description Step-in replacement for 'shuf' on systems that lack it.
+  #   Uses reservoir sampling for arbitrary-size input. Requires the randInt function
+  #   and a working $RANDOM. Note: this is a work in progress; -o (output file) is
+  #   not supported.
+  #
+  # @arg $1 string Optional flags: -e (echo mode), -i LO-HI (range), -n N (count),
+  #   -r (repeat), -h (help), -v (version)
+  # @arg $2 string File path or arguments (depending on mode)
+  #
+  # @stdout Shuffled lines or values
+  # @exitcode 0 Success
+  # @exitcode 1 RANDOM not available, conflicting options, or invalid argument
   shuf() {
     local OPTIND input_range input_strings n_min n_max n_count shuf_array shuf_repeat
 

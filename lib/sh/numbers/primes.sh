@@ -20,13 +20,17 @@
 [ -n "${_SH_LOADED_numbers_primes+x}" ] && return 0
 _SH_LOADED_numbers_primes=1
 
-# Algorithm used in this function as described here:
-# https://www.quora.com/Is-every-prime-number-other-than-2-and-3-of-the-form-6k%C2%B11-Is-this-a-proven-result-What-are-other-resources-about-it
-
-# To quote:
-# If a number leaves a remainder of 0, 2 or 4 when divided by 6, then it is even and therefore non-prime (unless it is 2).
-# If it leaves a remainder of 3 when divided by 6 then it is divisible by 3 and therefore non-prime (unless it is 3).
-# That leaves just the remainders 1 and 5, or in other words, numbers of the form  6k±1 .
+# @description Test whether an integer is prime using the 6k±1 algorithm.
+#   Numbers less than 2 are not prime. 2 and 3 are prime.
+#   All other primes satisfy n mod 6 == 1 or 5.
+#   Accepts optional -v/--verbose flag to print a human-readable verdict.
+#
+# @arg $1 string Optional: -v or --verbose to print a verdict message
+# @arg $1 int The integer to test (or $2 when -v is given)
+#
+# @stdout When --verbose: "N is [not] a prime"
+# @exitcode 0 Number is prime
+# @exitcode 1 Number is not prime
 is_prime() {
     local _prime_verbose _prime_test
     # Check whether we're in verbose mode or not

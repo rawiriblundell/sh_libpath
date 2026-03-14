@@ -20,17 +20,20 @@
 [ -n "${_SH_LOADED_text_sanitize+x}" ] && return 0
 _SH_LOADED_text_sanitize=1
 
-# Strip surrounding quotes, trailing ':' or '=' separators, and
-# leading/trailing whitespace from a string.
-# Accepts input as an argument or via stdin.
-# Note: '%%:*' and '%%=*' strip from the first delimiter onwards —
-# do not use on values that legitimately contain ':' or '=' (e.g. URLs).
-# Usage: str_sanitise [string]
-# Example:
-#     $ str_sanitise '"  Bytes:  "'
-#     Bytes
-#     $ printf '%s' '"key": ' | str_sanitise
-#     key
+# @description Strip surrounding quotes, trailing ':' or '=' separators, and
+#   leading/trailing whitespace from a string.
+#   Accepts input as an argument or via stdin.
+#   Note: '%%:*' and '%%=*' strip from the first delimiter onwards —
+#   do not use on values that legitimately contain ':' or '=' (e.g. URLs).
+#
+# @arg $1 string Optional: the string to sanitise (reads stdin if omitted)
+#
+# @example
+#   str_sanitise '"  Bytes:  "'   # => Bytes
+#   printf '%s' '"key": ' | str_sanitise  # => key
+#
+# @stdout Sanitised string
+# @exitcode 0 Always
 str_sanitise() {
   local _input
   if [[ -n "${1}" ]]; then
@@ -60,7 +63,7 @@ str_sanitise() {
   printf -- '%s\n' "${_input}"
 }
 
-# American spelling alias
+# @description Alias for str_sanitise.
 str_sanitize() {
   str_sanitise "${@}"
 }

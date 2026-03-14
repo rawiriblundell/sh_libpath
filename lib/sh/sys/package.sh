@@ -35,6 +35,14 @@
 [ -n "${_SH_LOADED_sys_package+x}" ] && return 0
 _SH_LOADED_sys_package=1
 
+# @description Scan a directory tree for broken symbolic links and attempt to
+#   repair them by searching for a file with the same name nearby. Links that
+#   cannot be repaired are logged as warnings and left removed.
+#
+# @arg $1 string Directory path to scan (via expect_args)
+#
+# @exitcode 0 Always (individual link repairs may fail silently)
+# @exitcode 1 Directory does not exist
 fix_broken_links () {
 	local dst_dir
 	expect_args dst_dir -- "$@"
@@ -67,6 +75,13 @@ fix_broken_links () {
 }
 
 
+# @description Extract a .deb package file into a destination directory using dpkg.
+#
+# @arg $1 string Path to the .deb package file (via expect_args)
+# @arg $2 string Destination directory to extract into (via expect_args)
+#
+# @exitcode 0 Extraction succeeded
+# @exitcode 1 Package file not found or extraction failed
 install_deb_package () {
 	local package_file dst_dir
 	expect_args package_file dst_dir -- "$@"
@@ -86,6 +101,14 @@ install_deb_package () {
 }
 
 
+# @description Extract an .rpm package file into a destination directory using
+#   rpm2cpio and cpio.
+#
+# @arg $1 string Path to the .rpm package file (via expect_args)
+# @arg $2 string Destination directory to extract into (via expect_args)
+#
+# @exitcode 0 Extraction succeeded
+# @exitcode 1 Package file not found or extraction failed
 install_rpm_package () {
 	local package_file dst_dir
 	expect_args package_file dst_dir -- "$@"
@@ -109,6 +132,15 @@ install_rpm_package () {
 }
 
 
+# @description Download and install a newline-delimited list of Debian packages
+#   into a destination directory using apt-get. Caches apt metadata for one hour.
+#   Uses BASHMENOT_APT_DIR if set, otherwise a temporary directory.
+#
+# @arg $1 string Newline-delimited list of package names (via expect_args)
+# @arg $2 string Destination directory (via expect_args)
+#
+# @exitcode 0 All packages installed successfully
+# @exitcode 1 Any package download or installation failed
 install_debian_packages () {
 	local names dst_dir
 	expect_args names dst_dir -- "$@"
@@ -176,6 +208,15 @@ install_debian_packages () {
 }
 
 
+# @description Download and install a newline-delimited list of Red Hat packages
+#   into a destination directory using yum --downloadonly. On CentOS 6, yum
+#   download-only always returns failure, which is silently ignored.
+#
+# @arg $1 string Newline-delimited list of package names (via expect_args)
+# @arg $2 string Destination directory (via expect_args)
+#
+# @exitcode 0 All packages installed successfully
+# @exitcode 1 Any package download or installation failed (except CentOS 6 yum quirk)
 install_redhat_packages () {
 	local names dst_dir
 	expect_args names dst_dir -- "$@"
@@ -233,6 +274,16 @@ install_redhat_packages () {
 }
 
 
+# @description Install a list of platform-specific packages into a destination directory.
+#   Each spec is either a bare package name (installed on all platforms) or a
+#   'pattern:name' pair where pattern is a regex matched against the detected platform.
+#   Dispatches to install_debian_packages or install_redhat_packages as appropriate.
+#
+# @arg $1 string Newline-delimited list of package specs, e.g. "linux-ubuntu.*:libssl-dev" (via expect_args)
+# @arg $2 string Destination directory (via expect_args)
+#
+# @exitcode 0 All matching packages installed successfully
+# @exitcode 1 Unexpected platform or any installation failed
 install_platform_packages () {
 	local specs dst_dir
 	expect_args specs dst_dir -- "$@"

@@ -20,11 +20,24 @@
 [ -n "${_SH_LOADED_numbers_round+x}" ] && return 0
 _SH_LOADED_numbers_round=1
 
-# Description: Round a given float to the nearest integer or fractional precision
-# Example: 'round 3.4445' => 3, 'round 3.4445 2' => 3.44
+# @description Round a float to a given precision.
+#   Default mode is IEEE 754 bankers rounding (round half to even).
+#   Pass --common to use schoolbook rounding (round half up).
+#
+# @arg $1 string Optional: --common to use common (half-up) rounding instead of bankers rounding
+# @arg $1 float The value to round (or $2 when --common is given)
+# @arg $2 int Optional: decimal precision (default: 0)
+#
+# @example
+#   round 3.4445      # => 3
+#   round 3.4445 2    # => 3.44
+#   round --common 4.5  # => 5
+#
+# @stdout Rounded value
+# @exitcode 0 Always
 
 # Note about common rounding vs bankers rounding
-# At school, you were probably taught to always round up from a 
+# At school, you were probably taught to always round up from a
 # next-fractional of .5 or more, and to otherwise round down
 # e.g.
 # 5.5 => 6
@@ -32,7 +45,7 @@ _SH_LOADED_numbers_round=1
 # 4.4 => 4
 # Let's call that "common rounding"
 
-# In computing, you can be caught off-guard by the often baked-in language 
+# In computing, you can be caught off-guard by the often baked-in language
 # choice of "bankers rounding", which can be simply explained as:
 # "If the leading integer is even, round down.  If it's odd, round up."
 # Or, in other words: "Round to the nearest even number."
@@ -51,7 +64,6 @@ _SH_LOADED_numbers_round=1
 
 # Who knew that rounding could be so esoteric?!
 
-# Usage: round [--common (optional)] [float] [precision (optional)]
 round() {
   local _round_float _round_precision _round_fractional
   # First, we test if we are in common rounding mode

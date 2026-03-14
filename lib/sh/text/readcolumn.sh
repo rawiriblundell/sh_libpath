@@ -20,7 +20,9 @@
 [ -n "${_SH_LOADED_text_readcolumn+x}" ] && return 0
 _SH_LOADED_text_readcolumn=1
 
-# Read a given column into an array
+# @description Read a given column of input into an array. (Not yet implemented.)
+#
+# @exitcode 0 Always
 readcolumn() {
         : # TBD
 }

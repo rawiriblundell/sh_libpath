@@ -20,22 +20,19 @@
 [ -n "${_SH_LOADED_text_helmet+x}" ] && return 0
 _SH_LOADED_text_helmet=1
 
-# This function does something tricky.  It slurps an input into an array.
-# It dumps the first n elements (default: 1) to stderr
-# It dumps everything after the first element to stdout
-# Why?  So that you can parse content while keeping desirable lines untouched
-# For example, header lines...
-
-# Example:
+# @description Protect header lines from being filtered by downstream pipes.
+#   Reads stdin into an array, emits the first n lines (default: 1) to stderr,
+#   and the remainder to stdout. This keeps header lines visible even when
+#   stdout is piped to grep or similar filters.
 #
-#     $ df -hP | helmet | grep shm
-#     Filesystem      Size  Used Avail Use% Mounted on
-#     tmpfs           7.4G  1.2G  6.3G  16% /dev/shm
-#     $ df -hP | helmet 2 | grep shm
-#     Filesystem      Size  Used Avail Use% Mounted on
-#     udev            7.3G     0  7.3G   0% /dev
-#     tmpfs           7.4G  1.2G  6.3G  16% /dev/shm
-
+# @arg $1 int Optional: number of header lines to protect (default: 1)
+#
+# @example
+#   df -hP | helmet | grep shm
+#   df -hP | helmet 2 | grep shm
+#
+# @stdout Input lines after the protected header lines
+# @exitcode 0 Always
 helmet() {
   local count
   if [ "${1}" -eq "${1}" ] 2>/dev/null; then

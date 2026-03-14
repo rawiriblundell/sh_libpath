@@ -25,7 +25,12 @@ command -v date >/dev/null 2>&1 || {
   exit 1
 }
 
-# Function to figure out daylight savings dates for the current year
+# @description Print the current date and time in a human-readable format including timezone.
+#   Detects TZ from the environment if unset, consulting timedatectl, /etc/sysconfig/clock,
+#   /etc/timezone, or Solaris equivalents.
+#
+# @stdout Date/time string: "Www Mmm DD HH:MM:SS AM/PM TZ YYYY"
+# @exitcode 0 Always
 timestamp() {
   if (( "${#TZ}" == 0 )); then
     # RHEL7 / systemd

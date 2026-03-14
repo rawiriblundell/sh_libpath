@@ -20,8 +20,17 @@
 [ -n "${_SH_LOADED_text_repeat+x}" ] && return 0
 _SH_LOADED_text_repeat=1
 
-# Repeat a string n number of times
-# Supports '-n' to suppress newlines while iterating
+# @description Repeat a string a given number of times.
+#   By default, prints each repetition on its own line.
+#   Use -n to suppress intermediate newlines (single trailing newline only).
+#
+# @arg $1 string Optional: -n to suppress intermediate newlines
+# @arg $2 string The string to repeat
+# @arg $3 int Optional: number of repetitions (default: 1)
+#
+# @stdout The repeated string
+# @exitcode 0 Success
+# @exitcode 1 Unspecified error
 str_repeat() {
   local _str_repeat_str _str_repeat_count _str_repeat_newlines
 

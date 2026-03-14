@@ -35,6 +35,12 @@
 [ -n "${_SH_LOADED_sys_platform+x}" ] && return 0
 _SH_LOADED_sys_platform=1
 
+# @description Convert a platform identifier string to a human-readable label.
+#
+# @arg $1 string Platform identifier, e.g. "linux-ubuntu-14.04-x86_64"
+#
+# @stdout Human-readable platform name, e.g. "Ubuntu 14.04 LTS (x86_64)", or "unknown"
+# @exitcode 0 Always
 format_platform_description () {
 	case "$1" in
 	'freebsd-10.0-x86_64')		printf -- '%s\n' 'FreeBSD 10.0 (x86_64)';;
@@ -86,6 +92,12 @@ format_platform_description () {
 }
 
 
+# @description Return whether a platform identifier is Debian-based (debian or ubuntu).
+#
+# @arg $1 string Platform identifier string
+#
+# @exitcode 0 Platform is Debian-like
+# @exitcode 1 Platform is not Debian-like
 is_debian_like () {
 	case "$1" in
 	'linux-debian-'*)	return 0;;
@@ -95,6 +107,12 @@ is_debian_like () {
 }
 
 
+# @description Return whether a platform identifier is Red Hat-based (amzn, centos, fedora, rhel).
+#
+# @arg $1 string Platform identifier string
+#
+# @exitcode 0 Platform is Red Hat-like
+# @exitcode 1 Platform is not Red Hat-like
 is_redhat_like () {
 	case "$1" in
 	'linux-amzn-'*)		return 0;;
@@ -106,6 +124,10 @@ is_redhat_like () {
 }
 
 
+# @description Detect the current operating system family using uname.
+#
+# @stdout "freebsd", "linux", "osx", or "unknown"
+# @exitcode 0 Always
 detect_os () {
 	local raw_os
 	raw_os=$( uname -s ) || true
@@ -119,6 +141,11 @@ detect_os () {
 }
 
 
+# @description Detect the current CPU architecture using uname, normalising
+#   common aliases to a canonical form.
+#
+# @stdout "x86_64", "i386", or "unknown"
+# @exitcode 0 Always
 detect_arch () {
 	local raw_arch
 	raw_arch=$( uname -m | tr '[:upper:]' '[:lower:]' ) || true
@@ -134,6 +161,7 @@ detect_arch () {
 }
 
 
+# @internal
 bashmenot_internal_detect_linux_label () {
 	local label raw_label
 	label=''
@@ -175,6 +203,7 @@ bashmenot_internal_detect_linux_label () {
 }
 
 
+# @internal
 bashmenot_internal_detect_linux_version () {
 	local version raw_version
 	version=''
@@ -224,6 +253,14 @@ bashmenot_internal_detect_linux_version () {
 }
 
 
+# @description Detect the full platform identifier string for the current host,
+#   combining OS, distro label, version, and architecture.
+#
+# @example
+#   detect_platform   # => "linux-ubuntu-14.04-x86_64"
+#
+# @stdout Platform identifier string, e.g. "linux-centos-7-x86_64" or "osx-10.10-x86_64"
+# @exitcode 0 Always
 detect_platform () {
 	local os arch
 	os=$( detect_os )

@@ -20,17 +20,22 @@
 [ -n "${_SH_LOADED_array_append+x}" ] && return 0
 _SH_LOADED_array_append=1
 
-# Append one or more elements to a named array.
-# Usage: array_append arr_name element [element ...]
-# Example:
-#     $ myarr=( a b c )
-#     $ array_append myarr d e
-#     $ printf '%s\n' "${myarr[@]}"
-#     a
-#     b
-#     c
-#     d
-#     e
+# @description Append one or more elements to a named array.
+#
+# @arg $1 string Name of the array variable.
+# @arg $@ string One or more elements to append.
+#
+# @example
+#   myarr=( a b c )
+#   array_append myarr d e
+#   printf '%s\n' "${myarr[@]}"
+#   # => a
+#   # => b
+#   # => c
+#   # => d
+#   # => e
+#
+# @exitcode 0 Always
 array_append() {
   local -n _arr="${1:?No array name given}"
   shift

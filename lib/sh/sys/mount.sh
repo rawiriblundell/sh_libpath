@@ -25,6 +25,10 @@ if ! command -v mount >/dev/null 2>&1; then
   exit 1
 fi
 
+# @description Print all currently mounted filesystems using 'mount'.
+#
+# @stdout Output of 'mount', or an info message if mount returns nothing
+# @exitcode 0 Always
 get_mounts() {
     #findmnt --real
     if [[ $(mount | wc -l) -gt 0 ]]; then

@@ -20,8 +20,15 @@
 [ -n "${_SH_LOADED_text_len+x}" ] && return 0
 _SH_LOADED_text_len=1
 
-# Make getting a string length a bit more familiar
-# for practitioners of other languages
+# @description Return the character length of a string, file, or piped input.
+#   With -b/--bytes, returns the byte length instead of character length.
+#   With a file argument, prints length and content for each line.
+#   With no arguments and no stdin, prints 0.
+#
+# @arg $1 string Optional: -b|--bytes for byte length, or a string/file path
+#
+# @stdout Length (and optionally content) of the input
+# @exitcode 0 Always
 str_len() {
   local str
   case "${1}" in
@@ -58,8 +65,7 @@ str_len() {
   esac
 }
 
-# Make getting a string length a bit more familiar
-# for practitioners of other languages
+# @description Alias for str_len.
 strlen() {
   local str
   case "${1}" in
@@ -96,6 +102,7 @@ strlen() {
   esac
 }
 
+# @description Alias for str_len.
 len() {
   local str
   case "${1}" in

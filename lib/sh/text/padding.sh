@@ -20,10 +20,20 @@
 [ -n "${_SH_LOADED_text_padding+x}" ] && return 0
 _SH_LOADED_text_padding=1
 
-# Print word pairs separated by delimiters e.g.
-# Title1.........Page1
-# Longer Title...Page2
-# TODO: Add ability to customise width and delimiter
+# @description Print a key-value pair separated by dot padding to fill the terminal width.
+#   Produces table-of-contents style output where titles and page numbers are dot-padded.
+#   Optionally override width with -w|--width.
+#
+# @arg $1 string Optional: -w|--width followed by column width
+# @arg $2 string Left-side label (key)
+# @arg $3 string Right-side value
+#
+# @example
+#   str_padding "Title" "Page1"        # => Title.........Page1
+#   str_padding "Longer Title" "Page2" # => Longer Title...Page2
+#
+# @stdout Dot-padded key-value line
+# @exitcode 0 Always
 str_padding() {
   local _str_padding _str_padding_key _str_padding_val _str_padding_width
   _str_padding_width="${COLUMNS:-$(tput cols)}"

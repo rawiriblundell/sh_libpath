@@ -20,7 +20,13 @@
 [ -n "${_SH_LOADED_text_csvwrap+x}" ] && return 0
 _SH_LOADED_text_csvwrap=1
 
-# Wrap long comma separated lists by element count (default: 8 elements)
+# @description Wrap long comma-separated lists by element count.
+#   Reads from stdin. Inserts a line continuation after every nth comma.
+#
+# @arg $1 int Optional: number of elements per line (default: 8)
+#
+# @stdout Wrapped comma-separated list with backslash continuations
+# @exitcode 0 Always
 csvwrap() {
   local split_count
   export split_count="${1:-8}"
