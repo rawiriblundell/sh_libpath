@@ -329,8 +329,8 @@ text_rgb.fg() {
   esac
   case "${2}" in
     (*[0-9]*)
-      fg_green="${1//[^0-9]/}"
-      while (( fg_red > 255 )); do
+      fg_green="${2//[^0-9]/}"
+      while (( fg_green > 255 )); do
         fg_green=$(( fg_green / 2 ))
       done
     ;;
@@ -338,7 +338,7 @@ text_rgb.fg() {
   esac
   case "${3}" in
     (*[0-9]*)
-      fg_blue="${1//[^0-9]/}"
+      fg_blue="${3//[^0-9]/}"
       while (( fg_blue > 255 )); do
         fg_blue=$(( fg_blue / 2 ))
       done
@@ -370,8 +370,8 @@ text_rgb.bg() {
   esac
   case "${2}" in
     (*[0-9]*)
-      bg_green="${1//[^0-9]/}"
-      while (( bg_red > 255 )); do
+      bg_green="${2//[^0-9]/}"
+      while (( bg_green > 255 )); do
         bg_green=$(( bg_green / 2 ))
       done
     ;;
@@ -379,7 +379,7 @@ text_rgb.bg() {
   esac
   case "${3}" in
     (*[0-9]*)
-      bg_blue="${1//[^0-9]/}"
+      bg_blue="${3//[^0-9]/}"
       while (( bg_blue > 255 )); do
         bg_blue=$(( bg_blue / 2 ))
       done

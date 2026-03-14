@@ -41,7 +41,7 @@ get_command() {
     (*)
       errcount=0
       for cmd in "${@}"; do
-        command -v "${1}" >/dev/null 2>&1 || (( ++errcount ))
+        command -v "${cmd}" >/dev/null 2>&1 || (( ++errcount ))
       done
       (( errcount == 0 )) && return 0
     ;;

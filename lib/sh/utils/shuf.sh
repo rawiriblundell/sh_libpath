@@ -30,11 +30,13 @@ if ! command -v shuf >/dev/null 2>&1; then
   shuf() {
     local OPTIND inputRange inputStrings nMin nMax nCount shufArray shufRepeat
 
-    # First test that $RANDOM is available
-    if (( ${RANDOM}${RANDOM} == ${RANDOM}${RANDOM} )); then
-      printf -- '%s\n' "shuf: RANDOM global variable required but doesn't appear to be available"
-      return 1
-    fi
+    # First test that $RANDOM is available and expands to a number
+    case "${RANDOM}" in
+      (''|*[!0-9]*)
+        printf -- '%s\n' "shuf: RANDOM global variable required but doesn't appear to be available" >&2
+        return 1
+      ;;
+    esac
 
     while getopts ":e:i:hn:rv:" optFlags; do
       case "${optFlags}" in
@@ -65,7 +67,7 @@ if ! command -v shuf >/dev/null 2>&1; then
              return 0;;
         (\?)  printf -- '%s\n' "shuf: invalid option -- '-$OPTARG'." \
                 "Try -h for usage or -v for version info." >&2
-              returnt 1;;
+              return 1;;
         (:)  printf -- '%s\n' "shuf: option '-$OPTARG' requires an argument, e.g. '-$OPTARG 5'." >&2
              return 1;;
       esac
