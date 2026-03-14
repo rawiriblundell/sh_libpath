@@ -17,16 +17,29 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_array_size+x}" ] && return 0
-_SH_LOADED_array_size=1
+[ -n "${_SH_LOADED_array_concat+x}" ] && return 0
+_SH_LOADED_array_concat=1
 
-# Print the number of elements in a named array.
-# Usage: array_size arr_name
+# Concatenate one or more named arrays into a destination named array.
+# Usage: array_concat dest_arr_name src_arr_name [src_arr_name ...]
 # Example:
-#     $ myarr=( a b c )
-#     $ array_size myarr
-#     3
-array_size() {
-  local -n _arr="${1:?No array name given}"
-  printf -- '%s\n' "${#_arr[@]}"
+#     $ arr1=( a b c )
+#     $ arr2=( d e f )
+#     $ array_concat arr1 arr2
+#     $ printf '%s\n' "${arr1[@]}"
+#     a
+#     b
+#     c
+#     d
+#     e
+#     f
+array_concat() {
+  local -n _dst="${1:?No destination array name given}"
+  local _src_name
+  shift
+  for _src_name in "${@}"; do
+    local -n _src="${_src_name}"
+    _dst+=( "${_src[@]}" )
+    unset -n _src
+  done
 }

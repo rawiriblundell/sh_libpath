@@ -28,3 +28,26 @@ array_shift() {
   local n="${2:-1}"
   arr=("${arr[@]:${n}}")
 }
+
+# Rotate elements of a named array left by n positions.
+# Negative n rotates right.
+# Usage: array_rotate arr_name [n]
+# Example:
+#     $ myarr=( a b c d e )
+#     $ array_rotate myarr 2
+#     $ printf '%s\n' "${myarr[@]}"
+#     c
+#     d
+#     e
+#     a
+#     b
+array_rotate() {
+  local -n _arr="${1:?No array name given}"
+  local _n _len
+  _n="${2:-1}"
+  _len="${#_arr[@]}"
+  (( _len == 0 )) && return 0
+  (( _n = _n % _len ))
+  (( _n < 0 )) && (( _n += _len ))
+  _arr=( "${_arr[@]:${_n}}" "${_arr[@]:0:${_n}}" )
+}

@@ -1,0 +1,85 @@
+# shellcheck shell=ksh
+
+# Copyright 2022 Rawiri Blundell
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+################################################################################
+# Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
+# SPDX-License-Identifier: Apache-2.0
+
+[ -n "${_SH_LOADED_array_sort+x}" ] && return 0
+_SH_LOADED_array_sort=1
+
+# Sort a named array in place (lexicographic order).
+# Usage: array_sort arr_name
+# Example:
+#     $ myarr=( banana apple cherry )
+#     $ array_sort myarr
+#     $ printf '%s\n' "${myarr[@]}"
+#     apple
+#     banana
+#     cherry
+array_sort() {
+  local -n _arr="${1:?No array name given}"
+  local -a _sorted
+  readarray -t _sorted < <(printf -- '%s\n' "${_arr[@]}" | sort)
+  _arr=( "${_sorted[@]}" )
+}
+
+# Sort a named array in place using numeric order.
+# Usage: array_sort_numeric arr_name
+array_sort_numeric() {
+  local -n _arr="${1:?No array name given}"
+  local -a _sorted
+  readarray -t _sorted < <(printf -- '%s\n' "${_arr[@]}" | sort -n)
+  _arr=( "${_sorted[@]}" )
+}
+
+# Reverse the order of elements in a named array in place.
+# Usage: array_reverse arr_name
+# Example:
+#     $ myarr=( a b c d e )
+#     $ array_reverse myarr
+#     $ printf '%s\n' "${myarr[@]}"
+#     e
+#     d
+#     c
+#     b
+#     a
+array_reverse() {
+  local -n _arr="${1:?No array name given}"
+  local _i _j _tmp
+  _i=0
+  _j=$(( ${#_arr[@]} - 1 ))
+  while (( _i < _j )); do
+    _tmp="${_arr[_i]}"
+    _arr[_i]="${_arr[_j]}"
+    _arr[_j]="${_tmp}"
+    (( _i++ ))
+    (( _j-- ))
+  done
+}
+
+# Shuffle a named array in place using Fisher-Yates.
+# Usage: array_shuffle arr_name
+array_shuffle() {
+  local -n _arr="${1:?No array name given}"
+  local _i _j _tmp _len
+  _len="${#_arr[@]}"
+  for (( _i = _len - 1; _i > 0; _i-- )); do
+    (( _j = RANDOM % (_i + 1) ))
+    _tmp="${_arr[_i]}"
+    _arr[_i]="${_arr[_j]}"
+    _arr[_j]="${_tmp}"
+  done
+}

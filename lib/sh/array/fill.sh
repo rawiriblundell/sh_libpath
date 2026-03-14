@@ -17,31 +17,24 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_array_insert+x}" ] && return 0
-_SH_LOADED_array_insert=1
+[ -n "${_SH_LOADED_array_fill+x}" ] && return 0
+_SH_LOADED_array_fill=1
 
-# Insert one or more elements into a named array at a given index.
-# Existing elements at and after the index are shifted right.
-# Usage: array_insert arr_name index element [element ...]
+# Fill a named array with a value repeated n times.
+# Usage: array_fill arr_name value n
 # Example:
-#     $ myarr=( a b d e )
-#     $ array_insert myarr 2 c
+#     $ array_fill myarr x 3
 #     $ printf '%s\n' "${myarr[@]}"
-#     a
-#     b
-#     c
-#     d
-#     e
-array_insert() {
+#     x
+#     x
+#     x
+array_fill() {
   local -n _arr="${1:?No array name given}"
-  local _idx
-  local -a _new_arr
-  _idx="${2:?No index given}"
-  shift 2
-  _new_arr=(
-    "${_arr[@]:0:${_idx}}"
-    "${@}"
-    "${_arr[@]:${_idx}}"
-  )
-  _arr=( "${_new_arr[@]}" )
+  local _value _n _i
+  _value="${2:?No fill value given}"
+  _n="${3:?No count given}"
+  _arr=()
+  for (( _i = 0; _i < _n; _i++ )); do
+    _arr+=( "${_value}" )
+  done
 }

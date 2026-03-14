@@ -20,63 +20,92 @@
 [ -n "${_SH_LOADED_array_contains+x}" ] && return 0
 _SH_LOADED_array_contains=1
 
-# Functions for testing if an array contains an element
+# Functions for searching and testing array membership
 
-# Simply return 0 or return 1 (i.e. Boolean test)
-# if there is an element in the array that contains a pattern
-# Usage: array_contains needle haystack
-# e.g. array_contains needle "${haystack[@]}"
+# Test if any element in the array matches a grep regex pattern.
+# Passes array elements by value (expand with "${arr[@]}").
+# For a nameref-based glob test, see array_some.
+# Usage: array_grep needle "${arr[@]}"
+# e.g. array_grep '^foo' "${myarr[@]}"
 # This function intentionally uses a subshell
-array_contains() (
+array_grep() (
   local _needle
   _needle="${1:?No search pattern provided}"
   shift 1
   printf -- '%s\n' "${@}" | grep "${_needle}" >/dev/null 2>&1
 )
 
-# Find the indexes of elements that contain a pattern
-# TODO: This requires a lot of testing
-# Known bug: returns '0' if literally anything is given as a second param
-# Usage: array_index needle haystack
-# e.g. array_index needle "${haystack[@]}"
-# This function intentionally uses a subshell
-array_index() (
-  local _needle
-  _needle="${1:?No search pattern provided}"
-  shift 1
-  # Print every element to its own line
-  # Number each line, 0-indexed, printed immediate left, semi-colon delimited
-  # Print the first field of any second field pattern matches via 'awk'
-  printf -- '%s\n' "${@}" |
-    nl -v 0 -w 1 -s';' |
-    awk -v pattern="${_needle}" -F ';' '$2 ~ pattern {print $1}'
-)
-
-# The below function is more portable than array_index, but slower at scale
-
-# This function looks for a keyword within a simple array (i.e. numerical index)
-# and prints out its location (index) within the array if found
-# This can then be used for other array manipulation e.g. splitting
-# Usage: getArrayIndex keyword array
-# e.g. getArrayIndex needle "${haystack[@]}"
-getArrayIndex() {
-  local search_string="$1"
-  shift
-  local temp_array=( "$@" )
-  # This is how you'd do it with bash-3+
-  #for index in "${!temp_array[@]}"; do
-  #  if [[ "${temp_array[index]}" = "${search_string}" ]]; then
-  #    do_something_with "${temp_array[@]:$(( index + 1 ))}"
-  #  fi
-  #done
-  # Here's how we do it more portably by iterating through the array
-  # This tests each element one-by-one against the keyword,
-  # and prints and then breaks if a match is found
-  for (( index=0; index<"${#temp_array[@]}"; index++ )); do
-    if [[ "${temp_array[index]}" = "${search_string}" ]]; then
-      printf '%s\n' "${index}"
+# Print the index of the first element that exactly matches a value.
+# Returns 1 if not found.
+# Usage: array_index arr_name element
+# e.g. array_index myarr needle
+array_index() {
+  local -n _arr="${1:?No array name given}"
+  local _elem _i
+  _elem="${2:?No element given}"
+  for (( _i = 0; _i < ${#_arr[@]}; _i++ )); do
+    if [[ "${_arr[_i]}" = "${_elem}" ]]; then
+      printf -- '%s\n' "${_i}"
       return 0
     fi
   done
   return 1
 }
+
+# Return 0 if any element of a named array matches a glob pattern.
+# Usage: array_some arr_name pattern
+array_some() {
+  local -n _arr="${1:?No array name given}"
+  local _pattern _item
+  _pattern="${2:?No pattern given}"
+  for _item in "${_arr[@]}"; do
+    [[ "${_item}" = ${_pattern} ]] && return 0
+  done
+  return 1
+}
+
+# Return 0 if every element of a named array matches a glob pattern.
+# Usage: array_every arr_name pattern
+array_every() {
+  local -n _arr="${1:?No array name given}"
+  local _pattern _item
+  _pattern="${2:?No pattern given}"
+  for _item in "${_arr[@]}"; do
+    [[ "${_item}" = ${_pattern} ]] || return 1
+  done
+  return 0
+}
+
+# Print the last index of an element that exactly matches value.
+# Usage: array_last_index arr_name element
+array_last_index() {
+  local -n _arr="${1:?No array name given}"
+  local _elem _i _last
+  _elem="${2:?No element given}"
+  _last=-1
+  for (( _i = 0; _i < ${#_arr[@]}; _i++ )); do
+    [[ "${_arr[_i]}" = "${_elem}" ]] && _last="${_i}"
+  done
+  (( _last >= 0 )) || return 1
+  printf -- '%s\n' "${_last}"
+}
+
+# Print the last element matching a glob pattern.
+# Usage: array_find_last arr_name pattern
+array_find_last() {
+  local -n _arr="${1:?No array name given}"
+  local _pattern _item _last _found
+  _pattern="${2:?No pattern given}"
+  _last=''
+  _found=0
+  for _item in "${_arr[@]}"; do
+    if [[ "${_item}" = ${_pattern} ]]; then
+      _last="${_item}"
+      _found=1
+    fi
+  done
+  (( _found )) || return 1
+  printf -- '%s\n' "${_last}"
+}
+
+

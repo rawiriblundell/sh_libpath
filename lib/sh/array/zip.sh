@@ -17,31 +17,26 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_array_insert+x}" ] && return 0
-_SH_LOADED_array_insert=1
+[ -n "${_SH_LOADED_array_zip+x}" ] && return 0
+_SH_LOADED_array_zip=1
 
-# Insert one or more elements into a named array at a given index.
-# Existing elements at and after the index are shifted right.
-# Usage: array_insert arr_name index element [element ...]
+# Interleave elements from two arrays, pairing by index.
+# Stops at the shorter array's length.
+# Usage: array_zip arr_a arr_b
 # Example:
-#     $ myarr=( a b d e )
-#     $ array_insert myarr 2 c
-#     $ printf '%s\n' "${myarr[@]}"
-#     a
-#     b
-#     c
-#     d
-#     e
-array_insert() {
-  local -n _arr="${1:?No array name given}"
-  local _idx
-  local -a _new_arr
-  _idx="${2:?No index given}"
-  shift 2
-  _new_arr=(
-    "${_arr[@]:0:${_idx}}"
-    "${@}"
-    "${_arr[@]:${_idx}}"
-  )
-  _arr=( "${_new_arr[@]}" )
+#     $ keys=( a b c )
+#     $ vals=( 1 2 3 )
+#     $ array_zip keys vals
+#     a 1
+#     b 2
+#     c 3
+array_zip() {
+  local -n _arr_a="${1:?No first array name given}"
+  local -n _arr_b="${2:?No second array name given}"
+  local _i _len
+  _len="${#_arr_a[@]}"
+  (( ${#_arr_b[@]} < _len )) && _len="${#_arr_b[@]}"
+  for (( _i = 0; _i < _len; _i++ )); do
+    printf -- '%s %s\n' "${_arr_a[_i]}" "${_arr_b[_i]}"
+  done
 }

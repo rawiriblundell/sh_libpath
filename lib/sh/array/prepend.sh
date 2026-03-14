@@ -17,22 +17,22 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_array_add+x}" ] && return 0
-_SH_LOADED_array_add=1
+[ -n "${_SH_LOADED_array_prepend+x}" ] && return 0
+_SH_LOADED_array_prepend=1
 
-# Append one or more elements to a named array.
-# Usage: array_append arr_name element [element ...]
+# Prepend one or more elements to the front of a named array.
+# Usage: array_prepend arr_name element [element ...]
 # Example:
-#     $ myarr=( a b c )
-#     $ array_append myarr d e
+#     $ myarr=( c d e )
+#     $ array_prepend myarr a b
 #     $ printf '%s\n' "${myarr[@]}"
 #     a
 #     b
 #     c
 #     d
 #     e
-array_append() {
+array_prepend() {
   local -n _arr="${1:?No array name given}"
   shift
-  _arr+=( "${@}" )
+  _arr=( "${@}" "${_arr[@]}" )
 }

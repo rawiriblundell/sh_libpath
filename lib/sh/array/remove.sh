@@ -41,3 +41,61 @@ array_remove() {
   done
   _arr=( "${_new_arr[@]}" )
 }
+
+# Remove and print the last element of a named array.
+# Usage: array_pop arr_name
+# Example:
+#     $ myarr=( a b c )
+#     $ array_pop myarr
+#     c
+#     $ printf '%s\n' "${myarr[@]}"
+#     a
+#     b
+array_pop() {
+  local -n _arr="${1:?No array name given}"
+  local _last
+  _last="${_arr[-1]}"
+  printf -- '%s\n' "${_last}"
+  _arr=( "${_arr[@]:0:$(( ${#_arr[@]} - 1 ))}" )
+}
+
+# Remove elements from a named array at a given position, optionally inserting replacements.
+# Prints the removed elements.
+# Usage: array_splice arr_name start [delete_count [element ...]]
+# Example:
+#     $ myarr=( a b c d e )
+#     $ array_splice myarr 1 2
+#     b
+#     c
+#     $ printf '%s\n' "${myarr[@]}"
+#     a
+#     d
+#     e
+array_splice() {
+  local -n _arr="${1:?No array name given}"
+  local _start _count _i
+  local -a _removed _inserts _new_arr
+  _start="${2:?No start index given}"
+  _count="${3:-${#_arr[@]}}"
+  _inserts=()
+  (( $# > 3 )) && _inserts=( "${@:4}" )
+
+  (( _start < 0 )) && (( _start = ${#_arr[@]} + _start ))
+  (( _start < 0 )) && _start=0
+  (( _start > ${#_arr[@]} )) && _start=${#_arr[@]}
+  (( _count < 0 )) && _count=0
+  (( _start + _count > ${#_arr[@]} )) && (( _count = ${#_arr[@]} - _start ))
+
+  _removed=()
+  for (( _i = _start; _i < _start + _count; _i++ )); do
+    _removed+=( "${_arr[_i]}" )
+  done
+
+  _new_arr=(
+    "${_arr[@]:0:${_start}}"
+    "${_inserts[@]+"${_inserts[@]}"}"
+    "${_arr[@]:$(( _start + _count ))}"
+  )
+  _arr=( "${_new_arr[@]}" )
+  printf -- '%s\n' "${_removed[@]+"${_removed[@]}"}"
+}

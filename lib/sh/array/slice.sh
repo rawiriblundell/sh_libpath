@@ -104,22 +104,45 @@ array_slice() {
   esac
 }
 
-# >>> nums = [1, 3, 5, 7, 8, 13, 20]
+# Print the element at index n in a named array (supports negative indices).
+# Pass --random as the index to select a random element.
+# Usage: array_at arr_name n|--random
+# Example:
+#     $ myarr=( a b c d e )
+#     $ array_at myarr -1
+#     e
+#     $ array_at myarr --random
+#     c
+array_at() {
+  local -n _arr="${1:?No array name given}"
+  local _idx
+  case "${2:?No index given}" in
+    (--random) (( _idx = RANDOM % ${#_arr[@]} )) ;;
+    (*)        _idx="${2}" ;;
+  esac
+  printf -- '%s\n' "${_arr[${_idx}]}"
+}
 
-# >>> nums[3]   # no slicing
-# 7
-# >>> nums[:3]  # from index 0 (inclusive) until index 3 (exclusive)
-# [1, 3, 5]
-# >>> nums[1:5]
-# [3, 5, 7, 8]
-# >>> nums[-3:]
-# [8, 13, 20]
+# Print the first n elements of a named array.
+# Usage: array_head arr_name [n]
+array_head() {
+  local -n _arr="${1:?No array name given}"
+  local _n _i
+  _n="${2:-1}"
+  for (( _i = 0; _i < _n && _i < ${#_arr[@]}; _i++ )); do
+    printf -- '%s\n' "${_arr[_i]}"
+  done
+}
 
-# >>> nums[3:]
-# [7, 8, 13, 20]
-# >>> nums[3::] # == nums[3:]
-# [7, 8, 13, 20]
-# >>> nums[::3] # starting at index 0 and getting every third element
-# [1, 7, 20]
-# >>> nums[1:5:2] # from index 1 until index 5 and getting every second element
-# [3, 7]
+# Print the last n elements of a named array.
+# Usage: array_tail arr_name [n]
+array_tail() {
+  local -n _arr="${1:?No array name given}"
+  local _n _start _i
+  _n="${2:-1}"
+  (( _start = ${#_arr[@]} - _n ))
+  (( _start < 0 )) && _start=0
+  for (( _i = _start; _i < ${#_arr[@]}; _i++ )); do
+    printf -- '%s\n' "${_arr[_i]}"
+  done
+}

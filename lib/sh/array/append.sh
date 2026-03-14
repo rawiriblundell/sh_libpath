@@ -17,31 +17,22 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_array_insert+x}" ] && return 0
-_SH_LOADED_array_insert=1
+[ -n "${_SH_LOADED_array_append+x}" ] && return 0
+_SH_LOADED_array_append=1
 
-# Insert one or more elements into a named array at a given index.
-# Existing elements at and after the index are shifted right.
-# Usage: array_insert arr_name index element [element ...]
+# Append one or more elements to a named array.
+# Usage: array_append arr_name element [element ...]
 # Example:
-#     $ myarr=( a b d e )
-#     $ array_insert myarr 2 c
+#     $ myarr=( a b c )
+#     $ array_append myarr d e
 #     $ printf '%s\n' "${myarr[@]}"
 #     a
 #     b
 #     c
 #     d
 #     e
-array_insert() {
+array_append() {
   local -n _arr="${1:?No array name given}"
-  local _idx
-  local -a _new_arr
-  _idx="${2:?No index given}"
-  shift 2
-  _new_arr=(
-    "${_arr[@]:0:${_idx}}"
-    "${@}"
-    "${_arr[@]:${_idx}}"
-  )
-  _arr=( "${_new_arr[@]}" )
+  shift
+  _arr+=( "${@}" )
 }
