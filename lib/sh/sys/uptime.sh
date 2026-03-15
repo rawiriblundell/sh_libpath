@@ -72,7 +72,7 @@ case $(uname -s) in
             unset -v _uptime _up_hours _up_mins
         }
     ;;
-    ("Darwin")
+    ("Darwin"|"NetBSD"|"OpenBSD")
         get_uptime() {
             printf -- '%s\n' "$(get_epoch) - $(sysctl -n kern.boottime | cut -d' ' -f 4,7 | tr ',' '.' | tr -d ' ')" | bc
         }
@@ -100,16 +100,6 @@ case $(uname -s) in
             else
                 printf -- '%s\n' "$(($(get_epoch) - $(stat -c %Z /dev/pts)))"
             fi    
-        }
-    ;;
-    ("NetBSD")
-        get_uptime() {
-            printf -- '%s\n' "$(get_epoch) - $(sysctl -n kern.boottime | cut -d' ' -f 4,7 | tr ',' '.' | tr -d ' ')" | bc
-        }
-    ;;
-    ("OpenBSD")
-        get_uptime() {
-            printf -- '%s\n' "$(get_epoch) - $(sysctl -n kern.boottime | cut -d' ' -f 4,7 | tr ',' '.' | tr -d ' ')" | bc
         }
     ;;
     ("SunOS"|"solaris")
