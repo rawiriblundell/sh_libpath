@@ -21,7 +21,7 @@
 _SHELLAC_LOADED_sys_os=1
 
 # Detect the OS and populate OS information variables.
-# Sets OSSTR, OSVER, OSTYPE, OS, KERNEL, RELEASE, MACHTYPE, HOSTTYPE, MACH,
+# Sets OSSTR, OSVER, OS, KERNEL, RELEASE, MACHTYPE, HOSTTYPE, MACH,
 # OSBOOTTIME, and where applicable: DistroBasedOn, DistroPkgType,
 # DistroFullName, DistroCodename, DistroRevision.
 # Sets LC_ALL=C and LANG=C for consistent parsing.
@@ -38,7 +38,6 @@ OS=$(uname -s)
 case "${OS}" in
     ("AIX")
         OSSTR="${OS} $(oslevel) ($(oslevel -r))"
-        [ -z "${OSTYPE}" ] && OSTYPE=aix
         [ -z "${OSSTR}" ] && OSSTR=aix
         #OSVER=
     ;;
@@ -62,7 +61,6 @@ case "${OS}" in
         : "${XDG_TEMPLATES_DIR:-$HOME/Templates}"
         : "${XDG_PUBLICSHARE_DIR:-$HOME/Public}"
 
-        [ -z "${OSTYPE}" ] && OSTYPE=mac
         # For macOS, sw_vers output:
         # ProductName:    Mac OS X
         # ProductVersion: 10.2.3
@@ -79,13 +77,11 @@ case "${OS}" in
         #OSVER=
     ;;
     ("HPUX")
-        [ -z "${OSTYPE}" ] && OSTYPE=hpux
         OSSTR=hpux
         #OSVER=
     ;;
     ("Linux"|"linux-gnu"|"GNU"*)
         OSSTR=linux
-        [ -z "${OSTYPE}" ] && OSTYPE=linux-gnu
         #OSVER=
         : "${XDG_DATA_HOME:-$HOME/.local/share}"
         : "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
@@ -161,7 +157,6 @@ case "${OS}" in
         #OSVER=
     ;;
     ("SunOS"|"solaris")
-        [ -z "${OSTYPE}" ] && OSTYPE=solaris
         ARCH=$(uname -p)
         OSSTR=$(uname -a)
         export ARCH OSSTR
@@ -169,21 +164,20 @@ case "${OS}" in
         #OSVER=
     ;;
     (*"BSD"|*"bsd"|"DragonFly"|"Bitrig")
-        [ -z "${OSTYPE}" ] && OSTYPE=bsd
         OSSTR=bsd
         #OSVER=
     ;;
     ("CYGWIN"* | "MSYS"* | "MINGW"*)
-        [ -z "${OSTYPE}" ] && OSTYPE=Windows
+        OSSTR=windows
     ;;
     ("Haiku")
-        [ -z "${OSTYPE}" ] && OSTYPE=Haiku
+        OSSTR=haiku
     ;;
     ("MINIX")
-        [ -z "${OSTYPE}" ] && OSTYPE=MINIX
+        OSSTR=minix
     ;;
     ("IRIX64")
-        [ -z "${OSTYPE}" ] && OSTYPE=IRIX
+        OSSTR=irix
     ;;
     (*)
         OSSTR=$(uname -s)
