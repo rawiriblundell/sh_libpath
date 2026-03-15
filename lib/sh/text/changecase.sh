@@ -227,3 +227,76 @@ altcaps() {
 
     printf -- '%s\n' ""
 }
+
+# @description Convert a string to lowercase. Requires bash 4+.
+#
+# @arg $@ string The string to convert
+#
+# @stdout Lowercase string
+# @exitcode 0 Always
+str_to_lower() {
+  local _input
+  _input="${*}"
+  printf -- '%s\n' "${_input,,}"
+}
+
+# @description Convert a string to uppercase. Requires bash 4+.
+#
+# @arg $@ string The string to convert
+#
+# @stdout Uppercase string
+# @exitcode 0 Always
+str_to_upper() {
+  local _input
+  _input="${*}"
+  printf -- '%s\n' "${_input^^}"
+}
+
+# @description Uppercase the first character of a string. Requires bash 4+.
+#
+# @arg $@ string The string to convert
+#
+# @example
+#   str_ucfirst "hello world"   # => Hello world
+#
+# @stdout String with first character uppercased
+# @exitcode 0 Always
+str_ucfirst() {
+  local _input
+  _input="${*}"
+  printf -- '%s\n' "${_input^}"
+}
+
+# @description Lowercase the first character of a string. Requires bash 4+.
+#
+# @arg $@ string The string to convert
+#
+# @example
+#   str_lcfirst "Hello World"   # => hello World
+#
+# @stdout String with first character lowercased
+# @exitcode 0 Always
+str_lcfirst() {
+  local _input
+  _input="${*}"
+  printf -- '%s\n' "${_input,}"
+}
+
+# @description Uppercase the first character of each word. Requires bash 4+.
+#
+# @arg $@ string The string to convert
+#
+# @example
+#   str_ucwords "hello world"   # => Hello World
+#
+# @stdout String with first character of each word uppercased
+# @exitcode 0 Always
+str_ucwords() {
+  local _input _word _result
+  _input="${*}"
+  _result=''
+  for _word in ${_input}; do
+    _result="${_result}${_result:+ }${_word^}"
+  done
+  printf -- '%s\n' "${_result}"
+}
