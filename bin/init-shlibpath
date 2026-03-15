@@ -125,6 +125,8 @@ _ls_shlibs_libraries() {
 
   for _element in "${SH_LIBPATH_ARRAY[@]}"; do
     while read -r _library_file; do
+      # Skip redirect stubs — they are location aliases, not real libraries
+      grep -qm1 '^# @redirect' "${_library_file}" 2>/dev/null && continue
       _rel_path="${_library_file#"${_element}/"}"
       _category="${_rel_path%/*}"
       [[ "${_category}" = "${_rel_path}" ]] && _category='.'
