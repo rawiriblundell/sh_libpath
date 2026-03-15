@@ -66,18 +66,18 @@ include() {
     local _subdir
     local _load_target
 
-    sh_stack_add -2 "Entering 'include()' and processing ${#} found arg(s): '${*}'"
+    sh_stack_add "Entering 'include()' and processing ${#} found arg(s): '${*}'"
 
     # Ensure that SH_LIBPATH has some substance, otherwise why bother?
     if (( "${#SH_LIBPATH}" == 0 )); then
-        sh_stack_dump
+        _shellac_stack dump
         printf -- 'include: %s\n' "SH_LIBPATH appears to be empty" >&2
         return 1
     fi
 
     # Ensure that we have an arg to parse
     if (( "${#}" == 0 )); then
-        sh_stack_dump
+        _shellac_stack dump
         printf -- 'include: %s\n' "No args given" >&2
         return 1
     fi
@@ -86,29 +86,29 @@ include() {
 
     # Is it a full path to a readable file?
     # Example: include /opt/something/specific/library.sh
-    sh_stack_add -2 "Is '${_include_target}' a full path to a file?"
+    sh_stack_add "Is '${_include_target}' a full path to a file?"
     if [ -f "${_include_target}" ]; then
-        sh_stack_add -3 "Full path: '${_include_target}' exists.  Is it readable?"
+        sh_stack_add "Full path: '${_include_target}' exists.  Is it readable?"
         if [ -r "${_include_target}" ]; then
             _include_is_loaded "${_include_target}" && return 0
-            sh_stack_add -4 "Full path: '${_include_target}' readable.  Loading."
+            sh_stack_add "Full path: '${_include_target}' readable.  Loading."
             # shellcheck disable=SC1090
             if . "${_include_target}"; then
                 return 0
             else
-                sh_stack_add -5 "Full path: '${_include_target}' readable but not loadable.  Failing."
-                sh_stack_dump
+                sh_stack_add "Full path: '${_include_target}' readable but not loadable.  Failing."
+                _shellac_stack dump
                 printf -- 'include: %s\n' "Error while includeing '${_include_target}'" >&2
                 return 1
             fi
         else
-            sh_stack_add -4 "Full path: '${_include_target}' unreadable.  Failing."
-            sh_stack_dump
+            sh_stack_add "Full path: '${_include_target}' unreadable.  Failing."
+            _shellac_stack dump
             printf -- 'include: %s\n' "Insufficient permissions while includeing '${_include_target}'" >&2
             return 1
         fi
     fi
-    sh_stack_add -2 "'${_include_target}' is apparently not a full path to a file."
+    sh_stack_add "'${_include_target}' is apparently not a full path to a file."
 
     # If it's not a full path, we work through a sequence of tests:
     # Is it a subdir within SH_LIBPATH e.g. include text
@@ -118,43 +118,43 @@ include() {
         # Is the given target a subdir within $_element?  If so, load everything within that path.
         # Note: we only load everything with a .sh extension
         # We don't want to try loading library.zsh into bash, for example
-        sh_stack_add -2 "Is '${_include_target}' a sub-directory within ${_element}?"
+        sh_stack_add "Is '${_include_target}' a sub-directory within ${_element}?"
         if [ -d "${_element}/${_include_target}" ]; then
             _subdir="${_element}/${_include_target}"
-            sh_stack_add -3 "Loading all libraries and functions from '${_subdir}'"
+            sh_stack_add "Loading all libraries and functions from '${_subdir}'"
             for _load_target in "${_subdir}"/*.sh; do
                 _include_is_loaded "${_load_target}" && continue
                 if [ -r "${_load_target}" ]; then
                     # shellcheck disable=SC1090
                     . "${_load_target}" || {
-                        sh_stack_dump
+                        _shellac_stack dump
                         printf -- 'include: %s\n' "Failed to load '${_load_target}'" >&2
                         return 1
                     }
                 else
-                    sh_stack_dump
+                    _shellac_stack dump
                     printf -- 'include: %s\n' "Insufficient permissions while includeing '${_load_target}'" >&2
                     return 1
                 fi
             done
             return 0
         fi
-        sh_stack_add -2 "'${_include_target}' is apparently not a sub-directory within ${_element}."
+        sh_stack_add "'${_include_target}' is apparently not a sub-directory within ${_element}."
 
         # With the above scenario out of the way, we now assess the following in order:
         # include subdir/library.extension (e.g. include text/tolower.sh)
         #     This scenario allows us to load shell specific libs e.g. text/tolower.zsh
         # include subdir/library           (e.g. include text/tolower)
         #     This scenario defaults to the .sh extension i.e. text/tolower = text/tolower.sh
-        sh_stack_add -2 "Is '${_include_target}' a relative path within ${_element}?"
+        sh_stack_add "Is '${_include_target}' a relative path within ${_element}?"
         if [ -f "${_element}/${_include_target}" ] || [ -f "${_element}/${_include_target}.sh" ]; then
-            sh_stack_add -3 "Relative path: '${_element}/${_include_target}' exists.  Is it readable?"
+            sh_stack_add "Relative path: '${_element}/${_include_target}' exists.  Is it readable?"
             if [ -r "${_element}/${_include_target}" ]; then
                 _load_target="${_element}/${_include_target}"
             elif [ -r "${_element}/${_include_target}.sh" ]; then
                 _load_target="${_element}/${_include_target}.sh"
             else
-                sh_stack_dump
+                _shellac_stack dump
                 printf -- 'include: %s\n' "Insufficient permissions while includeing '${_include_target}' from '${_element}'" >&2
                 return 1
             fi
@@ -168,12 +168,12 @@ include() {
             }
             return 0
         else
-            sh_stack_add -2 "'${_include_target}' is apparently not a relative path within ${_element}."
+            sh_stack_add "'${_include_target}' is apparently not a relative path within ${_element}."
         fi
     done
 
     # If we're here, then 'include()' wasn't called correctly
-    sh_stack_dump
+    _shellac_stack dump
     printf -- 'include: %s\n' "Unspecified error while executing 'include ${*}'" >&2
     return 1
 }

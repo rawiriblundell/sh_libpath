@@ -12,9 +12,7 @@ Within your functions, use `local` where possible to contain the function variab
 
 ## Preamble
 
-This started as a comment on Reddit.  I let it sit for several days without posting and attended to other things.  By the time I came across the open browser tab, the time to hit the reply button had slipped away.  I mean I could have hit reply, but by this point it would have been weird.
-
-Still, this comes up enough that I may as well solidify my thoughts into words, so that I can just post a link instead.  You're probably reading this because I sent you this link.
+Variable scoping in Bourne-family shells surprises programmers coming from other languages, and clobbering a reserved variable like `PATH` is a common and painful mistake.  This document covers the scoping model, the conventions that emerge from it, and the defensive practices that prevent those bugs.
 
 ## What are scopes
 
@@ -78,9 +76,14 @@ printf -- '%s!\n' "${FOO}, ${BAR}${BAZ}"
 And the output would be:
 
 ```bash
+# The first print, no vars set yet
 hello, !
+# The first printf within inside_scope
 hello, world!
-hello, worldmy baby, hello my honey, hello my ragtime gal!
+# The second printf within inside_scope
+# Note that BAR=world here, so "${BAR}${BAZ}" emits "worldmy"
+hello, worldmy baby, hello, my honey, hello, my ragtime gal!
+# The last printf, showing that BAR is contained within inside_scope
 hello, my baby, hello, my honey, hello, my ragtime gal!
 ```
 
@@ -88,7 +91,39 @@ So as we work through the script, we can see that `FOO` remains constant (and co
 
 ### Lexical vs Dynamic scopes
 
-Some programming languages use lexical scope (a.k.a. static scope), and others use dynamic scope.  Again, I will not be exhaustive here and you can read more thoroughly about this elsewhere.
+Most modern programming languages (Python, JavaScript, Go) use **lexical scope** (a.k.a. static scope): a function can only access variables from its own scope and the scopes that enclose it *at the point it was written*, regardless of how it is called.
+
+Bash uses **dynamic scope**: a function can access variables from any of its callers at runtime.  Without `local`, any variable a function sets is visible to everything that function calls, and any variable a caller has set is readable by the function — whether intended or not.
+
+```bash
+outer() {
+    result="original"
+    inner
+    printf -- '%s\n' "${result}"  # prints "clobbered"
+}
+
+inner() {
+    result="clobbered"  # no local — modifies outer's variable
+}
+```
+
+This is the core reason `local` exists.  Declaring a variable `local` restricts it to the function that declares it, emulating lexical-scoping behaviour:
+
+```bash
+outer() {
+    local result
+    result="original"
+    inner
+    printf -- '%s\n' "${result}"  # prints "original"
+}
+
+inner() {
+    local result
+    result="clobbered"  # isolated to inner()
+}
+```
+
+Dynamic scoping can be exploited deliberately — some patterns pass data between functions via shared variables rather than arguments — but accidental reliance on it is a common source of bugs.  The safe default is: always declare `local` for function variables.
 
 ## Problem
 
@@ -140,7 +175,7 @@ While there are several levels of scope depending on your programming language c
 
 - Global scope.  This encapsulates the following scopes:
   - Environment.  Usually exported and provided by the environment.  Example: `$PATH`
-  - Shell scope.  Usually unexpored and provided by the shell itself.  Example: `$RANDOM`
+  - Shell scope.  Usually unexported and provided by the shell itself.  Example: `$RANDOM`
 - Script scope
 - Function scope
 
@@ -177,15 +212,12 @@ While there are several levels of scope depending on your programming language c
 > ....
 > It is unwise to conflict with certain variables that are frequently exported by widely used command interpreters and applications
 
-
-
-
 Through the use of naming conventions on top of the scopes that are present, we can enact a degree of "pseudo-scoping", and avoiding UPPERCASE variables at the script level is the simplest way to achieve this.  This gives us a four scope model:
 
-* Shell: `UPPERCASE`
-* Environment: `UPPERCASE`
-* Script/File/Program: `lower_snake_case`
-* Function: `lower_snake_case`, scoped locally with `local` or `typeset`
+- Shell: `UPPERCASE`
+- Environment: `UPPERCASE`
+- Script/File/Program: `lower_snake_case`
+- Function: `lower_snake_case`, scoped locally with `local` or `typeset`
 
 Within the script you can still change your env vars if you need to, and that falls under the guideline of knowing why and when to use UPPERCASE.  You can also interact with your shell vars e.g. `RANDOM=seed`.
 
@@ -193,35 +225,43 @@ Whether you want to refer to this practice as namespacing brings us into the who
 
 There's another convention we can use to provide a pseudo-scope in this way.  Remember when I said that older shells don't support localising variables within functions?  Just pick a naming standard and stick with it e.g.
 
-    my_function() {
-      local var
-      var=blah
-      printf -- '%s\n' "${var}"
-    }
+```bash
+my_function() {
+    local var
+    var=blah
+    printf -- '%s\n' "${var}"
+}
+```
 
 Might instead look like this using underscore prefixed var names:
 
-    my_function() {
-      _var=blah
-      printf -- '%s\n' "${_var}"
-      unset -v _var
-    }
+```bash
+my_function() {
+    _var=blah
+    printf -- '%s\n' "${_var}"
+    unset -v _var
+}
+```
 
 Some people might even go to the effort of putting the function name into the vars e.g.
 
-    my_function() {
-      my_function_var=blah
-      printf -- '%s\n' "${my_function_var}"
-      unset -v my_function_var
-    }
+```bash
+my_function() {
+    my_function_var=blah
+    printf -- '%s\n' "${my_function_var}"
+    unset -v my_function_var
+}
+```
 
 I can understand the argument for that i.e. provenance, but OTOH I think it risks a PowerShell level of obnoxious verbosity.
 
 And that gets us on to the next point.  There is another convention for avoiding variable collisions in the environment scope, and that's prefixing your vars.  Again, if you want to refer to this as namespacing, that's up to you and your interpretation of scopes vs namespaces.  But let's say, for example, you have a service named `pants` and a few scripts that interact with it e.g. `pants-ctl`, `pants-log` etc.  You might have a `.pantsenv` file that when imported to the environment, sets the following env vars:
 
-    PANTS_VAR1=foo
-    PANTS_VAR2=bar
-    PANTS_VAR3=baz
+```bash
+PANTS_VAR1=foo
+PANTS_VAR2=bar
+PANTS_VAR3=baz
+```
 
 With those set in your environment, your `pants-*` scripts will inherit and work with them.  `aws-cli` is a good example of this, with its various `AWS_*` environment variables.
 

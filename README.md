@@ -1,6 +1,6 @@
 # SHELLAC
 
-Making shell scripts more robust and readable with libraries
+The missing library ecosystem for shell
 
 ## TL;DR?
 

@@ -34,70 +34,108 @@ if [ "${SHELLAC_LOADED}" -eq 0 ]; then
   exit 1
 fi
 
-# TODO: Linux: Test if SH_LIBPATH is defined in /etc/profile.d/00_SH_LIBPATH
+# Record init time for relative timestamps in the stack trace
+SHELLAC_INIT_TIME="${SECONDS}"
 
 # Start up SH_STACK
+# bashism: arrays require bash/ksh/zsh; not available in POSIX sh
 SH_STACK=()
 sh_stack_add() {
-  _sh_stack_depth='=>'
-  case "${1}" in
-    (-[0-9]*)
-      _sh_stack_i=1
-      while (( _sh_stack_i < "${1/-/}" )); do
-        _sh_stack_depth="${_sh_stack_depth}>"
-        _sh_stack_i=$(( _sh_stack_i + 1 ))
-      done
-      shift 1
-    ;;
-  esac
-  SH_STACK=( "${SH_STACK[@]}" "$(date +%Y%m%d_%H:%M:%S_%Z): ${_sh_stack_depth} ${*}" )
-  unset -v _sh_stack_depth _sh_stack_i
+  local _elapsed
+  local _depth
+  local _arrow
+  local _i
+
+  _elapsed=$(( SECONDS - SHELLAC_INIT_TIME ))
+
+  # bashism: FUNCNAME array is bash/zsh-specific
+  # depth = number of call frames above sh_stack_add itself
+  _depth=$(( ${#FUNCNAME[@]} - 1 ))
+  (( _depth < 0 )) && _depth=0
+  (( _depth > 8 )) && _depth=8
+
+  _arrow='=>'
+  _i=0
+  # bashism: (( )) arithmetic compound command; not POSIX sh
+  while (( _i < _depth )); do
+    _arrow="${_arrow}>"
+    (( _i += 1 ))
+  done
+
+  SH_STACK+=( "$(printf -- '+%04d: %s %s' "${_elapsed}" "${_arrow}" "${*}")" )
 }
 sh_stack_add "START"
 
-sh_stack_dump() {
-  printf -- '%s\n' "" "${SH_STACK[@]}"
-  [ -t 0 ] && return 1
-}
+# XDG config paths — defined here so add-libpath and the discovery block share them
+SHELLAC_CONFIG_DIR="${XDG_CONFIG_HOME:-${HOME}/.config}/shellac"
+SHELLAC_PATHS_CONF="${SHELLAC_CONFIG_DIR}/paths.conf"
+SHELLAC_CONFPATHS_CONF="${SHELLAC_CONFIG_DIR}/confpaths.conf"
 
-# Potential basepaths for where our libraries might be placed
-POSSIBLE_SH_LIBPATHS=(
-  "${HOME}"/git/shellac/lib/sh
-  "${HOME}"/.local/lib/sh
-  /usr/local/lib/sh
-  /opt/shellac/lib/sh
-  /usr/share/misc
-)
+# If SH_LIBPATH is already defined in the environment, use it directly.
+# This allows a site admin to pre-configure SH_LIBPATH via e.g.
+# /etc/profile.d/00-shellac.sh, which can also add /opt/shellac/bin to PATH.
+if [ -n "${SH_LIBPATH}" ]; then
+  sh_stack_add "SH_LIBPATH: already set in environment, skipping discovery"
+  # bashism: 'read -ra' and herestring require bash; acceptable as this file requires bash
+  IFS=':' read -ra SH_LIBPATH_ARRAY <<< "${SH_LIBPATH}"
+else
+  # Potential basepaths for where our libraries might be placed
+  POSSIBLE_SH_LIBPATHS=(
+    "${XDG_DATA_HOME:-${HOME}/.local/share}/shellac/lib/sh"
+    "${HOME}/.local/lib/sh"
+    /opt/shellac/lib/sh
+    /usr/local/lib/sh
+  )
 
-# we dynamically build SH_LIBPATH as a var and an array
-unset -v SH_LIBPATH SH_LIBPATH_ARRAY
-for _path in "${POSSIBLE_SH_LIBPATHS[@]}"; do
-  if [ -d "${_path}" ]; then
-    sh_stack_add "SH_LIBPATH: checking if ${_path} exists... found!"
-    SH_LIBPATH="${SH_LIBPATH}:${_path}"
-    SH_LIBPATH_ARRAY+=( "${_path}" )
-  else
-    sh_stack_add "SH_LIBPATH: checking if ${_path} exists... not found."
+  # Append shellac/lib/sh under each dir in XDG_DATA_DIRS
+  # bashism: 'read -ra' and herestring for splitting colon-separated var
+  IFS=':' read -ra _xdg_dirs <<< "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+  for _xdg_dir in "${_xdg_dirs[@]}"; do
+    POSSIBLE_SH_LIBPATHS+=( "${_xdg_dir}/shellac/lib/sh" )
+  done
+  unset -v _xdg_dirs _xdg_dir
+
+  # Append any paths from the user's paths.conf
+  if [ -r "${SHELLAC_PATHS_CONF}" ]; then
+    while IFS= read -r _conf_path; do
+      case "${_conf_path}" in
+        ('#'*|'') continue ;;
+      esac
+      POSSIBLE_SH_LIBPATHS+=( "${_conf_path}" )
+    done < "${SHELLAC_PATHS_CONF}"
+    unset -v _conf_path
   fi
-done
-unset -v _path
-# Remove any leading colons from the construction process and export
-SH_LIBPATH="${SH_LIBPATH#:}"
 
-# If FPATH or fpath are present in the environment, append them
-if (( ${#FPATH} > 0 )); then
-  SH_LIBPATH="${SH_LIBPATH}:${FPATH}"
+  # we dynamically build SH_LIBPATH as a var and an array
+  unset -v SH_LIBPATH SH_LIBPATH_ARRAY
+  for _path in "${POSSIBLE_SH_LIBPATHS[@]}"; do
+    if [ -d "${_path}" ]; then
+      sh_stack_add "SH_LIBPATH: checking if ${_path} exists... found!"
+      SH_LIBPATH="${SH_LIBPATH}:${_path}"
+      SH_LIBPATH_ARRAY+=( "${_path}" )
+    else
+      sh_stack_add "SH_LIBPATH: checking if ${_path} exists... not found."
+    fi
+  done
+  unset -v _path
+  # Remove any leading colons from the construction process and export
+  SH_LIBPATH="${SH_LIBPATH#:}"
+
+  # If FPATH or fpath are present in the environment, append them
+  if (( ${#FPATH} > 0 )); then
+    SH_LIBPATH="${SH_LIBPATH}:${FPATH}"
+  fi
+
+  if (( ${#fpath} > 0 )); then
+    SH_LIBPATH="${SH_LIBPATH}:${fpath}"
+  fi
+
+  # Now, de-duplicate
+  SH_LIBPATH=$(printf -- '%s\n' "${SH_LIBPATH}" | tr ':' '\n' | awk '!s[$0]++' | paste -sd ':' -)
+
+  # Finally, export
+  export SH_LIBPATH
 fi
-
-if (( ${#fpath} > 0 )); then
-  SH_LIBPATH="${SH_LIBPATH}:${fpath}"
-fi
-
-# Now, de-duplicate
-SH_LIBPATH=$(printf -- '%s\n' "${SH_LIBPATH}" | tr ':' '\n' | awk '!s[$0]++' | paste -sd ':' -)
-
-# Finally, export
-export SH_LIBPATH
 
 # Check the length of the var again and fail out if it's empty
 if (( "${#SH_LIBPATH}" == 0 )); then
@@ -106,6 +144,64 @@ if (( "${#SH_LIBPATH}" == 0 )); then
 fi
 
 sh_stack_add "SH_LIBPATH: ${SH_LIBPATH}"
+
+# If SH_CONFPATH is already defined in the environment, use it directly.
+# Config paths are ordered system→user so later sources override earlier ones.
+if [ -n "${SH_CONFPATH}" ]; then
+  sh_stack_add "SH_CONFPATH: already set in environment, skipping discovery"
+  # bashism: 'read -ra' and herestring for splitting colon-separated var
+  IFS=':' read -ra SH_CONFPATH_ARRAY <<< "${SH_CONFPATH}"
+else
+  # Config search paths, ordered system→user (ascending precedence).
+  # Unlike SH_LIBPATH, these are plain directories — no shellac-specific subdirs.
+  POSSIBLE_SH_CONFPATHS=(
+    /etc
+    /opt/shellac/etc
+  )
+
+  # Append each dir in XDG_CONFIG_DIRS (default /etc/xdg)
+  # bashism: 'read -ra' and herestring for splitting colon-separated var
+  IFS=':' read -ra _xdg_config_dirs <<< "${XDG_CONFIG_DIRS:-/etc/xdg}"
+  for _xdg_config_dir in "${_xdg_config_dirs[@]}"; do
+    POSSIBLE_SH_CONFPATHS+=( "${_xdg_config_dir}" )
+  done
+  unset -v _xdg_config_dirs _xdg_config_dir
+
+  # User XDG config dir last — highest precedence
+  POSSIBLE_SH_CONFPATHS+=( "${XDG_CONFIG_HOME:-${HOME}/.config}" )
+
+  # Append any paths from the user's confpaths.conf
+  if [ -r "${SHELLAC_CONFPATHS_CONF}" ]; then
+    while IFS= read -r _conf_path; do
+      case "${_conf_path}" in
+        ('#'*|'') continue ;;
+      esac
+      POSSIBLE_SH_CONFPATHS+=( "${_conf_path}" )
+    done < "${SHELLAC_CONFPATHS_CONF}"
+    unset -v _conf_path
+  fi
+
+  unset -v SH_CONFPATH SH_CONFPATH_ARRAY
+  for _path in "${POSSIBLE_SH_CONFPATHS[@]}"; do
+    if [ -d "${_path}" ]; then
+      sh_stack_add "SH_CONFPATH: checking if ${_path} exists... found!"
+      SH_CONFPATH="${SH_CONFPATH}:${_path}"
+      SH_CONFPATH_ARRAY+=( "${_path}" )
+    else
+      sh_stack_add "SH_CONFPATH: checking if ${_path} exists... not found."
+    fi
+  done
+  unset -v _path
+  SH_CONFPATH="${SH_CONFPATH#:}"
+
+  # De-duplicate
+  SH_CONFPATH=$(printf -- '%s\n' "${SH_CONFPATH}" | tr ':' '\n' | awk '!s[$0]++' | paste -sd ':' -)
+
+  export SH_CONFPATH
+fi
+
+# An empty SH_CONFPATH is non-fatal; wants() still works with full paths
+sh_stack_add "SH_CONFPATH: ${SH_CONFPATH}"
 
 # Bootstrap core functions from the first SH_LIBPATH element that has them
 for _element in "${SH_LIBPATH_ARRAY[@]}"; do
@@ -122,7 +218,29 @@ done
 unset -v _element
 
 # @internal
+# Print or clear the shellac trace stack.
+_shellac_stack() {
+  local _subcmd
+  _subcmd="${1:-dump}"
+  shift 2>/dev/null
+
+  case "${_subcmd}" in
+    (dump)
+      printf -- '%s\n' "${SH_STACK[@]}"
+    ;;
+    (clear)
+      SH_STACK=()
+    ;;
+    (*)
+      printf -- 'shellac stack: unknown subcommand: %s\n' "${_subcmd}" >&2
+      return 1
+    ;;
+  esac
+}
+
+# @internal
 _is_function_loaded() {
+  # bashism: typeset -f is bash/ksh/zsh; not POSIX sh (declare -f is bash-only)
   typeset -f "${1:?No function defined}" >/dev/null
 }
 
@@ -143,18 +261,22 @@ _shellac_ls_libraries() {
       grep -qm1 '^# @redirect' "${_library_file}" 2>/dev/null && continue
       _rel_path="${_library_file#"${_element}/"}"
       _category="${_rel_path%/*}"
+      # bashism: [[ ]] conditional; not POSIX sh
       [[ "${_category}" = "${_rel_path}" ]] && _category='.'
       if [[ "${_category}" != "${_prev_category}" ]]; then
         printf -- '\n%s/\n' "${_category}"
         _prev_category="${_category}"
       fi
       _sentinel="_SHELLAC_LOADED_${_rel_path%.sh}"
+      # bashism: ${var//pattern/repl} pattern substitution; not POSIX sh
       _sentinel="${_sentinel//\//_}"
+      # bashism: ${!var} indirect expansion; bash-specific
       if [[ -n "${!_sentinel+x}" ]]; then
         printf -- '  %-40s %s\n' "${_rel_path##*/}" "(loaded)"
       else
         printf -- '  %s\n' "${_rel_path##*/}"
       fi
+    # bashism: < <() process substitution; not POSIX sh
     done < <(find "${_element}" -type f -name "*.sh" | sort)
   done
 }
@@ -176,6 +298,7 @@ _shellac_ls_functions() {
       _pending_desc=''
       _skip_next=0
       while IFS= read -r _line; do
+        # bashism: [[ ]] with glob/regex matching; not POSIX sh
         if [[ "${_line}" = '# @internal'* ]]; then
           _skip_next=1
           _pending_desc=''
@@ -185,6 +308,7 @@ _shellac_ls_functions() {
         elif [[ "${_line}" = '# @description' ]]; then
           _pending_desc=''
           _skip_next=0
+        # bashism: [[ =~ ]] regex match and BASH_REMATCH capture array; bash-specific
         elif [[ "${_line}" =~ ^[a-zA-Z][a-zA-Z0-9_]*\(\) ]]; then
           if (( ! _skip_next )); then
             _func_name="${BASH_REMATCH[0]%()}"
@@ -202,8 +326,112 @@ _shellac_ls_functions() {
           _skip_next=0
         fi
       done < "${_library_file}"
+    # bashism: < <() process substitution; not POSIX sh
     done < <(find "${_element}" -type f -name "*.sh" | sort)
   done
+}
+
+# @internal
+# Append a path to the shellac paths.conf config file.
+# Idempotent: silently skips if the path is already present.
+_shellac_add_libpath() {
+  local new_path
+  new_path="${1:?shellac add-libpath: no path provided}"
+
+  if [ ! -d "${SHELLAC_CONFIG_DIR}" ]; then
+    mkdir -p "${SHELLAC_CONFIG_DIR}" || {
+      printf -- 'shellac: failed to create %s\n' "${SHELLAC_CONFIG_DIR}" >&2
+      return 1
+    }
+  fi
+
+  if [ -f "${SHELLAC_PATHS_CONF}" ] && grep -qxF "${new_path}" "${SHELLAC_PATHS_CONF}" 2>/dev/null; then
+    printf -- 'shellac: %s is already in %s\n' "${new_path}" "${SHELLAC_PATHS_CONF}" >&2
+    return 0
+  fi
+
+  printf -- '%s\n' "${new_path}" >> "${SHELLAC_PATHS_CONF}" || {
+    printf -- 'shellac: failed to write to %s\n' "${SHELLAC_PATHS_CONF}" >&2
+    return 1
+  }
+  printf -- 'shellac: added %s to %s\n' "${new_path}" "${SHELLAC_PATHS_CONF}"
+}
+
+# @internal
+# Remove a path from the shellac paths.conf config file.
+_shellac_rm_libpath() {
+  local rm_path
+  rm_path="${1:?shellac rm-libpath: no path provided}"
+
+  if [ ! -f "${SHELLAC_PATHS_CONF}" ] || ! grep -qxF "${rm_path}" "${SHELLAC_PATHS_CONF}" 2>/dev/null; then
+    printf -- 'shellac: %s not found in %s\n' "${rm_path}" "${SHELLAC_PATHS_CONF}" >&2
+    return 1
+  fi
+
+  # Write to a tempfile then replace, to avoid clobbering on failure
+  local tmp_file
+  tmp_file="$(mktemp)" || {
+    printf -- 'shellac: failed to create temp file\n' >&2
+    return 1
+  }
+  trap 'rm -f "${tmp_file}"' EXIT
+
+  grep -vxF "${rm_path}" "${SHELLAC_PATHS_CONF}" > "${tmp_file}" && mv "${tmp_file}" "${SHELLAC_PATHS_CONF}" || {
+    printf -- 'shellac: failed to update %s\n' "${SHELLAC_PATHS_CONF}" >&2
+    return 1
+  }
+  printf -- 'shellac: removed %s from %s\n' "${rm_path}" "${SHELLAC_PATHS_CONF}"
+}
+
+# @internal
+# Append a path to the shellac confpaths.conf config file.
+# Idempotent: silently skips if the path is already present.
+_shellac_add_confpath() {
+  local new_path
+  new_path="${1:?shellac add-confpath: no path provided}"
+
+  if [ ! -d "${SHELLAC_CONFIG_DIR}" ]; then
+    mkdir -p "${SHELLAC_CONFIG_DIR}" || {
+      printf -- 'shellac: failed to create %s\n' "${SHELLAC_CONFIG_DIR}" >&2
+      return 1
+    }
+  fi
+
+  if [ -f "${SHELLAC_CONFPATHS_CONF}" ] && grep -qxF "${new_path}" "${SHELLAC_CONFPATHS_CONF}" 2>/dev/null; then
+    printf -- 'shellac: %s is already in %s\n' "${new_path}" "${SHELLAC_CONFPATHS_CONF}" >&2
+    return 0
+  fi
+
+  printf -- '%s\n' "${new_path}" >> "${SHELLAC_CONFPATHS_CONF}" || {
+    printf -- 'shellac: failed to write to %s\n' "${SHELLAC_CONFPATHS_CONF}" >&2
+    return 1
+  }
+  printf -- 'shellac: added %s to %s\n' "${new_path}" "${SHELLAC_CONFPATHS_CONF}"
+}
+
+# @internal
+# Remove a path from the shellac confpaths.conf config file.
+_shellac_rm_confpath() {
+  local rm_path
+  rm_path="${1:?shellac rm-confpath: no path provided}"
+
+  if [ ! -f "${SHELLAC_CONFPATHS_CONF}" ] || ! grep -qxF "${rm_path}" "${SHELLAC_CONFPATHS_CONF}" 2>/dev/null; then
+    printf -- 'shellac: %s not found in %s\n' "${rm_path}" "${SHELLAC_CONFPATHS_CONF}" >&2
+    return 1
+  fi
+
+  local tmp_file
+  tmp_file="$(mktemp)" || {
+    printf -- 'shellac: failed to create temp file\n' >&2
+    return 1
+  }
+  trap 'rm -f "${tmp_file}"' EXIT
+
+  grep -vxF "${rm_path}" "${SHELLAC_CONFPATHS_CONF}" > "${tmp_file}" && mv "${tmp_file}" "${SHELLAC_CONFPATHS_CONF}" || {
+    printf -- 'shellac: failed to update %s\n' "${SHELLAC_CONFPATHS_CONF}" >&2
+    return 1
+  }
+  printf -- 'shellac: removed %s from %s\n' "${rm_path}" "${SHELLAC_CONFPATHS_CONF}"
 }
 
 # @description shellac subcommand dispatcher.
@@ -226,21 +454,32 @@ shellac() {
   shift 2>/dev/null
 
   case "${_subcmd}" in
-    (include)   include "${@}" ;;
-    (requires)  requires "${@}" ;;
-    (wants)     wants "${@}" ;;
-    (libraries) _shellac_ls_libraries ;;
-    (functions) _shellac_ls_functions ;;
+    (include)      include "${@}" ;;
+    (requires)     requires "${@}" ;;
+    (wants)        wants "${@}" ;;
+    (libraries)    _shellac_ls_libraries ;;
+    (functions)    _shellac_ls_functions ;;
+    (add-libpath)   _shellac_add_libpath "${@}" ;;
+    (rm-libpath)    _shellac_rm_libpath "${@}" ;;
+    (add-confpath)  _shellac_add_confpath "${@}" ;;
+    (rm-confpath)   _shellac_rm_confpath "${@}" ;;
+    (stack)         _shellac_stack "${@}" ;;
     ('')
       printf -- '%s\n' \
         "Usage: shellac <subcommand> [args]" \
         "" \
         "Subcommands:" \
-        "  include <lib>      Load a library from SH_LIBPATH" \
-        "  requires <deps>    Assert that commands, files or shell version are present" \
-        "  wants <file>       Source a file if it exists; silently skip if not" \
-        "  libraries          List available libraries" \
-        "  functions          List available functions" >&2
+        "  include <lib>        Load a library from SH_LIBPATH" \
+        "  requires <deps>      Assert that commands, files or shell version are present" \
+        "  wants <file>         Source a file if it exists; silently skip if not" \
+        "  libraries            List available libraries" \
+        "  functions            List available functions" \
+        "  add-libpath <path>    Append a path to ${SHELLAC_PATHS_CONF}" \
+        "  rm-libpath <path>     Remove a path from ${SHELLAC_PATHS_CONF}" \
+        "  add-confpath <path>   Append a path to ${SHELLAC_CONFPATHS_CONF}" \
+        "  rm-confpath <path>    Remove a path from ${SHELLAC_CONFPATHS_CONF}" \
+        "  stack dump            Print the trace stack" \
+        "  stack clear           Clear the trace stack" >&2
       return 1
     ;;
     (*)
