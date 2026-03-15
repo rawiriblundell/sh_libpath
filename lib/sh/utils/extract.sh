@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_utils_extract+x}" ] && return 0
-_SH_LOADED_utils_extract=1
+[ -n "${_SHELLAC_LOADED_utils_extract+x}" ] && return 0
+_SHELLAC_LOADED_utils_extract=1
 
 # @description Compress files into a common archive format determined by the
 #   output filename extension. Supports .tar.bz2, .tar.gz, .tgz, .zip, and .rar.

@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_users_get_gid+x}" ] && return 0
-_SH_LOADED_users_get_gid=1
+[ -n "${_SHELLAC_LOADED_users_get_gid+x}" ] && return 0
+_SHELLAC_LOADED_users_get_gid=1
 
 # @description Print the primary GID of a user by looking up the global variable
 #   $username in /etc/passwd.

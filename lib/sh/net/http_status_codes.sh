@@ -11,8 +11,8 @@
 # Provenance: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#Unofficial_codes
 # SPDX-License-Identifier: CC-BY-SA-2.5, CC BY-SA-3.0
 
-[ -n "${_SH_LOADED_net_http_status_codes+x}" ] && return 0
-_SH_LOADED_net_http_status_codes=1
+[ -n "${_SHELLAC_LOADED_net_http_status_codes+x}" ] && return 0
+_SHELLAC_LOADED_net_http_status_codes=1
 
 # @description Look up and print a description of an HTTP status code. Also accepts
 #   category names to print all codes in that category at once.

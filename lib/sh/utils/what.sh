@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_utils_what+x}" ] && return 0
-_SH_LOADED_utils_what=1
+[ -n "${_SHELLAC_LOADED_utils_what+x}" ] && return 0
+_SHELLAC_LOADED_utils_what=1
 
 # @description Show per-user CPU and memory usage aggregated from 'ps'.
 #   Similar in spirit to 'who', but showing resource consumption instead of

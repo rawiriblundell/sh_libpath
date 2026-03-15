@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_readcolumn+x}" ] && return 0
-_SH_LOADED_text_readcolumn=1
+[ -n "${_SHELLAC_LOADED_text_readcolumn+x}" ] && return 0
+_SHELLAC_LOADED_text_readcolumn=1
 
 # @description Read a given column of input into an array. (Not yet implemented.)
 #

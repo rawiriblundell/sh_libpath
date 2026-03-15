@@ -1,7 +1,7 @@
 # shellcheck shell=ksh
 
-[ -n "${_SH_LOADED_json_jsonprint+x}" ] && return 0
-_SH_LOADED_json_jsonprint=1
+[ -n "${_SHELLAC_LOADED_json_jsonprint+x}" ] && return 0
+_SHELLAC_LOADED_json_jsonprint=1
 # The MIT License (MIT)
 
 # Copyright (c) 2020 -, Rawiri Blundell

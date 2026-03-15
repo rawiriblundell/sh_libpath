@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_openssl_view_certificate+x}" ] && return 0
-_SH_LOADED_openssl_view_certificate=1
+[ -n "${_SHELLAC_LOADED_openssl_view_certificate+x}" ] && return 0
+_SHELLAC_LOADED_openssl_view_certificate=1
 
 if ! command -v openssl >/dev/null 2>&1; then
     printf -- 'view_certificate: %s\n' "This library requires 'openssl', which was not found in PATH" >&2

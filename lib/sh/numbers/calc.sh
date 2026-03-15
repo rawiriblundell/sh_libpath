@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_numbers_calc+x}" ] && return 0
-_SH_LOADED_numbers_calc=1
+[ -n "${_SHELLAC_LOADED_numbers_calc+x}" ] && return 0
+_SHELLAC_LOADED_numbers_calc=1
 
 # @description Evaluate an arbitrary arithmetic expression using bc.
 #   Input must be quoted or stored in a variable to avoid shell interpretation.

@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_numbers_floor+x}" ] && return 0
-_SH_LOADED_numbers_floor=1
+[ -n "${_SHELLAC_LOADED_numbers_floor+x}" ] && return 0
+_SHELLAC_LOADED_numbers_floor=1
 
 # @description Round a float downwards to the nearest integer (truncate fractional part).
 #

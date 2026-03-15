@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_len+x}" ] && return 0
-_SH_LOADED_text_len=1
+[ -n "${_SHELLAC_LOADED_text_len+x}" ] && return 0
+_SHELLAC_LOADED_text_len=1
 
 # @description Return the character length of a string, file, or piped input.
 #   With -b/--bytes, returns the byte length instead of character length.

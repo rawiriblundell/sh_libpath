@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_utils_seq+x}" ] && return 0
-_SH_LOADED_utils_seq=1
+[ -n "${_SHELLAC_LOADED_utils_seq+x}" ] && return 0
+_SHELLAC_LOADED_utils_seq=1
 
 if ! command -v seq >/dev/null 2>&1; then
   # @description Step-in replacement for 'seq' on systems that lack it.

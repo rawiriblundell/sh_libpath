@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_args_opt_count+x}" ] && return 0
-_SH_LOADED_args_opt_count=1
+[ -n "${_SHELLAC_LOADED_args_opt_count+x}" ] && return 0
+_SHELLAC_LOADED_args_opt_count=1
 
 # @description Test whether the number of given parameters is correct. Calls die() with
 #   a descriptive message if the count is wrong or if either argument is not an integer.

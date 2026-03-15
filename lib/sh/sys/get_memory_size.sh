@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_sys_get_memory_size+x}" ] && return 0
-_SH_LOADED_sys_get_memory_size=1
+[ -n "${_SHELLAC_LOADED_sys_get_memory_size+x}" ] && return 0
+_SHELLAC_LOADED_sys_get_memory_size=1
 
 # @description Print the total physical memory size in megabytes.
 #   Tries dmidecode type 17, then DirectMap entries in /proc/meminfo,

@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_goodies_spinner+x}" ] && return 0
-_SH_LOADED_goodies_spinner=1
+[ -n "${_SHELLAC_LOADED_goodies_spinner+x}" ] && return 0
+_SHELLAC_LOADED_goodies_spinner=1
 #
 # I believe I referenced this when creating this
 # https://linuxgazette.net/168/misc/lg/two_cent_tip__bash_script_to_create_animated_rotating_mark.html

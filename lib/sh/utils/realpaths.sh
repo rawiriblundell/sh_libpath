@@ -2,8 +2,8 @@
 # CC0 1.0 Universal
 # Provenance: https://raw.githubusercontent.com/bashup/realpaths/master/realpaths
 
-[ -n "${_SH_LOADED_utils_realpaths+x}" ] && return 0
-_SH_LOADED_utils_realpaths=1
+[ -n "${_SHELLAC_LOADED_utils_realpaths+x}" ] && return 0
+_SHELLAC_LOADED_utils_realpaths=1
 
 # @description Resolve symlinks and return the parent directory of the target.
 #   Result is written to the global REPLY variable, not stdout.

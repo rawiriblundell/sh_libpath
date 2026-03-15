@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_utils_retry+x}" ] && return 0
-_SH_LOADED_utils_retry=1
+[ -n "${_SHELLAC_LOADED_utils_retry+x}" ] && return 0
+_SHELLAC_LOADED_utils_retry=1
 
 # @description Retry a command until it succeeds or the maximum retry count is reached.
 #   Prints a dot for each failed attempt. Sleep duration and retry count are configurable.

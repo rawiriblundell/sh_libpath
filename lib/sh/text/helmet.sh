@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_helmet+x}" ] && return 0
-_SH_LOADED_text_helmet=1
+[ -n "${_SHELLAC_LOADED_text_helmet+x}" ] && return 0
+_SHELLAC_LOADED_text_helmet=1
 
 # @description Protect header lines from being filtered by downstream pipes.
 #   Reads stdin into an array, emits the first n lines (default: 1) to stderr,

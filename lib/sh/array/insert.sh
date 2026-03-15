@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_array_insert+x}" ] && return 0
-_SH_LOADED_array_insert=1
+[ -n "${_SHELLAC_LOADED_array_insert+x}" ] && return 0
+_SHELLAC_LOADED_array_insert=1
 
 # @description Insert one or more elements into a named array at a given index.
 #   Existing elements at and after the index are shifted right.

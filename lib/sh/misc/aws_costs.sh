@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_misc_aws_costs+x}" ] && return 0
-_SH_LOADED_misc_aws_costs=1
+[ -n "${_SHELLAC_LOADED_misc_aws_costs+x}" ] && return 0
+_SHELLAC_LOADED_misc_aws_costs=1
 
 # Requires GNU date, aws-cli and jq
 

@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_sys_mem+x}" ] && return 0
-_SH_LOADED_sys_mem=1
+[ -n "${_SHELLAC_LOADED_sys_mem+x}" ] && return 0
+_SHELLAC_LOADED_sys_mem=1
 
   # Start by checking for 'top'
   if iscommand top; then

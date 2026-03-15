@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_utils_genpasswd+x}" ] && return 0
-_SH_LOADED_utils_genpasswd=1
+[ -n "${_SHELLAC_LOADED_utils_genpasswd+x}" ] && return 0
+_SHELLAC_LOADED_utils_genpasswd=1
 
 # @description Generate random passwords when 'pwgen' or 'apg' are not available.
 #   Supports standard alphanumeric, special character, and Koremutake phonetic syllable

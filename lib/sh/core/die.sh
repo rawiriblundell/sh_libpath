@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_core_die+x}" ] && return 0
-_SH_LOADED_core_die=1
+[ -n "${_SHELLAC_LOADED_core_die+x}" ] && return 0
+_SHELLAC_LOADED_core_die=1
 
 # Get the top level PID and setup a trap so that we can call die() within subshells
 trap "exit 1" TERM

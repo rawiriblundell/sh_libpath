@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_last+x}" ] && return 0
-_SH_LOADED_text_last=1
+[ -n "${_SHELLAC_LOADED_text_last+x}" ] && return 0
+_SHELLAC_LOADED_text_last=1
 
 # @description Return the last character, column, or line of input.
 #   Without a subcommand, returns the last line from stdin or a file.

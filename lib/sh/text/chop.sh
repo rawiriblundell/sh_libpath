@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_chop+x}" ] && return 0
-_SH_LOADED_text_chop=1
+[ -n "${_SHELLAC_LOADED_text_chop+x}" ] && return 0
+_SHELLAC_LOADED_text_chop=1
 
 # @description Remove the last n characters from a string.
 #   Defaults to removing 1 character (Perl chop semantics).

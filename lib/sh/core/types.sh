@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_core_types+x}" ] && return 0
-_SH_LOADED_core_types=1
+[ -n "${_SHELLAC_LOADED_core_types+x}" ] && return 0
+_SHELLAC_LOADED_core_types=1
 
 # @description Classify a string value by its apparent type.
 #   Classification order (most to least specific): empty, integer, float, bool, string.

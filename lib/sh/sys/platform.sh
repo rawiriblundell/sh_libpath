@@ -32,8 +32,8 @@
 
 # Provenance: https://raw.githubusercontent.com/mietek/bashmenot/master/src/platform.sh
 
-[ -n "${_SH_LOADED_sys_platform+x}" ] && return 0
-_SH_LOADED_sys_platform=1
+[ -n "${_SHELLAC_LOADED_sys_platform+x}" ] && return 0
+_SHELLAC_LOADED_sys_platform=1
 
 # @description Convert a platform identifier string to a human-readable label.
 #

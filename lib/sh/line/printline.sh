@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_line_printline+x}" ] && return 0
-_SH_LOADED_line_printline=1
+[ -n "${_SHELLAC_LOADED_line_printline+x}" ] && return 0
+_SHELLAC_LOADED_line_printline=1
 
 # @description Print a specific line number (or range) from a file or stdin.
 #   Requires sed. Accepts an optional second numeric argument for a line range.

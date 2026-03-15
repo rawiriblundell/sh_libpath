@@ -1,7 +1,7 @@
 # Misc functions from my archives
 
-[ -n "${_SH_LOADED_net_tosort+x}" ] && return 0
-_SH_LOADED_net_tosort=1
+[ -n "${_SHELLAC_LOADED_net_tosort+x}" ] && return 0
+_SHELLAC_LOADED_net_tosort=1
 
     # These variables are used for testing internet connectivity
     # By default we use Google Public DNS

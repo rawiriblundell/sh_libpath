@@ -18,8 +18,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_utils_validate_config+x}" ] && return 0
-_SH_LOADED_utils_validate_config=1
+[ -n "${_SHELLAC_LOADED_utils_validate_config+x}" ] && return 0
+_SHELLAC_LOADED_utils_validate_config=1
 
 # @description Validate that a config file contains only shell-importable key=value
 #   pairs. Blank lines and comment lines are ignored. Any line not in the form

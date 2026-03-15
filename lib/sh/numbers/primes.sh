@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_numbers_primes+x}" ] && return 0
-_SH_LOADED_numbers_primes=1
+[ -n "${_SHELLAC_LOADED_numbers_primes+x}" ] && return 0
+_SHELLAC_LOADED_numbers_primes=1
 
 # @description Test whether an integer is prime using the 6k±1 algorithm.
 #   Numbers less than 2 are not prime. 2 and 3 are prime.

@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_openssl_ssl_decrypt+x}" ] && return 0
-_SH_LOADED_openssl_ssl_decrypt=1
+[ -n "${_SHELLAC_LOADED_openssl_ssl_decrypt+x}" ] && return 0
+_SHELLAC_LOADED_openssl_ssl_decrypt=1
 
 if ! command -v openssl >/dev/null 2>&1; then
     printf -- 'ssl_decrypt: %s\n' "This library requires 'openssl', which was not found in PATH" >&2

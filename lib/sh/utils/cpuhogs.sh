@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_utils_cpuhogs+x}" ] && return 0
-_SH_LOADED_utils_cpuhogs=1
+[ -n "${_SHELLAC_LOADED_utils_cpuhogs+x}" ] && return 0
+_SHELLAC_LOADED_utils_cpuhogs=1
 
 # List processes by cpu usage
 # This is usually better handled by tools like top and sar

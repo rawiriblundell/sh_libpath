@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_goodies_8ball+x}" ] && return 0
-_SH_LOADED_goodies_8ball=1
+[ -n "${_SHELLAC_LOADED_goodies_8ball+x}" ] && return 0
+_SHELLAC_LOADED_goodies_8ball=1
 
 # @description Print a random Magic 8-Ball response.
 #

@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_numbers_dst+x}" ] && return 0
-_SH_LOADED_numbers_dst=1
+[ -n "${_SHELLAC_LOADED_numbers_dst+x}" ] && return 0
+_SHELLAC_LOADED_numbers_dst=1
 
 command -v zdump >/dev/null 2>&1 || {
   printf -- 'dst: %s\n' "This library requires 'zdump', which was not found in PATH" >&2

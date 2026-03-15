@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_utils_fetch+x}" ] && return 0
-_SH_LOADED_utils_fetch=1
+[ -n "${_SHELLAC_LOADED_utils_fetch+x}" ] && return 0
+_SHELLAC_LOADED_utils_fetch=1
 
 # @description Download the best release of a SourceForge project for the current
 #   (or specified) platform using curl and the SourceForge best_release JSON API.

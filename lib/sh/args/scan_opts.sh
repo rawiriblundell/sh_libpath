@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_args_scan_opts+x}" ] && return 0
-_SH_LOADED_args_scan_opts=1
+[ -n "${_SHELLAC_LOADED_args_scan_opts+x}" ] && return 0
+_SHELLAC_LOADED_args_scan_opts=1
 
 # @description Scan a list of arguments for a given flag or word.
 #   Returns 0 if found, 1 if not found.  Handles short flags (-v),

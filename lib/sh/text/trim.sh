@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_trim+x}" ] && return 0
-_SH_LOADED_text_trim=1
+[ -n "${_SHELLAC_LOADED_text_trim+x}" ] && return 0
+_SHELLAC_LOADED_text_trim=1
 
 # @description Strip leading and trailing whitespace from a string and print the result.
 #

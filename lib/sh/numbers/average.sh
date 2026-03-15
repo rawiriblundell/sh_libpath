@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_numbers_average+x}" ] && return 0
-_SH_LOADED_numbers_average=1
+[ -n "${_SHELLAC_LOADED_numbers_average+x}" ] && return 0
+_SHELLAC_LOADED_numbers_average=1
 
 # @description Compute the arithmetic mean of numbers from stdin, a file, or positional parameters.
 #   With no arguments reads from stdin. With one argument that is a readable file, averages its lines.

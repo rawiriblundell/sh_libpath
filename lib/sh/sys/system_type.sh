@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_sys_system_type+x}" ] && return 0
-_SH_LOADED_sys_system_type=1
+[ -n "${_SHELLAC_LOADED_sys_system_type+x}" ] && return 0
+_SHELLAC_LOADED_sys_system_type=1
 
 if iscommand virt-what; then
   sys_type=$(virt-what 2>/dev/null | head -n 1)

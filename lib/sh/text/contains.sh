@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_contains+x}" ] && return 0
-_SH_LOADED_text_contains=1
+[ -n "${_SHELLAC_LOADED_text_contains+x}" ] && return 0
+_SHELLAC_LOADED_text_contains=1
 
 # @description Test if a string starts with a given prefix.
 #

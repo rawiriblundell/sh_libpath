@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_utils_readlink_f+x}" ] && return 0
-_SH_LOADED_utils_readlink_f=1
+[ -n "${_SHELLAC_LOADED_utils_readlink_f+x}" ] && return 0
+_SHELLAC_LOADED_utils_readlink_f=1
 
 # Portable version of 'readlink -f' for versions that don't have '-f'
 

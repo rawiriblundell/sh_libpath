@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_utils_mapfile+x}" ] && return 0
-_SH_LOADED_utils_mapfile=1
+[ -n "${_SHELLAC_LOADED_utils_mapfile+x}" ] && return 0
+_SHELLAC_LOADED_utils_mapfile=1
 
 if ! command -v mapfile >/dev/null 2>&1; then
   # @description Step-in replacement for bash's 'mapfile' (readarray) builtin.

@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_utils_repeat+x}" ] && return 0
-_SH_LOADED_utils_repeat=1
+[ -n "${_SHELLAC_LOADED_utils_repeat+x}" ] && return 0
+_SHELLAC_LOADED_utils_repeat=1
 
 # @description Execute a command a specified number of times.
 #

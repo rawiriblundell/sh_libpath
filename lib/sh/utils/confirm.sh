@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_utils_confirm+x}" ] && return 0
-_SH_LOADED_utils_confirm=1
+[ -n "${_SHELLAC_LOADED_utils_confirm+x}" ] && return 0
+_SHELLAC_LOADED_utils_confirm=1
 
 # @description Prompt for an interactive yes/no confirmation. Reads a single
 #   character; only 'y' or 'Y' returns 0. Supports an optional timeout via

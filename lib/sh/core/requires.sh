@@ -18,8 +18,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_core_requires+x}" ] && return 0
-_SH_LOADED_core_requires=1
+[ -n "${_SHELLAC_LOADED_core_requires+x}" ] && return 0
+_SHELLAC_LOADED_core_requires=1
 
 # @internal
 _requires_get_version() {

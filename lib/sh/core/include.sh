@@ -18,8 +18,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_core_include+x}" ] && return 0
-_SH_LOADED_core_include=1
+[ -n "${_SHELLAC_LOADED_core_include+x}" ] && return 0
+_SHELLAC_LOADED_core_include=1
 
 # TODO: include [url] --> download code to temporary location, source, destroy afterwards?
 
@@ -38,7 +38,7 @@ _include_sentinel() {
     _rel="${_rel%.sh}"
     _rel="${_rel//\//_}"
     _rel="${_rel//-/_}"
-    printf -- '%s\n' "_SH_LOADED_${_rel}"
+    printf -- '%s\n' "_SHELLAC_LOADED_${_rel}"
 }
 
 # @internal

@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_numbers_get_epoch+x}" ] && return 0
-_SH_LOADED_numbers_get_epoch=1
+[ -n "${_SHELLAC_LOADED_numbers_get_epoch+x}" ] && return 0
+_SHELLAC_LOADED_numbers_get_epoch=1
 
 # @description Return the current Unix epoch in seconds.
 #   Selects the fastest available method at load time:

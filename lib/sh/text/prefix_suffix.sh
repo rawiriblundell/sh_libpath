@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_prefix_suffix+x}" ] && return 0
-_SH_LOADED_text_prefix_suffix=1
+[ -n "${_SHELLAC_LOADED_text_prefix_suffix+x}" ] && return 0
+_SHELLAC_LOADED_text_prefix_suffix=1
 
 # @description Remove a prefix from a string. If the string does not start
 #   with the prefix, the original string is returned unchanged.

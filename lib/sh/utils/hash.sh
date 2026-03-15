@@ -32,8 +32,8 @@
 
 # Provenance: https://raw.githubusercontent.com/mietek/bashmenot/master/src/hash.sh
 
-[ -n "${_SH_LOADED_utils_hash+x}" ] && return 0
-_SH_LOADED_utils_hash=1
+[ -n "${_SHELLAC_LOADED_utils_hash+x}" ] && return 0
+_SHELLAC_LOADED_utils_hash=1
 
 # @description Compute a SHA1 hash of stdin content.
 #   Returns silently (exit 0) if stdin is empty.

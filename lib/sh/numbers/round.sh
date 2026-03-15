@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_numbers_round+x}" ] && return 0
-_SH_LOADED_numbers_round=1
+[ -n "${_SHELLAC_LOADED_numbers_round+x}" ] && return 0
+_SHELLAC_LOADED_numbers_round=1
 
 # @description Round a float to a given precision.
 #   Default mode is IEEE 754 bankers rounding (round half to even).

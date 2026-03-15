@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_line_behead+x}" ] && return 0
-_SH_LOADED_line_behead=1
+[ -n "${_SHELLAC_LOADED_line_behead+x}" ] && return 0
+_SHELLAC_LOADED_line_behead=1
 
 # @description Remove the first n lines from stdin (default: 1).
 #   Good for stripping header lines from command output.

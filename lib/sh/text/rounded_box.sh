@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_rounded_box+x}" ] && return 0
-_SH_LOADED_text_rounded_box=1
+[ -n "${_SHELLAC_LOADED_text_rounded_box+x}" ] && return 0
+_SHELLAC_LOADED_text_rounded_box=1
 
 # @description Print text wrapped in a Unicode rounded box.
 #   Supports an optional title in the top border and custom width.

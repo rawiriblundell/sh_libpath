@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_utils_bool+x}" ] && return 0
-_SH_LOADED_utils_bool=1
+[ -n "${_SHELLAC_LOADED_utils_bool+x}" ] && return 0
+_SHELLAC_LOADED_utils_bool=1
 
 # @description Evaluate a string as a boolean. Returns 0 (true) for '0', 'y', 'Y',
 #   'true', 'yes', or 'on' (case-insensitive); returns 1 (false) for anything else.

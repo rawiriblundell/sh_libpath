@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_utils_dirname+x}" ] && return 0
-_SH_LOADED_utils_dirname=1
+[ -n "${_SHELLAC_LOADED_utils_dirname+x}" ] && return 0
+_SHELLAC_LOADED_utils_dirname=1
 
 if ! command -v dirname >/dev/null 2>&1; then
   # @description Minimal step-in replacement for 'dirname'. Strips the filename

@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_repeat+x}" ] && return 0
-_SH_LOADED_text_repeat=1
+[ -n "${_SHELLAC_LOADED_text_repeat+x}" ] && return 0
+_SHELLAC_LOADED_text_repeat=1
 
 # @description Repeat a string a given number of times.
 #   By default, prints each repetition on its own line.

@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_quote+x}" ] && return 0
-_SH_LOADED_text_quote=1
+[ -n "${_SHELLAC_LOADED_text_quote+x}" ] && return 0
+_SHELLAC_LOADED_text_quote=1
 
 # @description Wrap a string in quotes or bracket-style enclosures.
 #   Defaults to double quotes. Supports single quotes, backticks, parentheses,

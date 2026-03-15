@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_core_status+x}" ] && return 0
-_SH_LOADED_core_status=1
+[ -n "${_SHELLAC_LOADED_core_status+x}" ] && return 0
+_SHELLAC_LOADED_core_status=1
 
 # @description Test the exit status of the most recently run command against
 #   a named or numeric expectation. Functionalises the common 'if [ $? = ... ]' idiom.

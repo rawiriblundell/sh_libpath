@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_sys_service+x}" ] && return 0
-_SH_LOADED_sys_service=1
+[ -n "${_SHELLAC_LOADED_sys_service+x}" ] && return 0
+_SHELLAC_LOADED_sys_service=1
 
 if command -v systemctl >/dev/null 2>&1; then
   # @description Start a named system service. Dispatches to systemctl, sysvinit,

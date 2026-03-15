@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_sys_host2ip+x}" ] && return 0
-_SH_LOADED_sys_host2ip=1
+[ -n "${_SHELLAC_LOADED_sys_host2ip+x}" ] && return 0
+_SHELLAC_LOADED_sys_host2ip=1
 
 # @description Resolve a hostname to an IPv4 address, or reverse-resolve an IP
 #   to its hostname. Uses 'host -4' for lookups.

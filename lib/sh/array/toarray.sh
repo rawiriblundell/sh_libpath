@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_array_toarray+x}" ] && return 0
-_SH_LOADED_array_toarray=1
+[ -n "${_SHELLAC_LOADED_array_toarray+x}" ] && return 0
+_SHELLAC_LOADED_array_toarray=1
 
 # toarray requires 'lastpipe' so that the array persists after the pipeline.
 # This shopt is set at load time so it applies to all subsequent pipelines.

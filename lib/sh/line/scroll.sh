@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_line_scroll+x}" ] && return 0
-_SH_LOADED_line_scroll=1
+[ -n "${_SHELLAC_LOADED_line_scroll+x}" ] && return 0
+_SHELLAC_LOADED_line_scroll=1
 
 # @description Print piped input line by line with a configurable delay between lines.
 #   Reads from stdin only. Default delay is 1 second.

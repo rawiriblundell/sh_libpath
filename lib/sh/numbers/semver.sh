@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_numbers_semver+x}" ] && return 0
-_SH_LOADED_numbers_semver=1
+[ -n "${_SHELLAC_LOADED_numbers_semver+x}" ] && return 0
+_SHELLAC_LOADED_numbers_semver=1
 
 # @description Convert a semantic version string to a zero-padded integer for numeric comparison.
 #   Strips non-numeric/non-dot characters, then formats as MMMMNNPP (major, 2-digit minor, 2-digit patch).

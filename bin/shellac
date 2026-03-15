@@ -17,20 +17,20 @@
 
 # Ensure that this file is sourced, not executed, and bail out if already loaded
 # See: https://stackoverflow.com/a/28776166
-[ -n "${SH_LIBPATH_LOADED+x}" ] && return 0
-SH_LIBPATH_LOADED=0
+[ -n "${SHELLAC_LOADED+x}" ] && return 0
+SHELLAC_LOADED=0
 if [ -n "${ZSH_VERSION}" ]; then
-  case "${ZSH_EVAL_CONTEXT}" in (*:file) SH_LIBPATH_LOADED=1 ;; esac
+  case "${ZSH_EVAL_CONTEXT}" in (*:file) SHELLAC_LOADED=1 ;; esac
 elif [ -n "${KSH_VERSION}" ]; then
-  [ "$(cd -- "$(dirname -- "$0")" && pwd -P)/$(basename -- "$0")" != "$(cd -- "$(dirname -- "${.sh.file}")" && pwd -P)/$(basename -- "${.sh.file}")" ] && SH_LIBPATH_LOADED=1
+  [ "$(cd -- "$(dirname -- "$0")" && pwd -P)/$(basename -- "$0")" != "$(cd -- "$(dirname -- "${.sh.file}")" && pwd -P)/$(basename -- "${.sh.file}")" ] && SHELLAC_LOADED=1
 elif [ -n "${BASH_VERSION}" ]; then
-  (return 0 2>/dev/null) && SH_LIBPATH_LOADED=1
+  (return 0 2>/dev/null) && SHELLAC_LOADED=1
 else
-  case "${0##*/}" in (sh|-sh|dash|-dash) SH_LIBPATH_LOADED=1 ;; esac
+  case "${0##*/}" in (sh|-sh|dash|-dash) SHELLAC_LOADED=1 ;; esac
 fi
 
-if [ "${SH_LIBPATH_LOADED}" -eq 0 ]; then
-  printf -- '%s\n' "Error: init-shlibpath must be sourced, not executed" >&2
+if [ "${SHELLAC_LOADED}" -eq 0 ]; then
+  printf -- '%s\n' "Error: shellac must be sourced, not executed" >&2
   exit 1
 fi
 
@@ -62,10 +62,10 @@ sh_stack_dump() {
 
 # Potential basepaths for where our libraries might be placed
 POSSIBLE_SH_LIBPATHS=(
-  "${HOME}"/git/sh_libpath/lib/sh
+  "${HOME}"/git/shellac/lib/sh
   "${HOME}"/.local/lib/sh
   /usr/local/lib/sh
-  /opt/sh_libpath/lib/sh
+  /opt/shellac/lib/sh
   /usr/share/misc
 )
 
@@ -94,7 +94,7 @@ if (( ${#fpath} > 0 )); then
 fi
 
 # Now, de-duplicate
-SH_LIBPATH=$(printf -- '%s\n' "${SH_LIBPATH}" | tr ':' '\n' |  awk '!s[$0]++' | paste -sd ':' -)
+SH_LIBPATH=$(printf -- '%s\n' "${SH_LIBPATH}" | tr ':' '\n' | awk '!s[$0]++' | paste -sd ':' -)
 
 # Finally, export
 export SH_LIBPATH
@@ -107,6 +107,20 @@ fi
 
 sh_stack_add "SH_LIBPATH: ${SH_LIBPATH}"
 
+# Bootstrap core functions from the first SH_LIBPATH element that has them
+for _element in "${SH_LIBPATH_ARRAY[@]}"; do
+  if [ -r "${_element}/core/include.sh" ]; then
+    # shellcheck disable=SC1090
+    . "${_element}/core/include.sh"
+    # shellcheck disable=SC1090
+    . "${_element}/core/requires.sh"
+    # shellcheck disable=SC1090
+    . "${_element}/core/wants.sh"
+    break
+  fi
+done
+unset -v _element
+
 # @internal
 _is_function_loaded() {
   typeset -f "${1:?No function defined}" >/dev/null
@@ -114,7 +128,7 @@ _is_function_loaded() {
 
 # @internal
 # Print a library tree grouped by category, marking loaded libraries.
-_ls_shlibs_libraries() {
+_shellac_ls_libraries() {
   local _element
   local _library_file
   local _rel_path
@@ -134,7 +148,7 @@ _ls_shlibs_libraries() {
         printf -- '\n%s/\n' "${_category}"
         _prev_category="${_category}"
       fi
-      _sentinel="_SH_LOADED_${_rel_path%.sh}"
+      _sentinel="_SHELLAC_LOADED_${_rel_path%.sh}"
       _sentinel="${_sentinel//\//_}"
       if [[ -n "${!_sentinel+x}" ]]; then
         printf -- '  %-40s %s\n' "${_rel_path##*/}" "(loaded)"
@@ -148,7 +162,7 @@ _ls_shlibs_libraries() {
 # @internal
 # Print a flat list of all public functions with their @description summaries.
 # Functions marked @internal are suppressed. Loaded functions are marked.
-_ls_shlibs_functions() {
+_shellac_ls_functions() {
   local _element
   local _library_file
   local _line
@@ -192,21 +206,45 @@ _ls_shlibs_functions() {
   done
 }
 
-# @description List available libraries or functions from SH_LIBPATH.
-#   'libraries' prints a tree grouped by category with loaded status.
-#   'functions' prints a flat list of public functions and their descriptions.
+# @description shellac subcommand dispatcher.
+#   Provides a unified interface to shellac's core functions.
 #
-# @arg $1 string Subcommand: 'libraries' (default) or 'functions'
+# @arg $1 string Subcommand: include, requires, wants, libraries, functions
 #
-# @exitcode 0 Always
-# @exitcode 1 Unknown subcommand
-ls_shlibs() {
-  case "${1:-libraries}" in
-    (libraries) _ls_shlibs_libraries ;;
-    (functions) _ls_shlibs_functions ;;
+# @example
+#   shellac include text/trim
+#   shellac requires curl git
+#   shellac wants /etc/myapp/overrides.conf
+#   shellac libraries
+#   shellac functions
+#
+# @exitcode 0 Subcommand succeeded
+# @exitcode 1 Unknown subcommand or subcommand failed
+shellac() {
+  local _subcmd
+  _subcmd="${1:-}"
+  shift 2>/dev/null
+
+  case "${_subcmd}" in
+    (include)   include "${@}" ;;
+    (requires)  requires "${@}" ;;
+    (wants)     wants "${@}" ;;
+    (libraries) _shellac_ls_libraries ;;
+    (functions) _shellac_ls_functions ;;
+    ('')
+      printf -- '%s\n' \
+        "Usage: shellac <subcommand> [args]" \
+        "" \
+        "Subcommands:" \
+        "  include <lib>      Load a library from SH_LIBPATH" \
+        "  requires <deps>    Assert that commands, files or shell version are present" \
+        "  wants <file>       Source a file if it exists; silently skip if not" \
+        "  libraries          List available libraries" \
+        "  functions          List available functions" >&2
+      return 1
+    ;;
     (*)
-      printf -- 'ls_shlibs: %s\n' "Unknown subcommand: ${1}" >&2
-      printf -- '%s\n' "Usage: ls_shlibs [libraries|functions]" >&2
+      printf -- 'shellac: unknown subcommand: %s\n' "${_subcmd}" >&2
       return 1
     ;;
   esac

@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_core_vars+x}" ] && return 0
-_SH_LOADED_core_vars=1
+[ -n "${_SHELLAC_LOADED_core_vars+x}" ] && return 0
+_SHELLAC_LOADED_core_vars=1
 
 # @description Test whether a variable is set and non-empty.
 # @exitcode 0 Variable is set and non-empty

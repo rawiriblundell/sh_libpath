@@ -32,8 +32,8 @@
 
 # Provenance: https://raw.githubusercontent.com/mietek/bashmenot/master/src/curl.sh
 
-[ -n "${_SH_LOADED_net_curl+x}" ] && return 0
-_SH_LOADED_net_curl=1
+[ -n "${_SHELLAC_LOADED_net_curl+x}" ] && return 0
+_SHELLAC_LOADED_net_curl=1
 
 # @description Convert an HTTP response code integer to a short human-readable label.
 #

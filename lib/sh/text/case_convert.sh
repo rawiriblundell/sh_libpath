@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_case_convert+x}" ] && return 0
-_SH_LOADED_text_case_convert=1
+[ -n "${_SHELLAC_LOADED_text_case_convert+x}" ] && return 0
+_SHELLAC_LOADED_text_case_convert=1
 
 # @description Convert a string to snake_case. Handles space-separated words,
 #   hyphen-separated words, and camelCase input.

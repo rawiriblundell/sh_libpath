@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_csvwrap+x}" ] && return 0
-_SH_LOADED_text_csvwrap=1
+[ -n "${_SHELLAC_LOADED_text_csvwrap+x}" ] && return 0
+_SHELLAC_LOADED_text_csvwrap=1
 
 # @description Wrap long comma-separated lists by element count.
 #   Reads from stdin. Inserts a line continuation after every nth comma.

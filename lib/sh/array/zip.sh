@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_array_zip+x}" ] && return 0
-_SH_LOADED_array_zip=1
+[ -n "${_SHELLAC_LOADED_array_zip+x}" ] && return 0
+_SHELLAC_LOADED_array_zip=1
 
 # @description Interleave elements from two arrays, pairing by index.
 #   Stops at the shorter array's length.

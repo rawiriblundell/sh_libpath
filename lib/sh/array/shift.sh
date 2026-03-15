@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_array_shift+x}" ] && return 0
-_SH_LOADED_array_shift=1
+[ -n "${_SHELLAC_LOADED_array_shift+x}" ] && return 0
+_SHELLAC_LOADED_array_shift=1
 
 # @description Remove the first n elements from a named array in place.
 #   From https://www.reddit.com/r/bash/comments/aj0xm0/quicktip_shifting_arrays/

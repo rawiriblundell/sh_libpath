@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_substr+x}" ] && return 0
-_SH_LOADED_text_substr=1
+[ -n "${_SHELLAC_LOADED_text_substr+x}" ] && return 0
+_SHELLAC_LOADED_text_substr=1
 
 # @description Return the portion of a string before the first occurrence
 #   of a delimiter. If the delimiter is not found, the whole string is returned.

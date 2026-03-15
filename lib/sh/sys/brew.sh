@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_sys_brew+x}" ] && return 0
-_SH_LOADED_sys_brew=1
+[ -n "${_SHELLAC_LOADED_sys_brew+x}" ] && return 0
+_SHELLAC_LOADED_sys_brew=1
 
 # @description Check whether one or more Homebrew packages are installed.
 #   Exits the process (exit 1) if brew itself is not found. Prints a status

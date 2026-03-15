@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_utils_dos2unix+x}" ] && return 0
-_SH_LOADED_utils_dos2unix=1
+[ -n "${_SHELLAC_LOADED_utils_dos2unix+x}" ] && return 0
+_SHELLAC_LOADED_utils_dos2unix=1
 
 if ! command -v dos2unix >/dev/null 2>&1; then
   # @description Strip DOS/Windows carriage return characters from files or stdin.

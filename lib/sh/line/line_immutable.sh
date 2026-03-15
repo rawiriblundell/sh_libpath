@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_line_line_immutable+x}" ] && return 0
-_SH_LOADED_line_line_immutable=1
+[ -n "${_SHELLAC_LOADED_line_line_immutable+x}" ] && return 0
+_SHELLAC_LOADED_line_line_immutable=1
 
 # @description Ensure a line is present in a file (idempotent). If the line
 #   already exists verbatim, nothing is done. Otherwise the line is appended,

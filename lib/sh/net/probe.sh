@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_net_probe+x}" ] && return 0
-_SH_LOADED_net_probe=1
+[ -n "${_SHELLAC_LOADED_net_probe+x}" ] && return 0
+_SHELLAC_LOADED_net_probe=1
 
 # @description Test connectivity to a remote host's port via bash /dev/tcp or /dev/udp.
 #

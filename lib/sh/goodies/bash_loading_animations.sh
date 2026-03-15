@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-[ -n "${_SH_LOADED_goodies_bash_loading_animations+x}" ] && return 0
-_SH_LOADED_goodies_bash_loading_animations=1
+[ -n "${_SHELLAC_LOADED_goodies_bash_loading_animations+x}" ] && return 0
+_SHELLAC_LOADED_goodies_bash_loading_animations=1
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#

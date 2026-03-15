@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_utils_genphrase+x}" ] && return 0
-_SH_LOADED_utils_genphrase=1
+[ -n "${_SHELLAC_LOADED_utils_genphrase+x}" ] && return 0
+_SHELLAC_LOADED_utils_genphrase=1
 
 # @description Generate random passphrases from a word dictionary file (~/.pwords.dict).
 #   Produces XKCD "Correct Horse Battery Staple" style phrases; see -S for stronger

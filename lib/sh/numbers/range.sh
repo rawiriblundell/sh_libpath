@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_numbers_range+x}" ] && return 0
-_SH_LOADED_numbers_range=1
+[ -n "${_SHELLAC_LOADED_numbers_range+x}" ] && return 0
+_SHELLAC_LOADED_numbers_range=1
 
 # @description Generate a sequence of integers.
 #   Argument order follows Python's range(): [last] | [first last] | [first last step].

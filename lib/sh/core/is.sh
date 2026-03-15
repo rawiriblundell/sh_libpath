@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_core_is+x}" ] && return 0
-_SH_LOADED_core_is=1
+[ -n "${_SHELLAC_LOADED_core_is+x}" ] && return 0
+_SHELLAC_LOADED_core_is=1
 
 ########## Paths
 # @description Test whether a path exists (any type).

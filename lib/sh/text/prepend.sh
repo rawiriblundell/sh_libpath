@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_prepend+x}" ] && return 0
-_SH_LOADED_text_prepend=1
+[ -n "${_SHELLAC_LOADED_text_prepend+x}" ] && return 0
+_SHELLAC_LOADED_text_prepend=1
 
 # @description Prepend one string to another and print the result.
 #   Optionally define a delimiter with -d|--delimiter (defaults to a single space).

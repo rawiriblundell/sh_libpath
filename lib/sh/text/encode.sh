@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_encode+x}" ] && return 0
-_SH_LOADED_text_encode=1
+[ -n "${_SHELLAC_LOADED_text_encode+x}" ] && return 0
+_SHELLAC_LOADED_text_encode=1
 
 # @description Percent-encode a string for use in a URL (RFC 3986).
 #   Unreserved characters (A-Z a-z 0-9 - _ . ~) are passed through unchanged.

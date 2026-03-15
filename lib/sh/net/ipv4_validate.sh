@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_net_ipv4_validate+x}" ] && return 0
-_SH_LOADED_net_ipv4_validate=1
+[ -n "${_SHELLAC_LOADED_net_ipv4_validate+x}" ] && return 0
+_SHELLAC_LOADED_net_ipv4_validate=1
 
 # @description Validate that a string is a well-formed IPv4 address. Strips optional
 #   CIDR notation and double quotes before checking. Runs in a subshell.

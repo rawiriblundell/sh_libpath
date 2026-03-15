@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_users_get_passwd_state+x}" ] && return 0
-_SH_LOADED_users_get_passwd_state=1
+[ -n "${_SHELLAC_LOADED_users_get_passwd_state+x}" ] && return 0
+_SHELLAC_LOADED_users_get_passwd_state=1
 
 # @description Print the password state for a user from /etc/shadow.
 #   Returns 'P' (password set), 'LK' (locked), or 'NP' (no password).

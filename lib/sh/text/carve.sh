@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_carve+x}" ] && return 0
-_SH_LOADED_text_carve=1
+[ -n "${_SHELLAC_LOADED_text_carve+x}" ] && return 0
+_SHELLAC_LOADED_text_carve=1
 
 # @description Extract a substring between two delimiters by ordinal position.
 #   Reads from stdin. Specify positions using short ordinals ('1st', '2nd', 'first', 'last')

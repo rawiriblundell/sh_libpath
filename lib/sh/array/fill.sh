@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_array_fill+x}" ] && return 0
-_SH_LOADED_array_fill=1
+[ -n "${_SHELLAC_LOADED_array_fill+x}" ] && return 0
+_SHELLAC_LOADED_array_fill=1
 
 # @description Fill a named array with a value repeated n times.
 #   Replaces any existing contents.

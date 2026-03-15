@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_net_cidr+x}" ] && return 0
-_SH_LOADED_net_cidr=1
+[ -n "${_SHELLAC_LOADED_net_cidr+x}" ] && return 0
+_SHELLAC_LOADED_net_cidr=1
 
 # @description Convert a CIDR prefix length to a dotted-decimal subnet mask.
 #   Accepts the prefix with or without a leading slash (e.g. /24 or 24).

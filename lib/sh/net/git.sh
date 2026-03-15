@@ -32,8 +32,8 @@
 
 # Provenance: https://raw.githubusercontent.com/mietek/bashmenot/master/src/git.sh
 
-[ -n "${_SH_LOADED_net_git+x}" ] && return 0
-_SH_LOADED_net_git=1
+[ -n "${_SHELLAC_LOADED_net_git+x}" ] && return 0
+_SHELLAC_LOADED_net_git=1
 
 # @description Check whether a string looks like a valid git URL (https, ssh, git@, file, http, git).
 #

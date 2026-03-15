@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_array_slice+x}" ] && return 0
-_SH_LOADED_array_slice=1
+[ -n "${_SHELLAC_LOADED_array_slice+x}" ] && return 0
+_SHELLAC_LOADED_array_slice=1
 
 # @description Print a slice of array elements using Python-style index notation.
 #   Supports single index, range, and step variants.

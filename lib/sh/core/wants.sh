@@ -1,7 +1,7 @@
 # shellcheck shell=ksh
 
-[ -n "${_SH_LOADED_core_wants+x}" ] && return 0
-_SH_LOADED_core_wants=1
+[ -n "${_SHELLAC_LOADED_core_wants+x}" ] && return 0
+_SHELLAC_LOADED_core_wants=1
 
 # Copyright 2022 Rawiri Blundell
 #

@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_replace+x}" ] && return 0
-_SH_LOADED_text_replace=1
+[ -n "${_SHELLAC_LOADED_text_replace+x}" ] && return 0
+_SHELLAC_LOADED_text_replace=1
 
 
 # @description Replace occurrences of a pattern in a string.

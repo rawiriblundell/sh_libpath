@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_rot13+x}" ] && return 0
-_SH_LOADED_text_rot13=1
+[ -n "${_SHELLAC_LOADED_text_rot13+x}" ] && return 0
+_SHELLAC_LOADED_text_rot13=1
 
 # @description Apply ROT13 encoding to text. Accepts a file path, string argument, or stdin.
 #

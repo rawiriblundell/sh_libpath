@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_numbers_random+x}" ] && return 0
-_SH_LOADED_numbers_random=1
+[ -n "${_SHELLAC_LOADED_numbers_random+x}" ] && return 0
+_SHELLAC_LOADED_numbers_random=1
 
 # @description Generate a numeric seed suitable for use with PRNG functions.
 #   Prefers /dev/urandom+od, falls back to date +%s, then a portable shell calculation.

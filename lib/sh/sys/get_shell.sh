@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_sys_get_shell+x}" ] && return 0
-_SH_LOADED_sys_get_shell=1
+[ -n "${_SHELLAC_LOADED_sys_get_shell+x}" ] && return 0
+_SHELLAC_LOADED_sys_get_shell=1
 
 # @description Print the name of the currently running shell.
 #   Tries /proc/$$cmdline, then various 'ps' invocations, then procstat (FreeBSD),

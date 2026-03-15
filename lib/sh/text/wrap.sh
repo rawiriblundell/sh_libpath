@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_wrap+x}" ] && return 0
-_SH_LOADED_text_wrap=1
+[ -n "${_SHELLAC_LOADED_text_wrap+x}" ] && return 0
+_SHELLAC_LOADED_text_wrap=1
 
 # @description Format a long command into multi-line with vertically aligned backslash continuations.
 #   Each flag/option starting with ' -' is placed on its own line, indented by two spaces.

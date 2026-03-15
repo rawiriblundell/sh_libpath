@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_sys_mount+x}" ] && return 0
-_SH_LOADED_sys_mount=1
+[ -n "${_SHELLAC_LOADED_sys_mount+x}" ] && return 0
+_SHELLAC_LOADED_sys_mount=1
 
 if ! command -v mount >/dev/null 2>&1; then
   printf -- 'get_mounts: %s\n' "This library requires 'mount', which was not found in PATH" >&2

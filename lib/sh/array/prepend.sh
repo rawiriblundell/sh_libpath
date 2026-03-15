@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_array_prepend+x}" ] && return 0
-_SH_LOADED_array_prepend=1
+[ -n "${_SHELLAC_LOADED_array_prepend+x}" ] && return 0
+_SHELLAC_LOADED_array_prepend=1
 
 # @description Prepend one or more elements to the front of a named array.
 #

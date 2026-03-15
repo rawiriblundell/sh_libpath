@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_numbers_ldaptime_to_epoch+x}" ] && return 0
-_SH_LOADED_numbers_ldaptime_to_epoch=1
+[ -n "${_SHELLAC_LOADED_numbers_ldaptime_to_epoch+x}" ] && return 0
+_SHELLAC_LOADED_numbers_ldaptime_to_epoch=1
 
 # @description Convert a Windows/LDAP 100-nanosecond interval timestamp to a Unix epoch.
 #   The LDAP timestamp counts 100ns intervals since 1 January 1601.

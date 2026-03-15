@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_openssl_convert_crt_to_pem+x}" ] && return 0
-_SH_LOADED_openssl_convert_crt_to_pem=1
+[ -n "${_SHELLAC_LOADED_openssl_convert_crt_to_pem+x}" ] && return 0
+_SHELLAC_LOADED_openssl_convert_crt_to_pem=1
 
 if ! command -v openssl >/dev/null 2>&1; then
     printf -- 'convert_crt_to_pem: %s\n' "This library requires 'openssl', which was not found in PATH" >&2

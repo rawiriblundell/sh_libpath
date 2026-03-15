@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_shuffle+x}" ] && return 0
-_SH_LOADED_text_shuffle=1
+[ -n "${_SHELLAC_LOADED_text_shuffle+x}" ] && return 0
+_SHELLAC_LOADED_text_shuffle=1
 
 # @description Randomise the characters within each word of the input using a
 #   Knuth-Fisher-Yates shuffle. Single-character words are passed through unchanged.

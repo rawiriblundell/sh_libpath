@@ -1,4 +1,4 @@
-# sh_libpath
+# SHELLAC
 
 Making shell scripts more robust and readable with libraries
 
@@ -8,7 +8,7 @@ Making shell scripts more robust and readable with libraries
 #!/usr/bin/env bash
 
 # Load our init script
-. /path/to/init-shlibpath || exit 1
+. /path/to/shellac || exit 1
 
 # Import the function libraries that it provides
 # Without a given extension, ".sh" is assumed
@@ -32,12 +32,12 @@ wants /opt/secrets/squirrels.conf
 
 This project proposes adding a library ecosystem, primarily for use in shell scripts.
 
-`init-shlibpath` bootstraps a few environment vars, most importantly:
+`shellac` bootstraps a few environment vars, most importantly:
 
 * `SH_LIBPATH` - this is a colon-separated list of library paths, just like `PATH`
 * `SH_LIBPATH_ARRAY` - the same as above, just in an array
-* `SH_LIBPATH_LOADED` - sentinel variable set when `init-shlibpath` is sourced, preventing re-initialisation
-* `_SH_LOADED_<category>_<name>` - per-library sentinel variables set when each library is sourced, preventing duplicate loads
+* `SHELLAC_LOADED` - sentinel variable set when `shellac` is sourced, preventing re-initialisation
+* `_SHELLAC_LOADED_<category>_<name>` - per-library sentinel variables set when each library is sourced, preventing duplicate loads
 
 The proposed library structure caters for both monolithic libraries e.g.
 

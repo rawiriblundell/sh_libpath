@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_sys_cpu+x}" ] && return 0
-_SH_LOADED_sys_cpu=1
+[ -n "${_SHELLAC_LOADED_sys_cpu+x}" ] && return 0
+_SHELLAC_LOADED_sys_cpu=1
 
 # @description Populate the global cpuPhysCount with the number of physical CPU sockets.
 #   Tries lscpu, then dmidecode, then /proc/cpuinfo; defaults to 1 if undetermined.

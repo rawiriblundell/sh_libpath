@@ -32,8 +32,8 @@
 
 # Provenance: https://raw.githubusercontent.com/mietek/bashmenot/master/src/file.sh
 
-[ -n "${_SH_LOADED_utils_file+x}" ] && return 0
-_SH_LOADED_utils_file=1
+[ -n "${_SHELLAC_LOADED_utils_file+x}" ] && return 0
+_SHELLAC_LOADED_utils_file=1
 
 # @description Generate a unique temporary filename using mktemp -u.
 #   Uses BASHMENOT_INTERNAL_TMP as the base directory if set, otherwise /tmp.

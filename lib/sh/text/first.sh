@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_first+x}" ] && return 0
-_SH_LOADED_text_first=1
+[ -n "${_SHELLAC_LOADED_text_first+x}" ] && return 0
+_SHELLAC_LOADED_text_first=1
 
 # @description Return the first character, column, or line of input.
 #   Without a subcommand, returns the first line from stdin or a file.

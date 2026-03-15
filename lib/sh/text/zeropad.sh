@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_zeropad+x}" ] && return 0
-_SH_LOADED_text_zeropad=1
+[ -n "${_SHELLAC_LOADED_text_zeropad+x}" ] && return 0
+_SHELLAC_LOADED_text_zeropad=1
 
 # @description Right-pad an integer with zeros to reach a minimum length.
 #   If the integer is already at or above the target length, it is printed unchanged.

@@ -32,8 +32,8 @@
 
 # Provenance: https://raw.githubusercontent.com/mietek/bashmenot/master/src/package.sh
 
-[ -n "${_SH_LOADED_sys_package+x}" ] && return 0
-_SH_LOADED_sys_package=1
+[ -n "${_SHELLAC_LOADED_sys_package+x}" ] && return 0
+_SHELLAC_LOADED_sys_package=1
 
 # @description Scan a directory tree for broken symbolic links and attempt to
 #   repair them by searching for a file with the same name nearby. Links that

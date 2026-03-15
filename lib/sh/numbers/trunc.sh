@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_numbers_trunc+x}" ] && return 0
-_SH_LOADED_numbers_trunc=1
+[ -n "${_SHELLAC_LOADED_numbers_trunc+x}" ] && return 0
+_SHELLAC_LOADED_numbers_trunc=1
 
 # @description Remove the fractional part from a float, returning only the integer portion.
 #

@@ -18,8 +18,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_linenoise+x}" ] && return 0
-_SH_LOADED_text_linenoise=1
+[ -n "${_SHELLAC_LOADED_text_linenoise+x}" ] && return 0
+_SHELLAC_LOADED_text_linenoise=1
 
 # @description Simulate a fake SSH connection attempt with animated ASCII noise.
 #   Cycles through ASCII characters in-place for a visual "hashing" effect,

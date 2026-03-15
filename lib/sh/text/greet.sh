@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_greet+x}" ] && return 0
-_SH_LOADED_text_greet=1
+[ -n "${_SHELLAC_LOADED_text_greet+x}" ] && return 0
+_SHELLAC_LOADED_text_greet=1
 
 # @description Print a time-appropriate greeting (morning, afternoon, or evening).
 #   Uses the current hour from `date`, or the value of the $DayGreet variable if set.

@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_net_get_dns+x}" ] && return 0
-_SH_LOADED_net_get_dns=1
+[ -n "${_SHELLAC_LOADED_net_get_dns+x}" ] && return 0
+_SHELLAC_LOADED_net_get_dns=1
 
 # @description Get the DNS server addresses for the current host. Tries a range of
 #   methods in order: scutil (macOS), resolvectl, systemd-resolve, nm-tool, nmcli,

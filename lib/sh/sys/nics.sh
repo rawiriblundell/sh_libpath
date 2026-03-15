@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_sys_nics+x}" ] && return 0
-_SH_LOADED_sys_nics=1
+[ -n "${_SHELLAC_LOADED_sys_nics+x}" ] && return 0
+_SHELLAC_LOADED_sys_nics=1
 
 # @description Print information about all network interfaces on the host.
 #   Checks /sys/class/net, then 'ip a', then 'ifconfig -a', then ethtool per

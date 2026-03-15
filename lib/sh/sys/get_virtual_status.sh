@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_sys_get_virtual_status+x}" ] && return 0
-_SH_LOADED_sys_get_virtual_status=1
+[ -n "${_SHELLAC_LOADED_sys_get_virtual_status+x}" ] && return 0
+_SHELLAC_LOADED_sys_get_virtual_status=1
 
 # @description Determine whether the host is a virtual machine or physical host
 #   by inspecting /proc/cpuinfo for hypervisor and virtualisation CPU flags.

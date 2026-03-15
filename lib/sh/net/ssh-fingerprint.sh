@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_net_ssh_fingerprint+x}" ] && return 0
-_SH_LOADED_net_ssh_fingerprint=1
+[ -n "${_SHELLAC_LOADED_net_ssh_fingerprint+x}" ] && return 0
+_SHELLAC_LOADED_net_ssh_fingerprint=1
 
 # @description Display the SSH key fingerprint(s) for one or more remote hosts.
 #   With '-a' or '--append', the scanned keys are merged into ~/.ssh/known_hosts.

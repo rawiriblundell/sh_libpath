@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_units_temperature+x}" ] && return 0
-_SH_LOADED_units_temperature=1
+[ -n "${_SHELLAC_LOADED_units_temperature+x}" ] && return 0
+_SHELLAC_LOADED_units_temperature=1
 
 if ! command -v bc >/dev/null 2>&1; then
     printf -- 'temperature: %s\n' "This library requires 'bc', which was not found in PATH" >&2

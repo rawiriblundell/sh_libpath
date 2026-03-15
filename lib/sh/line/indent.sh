@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_line_indent+x}" ] && return 0
-_SH_LOADED_line_indent=1
+[ -n "${_SHELLAC_LOADED_line_indent+x}" ] && return 0
+_SHELLAC_LOADED_line_indent=1
 
 # @description Indent each line of input by n spaces (default: 2).
 #   Reads from a file path or stdin.

@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_utils_get_command+x}" ] && return 0
-_SH_LOADED_utils_get_command=1
+[ -n "${_SHELLAC_LOADED_utils_get_command+x}" ] && return 0
+_SHELLAC_LOADED_utils_get_command=1
 
 # @description Check whether one or more commands exist in PATH. With -v/--verbose,
 #   prints the resolved path of each found command and an error for each missing one.
