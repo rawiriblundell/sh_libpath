@@ -28,15 +28,6 @@ _SH_LOADED_text_style=1
 # * https://gist.github.com/XVilka/8346728
 # * https://stackoverflow.com/a/33206814
 
-# @description Remove the first n lines from stdin (default: 1).
-#
-# @arg $1 int Optional: number of lines to remove (default: 1)
-#
-# @stdout Input with leading lines removed
-# @exitcode 0 Always
-text_behead() {
-  awk -v head="${1:-1}" '{if (NR>head) {print}}'
-}
 
 # @description Apply slow blink ANSI formatting to text.
 #   Accepts input as an argument or via stdin/file.
@@ -139,31 +130,7 @@ text_faint() {
   fi
 }
 
-# @description Write a horizontal line of characters.
-#
-# @arg $1 int Optional: line width in columns (default: $COLUMNS)
-# @arg $2 string Optional: fill character (default: #)
-#
-# @stdout A horizontal line of the specified character and width
-# @exitcode 0 Always
-text_hr() {
-  # shellcheck disable=SC2183
-  printf -- '%*s\n' "${1:-$COLUMNS}" | tr ' ' "${2:-#}"
-}
 
-# @description Indent each line of input by n spaces (default: 2).
-#
-# @arg $1 int Optional: number of spaces to indent (default: 2)
-# @arg $2 string Optional: file path (default: stdin)
-#
-# @stdout Indented text
-# @exitcode 0 Always
-text_indent() {
-  local identWidth
-  identWidth="${1:-2}"
-  identWidth=$(eval "printf -- '%.0s ' {1..${identWidth}}")
-  sed "s/^/${identWidth}/" "${2:-/dev/stdin}"
-}
 
 # @description Swap foreground and background colors using ANSI invert formatting.
 #   Accepts input as an argument or via stdin/file.
@@ -287,34 +254,6 @@ text_strike() {
   fi
 }
 
-# @description Strip leading and trailing whitespace from text.
-#   Accepts input as an argument or via stdin/file.
-#
-# @arg $1 string Optional: file path or string to trim
-#
-# @stdout Trimmed text
-# @exitcode 0 Always
-text_trim() {
-  LC_CTYPE=C
-  local outLn=""
-  # If $1 is a readable file OR if $1 is blank, we process line by line
-  # Because we assign a variable, leading and trailing whitespace is stripped
-  if [[ -r "${1}" ]]||[[ -z "${1}" ]]; then
-    while read -r outLn; do
-      printf -- '%s\n' "${outLn}"
-    done < "${1:-/dev/stdin}"
-  # Otherwise, we process whatever input arg(s) have been supplied
-  else
-    local readLn="${*}"
-    while true; do
-      outLn="${readLn#[[:space:]]}"  # Strip whitespace to the left
-      outLn="${outLn%[[:space:]]}"   # Strip whitespace to the right
-      [[ "${outLn}" = "${readLn}" ]] && break
-      readLn="${outLn}"
-    done
-    printf -- '%s\n' "${outLn}"
-  fi
-}
 
 # @description Apply underline ANSI formatting to text.
 #   Accepts input as an argument or via stdin/file.
@@ -546,7 +485,7 @@ else
   text_capitalise-string() {
     # Split off the first character, uppercase it and trim
     # Next, print the string from the second character onwards
-    printf -- '%s\n' "$(text_toupper "${1:0:1}" | text_trim)${1:1}"
+    printf -- '%s\n' "$(text_toupper "${1:0:1}")${1:1}"
   }
 fi
 
