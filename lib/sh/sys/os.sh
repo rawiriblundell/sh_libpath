@@ -24,7 +24,6 @@ _SHELLAC_LOADED_sys_os=1
 #   Sets OSSTR, OSVER, OSTYPE, OS, KERNEL, RELEASE, MACHTYPE, HOSTTYPE, MACH,
 #   OSBOOTTIME, and where applicable: DistroBasedOn, DistroPkgType,
 #   DistroFullName, DistroCodename, DistroRevision.
-#   Also defines get_uptime() with a platform-appropriate implementation.
 #   Sets LC_ALL=C and LANG=C for consistent parsing.
 #
 # @exitcode 0 Always
@@ -45,56 +44,10 @@ get_os_info() {
             [ -z "${OSTYPE}" ] && OSTYPE=aix
             [ -z "${OSSTR}" ] && OSSTR=aix
             #OSVER=
-            # @description Print system uptime in seconds. Defined per-OS in a case block;
-            #   output format varies by platform (Linux: /proc/uptime format, BSD/macOS: epoch
-            #   difference, AIX: parsed uptime string, Solaris: includes additional sysinfo).
-            #
-            # @stdout Uptime in seconds (platform-dependent format)
-            # @exitcode 0 Always
-            # Known uptime formats
-            # 12:55pm  up 105 days, 21 hrs,  2 users, load average: 0.26, 0.26, 0.26 --> 9147600
-            # 1:41pm   up 105 days, 21:46,   2 users, load average: 0.28, 0.28, 0.27 --> 9150360
-            # 05:26PM  up           1:16,    1 user,  load average: 0.33, 0.21, 0.20 --> 4560
-            # 06:13PM  up           2:03,    1 user,  load average: 1.16, 1.07, 0.91 --> 7380
-            # 08:43AM  up 29 mins,           1 user,  load average: 0.09, 0.18, 0.21 --> 1740
-            # 08:47AM  up 66 days,  18:34,   1 user,  load average: 2.25, 2.43, 2.61 --> 5769240
-            # 08:45AM  up 76 days,  34 mins, 1 user,  load average: 2.25, 2.43, 2.61 --> 5769240
-            get_uptime() {
-                _uptime=$(uptime | sed -e 's/^.*up//g' -e 's/[0-9]* user.*//g')
-                case ${_uptime} in
-                    ( *day* ) _up_days=$(printf -- '%s' "${_uptime}" | sed -e 's/days\{0,1\},.*//g') ;;
-                    ( * ) _up_days="0" ;;
-                esac
-
-                case ${_uptime} in
-                    ( *:* )
-                        _up_hours=$(printf -- '%s' "${_uptime}" | sed -e 's/.*days\{0,1\},//g' -e 's/:.*//g')
-                        _up_mins=$(printf -- '%s' "${_uptime}" | sed -e 's/.*days\{0,1\},//g' -e 's/.*://g' -e 's/,.*//g')
-                    ;;
-                    ( *hr* )
-                        _up_hours=$(printf -- '%s' "${_uptime}" | sed -e 's/hrs\{0,1\},.*//g' -e 's/.*,//g')
-                        _up_mins=0
-                    ;;
-                    ( *min* )
-                        _up_hours=0
-                        _up_mins=$(printf -- '%s' "${_uptime}" | sed -e 's/mins\{0,1\},.*//g' -e 's/.*hrs\{0,1\},//g' -e 's/.*days\{0,1\},//g')
-                    ;;
-                    ( * )
-                        _up_hours="0"
-                        _up_mins=0
-                    ;;
-                esac
-
-                printf -- '%d\n' "$(( (_up_days*86400)+(_up_hours*3600)+(_up_mins*60) ))"
-                unset -v _uptime _up_hours _up_mins
-            }
         ;;
         ("Darwin")
             OSSTR=mac
             OSVER="$(sw_vers | sed 1d | paste -sd ' ' - | awk -F" " '{print $2" ("$4")"}')"
-            get_uptime() {
-                printf -- '%s\n' "$(get_epoch) - $(sysctl -n kern.boottime | cut -d' ' -f 4,7 | tr ',' '.' | tr -d ' ')" | bc
-            }
             : "${XDG_DATA_HOME:-$HOME/Library/Application Support}"
             : "${XDG_DATA_DIRS:-/Library/Application Support}"
             : "${XDG_CONFIG_HOME:-$HOME/Library/Application Support}"
@@ -127,15 +80,6 @@ get_os_info() {
         ("FreeBSD")
             OSSTR=freebsd
             #OSVER=
-            get_uptime() {
-                # Calculate the uptime in seconds since epoch compatible to /proc/uptime in linux
-                _up_seconds=$(( $(get_epoch) - $(sysctl -n kern.boottime  | cut -f1 -d\, | awk '{print $4}') ))
-                # pgrep is not appropriate (or even available?) here
-                # shellcheck disable=SC2009
-                _idle_seconds=$(ps axw | grep "[i]dle" | awk '/idle/{print $4}' | cut -f1 -d':' )
-                printf -- '%s\n' "${_up_seconds} ${_idle_seconds}"
-                unset -v _up_seconds _idle_seconds
-            }
         ;;
         ("HPUX")
             [ -z "${OSTYPE}" ] && OSTYPE=hpux
@@ -162,13 +106,6 @@ get_os_info() {
             : "${XDG_VIDEOS_DIR:-$HOME/Videos}"
             : "${XDG_TEMPLATES_DIR:-$HOME/Templates}"
             : "${XDG_PUBLICSHARE_DIR:-$HOME/Public}"
-            get_uptime() {
-                if var_is_unset "${MK_IS_DOCKERIZED}"; then
-                    cat /proc/uptime
-                else
-                    printf -- '%s\n' "$(($(get_epoch) - $(stat -c %Z /dev/pts)))"
-                fi
-            }
             # Operating System
             # For versions that have 'PRETTY_NAME' in e.g. /etc/os-release
             if nullgrep "^PRETTY_NAME.*[0-9]" /etc/os-release; then
@@ -221,16 +158,10 @@ get_os_info() {
         ("NetBSD")
             OSSTR=netbsd
             #OSVER=
-            get_uptime() {
-                printf -- '%s\n' "$(get_epoch) - $(sysctl -n kern.boottime | cut -d' ' -f 4,7 | tr ',' '.' | tr -d ' ')" | bc
-            }
         ;;
         ("OpenBSD")
             OSSTR=openbsd
             #OSVER=
-            get_uptime() {
-                printf -- '%s\n' "$(get_epoch) - $(sysctl -n kern.boottime | cut -d' ' -f 4,7 | tr ',' '.' | tr -d ' ')" | bc
-            }
         ;;
         ("SunOS"|"solaris")
             [ -z "${OSTYPE}" ] && OSTYPE=solaris
@@ -239,20 +170,6 @@ get_os_info() {
             export ARCH OSSTR
             OSSTR=solaris
             #OSVER=
-            get_uptime() {
-                # Solaris doesn't always give a consistent output on uptime, thus include side information
-                # Tested in VM for solaris 10/11
-                _ctime=$(nawk 'BEGIN{print srand()}')
-                _btime=$(kstat '-p' 'unix:::boot_time' 2>&1|grep 'boot_time'|awk '{print $2}')
-                printf -- '%d\n' "$(( _ctime - _btime ))"
-                printf -- '%s\n' '[uptime_solaris_start]'
-                uname -a
-                zonename
-                uptime
-                kstat -p unix:0:system_misc:snaptime
-                printf -- '%s\n' '[uptime_solaris_end]'
-                unset -v _ctime _btime
-            }
         ;;
         (*"BSD"|*"bsd"|"DragonFly"|"Bitrig")
             [ -z "${OSTYPE}" ] && OSTYPE=bsd
