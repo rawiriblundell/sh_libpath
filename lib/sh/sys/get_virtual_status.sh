@@ -74,7 +74,7 @@ is-aws() {
   fi
 }
 
-if iscommand virt-what; then
+if command -v virt-what >/dev/null 2>&1; then
   sys_type=$(virt-what 2>/dev/null | head -n 1)
 fi
 
@@ -106,13 +106,13 @@ Fn_getVirt() {
 if [[ -z "${sys_type}" ]]; then
   if grep -qE '^flags.*svm|^flags.*vmx' /proc/cpuinfo 2>/dev/null; then
     sys_type=Physical
-  elif iscommand facter; then
+  elif command -v facter >/dev/null 2>&1; then
     sys_type=$(facter virtual  2>/dev/null)
-  elif iscommand pciconf; then
+  elif command -v pciconf >/dev/null 2>&1; then
     sys_type=$(pciconf -lv 2>/dev/null | Fn_getVirt)
-  elif iscommand dmidecode; then
+  elif command -v dmidecode >/dev/null 2>&1; then
     sys_type=$(dmidecode 2>/dev/null | Fn_getVirt)
-  elif iscommand lspci; then
+  elif command -v lspci >/dev/null 2>&1; then
     sys_type=$(lspci -v 2>/dev/null | Fn_getVirt)
   elif [[ -d /dev/disk/by-id ]]; then
     sys_type=$(find /dev/disk/by-id | Fn_getVirt)

@@ -32,16 +32,16 @@ get_nics() {
     ls -ltr /sys/class/net/* 2>/dev/null || printInf "no devices found in /sys/class/net/"
   fi
 
-  if iscommand ip; then
+  if command -v ip >/dev/null 2>&1; then
     ip a 2>/dev/null | grep -v "valid_lft" || printInf "'ip a' did not return any output"
   fi
 
-  if iscommand ifconfig; then
+  if command -v ifconfig >/dev/null 2>&1; then
     ifconfig -a 2>/dev/null | grep -Ev 'RX|TX|collisions' || printInf "'ifconfig -a' did not return any output"
   fi
 
   # If ethtool is present, let's use it to produce information about ethx interfaces
-  if iscommand ethtool; then
+  if command -v ethtool >/dev/null 2>&1; then
     for NetIF in $(ip a | grep "^[0-9]" | cut -d: -f2); do
       ethtool "${NetIF}" 2>/dev/null
     done

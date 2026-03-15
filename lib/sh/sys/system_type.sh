@@ -20,7 +20,7 @@
 [ -n "${_SHELLAC_LOADED_sys_system_type+x}" ] && return 0
 _SHELLAC_LOADED_sys_system_type=1
 
-if iscommand virt-what; then
+if command -v virt-what >/dev/null 2>&1; then
   sys_type=$(virt-what 2>/dev/null | head -n 1)
 fi
 
@@ -52,13 +52,13 @@ get_virt_type() {
 if [[ -z "${sys_type}" ]]; then
   if grep -qE '^flags.*svm|^flags.*vmx' /proc/cpuinfo 2>/dev/null; then
     sys_type=Physical
-  elif iscommand facter; then
+  elif command -v facter >/dev/null 2>&1; then
     sys_type=$(facter virtual  2>/dev/null)
-  elif iscommand pciconf; then
+  elif command -v pciconf >/dev/null 2>&1; then
     sys_type=$(pciconf -lv 2>/dev/null | get_virt_type)
-  elif iscommand dmidecode; then
+  elif command -v dmidecode >/dev/null 2>&1; then
     sys_type=$(dmidecode 2>/dev/null | get_virt_type)
-  elif iscommand lspci; then
+  elif command -v lspci >/dev/null 2>&1; then
     sys_type=$(lspci -v 2>/dev/null | get_virt_type)
   elif [[ -d /dev/disk/by-id ]]; then
     sys_type=$(find /dev/disk/by-id | get_virt_type)

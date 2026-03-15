@@ -36,7 +36,7 @@ case "${OSSTR:-$(uname -s)}" in
     # System Manufacturer
     # Possible alternative for x86:
     # prtconf -pv | awk -F ':' '/machine-mfg/{print $2; exit}' | trim
-    if iscommand smbios; then
+    if command -v smbios >/dev/null 2>&1; then
       if smbios -t SMB_TYPE_SYSTEM >/dev/null 2>&1; then
         sysManufacturer=$( \
           smbios -t SMB_TYPE_SYSTEM \

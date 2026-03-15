@@ -21,7 +21,7 @@
 _SHELLAC_LOADED_sys_mem=1
 
   # Start by checking for 'top'
-  if iscommand top; then
+  if command -v top >/dev/null 2>&1; then
     printMdSubHead "Memory information from 'top'"
     top -n 1 -b | grep -E "Mem|Swap"
     printMdTags
@@ -45,7 +45,7 @@ _SHELLAC_LOADED_sys_mem=1
   printBlankLine
 
   # And finally try to cull more info from 'free'
-  if iscommand free; then
+  if command -v free >/dev/null 2>&1; then
     printMdSubHead "Memory information from 'free'"
     free -l 2>/dev/null || printErr "no output from 'free -l'"
     printMdTags

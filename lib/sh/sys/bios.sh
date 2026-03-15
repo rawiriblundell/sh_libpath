@@ -22,13 +22,13 @@ _SHELLAC_LOADED_sys_bios=1
 
 case "${OSSTR:-$(uname -s)}" in
   ([lL]inux)
-    if iscommand dmidecode; then
+    if command -v dmidecode >/dev/null 2>&1; then
       sys_bios=$(dmidecode | grep -m 1 -A 2 Vendor | awk -F ':' '{print $2}' | paste -sd '' - | trim)
     fi
   ;;
   (SunOS|solaris)
     # BIOS Version
-    if iscommand prtdiag; then
+    if command -v prtdiag >/dev/null 2>&1; then
       if prtdiag >/dev/null 2>&1; then
         sys_bios=$(prtdiag -v | grep -E '^OBP|^BIOS')
       fi
