@@ -107,35 +107,105 @@ fi
 
 sh_stack_add "SH_LIBPATH: ${SH_LIBPATH}"
 
-# TODO: Update to parse first-found library only
-# Or update to present the reverse e.g.
-# Function 'is()' provided by the following libraries: a, b, c
-# TODO: Evolve to add function description parsing?
-# e.g.
-# funcname() {
-#   # Description: This function converts a into b
-# Take the description and present it in the output of this function
-# TODO: Add status e.g.
-# Library                Status
-# -----------------------------
-# alt_strcaps.sh         Loaded
-# -> alt_strcaps()       Loaded
-ls_shlibs() {
-  for _element in "${SH_LIBPATH_ARRAY[@]}"; do
-    while read -r _library_file; do
-      if grep '() {' "${_library_file}" >/dev/null 2>&1; then
-        printf -- '%s:\n' "${_library_file}"
-        grep '() {' "${_library_file}" | 
-          grep -v '#' |
-          sed -e "s/^/  --> /" -e 's/() {.*//g' |
-          sort |
-          uniq
-      fi
-    done < <(find "${_element}" -type f)
-  done
-  unset -v _element _library_file
-}
-
+# @internal
 _is_function_loaded() {
   typeset -f "${1:?No function defined}" >/dev/null
+}
+
+# @internal
+# Print a library tree grouped by category, marking loaded libraries.
+_ls_shlibs_libraries() {
+  local _element
+  local _library_file
+  local _rel_path
+  local _category
+  local _sentinel
+  local _prev_category
+  _prev_category=''
+
+  for _element in "${SH_LIBPATH_ARRAY[@]}"; do
+    while read -r _library_file; do
+      _rel_path="${_library_file#"${_element}/"}"
+      _category="${_rel_path%/*}"
+      [[ "${_category}" = "${_rel_path}" ]] && _category='.'
+      if [[ "${_category}" != "${_prev_category}" ]]; then
+        printf -- '\n%s/\n' "${_category}"
+        _prev_category="${_category}"
+      fi
+      _sentinel="_SH_LOADED_${_rel_path%.sh}"
+      _sentinel="${_sentinel//\//_}"
+      if [[ -n "${!_sentinel+x}" ]]; then
+        printf -- '  %-40s %s\n' "${_rel_path##*/}" "(loaded)"
+      else
+        printf -- '  %s\n' "${_rel_path##*/}"
+      fi
+    done < <(find "${_element}" -type f -name "*.sh" | sort)
+  done
+}
+
+# @internal
+# Print a flat list of all public functions with their @description summaries.
+# Functions marked @internal are suppressed. Loaded functions are marked.
+_ls_shlibs_functions() {
+  local _element
+  local _library_file
+  local _line
+  local _pending_desc
+  local _skip_next
+  local _func_name
+  local _func_status
+
+  for _element in "${SH_LIBPATH_ARRAY[@]}"; do
+    while read -r _library_file; do
+      _pending_desc=''
+      _skip_next=0
+      while IFS= read -r _line; do
+        if [[ "${_line}" = '# @internal'* ]]; then
+          _skip_next=1
+          _pending_desc=''
+        elif [[ "${_line}" = '# @description '* ]]; then
+          _pending_desc="${_line#'# @description '}"
+          _skip_next=0
+        elif [[ "${_line}" = '# @description' ]]; then
+          _pending_desc=''
+          _skip_next=0
+        elif [[ "${_line}" =~ ^[a-zA-Z][a-zA-Z0-9_]*\(\) ]]; then
+          if (( ! _skip_next )); then
+            _func_name="${BASH_REMATCH[0]%()}"
+            if _is_function_loaded "${_func_name}"; then
+              _func_status='(loaded)'
+            else
+              _func_status=''
+            fi
+            printf -- '  %-35s %-55s %s\n' \
+              "${_func_name}" \
+              "${_pending_desc:-(undocumented)}" \
+              "${_func_status}"
+          fi
+          _pending_desc=''
+          _skip_next=0
+        fi
+      done < "${_library_file}"
+    done < <(find "${_element}" -type f -name "*.sh" | sort)
+  done
+}
+
+# @description List available libraries or functions from SH_LIBPATH.
+#   'libraries' prints a tree grouped by category with loaded status.
+#   'functions' prints a flat list of public functions and their descriptions.
+#
+# @arg $1 string Subcommand: 'libraries' (default) or 'functions'
+#
+# @exitcode 0 Always
+# @exitcode 1 Unknown subcommand
+ls_shlibs() {
+  case "${1:-libraries}" in
+    (libraries) _ls_shlibs_libraries ;;
+    (functions) _ls_shlibs_functions ;;
+    (*)
+      printf -- 'ls_shlibs: %s\n' "Unknown subcommand: ${1}" >&2
+      printf -- '%s\n' "Usage: ls_shlibs [libraries|functions]" >&2
+      return 1
+    ;;
+  esac
 }
