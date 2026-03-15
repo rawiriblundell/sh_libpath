@@ -36,7 +36,5 @@ str_indent() {
 
 # @description Alias for str_indent.
 indent() {
-  _ident_width="${1:-2}"
-  _ident_width=$(eval "printf -- '%.0s ' {1..${_ident_width}}")
-  sed "s/^/${_ident_width}/" "${2:-/dev/stdin}"
+  str_indent "${@}"
 }

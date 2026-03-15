@@ -39,10 +39,5 @@ last() {
 
 # @description Alias for last().
 str_last() {
-  case "${1}" in
-    (char)       shift 1; read -r line; printf -- '%s' "${line#"${line%?}"}" ;;
-    (col|column) shift 1; awk '{print $NF}' "${@}" ;;
-    (row|line)   shift 1; tail -n 1 "${@}" ;;
-    (*)          tail -n 1 "${@}" ;;
-  esac
+  last "${@}"
 }

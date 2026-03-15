@@ -46,12 +46,5 @@ str_append() {
 
 # @description Alias for str_append.
 append() {
-  local _append_delimiter
-  case "${1}" in
-    (-d|--delimiter)
-      _append_delimiter="${2}"
-      shift 2
-    ;;
-  esac
-  printf -- '%s\n' "${1}${_append_delimiter:- }${2}"
+  str_append "${@}"
 }

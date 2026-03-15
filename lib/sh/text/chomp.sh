@@ -33,15 +33,7 @@ str_chomp() {
   printf -- '%s\n' "${_chomp_str}"
 }
 
-# @description Remove trailing newlines from a string and print the result.
-#
-# @arg $@ string The input string
-#
-# @stdout Input string with trailing newline stripped
-# @exitcode 0 Always
+# @description Alias for str_chomp.
 chomp() {
-  local _chomp_stdout
-  _chomp_stdout="${*}"
-  _chomp_stdout="${_chomp_stdout%$'\n'}"
-  printf -- '%s\n' "${_chomp_stdout}"
+  str_chomp "${@}"
 }
