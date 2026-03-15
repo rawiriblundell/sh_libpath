@@ -26,6 +26,8 @@ _SHELLAC_LOADED_sys_os=1
 # DistroFullName, DistroCodename, DistroRevision.
 # Sets LC_ALL=C and LANG=C for consistent parsing.
 
+_os_LC_ALL="${LC_ALL:-}"
+_os_LANG="${LANG:-}"
 LC_ALL=C
 LANG=C
 export LANG LC_ALL
@@ -223,3 +225,8 @@ MACH=$(uname -m)
 export HOSTTYPE KERNEL MACH MACHTYPE OS
 
 OSSTR="${OS} ${DistroBasedOn} ${RELEASE} (${DistroCodename} ${KERNEL} ${MACH})"
+
+LC_ALL="${_os_LC_ALL}"
+LANG="${_os_LANG}"
+export LANG LC_ALL
+unset -v _os_LC_ALL _os_LANG
