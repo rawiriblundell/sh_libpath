@@ -40,7 +40,7 @@ convert_time_to_epoch() {
     local _sec _min _hours _day _month _year _timestamp
     # Read our incoming date/time information into our variables
     _month="${1:?No date provided}"; _day="${2}"; _year="${3}"; _timestamp="${4}"
-    write "${_timestamp}" | while IFS=':' read -r _hours _min _sec; do
+    printf -- '%s\n' "${_timestamp}" | while IFS=':' read -r _hours _min _sec; do
         # Convert the month to 0..11 range
         case "${_month}" in
             ([jJ]an*) _month=0 ;;

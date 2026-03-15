@@ -43,22 +43,22 @@ case $(uname -s) in
         get_uptime() {
             _uptime=$(uptime | sed -e 's/^.*up//g' -e 's/[0-9]* user.*//g')
             case ${_uptime} in
-                ( *day* ) _up_days=$(write "${_uptime}" | sed -e 's/days\{0,1\},.*//g') ;;
+                ( *day* ) _up_days=$(printf -- '%s\n' "${_uptime}" | sed -e 's/days\{0,1\},.*//g') ;;
                 ( * ) _up_days="0" ;;
             esac
 
             case ${_uptime} in
                 ( *:* )
-                    _up_hours=$(write "${_uptime}" | sed -e 's/.*days\{0,1\},//g' -e 's/:.*//g')
-                    _up_mins=$(write "${_uptime}" | sed -e 's/.*days\{0,1\},//g' -e 's/.*://g' -e 's/,.*//g')
+                    _up_hours=$(printf -- '%s\n' "${_uptime}" | sed -e 's/.*days\{0,1\},//g' -e 's/:.*//g')
+                    _up_mins=$(printf -- '%s\n' "${_uptime}" | sed -e 's/.*days\{0,1\},//g' -e 's/.*://g' -e 's/,.*//g')
                 ;;
                 ( *hr* )
-                    _up_hours=$(write "${_uptime}" | sed -e 's/hrs\{0,1\},.*//g' -e 's/.*,//g')
+                    _up_hours=$(printf -- '%s\n' "${_uptime}" | sed -e 's/hrs\{0,1\},.*//g' -e 's/.*,//g')
                     _up_mins=0
                 ;;
                 ( *min* )
                     _up_hours=0
-                    _up_mins=$(write "${_uptime}" | sed -e 's/mins\{0,1\},.*//g' -e 's/.*hrs\{0,1\},//g' -e 's/.*days\{0,1\},//g')
+                    _up_mins=$(printf -- '%s\n' "${_uptime}" | sed -e 's/mins\{0,1\},.*//g' -e 's/.*hrs\{0,1\},//g' -e 's/.*days\{0,1\},//g')
                 ;;
                 ( * )
                     _up_hours="0"
@@ -66,13 +66,13 @@ case $(uname -s) in
                 ;;
             esac
 
-            write $(((_up_days*86400)+(_up_hours*3600)+(_up_mins*60)))
+            printf -- '%s\n' "$(( (_up_days*86400)+(_up_hours*3600)+(_up_mins*60) ))"
             unset -v _uptime _up_hours _up_mins
         }
     ;;
     ("Darwin")
         get_uptime() {
-            write "$(get_epoch) - $(sysctl -n kern.boottime | cut -d' ' -f 4,7 | tr ',' '.' | tr -d ' ')" | bc
+            printf -- '%s\n' "$(get_epoch) - $(sysctl -n kern.boottime | cut -d' ' -f 4,7 | tr ',' '.' | tr -d ' ')" | bc
         }
     ;;
     ("FreeBSD")
@@ -82,7 +82,7 @@ case $(uname -s) in
             # pgrep is not appropriate (or even available?) here
             # shellcheck disable=SC2009
             _idle_seconds=$(ps axw | grep "[i]dle" | awk '/idle/{print $4}' | cut -f1 -d':' )
-            write "${_up_seconds} ${_idle_seconds}"
+            printf -- '%s\n' "${_up_seconds} ${_idle_seconds}"
             unset -v _up_seconds _idle_seconds            
         }
     ;;
@@ -96,18 +96,18 @@ case $(uname -s) in
             if var_is_unset "${MK_IS_DOCKERIZED}"; then
                 cat /proc/uptime
             else
-                write "$(($(get_epoch) - $(stat -c %Z /dev/pts)))"
+                printf -- '%s\n' "$(($(get_epoch) - $(stat -c %Z /dev/pts)))"
             fi    
         }
     ;;
     ("NetBSD")
         get_uptime() {
-            write "$(get_epoch) - $(sysctl -n kern.boottime | cut -d' ' -f 4,7 | tr ',' '.' | tr -d ' ')" | bc
+            printf -- '%s\n' "$(get_epoch) - $(sysctl -n kern.boottime | cut -d' ' -f 4,7 | tr ',' '.' | tr -d ' ')" | bc
         }
     ;;
     ("OpenBSD")
         get_uptime() {
-            write "$(get_epoch) - $(sysctl -n kern.boottime | cut -d' ' -f 4,7 | tr ',' '.' | tr -d ' ')" | bc
+            printf -- '%s\n' "$(get_epoch) - $(sysctl -n kern.boottime | cut -d' ' -f 4,7 | tr ',' '.' | tr -d ' ')" | bc
         }
     ;;
     ("SunOS"|"solaris")
@@ -116,13 +116,13 @@ case $(uname -s) in
             # Tested in VM for solaris 10/11
             _ctime=$(nawk 'BEGIN{print srand()}')
             _btime=$(kstat '-p' 'unix:::boot_time' 2>&1|grep 'boot_time'|awk '{print $2}')
-            write $((_ctime - _btime));
-            write '[uptime_solaris_start]'
+            printf -- '%s\n' "$(( _ctime - _btime ))"
+            printf -- '%s\n' '[uptime_solaris_start]'
             uname -a
             zonename
             uptime
             kstat -p unix:0:system_misc:snaptime
-            write '[uptime_solaris_end]'
+            printf -- '%s\n' '[uptime_solaris_end]'
             unset -v _ctime _btime 
         }
     ;;
