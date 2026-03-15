@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_longest+x}" ] && return 0
-_SH_LOADED_text_longest=1
+[ -n "${_SH_LOADED_line_longest+x}" ] && return 0
+_SH_LOADED_line_longest=1
 
 # @description Return the longest line from stdin.
 #

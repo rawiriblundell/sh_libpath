@@ -14,12 +14,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ################################################################################
-# Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
+# Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_line_immutable+x}" ] && return 0
-_SH_LOADED_text_line_immutable=1
+[ -n "${_SH_LOADED_line_behead+x}" ] && return 0
+_SH_LOADED_line_behead=1
 
-# Ensure that a line is in a file
-# Optional: give exact line number
-# Optional: give 'after' match
+# @description Remove the first n lines from stdin (default: 1).
+#   Good for stripping header lines from command output.
+#
+# @arg $1 int Optional: number of lines to remove (default: 1)
+#
+# @stdout Input with leading lines removed
+# @exitcode 0 Always
+behead() {
+  awk -v head="${1:-1}" '{if (NR>head) {print}}'
+}
