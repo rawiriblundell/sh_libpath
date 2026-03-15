@@ -20,6 +20,8 @@
 [ -n "${_SHELLAC_LOADED_sys_uptime+x}" ] && return 0
 _SHELLAC_LOADED_sys_uptime=1
 
+include numbers/get_epoch
+
 LC_ALL=C
 LANG=C
 export LANG LC_ALL
