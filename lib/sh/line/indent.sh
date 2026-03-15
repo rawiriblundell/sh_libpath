@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SH_LOADED_text_indent+x}" ] && return 0
-_SH_LOADED_text_indent=1
+[ -n "${_SH_LOADED_line_indent+x}" ] && return 0
+_SH_LOADED_line_indent=1
 
 # @description Indent each line of input by n spaces (default: 2).
 #   Reads from a file path or stdin.
@@ -28,13 +28,24 @@ _SH_LOADED_text_indent=1
 #
 # @stdout Indented text
 # @exitcode 0 Always
-str_indent() {
-  _ident_width="${1:-2}"
-  _ident_width=$(eval "printf -- '%.0s ' {1..${_ident_width}}")
-  sed "s/^/${_ident_width}/" "${2:-/dev/stdin}"
+line_indent() {
+  local _n _pad
+  _n="${1:-2}"
+  shift
+  _pad="$(printf -- '%*s' "${_n}" '')"
+  if [[ -r "${1}" ]]; then
+    sed "s/^/${_pad}/" "${1}"
+  else
+    sed "s/^/${_pad}/"
+  fi
 }
 
-# @description Alias for str_indent.
+# @description Alias for line_indent.
 indent() {
-  str_indent "${@}"
+  line_indent "${@}"
+}
+
+# @description Alias for line_indent.
+str_indent() {
+  line_indent "${@}"
 }

@@ -209,30 +209,6 @@ line_reverse() {
   fi
 }
 
-# @description Indent each line by a given number of spaces.
-#   Accepts a file path or stdin.
-#
-# @arg $1 int    Number of spaces to indent (default: 4)
-# @arg $2 string Optional: file path
-#
-# @example
-#   printf 'foo\nbar\n' | line_indent 2   # =>   foo
-#                                         #      bar
-#
-# @stdout Indented lines
-# @exitcode 0 Always
-line_indent() {
-  local _n _pad
-  _n="${1:-4}"
-  shift
-  _pad="$(printf -- '%*s' "${_n}" '')"
-  if [[ -r "${1}" ]]; then
-    sed "s/^/${_pad}/" "${1}"
-  else
-    sed "s/^/${_pad}/"
-  fi
-}
-
 # @description Remove leading and trailing whitespace from each line.
 #   Accepts a file path or stdin.
 #
