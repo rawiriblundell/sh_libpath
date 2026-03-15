@@ -38,9 +38,9 @@ date() {
       declare -a args1
       declare -a args2
       while [[ -n "$1" ]]; do
-        args2+=("$1")
+        (args2+=("$1")
         if [[ "${1:0:1}" != + ]]; then
-          args1+=("$1")
+          (args1+=("$1")
         fi
         shift
       done

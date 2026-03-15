@@ -263,7 +263,7 @@ export HOSTTYPE KERNEL MACH MACHTYPE OS
 
 # Now we check against OS, ensure that OSTYPE is set and some other useful info
 case ${OS} in
-  "Linux" | "linux-gnu" | "GNU"*)
+  ("Linux" | "linux-gnu" | "GNU"*)
   if [ -z "${OSTYPE}" ]; then OSTYPE=linux-gnu; export OSTYPE; fi
 
 	if [ -f /etc/redhat-release ]; then
@@ -297,24 +297,24 @@ case ${OS} in
     fi
     export DistroBasedOn DistroPkgType DistroFullName DistroCodename DistroRevision
     ;;
-  "SunOS" | "solaris")
+  ("SunOS" | "solaris")
     if [ -z "${OSTYPE}" ]; then OSTYPE=solaris; export OSTYPE; fi
     ARCH=`uname -p`
     OSSTR=`uname -a`
     export ARCH OSSTR
     ;;
-  "AIX")
+  ("AIX")
     if [ -z "${OSTYPE}" ]; then OSTYPE=aix; export OSTYPE; fi
     OSSTR="${OS} )oslevel) ()oslevel -r))"
     export OSSTR
     ;;
-  "HPUX")
+  ("HPUX")
     if [ -z "${OSTYPE}" ]; then OSTYPE=hpux; export OSTYPE; fi
     ;;
-  *"BSD" | "DragonFly" | "Bitrig")
+  (*"BSD" | "DragonFly" | "Bitrig")
     if [ -z "${OSTYPE}" ]; then OSTYPE=bsd; export OSTYPE; fi
     ;;
-  "Darwin")
+  ("Darwin")
     if [ -z "${OSTYPE}" ]; then OSTYPE=mac; export OSTYPE; fi
     # For osx, we use 'sw_vers' which has output like this:
     # ProductName: Mac OS X
@@ -329,19 +329,19 @@ case ${OS} in
     # We may need this one day, I'll just hide it here for now
     #Serial Number: $(system_profiler SPHardwareDataType | awk '/Serial/ {print $4}')
     ;;
-  "CYGWIN"* | "MSYS"* | "MINGW"*)
+  ("CYGWIN"* | "MSYS"* | "MINGW"*)
     if [ -z "${OSTYPE}" ]; then OSTYPE=Windows; export OSTYPE; fi
     ;;
-  "Haiku")
+  ("Haiku")
     if [ -z "${OSTYPE}" ]; then OSTYPE=Haiku; export OSTYPE; fi
     ;;
-  "MINIX")
+  ("MINIX")
     if [ -z "${OSTYPE}" ]; then OSTYPE=MINIX; export OSTYPE; fi
     ;;
-  "IRIX64")
+  ("IRIX64")
     if [ -z "${OSTYPE}" ]; then OSTYPE=IRIX; export OSTYPE; fi
     ;;
-  *)
+  (*)
     printf '%s\n' "[configGenie ERROR]: Unrecognised Operating System."
     exit 1
     ;;

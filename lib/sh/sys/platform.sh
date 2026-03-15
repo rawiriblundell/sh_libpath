@@ -181,20 +181,20 @@ bashmenot_internal_detect_linux_label () {
 	if [[ -z "${label}" && -f '/etc/redhat-release' ]]; then
 		raw_label=$( <'/etc/redhat-release' ) || true
 		case "${raw_label}" in
-		'CentOS'*)
+		('CentOS'*)
 			label='centos';;
-		'Red Hat Enterprise Linux Server'*)
+		('Red Hat Enterprise Linux Server'*)
 			label='rhel';;
-		*)
+		(*)
 			true
 		esac
 	fi
 	if [[ -z "${label}" && -f '/etc/SuSE-release' ]]; then
 		raw_label=$( <'/etc/SuSE-release' ) || true
 		case "${raw_label}" in
-		'SUSE Linux Enterprise Server'*)
+		('SUSE Linux Enterprise Server'*)
 			label='sles';;
-		*)
+		(*)
 			true
 		esac
 	fi
@@ -217,11 +217,11 @@ bashmenot_internal_detect_linux_version () {
 	if [[ -z "${version}" && -f '/etc/centos-release' ]]; then
 		raw_version=$( <'/etc/centos-release' ) || true
 		case "${raw_version}" in
-		'CentOS release 6'*)
+		('CentOS release 6'*)
 			version='6';;
-		'CentOS Linux release 7'*)
+		('CentOS Linux release 7'*)
 			version='7';;
-		*)
+		(*)
 			true
 		esac
 	fi
@@ -231,20 +231,20 @@ bashmenot_internal_detect_linux_version () {
 	if [[ -z "${version}" && -f '/etc/redhat-release' ]]; then
 		raw_version=$( <'/etc/redhat-release' ) || true
 		case "${raw_version}" in
-		'Red Hat Enterprise Linux Server release 5'*)
+		('Red Hat Enterprise Linux Server release 5'*)
 			version='5';;
-		'Red Hat Enterprise Linux Server release 6'*)
+		('Red Hat Enterprise Linux Server release 6'*)
 			version='6';;
-		*)
+		(*)
 			true
 		esac
 	fi
 	if [[ -z "${version}" && -f '/etc/SuSE-release' ]]; then
 		raw_version=$( <'/etc/SuSE-release' ) || true
 		case "${raw_version}" in
-		'SUSE Linux Enterprise Server 11'*)
+		('SUSE Linux Enterprise Server 11'*)
 			version='11';;
-		*)
+		(*)
 			true
 		esac
 	fi
@@ -270,17 +270,17 @@ detect_platform () {
 	raw_label=''
 	raw_version=''
 	case "${os}" in
-	'freebsd')
+	('freebsd')
 		raw_version=$( uname -r | awk -F- '{ print $1 }' ) || true
 		;;
-	'linux')
+	('linux')
 		raw_label=$( bashmenot_internal_detect_linux_label ) || true
 		raw_version=$( bashmenot_internal_detect_linux_version ) || true
 		;;
-	'osx')
+	('osx')
 		raw_version=$( sw_vers -productVersion ) || true
 		;;
-	*)
+	(*)
 		true
 	esac
 

@@ -75,7 +75,7 @@ view_certificate () {
             else
                 _view_certificate_host="${1}"
                 _view_certificate_port="${2:-443}"
-                echo | openssl s_client -showcerts -host "${_view_certificate_host}" -port "${_view_certificate_port}" 2>&1 \
+                printf '\n' | openssl s_client -showcerts -host "${_view_certificate_host}" -port "${_view_certificate_port}" 2>&1 \
                     | openssl x509 -inform pem -noout -enddate \
                     | cut -d "=" -f 2
             fi
