@@ -27,7 +27,7 @@ LANG=C
 export LANG LC_ALL
 
 case $(uname -s) in
-    ("AIX")
+    ("AIX"|"HP-UX")
         # @description Print system uptime in seconds. Defined per-OS in a case block;
         #   output format varies by platform (Linux: /proc/uptime format, BSD/macOS: epoch
         #   difference, AIX: parsed uptime string, Solaris: includes additional sysinfo).
@@ -87,9 +87,6 @@ case $(uname -s) in
             printf -- '%s\n' "${_up_seconds} ${_idle_seconds}"
             unset -v _up_seconds _idle_seconds            
         }
-    ;;
-    ("HPUX")
-        : # TBD
     ;;
     ("Linux"|"linux-gnu"|"GNU"*)
         get_uptime() {
