@@ -20,7 +20,7 @@
 [ -n "${_SH_LOADED_text_prepend+x}" ] && return 0
 _SH_LOADED_text_prepend=1
 
-# @description Prepend one string to another, exporting the result as $prepend_stdout.
+# @description Prepend one string to another and print the result.
 #   Optionally define a delimiter with -d|--delimiter (defaults to a single space).
 #
 # @arg $1 string Optional: -d|--delimiter followed by delimiter string
@@ -28,8 +28,10 @@ _SH_LOADED_text_prepend=1
 # @arg $3 string The string to prepend to
 #
 # @example
-#   str_prepend -d ':' bar foo  # => prepend_stdout="bar:foo"
+#   str_prepend -d ':' bar foo   # => bar:foo
+#   str_prepend bar foo          # => bar foo
 #
+# @stdout Concatenated string
 # @exitcode 0 Always
 str_prepend() {
   local _prepend_delimiter
@@ -39,9 +41,7 @@ str_prepend() {
       shift 2
     ;;
   esac
-  prepend_stdout="${1}${_prepend_delimiter:- }${2}"
-  prepend_rc="${?}"
-  export prepend_stdout prepend_rc
+  printf -- '%s\n' "${1}${_prepend_delimiter:- }${2}"
 }
 
 # @description Prepend a string to each line of stdin.

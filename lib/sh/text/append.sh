@@ -20,7 +20,7 @@
 [ -n "${_SH_LOADED_text_append+x}" ] && return 0
 _SH_LOADED_text_append=1
 
-# @description Append one string to another, exporting the result as $append_stdout.
+# @description Append one string to another and print the result.
 #   Optionally define a delimiter with -d|--delimiter (defaults to a single space).
 #
 # @arg $1 string Optional: -d|--delimiter followed by delimiter string
@@ -28,9 +28,10 @@ _SH_LOADED_text_append=1
 # @arg $3 string Second string to append
 #
 # @example
-#   str_append -d ':' foo bar   # => append_stdout="foo:bar"
-#   str_append foo bar          # => append_stdout="foo bar"
+#   str_append -d ':' foo bar   # => foo:bar
+#   str_append foo bar          # => foo bar
 #
+# @stdout Concatenated string
 # @exitcode 0 Always
 str_append() {
   local _append_delimiter
@@ -40,9 +41,7 @@ str_append() {
       shift 2
     ;;
   esac
-  append_stdout="${1}${_append_delimiter:- }${2}"
-  append_rc="${?}"
-  export append_stdout append_rc
+  printf -- '%s\n' "${1}${_append_delimiter:- }${2}"
 }
 
 # @description Alias for str_append.
@@ -54,7 +53,5 @@ append() {
       shift 2
     ;;
   esac
-  append_stdout="${1}${_append_delimiter:- }${2}"
-  append_rc="${?}"
-  export append_stdout append_rc
+  printf -- '%s\n' "${1}${_append_delimiter:- }${2}"
 }

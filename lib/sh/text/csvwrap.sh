@@ -29,6 +29,6 @@ _SH_LOADED_text_csvwrap=1
 # @exitcode 0 Always
 csvwrap() {
   local split_count
-  export split_count="${1:-8}"
-  perl -pe 's{,}{++$n % $ENV{split_count} ? $& : ",\\\n"}ge'
+  split_count="${1:-8}"
+  split_count="${split_count}" perl -pe 's{,}{++$n % $ENV{split_count} ? $& : ",\\\n"}ge'
 }

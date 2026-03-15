@@ -20,16 +20,17 @@
 [ -n "${_SH_LOADED_text_chomp+x}" ] && return 0
 _SH_LOADED_text_chomp=1
 
-# @description Remove trailing newlines from a string, exporting the result as $chomp_stdout.
+# @description Remove trailing newlines from a string and print the result.
 #
 # @arg $@ string The input string
 #
+# @stdout Input string with trailing newline stripped
 # @exitcode 0 Always
 str_chomp() {
-  chomp_stdout="${*}"
-  chomp_stdout="${chomp_stdout%$'\n'}"
-  chomp_rc="${?}"
-  export chomp_stdout chomp_rc
+  local _chomp_str
+  _chomp_str="${*}"
+  _chomp_str="${_chomp_str%$'\n'}"
+  printf -- '%s\n' "${_chomp_str}"
 }
 
 # @description Remove trailing newlines from a string and print the result.

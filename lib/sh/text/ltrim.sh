@@ -20,38 +20,25 @@
 [ -n "${_SH_LOADED_text_ltrim+x}" ] && return 0
 _SH_LOADED_text_ltrim=1
 
-# @description Strip leading whitespace from a string, exporting the result as $ltrim_stdout.
-#
-# @arg $@ string The input string
-#
-# @exitcode 0 Always
-str_ltrim() {
-  LC_CTYPE=C
-  local _ltrim_str
-  _ltrim_str="${*}"
-  while true; do
-    ltrim_stdout="${_ltrim_str#[[:space:]]}"
-    [[ "${ltrim_stdout}" = "${_ltrim_str}" ]] && break
-    _ltrim_str="${ltrim_stdout}"
-  done
-  ltrim_rc="${?}"
-  export ltrim_stdout ltrim_rc
-}
-
 # @description Strip leading whitespace from a string and print the result.
 #
 # @arg $@ string The input string
 #
 # @stdout Input string with leading whitespace removed
 # @exitcode 0 Always
-ltrim() {
+str_ltrim() {
   LC_CTYPE=C
-  local _ltrim_str
+  local _ltrim_str _ltrim_tmp
   _ltrim_str="${*}"
   while true; do
-    ltrim_stdout="${_ltrim_str#[[:space:]]}"
-    [[ "${ltrim_stdout}" = "${_ltrim_str}" ]] && break
-    _ltrim_str="${ltrim_stdout}"
+    _ltrim_tmp="${_ltrim_str#[[:space:]]}"
+    [[ "${_ltrim_tmp}" = "${_ltrim_str}" ]] && break
+    _ltrim_str="${_ltrim_tmp}"
   done
   printf -- '%s\n' "${_ltrim_str}"
+}
+
+# @description Alias for str_ltrim.
+ltrim() {
+  str_ltrim "${@}"
 }

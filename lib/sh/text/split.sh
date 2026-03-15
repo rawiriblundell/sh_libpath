@@ -44,5 +44,4 @@ str_split() {
     ;;
     (*) STR_SPLIT=( "${@}" ) ;;
   esac
-  export STR_SPLIT
 }

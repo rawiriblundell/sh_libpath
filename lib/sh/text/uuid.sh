@@ -370,7 +370,6 @@ uuid_pseudo() {
 }
 
 # @description Generate a UUID of the specified version (default: v4).
-#   Exports $uuid_stdout and $uuid_rc.
 #
 # @arg $1 string Optional: -0/-nil/-null, -1/--time, -2, -3/--md5, -4/-r/--random,
 #   -5/--sha1, or --pseudo
@@ -378,6 +377,7 @@ uuid_pseudo() {
 # @stdout A UUID string
 # @exitcode 0 Always
 uuid_gen() {
+  local uuid_stdout
   case "${1}" in
     (-0|-nil|-null)  uuid_stdout="$(uuid_nil)" ;;
     (-1|--time)      uuid_stdout="$(uuid_v1)" ;;
@@ -389,9 +389,6 @@ uuid_gen() {
     ('')             uuid_stdout="$(uuid_v4)" ;;
   esac
   printf -- '%s\n' "${uuid_stdout}"
-  # Retvals
-  uuid_rc=0
-  export uuid_stdout uuid_rc
 }
 
 # @description Validate that a string is a structurally and content-valid UUID.

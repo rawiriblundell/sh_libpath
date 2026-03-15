@@ -20,98 +20,38 @@
 [ -n "${_SH_LOADED_text_trim+x}" ] && return 0
 _SH_LOADED_text_trim=1
 
-# @description Strip leading and trailing whitespace from a string, exporting the result as $trim_stdout.
+# @description Strip leading and trailing whitespace from a string and print the result.
 #
 # @arg $@ string The input string
 #
+# @stdout Input string with leading and trailing whitespace removed
 # @exitcode 0 Always
 str_trim() {
   LC_CTYPE=C
-  local _trim_str
+  local _trim_str _trim_tmp
   _trim_str="${*}"
   while true; do
-    trim_stdout="${_trim_str#[[:space:]]}"     # Strip whitespace to the left
-    trim_stdout="${trim_stdout%[[:space:]]}"   # Strip whitespace to the right
-    [[ "${trim_stdout}" = "${_trim_str}" ]] && break
-    _trim_str="${trim_stdout}"
+    _trim_tmp="${_trim_str#[[:space:]]}"   # Strip whitespace to the left
+    _trim_tmp="${_trim_tmp%[[:space:]]}"   # Strip whitespace to the right
+    [[ "${_trim_tmp}" = "${_trim_str}" ]] && break
+    _trim_str="${_trim_tmp}"
   done
-  trim_rc="${?}"
-  export trim_stdout trim_rc
+  printf -- '%s\n' "${_trim_str}"
 }
 
-# @description Alias for str_trim. Strips leading and trailing whitespace, exporting as $trim_stdout.
-#
-# @arg $@ string The input string
-#
-# @exitcode 0 Always
+# @description Alias for str_trim.
 trim() {
-  LC_CTYPE=C
-  local _trim_str
-  _trim_str="${*}"
-  while true; do
-    trim_stdout="${_trim_str#[[:space:]]}"     # Strip whitespace to the left
-    trim_stdout="${trim_stdout%[[:space:]]}"   # Strip whitespace to the right
-    [[ "${trim_stdout}" = "${_trim_str}" ]] && break
-    _trim_str="${trim_stdout}"
-  done
-  trim_rc="${?}"
-  export trim_stdout trim_rc
+  str_trim "${@}"
 }
 
-# @description Alias for str_trim. Strips leading and trailing whitespace, exporting as $trim_stdout.
-#
-# @arg $@ string The input string
-#
-# @exitcode 0 Always
+# @description Alias for str_trim.
 str_strip() {
-  LC_CTYPE=C
-  local _trim_str
-  _trim_str="${*}"
-  while true; do
-    trim_stdout="${_trim_str#[[:space:]]}"     # Strip whitespace to the left
-    trim_stdout="${trim_stdout%[[:space:]]}"   # Strip whitespace to the right
-    [[ "${trim_stdout}" = "${_trim_str}" ]] && break
-    _trim_str="${trim_stdout}"
-  done
-  trim_rc="${?}"
-  export trim_stdout trim_rc
+  str_trim "${@}"
 }
 
-# @description Alias for str_trim. Strips leading and trailing whitespace, exporting as $trim_stdout.
-#
-# @arg $@ string The input string
-#
-# @exitcode 0 Always
+# @description Alias for str_trim.
 strip() {
-  LC_CTYPE=C
-  local _trim_str
-  _trim_str="${*}"
-  while true; do
-    trim_stdout="${_trim_str#[[:space:]]}"     # Strip whitespace to the left
-    trim_stdout="${trim_stdout%[[:space:]]}"   # Strip whitespace to the right
-    [[ "${trim_stdout}" = "${_trim_str}" ]] && break
-    _trim_str="${trim_stdout}"
-  done
-  trim_rc="${?}"
-  export trim_stdout trim_rc
-}
-
-# @description Strip leading whitespace from a string, exporting the result as $ltrim_stdout.
-#
-# @arg $@ string The input string
-#
-# @exitcode 0 Always
-str_ltrim() {
-  LC_CTYPE=C
-  local _ltrim_str
-  _ltrim_str="${*}"
-  while true; do
-    ltrim_stdout="${_ltrim_str#[[:space:]]}"
-    [[ "${ltrim_stdout}" = "${_ltrim_str}" ]] && break
-    _ltrim_str="${ltrim_stdout}"
-  done
-  ltrim_rc="${?}"
-  export ltrim_stdout ltrim_rc
+  str_trim "${@}"
 }
 
 # @description Strip leading whitespace from a string and print the result.
@@ -120,58 +60,40 @@ str_ltrim() {
 #
 # @stdout Input string with leading whitespace removed
 # @exitcode 0 Always
-ltrim() {
+str_ltrim() {
   LC_CTYPE=C
-  local _ltrim_str
+  local _ltrim_str _ltrim_tmp
   _ltrim_str="${*}"
   while true; do
-    ltrim_stdout="${_ltrim_str#[[:space:]]}"
-    [[ "${ltrim_stdout}" = "${_ltrim_str}" ]] && break
-    _ltrim_str="${ltrim_stdout}"
+    _ltrim_tmp="${_ltrim_str#[[:space:]]}"
+    [[ "${_ltrim_tmp}" = "${_ltrim_str}" ]] && break
+    _ltrim_str="${_ltrim_tmp}"
   done
   printf -- '%s\n' "${_ltrim_str}"
 }
 
-# @description Strip leading and trailing whitespace and compact internal spaces.
-#   Exports the result as $ntrim_stdout.
-#
-# @arg $@ string The input string
-#
-# @exitcode 0 Always
-str_ntrim() {
-  LC_CTYPE=C
-  ntrim_stdout=$(printf -- '%s' "${*}" | xargs)
-  ntrim_rc="${?}"
-  export ntrim_stdout ntrim_rc
+# @description Alias for str_ltrim.
+ltrim() {
+  str_ltrim "${@}"
 }
 
-# @description Strip leading and trailing whitespace and compact internal spaces, printing the result.
+# @description Strip leading and trailing whitespace and compact internal spaces,
+#   printing the result to stdout.
 #
 # @arg $@ string The input string
 #
 # @stdout Trimmed and compacted string
 # @exitcode 0 Always
-ntrim() {
+str_ntrim() {
   LC_CTYPE=C
-  printf -- '%s' "${*}" | xargs
+  local _ntrim_str
+  _ntrim_str=$(printf -- '%s' "${*}" | xargs)
+  printf -- '%s\n' "${_ntrim_str}"
 }
 
-# @description Strip trailing whitespace from a string, exporting the result as $rtrim_stdout.
-#
-# @arg $@ string The input string
-#
-# @exitcode 0 Always
-str_rtrim() {
-  LC_CTYPE=C
-  local _rtrim_str
-  _rtrim_str="${*}"
-  while true; do
-    rtrim_stdout="${_rtrim_str#[[:space:]]}"
-    [[ "${rtrim_stdout}" = "${_rtrim_str}" ]] && break
-    _rtrim_str="${rtrim_stdout}"
-  done
-  rtrim_rc="${?}"
-  export rtrim_stdout rtrim_rc
+# @description Alias for str_ntrim.
+ntrim() {
+  str_ntrim "${@}"
 }
 
 # @description Strip trailing whitespace from a string and print the result.
@@ -180,14 +102,19 @@ str_rtrim() {
 #
 # @stdout Input string with trailing whitespace removed
 # @exitcode 0 Always
-rtrim() {
+str_rtrim() {
   LC_CTYPE=C
-  local _rtrim_str
+  local _rtrim_str _rtrim_tmp
   _rtrim_str="${*}"
   while true; do
-    rtrim_stdout="${_rtrim_str#[[:space:]]}"
-    [[ "${rtrim_stdout}" = "${_rtrim_str}" ]] && break
-    _rtrim_str="${rtrim_stdout}"
+    _rtrim_tmp="${_rtrim_str%[[:space:]]}"
+    [[ "${_rtrim_tmp}" = "${_rtrim_str}" ]] && break
+    _rtrim_str="${_rtrim_tmp}"
   done
   printf -- '%s\n' "${_rtrim_str}"
+}
+
+# @description Alias for str_rtrim.
+rtrim() {
+  str_rtrim "${@}"
 }

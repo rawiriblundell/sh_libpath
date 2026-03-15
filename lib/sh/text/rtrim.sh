@@ -20,39 +20,25 @@
 [ -n "${_SH_LOADED_text_rtrim+x}" ] && return 0
 _SH_LOADED_text_rtrim=1
 
-# @description Strip trailing whitespace from a string, exporting the result as $rtrim_stdout.
-#   Iteratively removes one trailing space character at a time until none remain.
-#
-# @arg $@ string The input string
-#
-# @exitcode 0 Always
-str_rtrim() {
-  LC_CTYPE=C
-  local _rtrim_str
-  _rtrim_str="${*}"
-  while true; do
-    rtrim_stdout="${_rtrim_str#[[:space:]]}"
-    [[ "${rtrim_stdout}" = "${_rtrim_str}" ]] && break
-    _rtrim_str="${rtrim_stdout}"
-  done
-  rtrim_rc="${?}"
-  export rtrim_stdout rtrim_rc
-}
-
 # @description Strip trailing whitespace from a string and print the result.
 #
 # @arg $@ string The input string
 #
 # @stdout Input string with trailing whitespace removed
 # @exitcode 0 Always
-rtrim() {
+str_rtrim() {
   LC_CTYPE=C
-  local _rtrim_str
+  local _rtrim_str _rtrim_tmp
   _rtrim_str="${*}"
   while true; do
-    rtrim_stdout="${_rtrim_str#[[:space:]]}"
-    [[ "${rtrim_stdout}" = "${_rtrim_str}" ]] && break
-    _rtrim_str="${rtrim_stdout}"
+    _rtrim_tmp="${_rtrim_str%[[:space:]]}"
+    [[ "${_rtrim_tmp}" = "${_rtrim_str}" ]] && break
+    _rtrim_str="${_rtrim_tmp}"
   done
   printf -- '%s\n' "${_rtrim_str}"
+}
+
+# @description Alias for str_rtrim.
+rtrim() {
+  str_rtrim "${@}"
 }

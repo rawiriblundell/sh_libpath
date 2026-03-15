@@ -20,17 +20,18 @@
 [ -n "${_SH_LOADED_text_ntrim+x}" ] && return 0
 _SH_LOADED_text_ntrim=1
 
-# @description Strip leading and trailing whitespace and compact internal spaces.
-#   Exports the result as $ntrim_stdout.
+# @description Strip leading and trailing whitespace and compact internal spaces,
+#   printing the result to stdout.
 #
 # @arg $@ string The input string
 #
+# @stdout Trimmed and compacted string
 # @exitcode 0 Always
 str_ntrim() {
   LC_CTYPE=C
-  ntrim_stdout=$(printf -- '%s' "${*}" | xargs)
-  ntrim_rc="${?}"
-  export ntrim_stdout ntrim_rc
+  local _ntrim_str
+  _ntrim_str=$(printf -- '%s' "${*}" | xargs)
+  printf -- '%s\n' "${_ntrim_str}"
 }
 
 # @description Strip leading and trailing whitespace and compact internal spaces, printing the result.
