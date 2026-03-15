@@ -2,16 +2,13 @@
 
 Making shell scripts more robust and readable with libraries
 
-| :warning: WARNING: This code is very very pre-alpha.  I'm currently just dumping in a bunch of functions from my code attic.  You're welcome to test, give feedback and contribute, but please don't use this for anything close to production! |
-| --- |
-
 ## TL;DR?
 
 ```bash
 #!/usr/bin/env bash
 
 # Load our init script
-. /path/to/init.sh || exit 1
+. /path/to/init-shlibpath || exit 1
 
 # Import the function libraries that it provides
 # Without a given extension, ".sh" is assumed
@@ -35,9 +32,9 @@ wants /opt/secrets/squirrels.conf
 
 This project proposes adding a library ecosystem, primarily for use in shell scripts.
 
-`init.sh` bootstraps a few environment vars, most importantly:
+`init-shlibpath` bootstraps a few environment vars, most importantly:
 
-* `SH_LIBPATH` - this is a colon seperated list of library paths, just like `PATH`
+* `SH_LIBPATH` - this is a colon-separated list of library paths, just like `PATH`
 * `SH_LIBPATH_ARRAY` - the same as above, just in an array
 * `SH_LIBPATH_LOADED` - sentinel variable set when `init-shlibpath` is sourced, preventing re-initialisation
 * `_SH_LOADED_<category>_<name>` - per-library sentinel variables set when each library is sourced, preventing duplicate loads
@@ -97,66 +94,19 @@ It's clear what the script needs in order to run i.e. it's self-documenting code
 
 ### `wants`
 
-This function currently deals only with files.  You tell it to look at a file, if that file is found it sources it.  Otherwise it's not fatal.  It's a lazy-loader, in other words.
+Sources a file if it exists; silent no-op if not.  A lazy-loader for config files.
 
-Some scripts are built with a lot of logic for figuring out weird and tricky things.  You can save a lot of repeat processing by wrapping that logic up behind a var, and putting that var into a config file.  At the start of your script, you load the config file (or you don't) and it short-circuits various pieces of logic, leading to a more efficient run.
-
-For example, I once proposed this code for the checkmk project, to replace some hairy, hackish and non-portable code they already had:
-
-```bash
-# GNU 'coreutils' 5.3.0 broke how 'stat' handled line endings in its output.
-# This was corrected somewhere around 5.92 - 5.94 STABLE.
-# If we detect a version of GNU stat 5.x, we investigate and set MK_STAT_BUG
-# See: https://lists.gnu.org/archive/html/bug-coreutils/2005-12/msg00157.html
-if var_is_blank "${MK_STAT_BUG}"; then
-    # We only care about versions in the range [ 5.3.0 .. 5.94 ] (yes different numbering schemes)
-    if stat --version 2>&1 | grep "GNU.*5.[3-9]" >/dev/null 2>&1; then
-        # Convert the version information from semantic versioning to an integer
-        stat_version=$(semver_to_int "$(stat --version 2>&1 | head -n 1)")
-        if [ "${stat_version}" -ge 50300 ] && [ "${stat_version}" -lt 59400 ]; then
-            MK_STAT_BUG="true"
-        else
-            MK_STAT_BUG="false"
-        fi
-        readonly MK_STAT_BUG
-        export MK_STAT_BUG
-    fi
-
-fi
-
-# If MK_STAT_BUG is true, we correct 'stat's behaviour globally
-if [ "${MK_STAT_BUG}" = "true" ]; then
-    stat() {
-        printf -- '%s\n' "$(command stat "${@}")"
-    }
-fi
-```
-
-To prevent that code from being run through at every single invocation of the checkmk agent, one could simply define:
-
-```bash
-MK_STAT_BUG=false
-```
-
-within a config file.  Load that config file early in the agent script, and the majority of that code gets skipped.  Otherwise, if it's not short-circuited via a config file, it will just run through normally - no problem, just a bit of wasted processing.
-
-So that's what `wants()` is about.  Originally, at least.
+Some scripts contain logic to detect environmental facts — OS version quirks, available tools, site-specific paths — that rarely changes between runs.  Wrapping that detection behind a variable and caching the result in a config file means subsequent invocations skip straight past it.  Load that config file with `wants` at the top of your script and the short-circuit is free.
 
 ## Why
 
-Well, why not?
+Shell is the first language most *nix practitioners reach for, the go-to for sysadmins, and often the right tool for the job.  Yet most shell scripts are written as if no ecosystem exists — because for the most part, it doesn't.  There's no `pip` or `CPAN` for `bash`, no standard library to lean on.  So most scripts copy and paste the same sub-optimal code from StackOverflow, repeat the same anti-patterns, and carry the same bugs, over and over.
 
-I have spent large parts of my career fixing other people's shell scripts, and I keep seeing the same mistakes.  I keep seeing the same anti-patterns.  I keep seeing the same gnashing of teeth "More than 2 lines of shell and I use `python`" etc.  But quite often, shell, and `bash` specifically, *is* the appropriate language for the task at hand.  It's either the first, the only or the go-to language for many *nix sysadmins, and a lot of Devs approach it with a degree of ignorance.
+The people quickest to reach for Python or Ruby are often unaware that what they're really reaching for is the library ecosystem those languages carry.  The language itself isn't the point — the abstraction is.  Shell can have that too.
 
-The thing about people who clamour for any other language is that many of them are blissfully unaware that they're spoiled: all the nitty gritty code that they actually rely on is abstracted away; hidden in libraries/modules that they load up with `import` or `use` or some similar loader.  With shell, there's no solid ecosystem of libraries to depend on, no `pip` or `CPAN` for `bash`, so most scripts are like [inventing the universe](https://www.youtube.com/watch?v=zSgiXGELjbc) every time.  This usually leads to the same sub-optimal code being copied and pasted off StackOverflow, and the same sub-optimal practices being spread.
+There are existing shell library projects, but most have at least one of these problems: restrictive licensing, Linux-only, so deeply self-referential the code is unreadable, or naming conventions that make you feel like you're writing enterprise Java (`____awesome__shell_library____+5000____class::::text__split__` is hyperbole, but not by much).
 
-And if you find yourself reading a larger script, it'll usually have a whole bunch of functions - assuming it has some basic semblence of structure.  These functions usually take up 80-90% of the code, and this collation of all the code in one file, while potentially enabling immense portability, makes the task of reading the script psychologically more daunting than it needs to be.
-
-I think that until something like the Oil Shell or NGS gains traction, we can abstract a bunch of the common stuff away to libraries and solidify the code.  As a result, our scripts will in turn become more robust, safer, easier to read and easier to debug.
-
-Now, there are existing shell library projects out there, but they usually use a license that is too restrictive, or they are so deeply self-referencing that it's nearly impossible to make sense of their code.  Some will insist on ridiculous naming conventions: If you're more familiar with another language, you're going to want to call `split`, _not_ `____awesome__shell_library____+5000____class::::text__split__`.  Hyperbolic example, sure, but not far removed from what some of these library projects are inflicting on their users.  Personally, if I want my code to be that obnoxious to write, I'll switch to PowerShell.
-
-These projects also tend to be Linux and `bash` 4.0 or newer only.  Maybe there'll be the occassional attempt at MacOS compatibility, but that's it.
+This project aims for something simpler: a permissively licensed, broadly portable library of solid shell functions, loadable on demand, with sane names.
 
 ## Why use libraries and not just a package of scripts
 
@@ -167,29 +117,11 @@ That's a good question.  The main reasons for using functions over standalone sc
 
 Libraries, insofar as they're presented in this project, are simply collections of functions.
 
-### Story time to make this totally relatable
+### Story time
 
-At a former job, I picked up a pre-existing shell script that was somewhat inefficiently written.  From memory it was a very -very- long single line script, several thousand characters long, and basically a very long pipeline that was similar to
+At a former job I inherited a slow shell script — a very long pipeline of chained `grep -v` calls.  I refactored it: put the filter strings in an array, used `array::join()` to build a single `grep -Ev` pattern from them.  Cleaner, documented, measurably faster.  The PR was not well received.  The function was apparently proof that shell was the language of the Nazis, I had brought shame upon the company, and so forth.
 
-```bash
-grep -v something | grep -v something-else | grep -v "another thing" | (this continues on and on and on...)
-```
-
-I put all of the strings-to-be-filtered into an array, re-worked the logic a little and threw in a function named `array::join()`.  So the idea was that the script had something like this towards the top:
-
-```bash
-strings_to_filter=(
-  "something"
-  "something-else"
-  "another thing"
-)
-```
-
-That way, if there were any future changes to that list, adjusting it was straightforward and obvious.  Then `array::join` would smoosh the lot together into a single vertical-bar-delimited string which would be used by a single invocation of `grep -Ev`.  As a result that should shock absolutely nobody: it performed significantly faster.
-
-This function used some shell-native techniques to join the array elements together, and I knew that the code might be considered as a bit obtuse so I added comments briefly explaining what these various techniques did.  So I had a cleaner, more obvious, internally documented and performance tested improvement.  Well, that PR was not received well at all - this function was apparently proof evident that shell was the indeed the language of the Nazis, that I had brought shame upon the company, and that I should basically just eat my own shoes for having the conceit to propose any minimisation of mediocrity.
-
-Now, on the other hand, had my PR simply been
+Had my PR instead been:
 
 ```bash
 + include arrays.sh
@@ -197,24 +129,12 @@ Now, on the other hand, had my PR simply been
 ... (some time later) ...
 
 + filter_string=$(array::join '|' "${strings_to_filter[@]}")
-+ grep -Ev "${filter_string}" "${some_file}
++ grep -Ev "${filter_string}" "${some_file}"
 ```
 
-There would have been no controversy at all, and that would have been the end of it.
+There would have been no controversy at all.
 
-If you're a `python`ista or a `perl`er, and you're reading this, ask yourself honestly:  When was the last time you sat down and looked at the code inside _that_ library that you like?  Odds are: "uhh... approximately... never?" is the answer.  QED.
-
-### Not all hammers are created equal
-
-Whenever someone mentions doing anything remotely constructive about the unix shell, someone invariably trots out Maslow's Hammer.
-
-> If the only tool you have is a hammer, you tend to see every problem as a nail.
->  
-> Abraham Maslow
-
-And some might see this kind of effort as falling into that trap.  I don't.  Sometimes a nail really is a nail, and suggesting that you hit it with a spanner is idiotic.  Nor should we have to tolerate a $5 Walmart hammer when we could have something more like a 20oz Estwing.  And, sometimes, the people who are on team spanners really shouldn't talk about hammers and nails because it's not in their wheelhouse.  I mean... you _can_ hammer in a nail with a spanner, but it's not pretty...
-
-See, also: [Master Foo and the Ten Thousand Lines](http://www.catb.org/~esr/writings/unix-koans/ten-thousand.html)
+If you're a `python`ista or a `perl`er: when did you last read the source of a library you depend on?  "Approximately never" is the honest answer.  QED.
 
 ## Incomplete list of other bash libraries and frameworks
 
