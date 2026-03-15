@@ -115,10 +115,29 @@ case $(uname -s) in
     ;;
     (*)
         get_uptime() {
-            # Mostly portable, doesn't always work, needs a little more attention
-            if who -b > /dev/null 2>&1; then
-                OSBOOTTIME="$(who -b)"
-            fi
+            local _boot_line _boot_str _boot_epoch
+
+            _boot_line=$(who -b 2>/dev/null) || return 1
+            [ -z "${_boot_line}" ] && return 1
+
+            # Detect ISO date (YYYY-MM-DD HH:MM) vs traditional (Mon DD HH:MM[SS])
+            case "${_boot_line}" in
+                (*[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]*)
+                    _boot_str=$(printf -- '%s\n' "${_boot_line}" | awk '{print $(NF-1), $NF}')
+                ;;
+                (*)
+                    _boot_str=$(printf -- '%s\n' "${_boot_line}" | awk '{print $(NF-2), $(NF-1), $NF}')
+                ;;
+            esac
+
+            # Try GNU date -d (Linux), then BSD date -j with and without seconds
+            _boot_epoch=$(date -d "${_boot_str}" +%s 2>/dev/null) ||
+                _boot_epoch=$(date -j -f "%b %d %H:%M:%S" "${_boot_str}" +%s 2>/dev/null) ||
+                _boot_epoch=$(date -j -f "%b %d %H:%M" "${_boot_str}" +%s 2>/dev/null) ||
+                return 1
+
+            printf -- '%s\n' "$(( $(get_epoch) - _boot_epoch ))"
+            unset -v _boot_line _boot_str _boot_epoch
         }
     ;;
 esac
