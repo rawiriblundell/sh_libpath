@@ -16,7 +16,7 @@ Variable scoping in Bourne-family shells surprises programmers coming from other
 
 ## What are scopes
 
-| :pushpin: This is not an exhaustive explanation or discussion on the matter - this is explored elsewhere to whatever depth you choose to entertain.  This is a high level "my take" within a shell scripting context.  I'm not going to touch on the muddying/blurring of the definitions of scopes and namespaces.  Suffice it to say, we will not need to go into a deep dive on the matter and will be using the concepts in a minimal way. |
+| :pushpin: This is not an exhaustive treatment — the topic is explored elsewhere to whatever depth you choose.  This is a high-level overview within a shell scripting context, deliberately avoiding the muddying/blurring of the definitions of scopes and namespaces.  The concepts are used here in a minimal, practical way. |
 | --- |
 
 The definition of a scope for the last 60+ years has been "the portion of source code in which a binding of a name with an entity applies".  That definition is in the context of lexical scoping, which we'll get to in a minute.
@@ -127,7 +127,7 @@ Dynamic scoping can be exploited deliberately — some patterns pass data betwee
 
 ## Problem
 
-So, one day at work many moons ago, I was asked to look at a script that was broken.  Its author and another colleague couldn't figure out what was wrong with it.  I ran it with `bash -xv`, replicated the failure, and stared at the output for a good few minutes.  Eventually it struck me:  Its author was trying to move around between directories within his script, and instead of using `pushd`/`popd`, or a subshell, he had instead saved the current path to a variable.  His intention was to later `cd` to that variable.  He wrote, what seemed to him at the time, something that was perfectly reasonable:
+A classic example of this bug: a script author needed to save the current directory to return to it later.  Instead of using `pushd`/`popd` or a subshell, they saved the path to a variable with what seemed, at the time, perfectly reasonable:
 
 ```bash
 PATH=`pwd`
@@ -135,7 +135,7 @@ PATH=`pwd`
 
 In short: the script level variable over-rode (or "clobbered") the inherited global variable.
 
-For those who aren't aware, `PATH` is a very important variable, as it defines a list of directories that should be searched for executable commands.  If I look in `/etc/environment` in the environment I'm on right now, I can see the following:
+`PATH` defines the list of directories searched for executable commands.  A typical `/etc/environment` looks like:
 
 ```bash
 PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
@@ -155,9 +155,9 @@ So let's say you try to run a command named `socks`, the shell will search the `
 
 (Technically it's more than that, but we'll set that discussion to the side.)
 
-So let's say that my colleague's script was currently in `/tmp`, his `PATH` assignment in the script would set `PATH=/tmp`.  Now let's say the next line in the script calls `grep`.  The interpreter is going to look for `/tmp/grep`, which has an extremely high chance of not existing.
+If the script was running in `/tmp`, that assignment sets `PATH=/tmp`.  The next call to `grep` sends the interpreter looking for `/tmp/grep`, which almost certainly does not exist.
 
-And this isn't a rare event either - I fixed the exact same problem at two other companies, and you can find examples of it across the internet.  I literally have this bookmarked in my browser:
+This is not a rare mistake; examples appear regularly across the internet:
 
 https://stackoverflow.com/questions/28310594/ls-not-found-after-running-read-path
 
@@ -165,7 +165,7 @@ There's also [this discussion](https://stackoverflow.com/questions/673055/correc
 
 >I didn't know this, and I just lost a couple hrs. over using `USER="username"` in a bash script automating some remote commands over ssh instead of `user="username"`. Ugh! Glad I know now!
 
-## Best Practice (IMHO)
+## Best Practice
 
 Very simply, by switching to the practice of lowercase variable names, we almost completely eliminate the risk of clobbering environment variables.
 
@@ -221,9 +221,9 @@ Through the use of naming conventions on top of the scopes that are present, we 
 
 Within the script you can still change your env vars if you need to, and that falls under the guideline of knowing why and when to use UPPERCASE.  You can also interact with your shell vars e.g. `RANDOM=seed`.
 
-Whether you want to refer to this practice as namespacing brings us into the whole scope vs namespace debate, and I deliberately try to avoid that and refer to it as pseudo-scoping instead.
+Whether to call this namespacing is a definitional debate best set aside; this document uses the term pseudo-scoping to avoid conflating the two concepts.
 
-There's another convention we can use to provide a pseudo-scope in this way.  Remember when I said that older shells don't support localising variables within functions?  Just pick a naming standard and stick with it e.g.
+For older shells that don't support `local`, a naming convention can approximate the same effect.  Pick a standard and stick with it e.g.
 
 ```bash
 my_function() {
@@ -253,7 +253,7 @@ my_function() {
 }
 ```
 
-I can understand the argument for that i.e. provenance, but OTOH I think it risks a PowerShell level of obnoxious verbosity.
+The provenance argument has merit, but the verbosity cost is high — it risks a PowerShell level of obnoxious noise.
 
 And that gets us on to the next point.  There is another convention for avoiding variable collisions in the environment scope, and that's prefixing your vars.  Again, if you want to refer to this as namespacing, that's up to you and your interpretation of scopes vs namespaces.  But let's say, for example, you have a service named `pants` and a few scripts that interact with it e.g. `pants-ctl`, `pants-log` etc.  You might have a `.pantsenv` file that when imported to the environment, sets the following env vars:
 
