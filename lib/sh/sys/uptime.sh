@@ -89,17 +89,15 @@ case $(uname -s) in
         }
     ;;
     ("HPUX")
-        [ -z "${OSTYPE}" ] && OSTYPE=hpux
-        OSSTR=hpux
-        #OSVER=
+        : # TBD
     ;;
     ("Linux"|"linux-gnu"|"GNU"*)
         get_uptime() {
-            if var_is_unset "${MK_IS_DOCKERIZED}"; then
-                cat /proc/uptime
-            else
+            if [ -f /.dockerenv ] || grep -q 'docker\|lxc' /proc/1/cgroup 2>/dev/null; then
                 printf -- '%s\n' "$(($(get_epoch) - $(stat -c %Z /dev/pts)))"
-            fi    
+            else
+                cat /proc/uptime
+            fi
         }
     ;;
     ("SunOS"|"solaris")
