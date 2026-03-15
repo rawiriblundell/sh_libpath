@@ -108,11 +108,11 @@ get_os_info() {
             : "${XDG_PUBLICSHARE_DIR:-$HOME/Public}"
             # Operating System
             # For versions that have 'PRETTY_NAME' in e.g. /etc/os-release
-            if nullgrep "^PRETTY_NAME.*[0-9]" /etc/os-release; then
+            if grep -q "^PRETTY_NAME.*[0-9]" /etc/os-release 2>/dev/null; then
               operSys=$(awk -F "=" '/^PRETTY_NAME=/{print $2}' /etc/os-release | tr -d '"')
             # Sometimes PRETTY_NAME does not include version info, so we build it manually, and
             # for older versions with /etc/os-release but not PRETTY_NAME, we try to construct it
-            elif nullgrep -hE "^NAME=|^VERSION=" /etc/os-release; then
+            elif grep -qhE "^NAME=|^VERSION=" /etc/os-release 2>/dev/null; then
               operSys=$(awk -F "=" '/^NAME=|^VERSION=/{print $2}' /etc/os-release | tr -d '"' | paste -sd ' ' -)
             # For everything else, we just try to get whatever we can
             else

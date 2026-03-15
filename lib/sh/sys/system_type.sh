@@ -32,17 +32,17 @@ fi
 # @exitcode 0 Always
 get_virt_type() {
   local sys_type
-  if nullgrep -Ei "virtualbox|vbox"; then
+  if grep -qEi "virtualbox|vbox" 2>/dev/null; then
     sys_type="virtualbox"
-  elif nullgrep -i "vmware"; then
+  elif grep -qi "vmware" 2>/dev/null; then
     sys_type="VMware"
-  elif nullgrep -i "hvm.*domu"; then
+  elif grep -qi "hvm.*domu" 2>/dev/null; then
     sys_type="Xen"
-  elif nullgrep -Ei "rhev|ovirt"; then
+  elif grep -qEi "rhev|ovirt" 2>/dev/null; then
     sys_type="kvm"
-  elif nullgrep -i "qemu"; then
+  elif grep -qi "qemu" 2>/dev/null; then
     sys_type="qemu"
-  elif nullgrep hypervisor /proc/cpuinfo; then
+  elif grep -q hypervisor /proc/cpuinfo 2>/dev/null; then
     sys_type="Unknown virtual"
   fi
   printf -- '%s\n' "${sys_type}"
@@ -50,7 +50,7 @@ get_virt_type() {
 
 # If virt-what doesn't exist or doesn't return anything, try the following
 if [[ -z "${sys_type}" ]]; then
-  if nullgrep -E '^flags.*svm|^flags.*vmx' /proc/cpuinfo; then
+  if grep -qE '^flags.*svm|^flags.*vmx' /proc/cpuinfo 2>/dev/null; then
     sys_type=Physical
   elif iscommand facter; then
     sys_type=$(facter virtual  2>/dev/null)

@@ -22,11 +22,11 @@ _SHELLAC_LOADED_sys_manufacturer=1
 
 case "${OSSTR:-$(uname -s)}" in
   ([lL]inux)
-    if nullgrep . /sys/devices/virtual/dmi/id/sys_vendor; then
+    if grep -q . /sys/devices/virtual/dmi/id/sys_vendor 2>/dev/null; then
       sysManufacturer=$(</sys/devices/virtual/dmi/id/sys_vendor)
-    elif dmidecode | nullgrep -m 1 "Manufacturer"; then
+    elif dmidecode | grep -q -m 1 "Manufacturer" 2>/dev/null; then
       sysManufacturer=$(dmidecode | awk -F ':' '/Manufacturer/{print $2; exit}' | trim)
-    elif dmidecode | nullgrep -m 1 "Vendor"; then
+    elif dmidecode | grep -q -m 1 "Vendor" 2>/dev/null; then
       sysManufacturer=$(dmidecode | awk -F ':' '/Vendor/{print $2; exit}' | trim)
     else
       sysManufacturer="Generic or unknown"

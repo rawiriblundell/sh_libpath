@@ -57,7 +57,7 @@ _SHELLAC_LOADED_sys_mem=1
 } > "${dcgBaseData}/info_mem"
 
 # Physical Memory.  'dmidecode' is the gold standard here
-if dmidecode -t 17 2>/dev/null | nullgrep "Size.*MB"; then
+if dmidecode -t 17 2>/dev/null | grep -q "Size.*MB" 2>/dev/null; then
   hwMemory=$(dmidecode -t 17 | awk '/Size.*MB/{ s+=$2 } END { print s "MB" }')
 # If we're on a VM, sometimes dmidecode won't give us the detail we need
 else
@@ -67,7 +67,7 @@ else
   # entries in /proc/meminfo.  It seems that adding them gives us the physical
   # memory amount in kB, we can then simply divide to our desired scale
   # Nb: Not guaranteed to be exact!  Just closer than /proc/meminfo's MemTotal line.
-  if nullgrep "^DirectMap" /proc/meminfo; then
+  if grep -q "^DirectMap" /proc/meminfo 2>/dev/null; then
     hwMemory=$(awk '/DirectMap/{ s+=$2 } END { printf("%0.fMB\n", s/1024) }' /proc/meminfo)
   # Otherwise we accept /proc/meminfo's inaccuracy.
   # 'free -h' seems to choose a sane point to switch from KB to MB to GB

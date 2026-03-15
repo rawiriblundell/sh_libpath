@@ -60,7 +60,7 @@ case "${OSSTR:-$(uname -s)}" in
         serialNumber=$(smbios -t SMB_TYPE_SYSTEM | awk '/UUID/{print $2}')
       fi
     # Next we try eeprom
-    elif eeprom | nullgrep ChassisSerialNumber; then
+    elif eeprom | grep -q ChassisSerialNumber 2>/dev/null; then
       serialNumber=$(eeprom | awk '/ChassisSerialNumber/{print $3}')
     # Otherwise, we can try ipmitool (x86).  This is untested
     elif ipmitool fru >/dev/null 2>&1; then
