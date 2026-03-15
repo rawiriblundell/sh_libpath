@@ -20,6 +20,28 @@
 [ -n "${_SH_LOADED_args_scan_opts+x}" ] && return 0
 _SH_LOADED_args_scan_opts=1
 
-# TODO: Write a function that scans positional parameters for a word
-# alternative names to consider: params_contains opts_contains args_contains etc...
-# scan_flags?
+# @description Scan a list of arguments for a given flag or word.
+#   Returns 0 if found, 1 if not found.  Handles short flags (-v),
+#   long flags (--verbose), and plain words.
+#
+# @arg $1 string The flag or word to search for
+# @arg $@ string The arguments to scan (pass "$@" from the caller)
+#
+# @example
+#   scan_opts --verbose "$@"
+#   scan_opts -v "$@"
+#   scan_opts debug "$@"
+#
+# @exitcode 0 Flag/word found
+# @exitcode 1 Flag/word not found
+scan_opts() {
+  local _target
+  _target="${1:?No flag or word given}"
+  shift
+
+  local _arg
+  for _arg in "${@}"; do
+    [[ "${_arg}" = "${_target}" ]] && return 0
+  done
+  return 1
+}
