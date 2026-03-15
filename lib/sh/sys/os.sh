@@ -43,7 +43,8 @@ case "${OS}" in
     ;;
     ("Darwin")
         OSSTR=mac
-        OSVER="$(sw_vers | sed 1d | paste -sd ' ' - | awk -F" " '{print $2" ("$4")"}')"
+        OSVER=$(sw_vers -productVersion 2>/dev/null) ||
+            OSVER=$(sw_vers | sed 1d | paste -sd ' ' - | awk -F" " '{print $2" ("$4")"}')
         : "${XDG_DATA_HOME:-$HOME/Library/Application Support}"
         : "${XDG_DATA_DIRS:-/Library/Application Support}"
         : "${XDG_CONFIG_HOME:-$HOME/Library/Application Support}"
@@ -61,16 +62,6 @@ case "${OS}" in
         : "${XDG_TEMPLATES_DIR:-$HOME/Templates}"
         : "${XDG_PUBLICSHARE_DIR:-$HOME/Public}"
 
-        # For macOS, sw_vers output:
-        # ProductName:    Mac OS X
-        # ProductVersion: 10.2.3
-        # BuildVersion:   6G30
-        OIFS="$IFS"; IFS=$'\n'
-        set -- $(sw_vers)
-        DIST=$(printf -- '%s' "$1" | tr "\n" ' ' | sed 's/ProductName:[ ]*//')
-        VERSION=$(printf -- '%s' "$2" | tr "\n" ' ' | sed 's/ProductVersion:[ ]*//')
-        BUILD=$(printf -- '%s' "$3" | tr "\n" ' ' | sed 's/BuildVersion:[ ]*//')
-        IFS="$OIFS"
     ;;
     ("FreeBSD")
         OSSTR=freebsd
