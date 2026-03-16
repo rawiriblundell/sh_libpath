@@ -1,9 +1,6 @@
 #!/bin/false
 # shellcheck shell=bash
 
-[ -n "${_SHELLAC_LOADED_core_wants+x}" ] && return 0
-_SHELLAC_LOADED_core_wants=1
-
 # Copyright 2022 Rawiri Blundell
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +15,11 @@ _SHELLAC_LOADED_core_wants=1
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ################################################################################
+# Provenance: https://github.com/rawiriblundell/sh_libpath
+# SPDX-License-Identifier: Apache-2.0
+
+[ -n "${_SHELLAC_LOADED_core_wants+x}" ] && return 0
+_SHELLAC_LOADED_core_wants=1
 
 # @internal
 # Warn if a file is world-writable, add a trace entry, then source the file.
