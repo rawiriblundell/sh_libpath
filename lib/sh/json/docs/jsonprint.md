@@ -523,22 +523,12 @@ After a full run through, we have:
 And for the most part this works, I just haven't thought of a cleaner way to
 handle this (yet?)
 
-### I'm looking at the code, why aren't you using local variables?
+### I'm looking at the code, why are variables prefixed with underscores?
 
-Not all shells support the `local` keyword/scope.  So as a convention, I use
-underscore prepended variables and explicitly `unset` them at the end of
-each function.  Or I should be doing that.
-
-This means that the library itself is more readily portable, and if it's not
-immediately portable to a certain bourne-family shell, then it shouldn't be much
-effort to update it.
-
-The downside is that if a function exits mid-flight, there's no trapping to
-ensure that the variables are unset.  But if this happens, we probably have a
-bigger issue to investigate.
-
-BUT, if your script(s) that you source this into support a `local` scope, go
-ahead and use that capability - and you probably should.
+The library uses `local` for all function-scoped variables.  The underscore
+prefix is a naming convention to distinguish internal variables from anything
+the caller might have in scope, and to make it obvious at a glance that a
+variable is local to a function rather than an argument or a meaningful result.
 
 ## List of Functions
 
@@ -706,7 +696,7 @@ or
 
 **Example:** `json_open_obj jboss_queue_stats`
 
-This function opens an array block and accepts an optional arg.
+This function opens an object block and accepts an optional arg.
 
 If no argument is supplied, it simply outputs:
 
@@ -761,6 +751,18 @@ the output becomes either:
 or
 
 `, "arg": {`
+
+### json_sanitise()
+
+**Args:** (Required).  One string, or stdin via pipe.
+
+**Example:** `json_sanitise "${raw_key}"`
+
+Strips leading/trailing double and single quotes, strips trailing `:` or `=`
+delimiters, and trims leading and trailing whitespace.  Used internally by most
+output functions to normalise keys and values before formatting.
+
+`json_sanitize()` is a US-English spelling alias for the same function.
 
 ### json_escape_str()
 
@@ -867,9 +869,9 @@ comma i.e. `, "key": value`.  It otherwise behaves exactly the same.
 
 **Example:** `json_auto interface eth0`
 
-This function attempts to use `json_gettype()` to automatically determine how
-to address the value that is given to it.  It is currently untested, but in
-theory it should work just fine.
+This function uses `json_gettype()` to automatically determine how to format the
+value and calls the appropriate output function (`json_str`, `json_num`, or
+`json_bool`).
 
 ### json_append_auto
 
@@ -877,9 +879,9 @@ theory it should work just fine.
 
 **Example:** `json_append_auto interface eth0`
 
-This function attempts to use `json_gettype()` to automatically determine how
-to address the value that is given to it.  It is currently untested, but in
-theory it should work just fine.
+As per `json_auto()`, but prepends a comma.  Uses `json_gettype()` to
+automatically select `json_append_str`, `json_append_num`, or
+`json_append_bool`.
 
 ### json_from_dkvp()
 
@@ -917,7 +919,7 @@ If the option `-n` or `--name` is used, the object is given a name e.g.
 
 Will be printed as
 
-`"cpu_details": {"Brand": "Intel", "Model": "Pentium-D", "Mhz": 2100}`
+`{"cpu_details": {"Brand": "Intel", "Model": "Pentium-D", "MHz": 2100}}`
 
 If the object name option is not used, then the object simply isn't named.
 
@@ -936,11 +938,14 @@ There is no major input validation here, you must ensure that the input is sane.
 
 ### json_readloop()
 
-This is a test function for reading input line-by-line and automatically
-figuring out how to address its inputs.  Untested.  Will likely change.
+**Args:** (Optional).  `-n`/`--name` followed by an object name, or a file path.
 
-Similar to `json_foreach()`, but it reads line by line rather than addressing
-a sequence of positional parameters...
+Similar to `json_foreach()`, but reads key-value pairs line by line from a file
+or stdin rather than from positional parameters.  `json_foreach()` delegates to
+this function internally.
+
+Each line should contain a key and a value separated by whitespace.  The value
+type is determined automatically via `json_gettype()`.
 
 ### json_timestamp()
 
@@ -952,7 +957,7 @@ Or you're outputting data that needs a timestamp to compare to - a file mtime
 
 This is a way of expressing "these are the facts _as at_ time index xyz"
 
-It calls `json_append_obj() --no-brackets`, so it _must_ be run after a close
+It calls `json_append_obj() --no-bracket`, so it _must_ be run after a close
 function like `json_close_obj` or `json_close_arr`.  It then outputs its
 information, and then calls `json_close_obj()`.
 
@@ -982,6 +987,60 @@ In real life usage, it looks like this:
     "utc_epoch": 1583142468
   }
 }
+```
+
+### json_val_arr()
+
+**Args:** (Required).  One key, then one or more values.
+
+**Options:** `-c` or `--comma`.  When selected, this emits a trailing comma.
+
+**Example:** `json_val_arr tags foo bar baz`
+
+Emits a JSON array keypair.  Each value is auto-typed via `json_gettype()`:
+integers and floats are unquoted, booleans (`true`/`false`/`yes`/`no`/etc.) are
+normalised to `true` or `false`, and everything else is quoted as a string.
+
+```bash
+json_val_arr tags foo bar baz      # => "tags": ["foo","bar","baz"]
+json_val_arr counts 1 2 3          # => "counts": [1,2,3]
+json_val_arr flags true false      # => "flags": [true,false]
+```
+
+### json_append_val_arr()
+
+As per `json_val_arr()`, but prepends `, ` for stacking inside an object.
+
+### json_pretty()
+
+**Args:** (None).  Reads JSON from stdin.
+
+**Example:** `json_open; json_str foo bar; json_close | json_pretty`
+
+Pretty-prints JSON using `python3 -m json.tool` if available, then `jq .`,
+then falls back to `cat` if neither is found.
+
+### json_validate()
+
+**Args:** (None).  Reads JSON from stdin.
+
+**Example:** `json_open; json_str foo bar; json_close | json_validate`
+
+Validates JSON using `python3 -m json.tool` or `jq`.  Prints nothing on
+success; emits an error to stderr on failure.  Returns exit code 1 if invalid
+or if no validator is available.
+
+### json_from_env()
+
+**Args:** (Optional).  One or more environment variable names.
+
+**Example:** `json_from_env HOME SHELL`
+
+Emits a JSON object from environment variables.  With no arguments, emits all
+environment variables.  With named arguments, emits only those variables.
+
+```bash
+json_from_env HOME SHELL   # => {"HOME": "/root", "SHELL": "/bin/bash"}
 ```
 
 ## More resources
