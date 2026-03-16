@@ -113,6 +113,7 @@ requires() {
     local _val
     local _bashver
     local _target_lib
+    local _found_lib
     local _failures
     local _req_cmd
     local _req_constraints
@@ -234,9 +235,14 @@ requires() {
         [ -x "./${_item}" ] && continue
 
         # Next, let's see if it's a library in SH_LIBPATH
+        _found_lib=0
         for _target_lib in ${SH_LIBPATH//://$_item }/${_item}; do
-            [ -r "${_target_lib}" ] && continue
+            if [ -r "${_target_lib}" ]; then
+                _found_lib=1
+                break
+            fi
         done
+        (( _found_lib )) && continue
 
         # Next, let's see if it's a readable file e.g. a cfg file to load
         [ -r "${_item}" ] && continue
