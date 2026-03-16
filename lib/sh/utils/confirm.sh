@@ -31,15 +31,15 @@ _SHELLAC_LOADED_utils_confirm=1
 # @exitcode 0 User confirmed with 'y' or 'Y'
 # @exitcode 1 Any other input, or timeout expired
 confirm() {
-  local confirm_args
+  local _confirm_args
   case "${1}" in
     (-t|--timeout)
-      confirm_args=( -t "${2}" )
+      _confirm_args=( -t "${2}" )
       set -- "${@:3}"
     ;;
   esac
-  
-  read "${confirm_args[@]}" -rn 1 -p "${*:-Continue} [y/N]? "
+
+  read "${_confirm_args[@]}" -rn 1 -p "${*:-Continue} [y/N]? "
   printf -- '%s\n' ""
   case "${REPLY}" in
     ([yY]) return 0 ;;

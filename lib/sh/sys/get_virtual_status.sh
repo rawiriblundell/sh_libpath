@@ -25,13 +25,13 @@ _SHELLAC_LOADED_sys_get_virtual_status=1
 #
 # @stdout "virtual", "physical", or "unknown"
 # @exitcode 0 Always
-get-virtual-status() {
+get_virtual_status() {
   if grep -q hypervisor /proc/cpuinfo; then
-    printf '%s\n' "virtual"
+    printf -- '%s\n' "virtual"
   elif grep -qE '^flags.*svm|^flags.*vmx' /proc/cpuinfo; then
-    printf '%s\n' "physical"
+    printf -- '%s\n' "physical"
   else
-    printf '%s\n' "unknown"
+    printf -- '%s\n' "unknown"
   fi
 }
 
@@ -40,9 +40,9 @@ get-virtual-status() {
 #
 # @exitcode 0 Host appears to be on Azure
 # @exitcode 1 Host does not appear to be on Azure
-is-azure() {
+is_azure() {
   # All Azure hosts should have waagent.log
-  grep -q -m 1 Azure /var/log/waagent.log 2>/dev/null && return "$?"
+  grep -q -m 1 Azure /var/log/waagent.log 2>/dev/null
   # This may be a suitable alternative:
   #dmidecode | grep "String 1: \[MS_VM_CERT"
   # Does not work reliably:
@@ -61,22 +61,19 @@ is-azure() {
 # See also:
 # https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/identify_ec2_instances.html
 # TODO: Update for IMDSv2
-is-aws() {
-  local doc_url="http://169.254.169.254/latest/dynamic/instance-identity/document"
+is_aws() {
+  local _doc_url
+  _doc_url="http://169.254.169.254/latest/dynamic/instance-identity/document"
   if grep -q "^ec2" /sys/hypervisor/uuid 2>/dev/null; then
     return 0
   elif grep -q "^EC2" /sys/devices/virtual/dmi/id/product_uuid 2>/dev/null; then
     return 0
-  elif curl -s -m 5 "${doc_url}" | grep -q availabilityZone; then
+  elif curl -s -m 5 "${_doc_url}" | grep -q availabilityZone; then
     return 0
   else
     return 1
   fi
 }
-
-if command -v virt-what >/dev/null 2>&1; then
-  sys_type=$(virt-what 2>/dev/null | head -n 1)
-fi
 
 # @description Parse stdin for known virtualisation product strings and print
 #   the detected hypervisor type. Intended to be used as a filter for the output
@@ -84,39 +81,43 @@ fi
 #
 # @stdout Virtualisation type string, e.g. "virtualbox", "VMware", "Xen", "kvm", "qemu"
 # @exitcode 0 Always
-Fn_getVirt() {
-  local sys_type
-  if grep -qEi "virtualbox|vbox" 2>/dev/null; then
-    sys_type="virtualbox"
-  elif grep -qi "vmware" 2>/dev/null; then
-    sys_type="VMware"
-  elif grep -qi "hvm.*domu" 2>/dev/null; then
-    sys_type="Xen"
-  elif grep -qEi "rhev|ovirt" 2>/dev/null; then
-    sys_type="kvm"
-  elif grep -qi "qemu" 2>/dev/null; then
-    sys_type="qemu"
-  elif grep -q hypervisor /proc/cpuinfo 2>/dev/null; then
-    sys_type="Unknown virtual"
-  fi
-  printf -- '%s\n' "${sys_type}"
-}
+get_virtual_type() {
+  local _sys_type
 
-# If virt-what doesn't exist or doesn't return anything, try the following
-if [[ -z "${sys_type}" ]]; then
-  if grep -qE '^flags.*svm|^flags.*vmx' /proc/cpuinfo 2>/dev/null; then
-    sys_type=Physical
-  elif command -v facter >/dev/null 2>&1; then
-    sys_type=$(facter virtual  2>/dev/null)
-  elif command -v pciconf >/dev/null 2>&1; then
-    sys_type=$(pciconf -lv 2>/dev/null | Fn_getVirt)
-  elif command -v dmidecode >/dev/null 2>&1; then
-    sys_type=$(dmidecode 2>/dev/null | Fn_getVirt)
-  elif command -v lspci >/dev/null 2>&1; then
-    sys_type=$(lspci -v 2>/dev/null | Fn_getVirt)
-  elif [[ -d /dev/disk/by-id ]]; then
-    sys_type=$(find /dev/disk/by-id | Fn_getVirt)
-  else
-    sys_type=other
+  # virt-what is the gold standard
+  if command -v virt-what >/dev/null 2>&1; then
+    _sys_type=$(virt-what 2>/dev/null | head -n 1)
   fi
-fi
+
+  # If virt-what doesn't exist or doesn't return anything,
+  # try the following bank of heuristics based on dmidecode
+  # We are NOT going to fully re-implement virt-what, just catch the usual suspects
+  if command -v dmidecode >/dev/null 2>&1; then
+    case "$(LANG=C dmidecode 2>&1 | grep -E "Vendor:|Manufacturer:|Product Name:")" in
+      (*Alibaba*)      _sys_type="alibaba_cloud" ;;
+      (*Amazon*EC2*)   _sys_type="aws" ;;
+      (*BHYVE*)        _sys_type="bhyve" ;;
+      (*innotek*GmbH*) _sys_type="virtualbox" ;;
+      (*KVM*)          _sys_type="kvm" ;;
+      (*Microsoft*)    _sys_type="hyperv" ;;
+      (*VMware*)       _sys_type="vmware" ;;
+      (*Xen*)          _sys_type="xen" ;;
+      (*)              : ;;
+    esac
+  fi
+ 
+  # If we get to this point, then we're getting really esoteric
+  if [[ -z "${_sys_type}" ]]; then
+    if grep -qi "QEMU Virtual CPU" /proc/cpuinfo 2>/dev/null; then
+      _sys_type="qemu"
+    elif grep -qi "^KVM$" /sys/devices/virtual/dmi/id/product_name 2>/dev/null; then
+      _sys_type="kvm"
+    elif [[ -f /.dockerenv ]]; then
+      _sys_type="docker"
+    elif [[ -f /run/.containerenv ]]; then
+      _sys_type="podman"
+    fi
+  fi
+
+  printf -- '%s\n' "${_sys_type:-unknown}"
+}

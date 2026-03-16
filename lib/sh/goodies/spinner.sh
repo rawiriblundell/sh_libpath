@@ -34,12 +34,13 @@ _SHELLAC_LOADED_goodies_spinner=1
 #
 # @exitcode 0 Always (loops indefinitely until killed)
 begin_spinner() {
-  SpinChars='/-\|'
+  local _spin_chars
+  _spin_chars='/-\|'
   printf -- "%s" "Processing ${Host}, this might take a while... [ "
   tput sc
   while true; do
-    printf -- '\b%.1s' "${SpinChars}"
-    SpinChars=${SpinChars#?}${SpinChars%???}
+    printf -- '\b%.1s' "${_spin_chars}"
+    _spin_chars=${_spin_chars#?}${_spin_chars%???}
     tput rc
     sleep 1
   done

@@ -25,11 +25,11 @@ _SHELLAC_LOADED_line_longest=1
 # @stdout The longest line read from stdin
 # @exitcode 0 Always
 longest() {
-  local lastreply
-  lastreply=''
+  local _lastreply
+  _lastreply=''
   while read -r; do
-    (( ${#REPLY} > ${#lastreply} )) && lastreply="${REPLY}"
+    (( ${#REPLY} > ${#_lastreply} )) && _lastreply="${REPLY}"
   done
-  printf -- '%s\n' "${lastreply}"
+  printf -- '%s\n' "${_lastreply}"
 }
 

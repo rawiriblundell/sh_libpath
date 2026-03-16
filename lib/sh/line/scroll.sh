@@ -37,11 +37,12 @@ scroll() {
   fi
 
   # Default the sleep time to 1 second
-  sleepTime="${1:-1}"
+  local _sleep_time
+  _sleep_time="${1:-1}"
 
   # Now we output line by line with a sleep in the middle
   while read -r; do
     printf -- '%s\n' "${REPLY}"
-    sleep "${sleepTime}" 2>/dev/null || sleep 1
-  done 
+    sleep "${_sleep_time}" 2>/dev/null || sleep 1
+  done
 }

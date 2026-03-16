@@ -40,28 +40,29 @@ trap _larson_reset HUP INT QUIT TERM EXIT
 #
 # @exitcode 0 Always (loops indefinitely until killed)
 half_larson() {
-  progWidth="${1:-3}"
-  sleepTime="0.2"
- 
+  local _prog_width _sleep_time
+  _prog_width="${1:-3}"
+  _sleep_time="0.2"
+
   # GNU sleep can handle fractional seconds, non-GNU cannot
   # so we default to 1 second resolution in that scenario
-  if ! sleep "${sleepTime}" >/dev/null 2>&1; then
-    sleepTime=1
+  if ! sleep "${_sleep_time}" >/dev/null 2>&1; then
+    _sleep_time=1
   fi
-  
-  tput sc                                    # Capture position
-  tput civis                                 # Hide cursor
-  tput dim                                   # Set base emphasis
-  printf '%*s' "${progWidth}" | tr ' ' "*"   # Setup base char width
-  while true; do                             # Infinite loop
-    tput rc                                  # Return to saved position
-    for ((i=0;i<progWidth;i++)); do          # Iterate horizontally
-      for em in dim sgr0 bold sgr0 dim; do   # Emphasis sequence
-        printf -- '%s' "$(tput "${em}")*"    # Output emphasised char
-        sleep "${sleepTime}"                 # Pause for effect
-        tput cub1                            # Move left one char
+
+  tput sc                                      # Capture position
+  tput civis                                   # Hide cursor
+  tput dim                                     # Set base emphasis
+  printf '%*s' "${_prog_width}" | tr ' ' "*"   # Setup base char width
+  while true; do                               # Infinite loop
+    tput rc                                    # Return to saved position
+    for ((i=0;i<_prog_width;i++)); do          # Iterate horizontally
+      for em in dim sgr0 bold sgr0 dim; do     # Emphasis sequence
+        printf -- '%s' "$(tput "${em}")*"      # Output emphasised char
+        sleep "${_sleep_time}"                 # Pause for effect
+        tput cub1                              # Move left one char
       done
-      tput cuf1                              # Move right one char
+      tput cuf1                                # Move right one char
     done
   done
 }
@@ -73,34 +74,35 @@ half_larson() {
 #
 # @exitcode 0 Always (loops indefinitely until killed)
 full_larson() {
-  progWidth="${1:-3}"
-  sleepTime="0.2"
- 
+  local _prog_width _sleep_time
+  _prog_width="${1:-3}"
+  _sleep_time="0.2"
+
   # GNU sleep can handle fractional seconds, non-GNU cannot
   # so we default to 1 second resolution in that scenario
-  if ! sleep "${sleepTime}" >/dev/null 2>&1; then
-    sleepTime=1
+  if ! sleep "${_sleep_time}" >/dev/null 2>&1; then
+    _sleep_time=1
   fi
-  
-  tput sc                                    # Capture position
-  tput civis                                 # Hide cursor
-  tput dim                                   # Set base emphasis
-  printf '%*s' "${progWidth}" | tr ' ' "*"   # Setup base char width
-  while true; do                             # Infinite loop
-    tput rc                                  # Return to saved position
-    for ((i=0;i<progWidth;i++)); do          # Iterate horizontally
-      for em in dim sgr0 bold sgr0 dim; do   # Emphasis sequence
-        printf -- '%s' "$(tput "${em}")*"    # Output emphasised char
-        sleep "${sleepTime}"                 # Pause for effect
-        tput cub1                            # Move left one char
+
+  tput sc                                      # Capture position
+  tput civis                                   # Hide cursor
+  tput dim                                     # Set base emphasis
+  printf '%*s' "${_prog_width}" | tr ' ' "*"   # Setup base char width
+  while true; do                               # Infinite loop
+    tput rc                                    # Return to saved position
+    for ((i=0;i<_prog_width;i++)); do          # Iterate horizontally
+      for em in dim sgr0 bold sgr0 dim; do     # Emphasis sequence
+        printf -- '%s' "$(tput "${em}")*"      # Output emphasised char
+        sleep "${_sleep_time}"                 # Pause for effect
+        tput cub1                              # Move left one char
       done
-      tput cuf1                              # Move right one char
+      tput cuf1                                # Move right one char
     done
     tput cub1
-    for ((i=progWidth;i>0;i--)); do
+    for ((i=_prog_width;i>0;i--)); do
       for em in dim sgr0 bold sgr0 dim; do
         printf -- '%s' "$(tput "${em}")*"
-        sleep "${sleepTime}"
+        sleep "${_sleep_time}"
         tput cub1
       done
       tput cub1

@@ -31,6 +31,7 @@ _SHELLAC_LOADED_line_printline=1
 # @exitcode 0 Success
 # @exitcode 1 Missing sed, invalid line number, or unreadable file
 printline() {
+  local _line_no _file
   # Fail early: We require sed
   if ! command -v sed >/dev/null 2>&1; then
     printf -- '%s\n' "[ERROR] printline: This function depends on 'sed' which was not found." >&2
@@ -52,16 +53,16 @@ printline() {
         "Run 'printline' with no arguments for usage." >&2
       return 1
     ;;
-    (*) local lineNo="$((10#${1})){p;q;}" ;;
+    (*) _line_no="$((10#${1})){p;q;}" ;;
   esac
 
   # Next, we handle $2.  First, we check if it's a number, indicating a line range
   if (( "${2}" )) 2>/dev/null; then
     # Stack the numbers in lowest,highest order
     if (( "${2}" > "${1}" )); then
-      lineNo="${1},$((10#${2}))p;$((10#${2}+1))q;"
+      _line_no="${1},$((10#${2}))p;$((10#${2}+1))q;"
     else
-      lineNo="$((10#${2})),${1}p;$((${1}+1))q;"
+      _line_no="$((10#${2})),${1}p;$((${1}+1))q;"
     fi
     shift 1
   fi
@@ -73,10 +74,10 @@ printline() {
         "Run 'printline' with no arguments for usage." >&2
       return 1
     else
-      local file="${2}"
+      _file="${2}"
     fi
   fi
 
   # Finally after all that testing and setup is done
-  sed -ne "${lineNo}" -e "\$s/.*/[ERROR] printline: End of stream reached./" -e '$ w /dev/stderr' "${file:-/dev/stdin}"
+  sed -ne "${_line_no}" -e "\$s/.*/[ERROR] printline: End of stream reached./" -e '$ w /dev/stderr' "${_file:-/dev/stdin}"
 }

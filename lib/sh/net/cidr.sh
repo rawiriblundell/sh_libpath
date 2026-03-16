@@ -69,7 +69,7 @@ cidr_prefix_to_mask() {
     (/1|1)    _subnet_mask="128.0.0.0" ;;
     (/0|0)    _subnet_mask="0.0.0.0" ;;
     (''|*)
-        printf -- 'cidr_prefix_to_mask: %s\n' "Usage: cider_prefix_to_mask [/int|int]" >&2
+        printf -- 'cidr_prefix_to_mask: %s\n' "Usage: cidr_prefix_to_mask [/int|int]" >&2
         return 1
     ;;
   esac

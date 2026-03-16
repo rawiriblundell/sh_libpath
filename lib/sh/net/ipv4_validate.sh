@@ -36,7 +36,9 @@ ipv4_validate_addr() {
   # shellcheck disable=SC2086
   (
     IFS=.; set -f; set -- ${*//\"/}; set -- ${*%/*}
-    local octet; local count=0; local errcount=0
+    local octet count errcount
+    count=0
+    errcount=0
     if (( "${#}" == 4 )); then
       for octet in "${@}"; do
         (( ++count ))
