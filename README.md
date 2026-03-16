@@ -1,6 +1,11 @@
 # SHELLAC
 
-![SHELLAC](docs/images/shellac.png)
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/shellac-dark.png">
+    <img alt="SHELLAC" src="docs/images/shellac-light.png">
+  </picture>
+</p>
 
 The missing library ecosystem for shell
 
