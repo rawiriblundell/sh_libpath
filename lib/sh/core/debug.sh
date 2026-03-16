@@ -23,12 +23,12 @@ _SHELLAC_LOADED_core_debug=1
 # https://www.reddit.com/r/bash/comments/g1yjfo/debugging_bash_scripts/
 # https://johannes.truschnigg.info/writing/2021-12_colodebug/
 
-# @description Enable ERR trap to call err_handler on any error.
+# @description Enable ERR trap to call debug_err_handler on any error.
 #
 # @exitcode 0 Always
 debug_trap_err() {
-  set -o errtrace
-  trap 'err_handler ${?}' ERR
+    set -o errtrace
+    trap 'debug_err_handler ${?}' ERR
 }
 
 # @description Handle ERR trap: print a stack trace and exit.
@@ -36,16 +36,19 @@ debug_trap_err() {
 # @arg $1 int The exit code from the failing command
 #
 # @stderr Stack trace and error exit code
-# @exitcode 1 Always (exits the script)
+# @exitcode Propagates the original error exit code
 debug_err_handler() {
-  trap - ERR
-  i=0
-  printf -- '%s\n' "Aborting on error ${1}:" \
-    "--------------------" >&2
-  while caller $i; do
-    ((i++))
-  done
-  exit "${?}"
+    local i
+    local _exit_code
+    trap - ERR
+    i=0
+    _exit_code="${1}"
+    printf -- '%s\n' "Aborting on error ${_exit_code}:" \
+        "--------------------" >&2
+    while caller "${i}" >&2; do
+        : $(( i += 1 ))
+    done
+    exit "${_exit_code}"
 }
 
 # @description Emit a debug trace when debug_mode is true.
@@ -53,28 +56,30 @@ debug_err_handler() {
 #
 # @exitcode 0 Always
 debug() {
-  [[ "${debug_mode}" = "true" ]] || return 0
-  : [DEBUG] "${*}"
-  : ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    [[ "${debug_mode}" = "true" ]] || return 0
+    : [DEBUG] "${*}"
+    : ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 }
 
 # @description Like debug(), but pauses for a keypress before continuing.
 #
 # @exitcode 0 Always
 step() {
-  [[ "${debug_mode}" = "true" ]] || return 0
-  : [DEBUG] "${*}"
-  : ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  read -n 1 -s -r -p "Press any key to continue"
+    [[ "${debug_mode}" = "true" ]] || return 0
+    : [DEBUG] "${*}"
+    : ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    read -n 1 -s -r -p "Press any key to continue"
 }
 
+# Check whether the sourcing script was invoked with -d/--debug and enable
+# debug mode if so. Intentionally runs at source time.
 case "${1}" in
-  (-d|--debug)
-    set -xv
-    export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
-    readonly debug_mode=true
-    trap 'set +x' EXIT
-  ;;
+    (-d|--debug)
+        set -xv
+        export PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+        readonly debug_mode=true
+        trap 'set +x' EXIT
+    ;;
 esac
 
 # @description Drop into an interactive debug REPL at the call site.
@@ -82,27 +87,30 @@ esac
 #   x=enable xtrace, X=disable xtrace, q=quit.
 #
 # @exitcode 0 Always
-breakpoint(){
+breakpoint() {
     local REPLY
     printf -- '%s\n' 'Breakpoint hit. [opaAxXq]'
-    while read -r -k1; do case $REPLY in
-        o) shopt -s; set -o ;;   # list options
-        p) declare -p | less ;;  # list parameters
-        a) declare -a ;;
-        A) declare -A ;;
-        x) set -x ;;             # toggle xtrace
-        X) set +x ;;
-        q) return ;;             # quit
-    esac; done
+    while read -r -n 1 REPLY; do
+        case "${REPLY}" in
+            (o) shopt -s; set -o ;;
+            (p) declare -p | less ;;
+            (a) declare -a ;;
+            (A) declare -A ;;
+            (x) set -x ;;
+            (X) set +x ;;
+            (q) return ;;
+            (*) ;;
+        esac
+    done
 }
 
 # @description Make Ctrl+C a no-op to prevent it killing the script.
 #
 # @exitcode 0 Always
 no_ctrl_c() {
-  # @internal
-  _no_ctrl_c() { :; }
-  trap _no_ctrl_c INT
+    # @internal
+    _no_ctrl_c() { :; }
+    trap _no_ctrl_c INT
 }
 
 # @description Remove the directory containing the current script from PATH
@@ -110,7 +118,18 @@ no_ctrl_c() {
 #
 # @exitcode 0 Always
 prevent_path_recursion() {
-  curdir=$(realpath $(dirname ${BASH_SOURCE}))
-  export PATH=$(tr ':' '\n' <<< "${PATH}" | \
-      awk '$0!="'${curdir}'"' | tr '\n' ':')
+    local curdir
+    local _element
+    local _new_path
+    local _old_ifs
+    curdir=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
+    _new_path=
+    _old_ifs="${IFS}"
+    IFS=:
+    for _element in ${PATH}; do
+        [ "${_element}" = "${curdir}" ] && continue
+        _new_path="${_new_path:+${_new_path}:}${_element}"
+    done
+    IFS="${_old_ifs}"
+    export PATH="${_new_path}"
 }
