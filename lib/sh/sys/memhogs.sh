@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_utils_memhogs+x}" ] && return 0
-_SHELLAC_LOADED_utils_memhogs=1
+[ -n "${_SHELLAC_LOADED_sys_memhogs+x}" ] && return 0
+_SHELLAC_LOADED_sys_memhogs=1
 
 # List processes by memory usage
 # This is usually better handled by tools like top and sar

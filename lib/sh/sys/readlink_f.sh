@@ -17,16 +17,16 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_utils_readlink_f+x}" ] && return 0
-_SHELLAC_LOADED_utils_readlink_f=1
+[ -n "${_SHELLAC_LOADED_sys_readlink_f+x}" ] && return 0
+_SHELLAC_LOADED_sys_readlink_f=1
 
 # Portable version of 'readlink -f' for versions that don't have '-f'
 
 # Test for readlink as a requirement
 # TODO: Consider a capability test for 'readlink' i.e. if 'readlink -f' already works, just map to it
-if ! command -v readlink; then
+if ! command -v readlink >/dev/null 2>&1; then
   printf -- '%s\n' "readlink_f: 'readlink' is required for this library" >&2
-  exit 1
+  return 1
 fi
 
 # @description Portable implementation of 'readlink -f' for systems where readlink

@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_utils_puts+x}" ] && return 0
-_SHELLAC_LOADED_utils_puts=1
+[ -n "${_SHELLAC_LOADED_text_puts+x}" ] && return 0
+_SHELLAC_LOADED_text_puts=1
 
 # @description Portable echo replacement that wraps printf. Supports a subset of
 #   echo flags (-e for escape sequences, -E to suppress them, -n/-end to suppress

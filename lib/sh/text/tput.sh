@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_utils_tput+x}" ] && return 0
-_SHELLAC_LOADED_utils_tput=1
+[ -n "${_SHELLAC_LOADED_text_tput+x}" ] && return 0
+_SHELLAC_LOADED_text_tput=1
 
 if tput ce 2>/dev/null; then
   # @description Wrapper for 'tput' that translates terminfo capability names to

@@ -20,21 +20,21 @@
 [ -n "${_SHELLAC_LOADED_utils_tac+x}" ] && return 0
 _SHELLAC_LOADED_utils_tac=1
 
-if ! command -v tac >/dev/null 2>&1; then
-  # @description Step-in replacement for 'tac' on systems that lack it.
-  #   Reverses the line order of a file or stdin using perl, awk, or sed.
-  #
-  # @arg $1 string Optional: file path to reverse; reads stdin if omitted
-  #
-  # @stdout Lines in reverse order
-  # @exitcode 0 Always
-  tac() {
-    if command -v perl >/dev/null 2>&1; then
-      perl -e 'print reverse<>' < "${1:-/dev/stdin}"
-    elif command -v awk >/dev/null 2>&1; then
-      awk '{line[NR]=$0} END {for (i=NR; i>=1; i--) print line[i]}' < "${1:-/dev/stdin}"
-    elif command -v sed >/dev/null 2>&1; then
-      sed -e '1!G;h;$!d' < "${1:-/dev/stdin}"
-    fi
-  }
-fi
+command -v tac >/dev/null 2>&1 && return 0
+
+# @description Step-in replacement for 'tac' on systems that lack it.
+#   Reverses the line order of a file or stdin using perl, awk, or sed.
+#
+# @arg $1 string Optional: file path to reverse; reads stdin if omitted
+#
+# @stdout Lines in reverse order
+# @exitcode 0 Always
+tac() {
+  if command -v perl >/dev/null 2>&1; then
+    perl -e 'print reverse<>' < "${1:-/dev/stdin}"
+  elif command -v awk >/dev/null 2>&1; then
+    awk '{line[NR]=$0} END {for (i=NR; i>=1; i--) print line[i]}' < "${1:-/dev/stdin}"
+  elif command -v sed >/dev/null 2>&1; then
+    sed -e '1!G;h;$!d' < "${1:-/dev/stdin}"
+  fi
+}

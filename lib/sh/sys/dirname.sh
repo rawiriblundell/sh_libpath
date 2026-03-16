@@ -17,19 +17,19 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_utils_dirname+x}" ] && return 0
-_SHELLAC_LOADED_utils_dirname=1
+[ -n "${_SHELLAC_LOADED_sys_dirname+x}" ] && return 0
+_SHELLAC_LOADED_sys_dirname=1
 
-if ! command -v dirname >/dev/null 2>&1; then
-  # @description Minimal step-in replacement for 'dirname'. Strips the filename
-  #   component using parameter expansion. Does not handle dotfiles, tilde, or
-  #   other edge cases; see source comments for discussion.
-  #
-  # @arg $1 string File path
-  #
-  # @stdout Directory component of the path
-  # @exitcode 0 Always
-  dirname() {
-    printf -- '%s\n' "${1%/*}"
-  }
-fi
+command -v dirname >/dev/null 2>&1 && return 0
+
+# @description Minimal step-in replacement for 'dirname'. Strips the filename
+#   component using parameter expansion. Does not handle dotfiles, tilde, or
+#   other edge cases; see source comments for discussion.
+#
+# @arg $1 string File path
+#
+# @stdout Directory component of the path
+# @exitcode 0 Always
+dirname() {
+  printf -- '%s\n' "${1%/*}"
+}

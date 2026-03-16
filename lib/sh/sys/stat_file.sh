@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_utils_stat_file+x}" ] && return 0
-_SHELLAC_LOADED_utils_stat_file=1
+[ -n "${_SHELLAC_LOADED_sys_stat_file+x}" ] && return 0
+_SHELLAC_LOADED_sys_stat_file=1
 
 # @description Portable 'stat' dispatcher that retrieves a single file attribute.
 #   Tries GNU stat (-c format), then BSD stat (-f format), then perl as a fallback.

@@ -31,9 +31,10 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Provenance: https://raw.githubusercontent.com/mietek/bashmenot/master/src/hash.sh
+# SPDX-License-Identifier: BSD-3-Clause
 
-[ -n "${_SHELLAC_LOADED_utils_hash+x}" ] && return 0
-_SHELLAC_LOADED_utils_hash=1
+[ -n "${_SHELLAC_LOADED_openssl_hash+x}" ] && return 0
+_SHELLAC_LOADED_openssl_hash=1
 
 # @description Compute a SHA1 hash of stdin content.
 #   Returns silently (exit 0) if stdin is empty.
@@ -41,42 +42,41 @@ _SHELLAC_LOADED_utils_hash=1
 # @stdout SHA1 hex digest of the input
 # @exitcode 0 Success or empty input
 # @exitcode 1 openssl command failed
-get_hash () {
-	local input
-	input=$( cat ) || true
+get_hash() {
+    local _input
+    _input=$(cat)
 
-	if [[ -z "${input}" ]]; then
-		return 0
-	fi
+    if [[ -z "${_input}" ]]; then
+        return 0
+    fi
 
-	openssl sha1 <<<"${input}" |
-		sed 's/^.* //' || return 1
+    openssl sha1 <<<"${_input}" |
+        sed 's/^.* //' || return 1
 }
-
 
 # @description Compute a single SHA1 hash representing the contents of all files
 #   in a directory tree. Returns silently (exit 0) if the directory does not exist.
 #   Additional find arguments can be passed after the directory.
 #
-# @arg $1 string Directory path to hash (via expect_args)
-# @arg $2 string Additional arguments passed to find
+# @arg $1 string Directory path to hash
+# @arg $@ string Additional arguments passed to find
 #
 # @stdout SHA1 hex digest of the sorted concatenation of all file hashes
 # @exitcode 0 Success or directory not found
 # @exitcode 1 Hashing failed
-hash_tree () {
-	local dir
-	expect_args dir -- "$@"
-	shift
+hash_tree() {
+    local _dir
+    _dir="${1:?No directory given}"
+    shift
 
-	if [[ ! -d "${dir}" ]]; then
-		return 0
-	fi
+    if [[ ! -d "${_dir}" ]]; then
+        return 0
+    fi
 
-	(
-		cd "${dir}" &&
-		find '.' "$@" -type f -exec openssl sha1 '{}' ';' 2>'/dev/null'
-	) |
-		sort_natural |
-		get_hash || return 1
+    (
+        cd "${_dir}" &&
+        find '.' "$@" -type f -exec openssl sha1 '{}' ';' 2>/dev/null
+    ) |
+        sort |
+        get_hash || return 1
 }
