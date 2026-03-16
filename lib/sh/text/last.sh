@@ -29,8 +29,9 @@ _SHELLAC_LOADED_text_last=1
 # @stdout Last character, column, or line of the input
 # @exitcode 0 Always
 last() {
+  local _line
   case "${1}" in
-    (char)       shift 1; read -r line; printf -- '%s' "${line#"${line%?}"}" ;;
+    (char)       shift 1; read -r _line; printf -- '%s' "${_line#"${_line%?}"}" ;;
     (col|column) shift 1; awk '{print $NF}' "${@}" ;;
     (row|line)   shift 1; tail -n 1 "${@}" ;;
     (*)          tail -n 1 "${@}" ;;

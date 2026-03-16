@@ -51,9 +51,10 @@ str_replace() {
       _str_replace_i=0
       until (( _str_replace_i == _str_replace_count )); do
         (( _str_replace_i++ ))
-        printf -- '%s\n' "${_str_replace_string}" |
-          sed "s/${_str_replace_match}/${_str_replace_replacement}/"
+        _str_replace_string=$(printf -- '%s\n' "${_str_replace_string}" |
+          sed "s/${_str_replace_match}/${_str_replace_replacement}/")
       done
+      printf -- '%s\n' "${_str_replace_string}"
     ;;
   esac
 }

@@ -34,16 +34,17 @@ _SHELLAC_LOADED_text_helmet=1
 # @stdout Input lines after the protected header lines
 # @exitcode 0 Always
 helmet() {
-  local count
-  if [ "${1}" -eq "${1}" ] 2>/dev/null; then
-    count="${1}"
-    shift 1
-  fi
+  local _count
+  local _lines
+  case "${1}" in
+    (*[!0-9]*|'') ;;
+    (*) _count="${1}"; shift ;;
+  esac
 
-  count="${count:-1}"
+  _count="${_count:-1}"
 
-  mapfile -t
+  mapfile -t _lines
 
-  printf -- '%s\n' "${MAPFILE[@]:0:count}" >&2
-  printf -- '%s\n' "${MAPFILE[@]:count}"
+  printf -- '%s\n' "${_lines[@]:0:_count}" >&2
+  printf -- '%s\n' "${_lines[@]:_count}"
 }

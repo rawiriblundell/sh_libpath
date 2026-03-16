@@ -34,11 +34,15 @@ str_len() {
   case "${1}" in
     (-b|--bytes)
       shift 1
-      LANG_orig="${LANG}"; LC_ALL_orig="${LC_ALL}"
-      LANG=C; LC_ALL=C;
+      local _lang_orig _lc_all_orig
+      _lang_orig="${LANG}"
+      _lc_all_orig="${LC_ALL}"
+      LANG=C
+      LC_ALL=C
       str="${*}"
       printf -- '%d\n' "${#str}"
-      LANG="${LANG_orig}"; LC_ALL="${LC_ALL_orig}"
+      LANG="${_lang_orig}"
+      LC_ALL="${_lc_all_orig}"
     ;;
     ('')
       # Check for piped input

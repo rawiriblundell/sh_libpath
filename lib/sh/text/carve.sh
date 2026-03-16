@@ -32,11 +32,12 @@ _SHELLAC_LOADED_text_carve=1
 # @stdout Carved substring
 # @exitcode 0 Always
 carve() {
-  read -r count1 delim1 _ count2 delim2 <<< "${@}"
-  case "${count1}" in
-    ([0-9]*) count1="${count1//[!0-9]/}" ;;
-    (first)  count1="1" ;;
-    (last)   count1="last" ;;
+  local _count1 _count2 _delim1 _delim2 _line _i
+  read -r _count1 _delim1 _ _count2 _delim2 <<< "${@}"
+  case "${_count1}" in
+    ([0-9]*) _count1="${_count1//[!0-9]/}" ;;
+    (first)  _count1="1" ;;
+    (last)   _count1="last" ;;
     (''|*)
       printf -- '%s\n' \
         "Usage: carve SHORT_ORDINAL DELIM1 to SHORT_ORDINAL DELIM2" \
@@ -44,31 +45,31 @@ carve() {
         "'first' or 'last' can also be used in the short ordinal fields" >&2
     ;;
   esac
-  case "${count2}" in
-    ([0-9]*) count2="${count1//[!0-9]/}" ;;
-    (first)  count2="1" ;;
-    (last)   count2="last" ;;
+  case "${_count2}" in
+    ([0-9]*) _count2="${_count2//[!0-9]/}" ;;
+    (first)  _count2="1" ;;
+    (last)   _count2="last" ;;
   esac
   while IFS= read -r; do
-    case "${count1}" in
-      (first) line="${REPLY#*${delim1}}" ;;
-      (last)  line="${REPLY##*${delim1}}" ;;
+    case "${_count1}" in
+      (first) _line="${REPLY#*${_delim1}}" ;;
+      (last)  _line="${REPLY##*${_delim1}}" ;;
       (*)
-        for (( i=0;i<count1;i++ )); do
-          (( i == 0 )) && line="${REPLY#*${delim1}}"
-          (( i >= 1 )) && line="${line#*${delim1}}"
+        for (( _i=0; _i<_count1; _i++ )); do
+          (( _i == 0 )) && _line="${REPLY#*${_delim1}}"
+          (( _i >= 1 )) && _line="${_line#*${_delim1}}"
         done
       ;;
     esac
-    case "${count2}" in
-      (first) line="${line%%${delim2}*}" ;;
-      (last)  line="${line%${delim2}*}" ;;
+    case "${_count2}" in
+      (first) _line="${_line%%${_delim2}*}" ;;
+      (last)  _line="${_line%${_delim2}*}" ;;
       (*)
-        for (( i=0;i<count2;i++ )); do
-          line="${line%%${delim2}*}"
+        for (( _i=0; _i<_count2; _i++ )); do
+          _line="${_line%%${_delim2}*}"
         done
       ;;
     esac
-    printf -- '%s\n' "${line}"
+    printf -- '%s\n' "${_line}"
   done
 }

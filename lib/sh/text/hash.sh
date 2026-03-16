@@ -23,13 +23,13 @@ _SHELLAC_LOADED_text_hash=1
 # @internal
 _str_hash_not_found() {
   printf -- 'str_hash: %s\n' "${1:-Hashing} method not found" >&2
-  exit 1
+  return 1
 }
 
 # @internal
 _str_hash_failed() {
   printf -- 'str_hash: %s\n' "${1:-Hashing} method failed" >&2
-  exit 1
+  return 1
 }
 
 # @internal

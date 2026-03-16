@@ -30,9 +30,9 @@ _SHELLAC_LOADED_text_shuffle=1
 # @exitcode 0 Success
 # @exitcode 1 Required dependencies (fold, paste, RANDOM) not found
 str_shuffle() {
-  local _str_shuffle_missing _str_shuffle_dep _str_shuffle_missing
+  local _str_shuffle_missing _str_shuffle_dep
   local _str_shuffle_chars _str_shuffle_charcount _str_shuffle_randmax
-  local _str_shuffle_chartmp word shuffled_word rand
+  local _str_shuffle_chartmp _word _shuffled_word _rand _i
   # Ensure that our dependencies are present
   for _str_shuffle_dep in fold paste; do
     if ! command -v "${_str_shuffle_dep}" >/dev/null 2>&1; then
@@ -50,37 +50,37 @@ str_shuffle() {
     return 1
   fi
 
-  for word in "${@}"; do
-    case "${#word}" in
+  for _word in "${@}"; do
+    case "${#_word}" in
       (1)
         # Don't go to the bother of shuffling single-char words like 'a'
-        printf -- '%s ' "${word}"
+        printf -- '%s ' "${_word}"
       ;;
       (*)
         # Initialise an array of all the characters from the word and get the array size
         # shellcheck disable=SC2207
-        _str_shuffle_chars=( $(printf -- '%s' "${word}" | fold -w 1 | paste -sd ' ') )
+        _str_shuffle_chars=( $(printf -- '%s' "${_word}" | fold -w 1 | paste -sd ' ') )
         _str_shuffle_charcount="${#_str_shuffle_chars[@]}"
         # $RANDOM % (i+1) is biased because of the limited range of $RANDOM
         # We compensate by using a range which is a multiple of the array size.
         _str_shuffle_randmax=$(( 32768 / _str_shuffle_charcount * _str_shuffle_charcount ))
 
-        for ((i=_str_shuffle_charcount-1; i>0; i--)); do
-          # Get a random modulo-able number within our range, the modulo it
+        for (( _i=_str_shuffle_charcount-1; _i>0; _i-- )); do
+          # Get a random modulo-able number within our range, then modulo it
           # shellcheck disable=SC2004
-          while (( (rand=${RANDOM}) >= _str_shuffle_randmax )); do :; done
-          rand=$(( rand % (i+1) ))
+          while (( (_rand=${RANDOM}) >= _str_shuffle_randmax )); do :; done
+          _rand=$(( _rand % (_i+1) ))
 
-          # Swap the i'th element with the rand element
-          _str_shuffle_chartmp="${_str_shuffle_chars[i]}"
-          _str_shuffle_chars[i]=${_str_shuffle_chars[rand]}
-          _str_shuffle_chars[rand]="${_str_shuffle_chartmp}"
+          # Swap the _i'th element with the _rand element
+          _str_shuffle_chartmp="${_str_shuffle_chars[_i]}"
+          _str_shuffle_chars[_i]="${_str_shuffle_chars[_rand]}"
+          _str_shuffle_chars[_rand]="${_str_shuffle_chartmp}"
         done
         # Convert the array back to a string and strip out the spaces
         # This gives us our shuffled word, which we print out
-        shuffled_word="${_str_shuffle_chars[*]}"
-        shuffled_word="${shuffled_word// /}"
-        printf -- '%s ' "${shuffled_word}"
+        _shuffled_word="${_str_shuffle_chars[*]}"
+        _shuffled_word="${_shuffled_word// /}"
+        printf -- '%s ' "${_shuffled_word}"
       ;;
     esac
   done
