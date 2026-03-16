@@ -52,40 +52,50 @@ log_warn() {
 # @exitcode 0 Message logged successfully
 # @exitcode 1 Invalid option
 logmsg() {
-  local opt_flags log_ident print_fmt std_out_arg OPTIND
-  unset opt_flags log_ident print_fmt std_out_arg OPTIND
-  while getopts ":t:s" opt_flags; do
-    case "${opt_flags}" in
-      (s)   std_out_arg='-s' ;;
-      (t)   log_ident="-t ${OPTARG}" ;;
-      (\?|:|*)
-        printf -- '%s\n' "Usage: logmsg [-s(tdout) -t tag] message" >&2
-        return 1
-      ;;
+    local _opt
+    local _log_ident
+    local _print_fmt
+    local _std_out
+    local _log_file
+    local OPTIND
+
+    while getopts ":t:s" _opt; do
+        case "${_opt}" in
+            (s)     _std_out=1 ;;
+            (t)     _log_ident="${OPTARG}" ;;
+            (\?|:|*)
+                printf -- '%s\n' "Usage: logmsg [-s(tdout) -t tag] message" >&2
+                return 1
+            ;;
+        esac
+    done
+    shift "$(( OPTIND - 1 ))"
+
+    case "${_log_ident:-}" in
+        ('')  _print_fmt="$(date '+%b %d %T') ${HOSTNAME%%.*}:" ;;
+        (*)   _print_fmt="$(date '+%b %d %T') ${HOSTNAME%%.*} ${_log_ident}:" ;;
     esac
-  done
-  shift "$(( OPTIND - 1 ))"
-  case "${log_ident}" in
-    ('')  print_fmt="$(date '+%b %d %T') ${HOSTNAME%%.*}:" ;;
-    (*)   print_fmt="$(date '+%b %d %T') ${HOSTNAME%%.*} ${log_ident/-t /}:" ;;
-  esac
-  if command -v systemd-cat >/dev/null 2>&1; then
-    [[ "${std_out_arg}" = "-s" ]] && printf -- '%s\n' "${print_fmt} ${*}"
-    case "${log_ident}" in
-      ('') systemd-cat <<< "${*}" ;;
-      (*)  systemd-cat "${log_ident}" <<< "${*}" ;;
-    esac
-  elif command -v logger >/dev/null 2>&1; then
-    [[ "${std_out_arg}" = "-s" ]] && printf -- '%s\n' "${print_fmt} ${*}"
-    logger "${log_ident}" "${*}"
-  else
-    [[ -w /var/log/messages ]] && logFile=/var/log/messages
-    [[ -z "${logFile}" && -w /var/log/syslog ]] && logFile=/var/log/syslog
-    [[ -z "${logFile}" ]] && logFile=/var/log/logmsg
-    if [[ "${std_out_arg}" = "-s" ]]; then
-      printf -- '%s\n' "${print_fmt} ${*}" | tee -a "${logFile}" 2>&1
+
+    if command -v systemd-cat >/dev/null 2>&1; then
+        (( _std_out )) && printf -- '%s\n' "${_print_fmt} ${*}"
+        case "${_log_ident:-}" in
+            ('') systemd-cat <<< "${*}" ;;
+            (*)  systemd-cat -t "${_log_ident}" <<< "${*}" ;;
+        esac
+    elif command -v logger >/dev/null 2>&1; then
+        (( _std_out )) && printf -- '%s\n' "${_print_fmt} ${*}"
+        case "${_log_ident:-}" in
+            ('') logger "${*}" ;;
+            (*)  logger -t "${_log_ident}" "${*}" ;;
+        esac
     else
-      printf -- '%s\n' "${print_fmt} ${*}" >> "${logFile}" 2>&1
+        [[ -w /var/log/messages ]] && _log_file=/var/log/messages
+        [[ -z "${_log_file}" && -w /var/log/syslog ]] && _log_file=/var/log/syslog
+        : "${_log_file:=/var/log/logmsg}"
+        if (( _std_out )); then
+            printf -- '%s\n' "${_print_fmt} ${*}" | tee -a "${_log_file}"
+        else
+            printf -- '%s\n' "${_print_fmt} ${*}" >> "${_log_file}"
+        fi
     fi
-  fi
 }
