@@ -7,7 +7,7 @@ include() {
   [ -r "${1?}" ] && . "${1}"
 }
 
-include ../lib/jsonprint.sh
+include ../jsonprint.sh
 
 json_open
   json_str firstName John

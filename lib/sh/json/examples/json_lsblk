@@ -6,7 +6,7 @@
 # shellcheck disable=SC1090
 include() { . "${1}" || exit 1; }
 
-include ../lib/jsonprint.sh
+include ../jsonprint.sh
 
 # We require the 'lsblk' command, obviously
 json_require lsblk

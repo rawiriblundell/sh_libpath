@@ -6,7 +6,7 @@
 # shellcheck disable=SC1090
 include() { . "${1}" || exit 1; }
 
-include ../lib/jsonprint.sh
+include ../jsonprint.sh
 
 # A small function to pluck the load detail from the 'uptime' command
 # 'uptime' is fairly stable and seems to be relatively portable, but just in 

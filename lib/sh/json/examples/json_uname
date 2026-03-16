@@ -9,7 +9,7 @@
 # shellcheck disable=SC1090
 include() { . "${1}" || exit 1; }
 
-include ../lib/jsonprint.sh
+include ../jsonprint.sh
 
 json_open
   json_open_obj uname
