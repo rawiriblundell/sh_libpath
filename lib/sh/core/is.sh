@@ -36,7 +36,7 @@ bool_is_false() {
 }
 
 # @description Test whether a value represents a boolean true.
-#   Accepts: 0, true, yes, on (case-insensitive).
+#   Accepts: 0, y, true, yes, on (case-insensitive).
 #
 # @arg $1 string Value to test
 #
@@ -44,9 +44,27 @@ bool_is_false() {
 # @exitcode 1 Value is not a recognised true
 bool_is_true() {
     case "${1:-null}" in
-        (0|[tT][rR][uU][eE]|[yY][eE][sS]|[oO][nN]) return 0 ;;
-        (''|*)                                        return 1 ;;
+        (0|[yY]|[tT][rR][uU][eE]|[yY][eE][sS]|[oO][nN]) return 0 ;;
+        (''|*)                                              return 1 ;;
     esac
+}
+
+# @description Evaluate a value or stdin as a boolean.
+#   When stdin is a pipe, reads one line and evaluates it.
+#   Otherwise evaluates $1. Thin wrapper around bool_is_true().
+#
+# @arg $1 string Value to evaluate (ignored when stdin is a pipe)
+#
+# @exitcode 0 Value is truthy
+# @exitcode 1 Value is falsy or empty
+bool() {
+    local _val
+    if [[ ! -t 0 ]]; then
+        read -r _val
+    else
+        _val="${1:?No input provided}"
+    fi
+    bool_is_true "${_val}"
 }
 
 # @description Test whether a value is any recognised boolean representation.

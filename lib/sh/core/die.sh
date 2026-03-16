@@ -69,24 +69,43 @@ try() {
 }
 
 # @description Run a command up to N times until it succeeds.
-#   Prints a failure message and returns 1 if all attempts are exhausted.
+#   Prints a dot to stderr for each failed attempt.
+#   Optionally sleeps between attempts with -s.
 #
-# @arg $1 int Number of attempts
+# @arg $1 string Optional: '-m N' max attempts (default: 3)
+# @arg $2 string Optional: '-s N' sleep seconds between attempts (default: 0)
 # @arg $@ string The command and its arguments to execute
 #
+# @stderr A dot per failed attempt, then a newline; error message if exhausted
 # @exitcode 0 Command succeeded within the allowed attempts
 # @exitcode 1 All attempts exhausted
 retry() {
     local _attempts
     local _count
-    _attempts="${1:?No attempt count given}"
-    shift
+    local _opt
+    local _sleep
+    local OPTIND
+    OPTIND=1
+    while getopts ":m:s:" _opt; do
+        case "${_opt}" in
+            (m) _attempts="${OPTARG}" ;;
+            (s) _sleep="${OPTARG}" ;;
+            (*) : ;;
+        esac
+    done
+    shift "$(( OPTIND - 1 ))"
+    _attempts="${_attempts:-3}"
+    _sleep="${_sleep:-0}"
     _count=0
     until "${@}"; do
         : $(( _count += 1 ))
+        printf -- '%s' "." >&2
         if (( _count >= _attempts )); then
+            printf -- '\n' >&2
             printf -- 'retry: %s\n' "command failed after ${_attempts} attempt(s): ${*}" >&2
             return 1
         fi
+        (( _sleep > 0 )) && sleep "${_sleep}"
     done
+    (( _count > 0 )) && printf -- '\n' >&2
 }
