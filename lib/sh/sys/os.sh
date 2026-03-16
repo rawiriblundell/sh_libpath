@@ -90,49 +90,74 @@ case "${OS}" in
         : "${XDG_VIDEOS_DIR:-$HOME/Videos}"
         : "${XDG_TEMPLATES_DIR:-$HOME/Templates}"
         : "${XDG_PUBLICSHARE_DIR:-$HOME/Public}"
-        # Operating System
-        # For versions that have 'PRETTY_NAME' in e.g. /etc/os-release
-        if grep -q "^PRETTY_NAME.*[0-9]" /etc/os-release 2>/dev/null; then
-          operSys=$(awk -F "=" '/^PRETTY_NAME=/{print $2}' /etc/os-release | tr -d '"')
-        # Sometimes PRETTY_NAME does not include version info, so we build it manually, and
-        # for older versions with /etc/os-release but not PRETTY_NAME, we try to construct it
-        elif grep -qhE "^NAME=|^VERSION=" /etc/os-release 2>/dev/null; then
-          operSys=$(awk -F "=" '/^NAME=|^VERSION=/{print $2}' /etc/os-release | tr -d '"' | paste -sd ' ' -)
-        # For everything else, we just try to get whatever we can
-        else
-          operSys=$(grep -Ehi -m 1 'red hat|fedora|cent|enterprise|debian|ubuntu|slack|suse|gentoo' /etc/*release* /etc/*version* 2>/dev/null \
-            | grep "[0-9]" | head -n 1 | sed -e 's/^.*NAME=//' -e 's/DISTRIB_ID=//' -e 's/=//')
-        fi
-        # Be aware: this attempt to give a portable fallback is still problematic
-        # e.g. in a container, the host /proc/version will be given
-        if [ -z "${operSys}" ]; then
-          operSys=$(</proc/version)
-        fi
+        # Distro detection: os-release (systemd standard, ~2012+) preferred,
+        # then lsb_release, then legacy per-distro files as last resort.
+        _os_release=
+        [ -f /etc/os-release ]     && _os_release=/etc/os-release
+        [ -f /usr/lib/os-release ] && : "${_os_release:=/usr/lib/os-release}"
 
-        if [ -f /etc/redhat-release ]; then
-            DistroBasedOn=RedHat
-            DistroFullName=$(sed s/\ release.*// /etc/redhat-release)
-            DistroCodename=$(sed s/.*\(// /etc/redhat-release | sed s/\)//)
-            DistroRevision=$(sed s/.*release\ // /etc/redhat-release | sed s/\ .*//)
-        elif [ -f /etc/SuSE-release ]; then
-            DistroBasedOn=SuSe
-            DistroCodename=$(tr "\n" ' ' < /etc/SuSE-release | sed s/VERSION.*//)
-            DistroRevision=$(tr "\n" ' ' < /etc/SuSE-release | sed s/.*=\ //)
-        elif [ -f /etc/mandrake-release ]; then
-            DistroBasedOn=Mandrake
-            DistroCodename=$(sed s/.*\(// /etc/mandrake-release | sed s/\)//)
-            DistroRevision=$(sed s/.*release\ // /etc/mandrake-release | sed s/\ .*//)
-        elif [ -f /etc/debian_version ]; then
-            DistroBasedOn=Debian
-            DistroFullName=$(grep '^DISTRIB_DESCRIPTION' /etc/lsb-release | awk -F=  '{ print $2 }')
-            DistroCodename=$(grep '^DISTRIB_CODENAME' /etc/lsb-release | awk -F=  '{ print $2 }')
-            DistroRevision=$(grep '^DISTRIB_RELEASE' /etc/lsb-release | awk -F=  '{ print $2 }')
-        elif [ -f /etc/slackware-version ]; then
-            DistroBasedOn=Slackware
-            DistroPkgType=pkgtools
-            DistroFullName=
-            DistroCodename=
-            DistroRevision=
+        if [ -n "${_os_release}" ]; then
+            DistroFullName=$(awk -F= '/^PRETTY_NAME=/{gsub(/"/, "", $2); print $2}' "${_os_release}")
+            DistroRevision=$(awk -F= '/^VERSION_ID=/{gsub(/"/, "", $2); print $2}' "${_os_release}")
+            DistroCodename=$(awk -F= '/^VERSION_CODENAME=/{gsub(/"/, "", $2); print $2}' "${_os_release}")
+            # Some distros embed codename in VERSION as "(Codename)"
+            if [ -z "${DistroCodename}" ]; then
+                DistroCodename=$(awk -F= '/^VERSION=/{gsub(/"/, "", $2); print $2}' "${_os_release}" \
+                    | grep -o '([^)]*)' | tr -d '()')
+            fi
+            _distro_id=$(awk -F= '/^ID=/{gsub(/"/, "", $2); print $2}' "${_os_release}")
+            _distro_id_like=$(awk -F= '/^ID_LIKE=/{gsub(/"/, "", $2); print $2}' "${_os_release}")
+            case "${_distro_id_like:-${_distro_id}}" in
+                (*rhel*|*centos*|*fedora*)  DistroBasedOn=RedHat;    DistroPkgType=rpm      ;;
+                (*debian*|*ubuntu*)         DistroBasedOn=Debian;    DistroPkgType=deb      ;;
+                (*suse*)                    DistroBasedOn=SuSe;      DistroPkgType=rpm      ;;
+                (*arch*)                    DistroBasedOn=Arch;      DistroPkgType=pacman   ;;
+                (*gentoo*)                  DistroBasedOn=Gentoo;    DistroPkgType=ebuild   ;;
+                (*slackware*)               DistroBasedOn=Slackware; DistroPkgType=pkgtools ;;
+                (*alpine*)                  DistroBasedOn=Alpine;    DistroPkgType=apk      ;;
+                (*)                         DistroBasedOn="${_distro_id}"                   ;;
+            esac
+            unset -v _os_release _distro_id _distro_id_like
+        elif command -v lsb_release >/dev/null 2>&1; then
+            DistroFullName=$(lsb_release -sd 2>/dev/null)
+            DistroRevision=$(lsb_release -sr 2>/dev/null)
+            DistroCodename=$(lsb_release -sc 2>/dev/null)
+            _distro_id=$(lsb_release -si 2>/dev/null)
+            case "${_distro_id}" in
+                (RedHat*|CentOS*|Fedora*|AlmaLinux*|Rocky*) DistroBasedOn=RedHat; DistroPkgType=rpm ;;
+                (Debian*|Ubuntu*)                            DistroBasedOn=Debian; DistroPkgType=deb ;;
+                (SUSE*|openSUSE*)                            DistroBasedOn=SuSe;   DistroPkgType=rpm ;;
+                (*)                                          DistroBasedOn="${_distro_id}"            ;;
+            esac
+            unset -v _distro_id
+        else
+            # Legacy per-distro files — only reached on very old systems
+            if [ -f /etc/redhat-release ]; then
+                DistroBasedOn=RedHat
+                DistroPkgType=rpm
+                DistroFullName=$(sed s/\ release.*// /etc/redhat-release)
+                DistroCodename=$(sed s/.*\(// /etc/redhat-release | sed s/\)//)
+                DistroRevision=$(sed s/.*release\ // /etc/redhat-release | sed s/\ .*//)
+            elif [ -f /etc/SuSE-release ]; then
+                DistroBasedOn=SuSe
+                DistroPkgType=rpm
+                DistroCodename=$(tr "\n" ' ' < /etc/SuSE-release | sed s/VERSION.*//)
+                DistroRevision=$(tr "\n" ' ' < /etc/SuSE-release | sed s/.*=\ //)
+            elif [ -f /etc/mandrake-release ]; then
+                DistroBasedOn=Mandrake
+                DistroPkgType=rpm
+                DistroCodename=$(sed s/.*\(// /etc/mandrake-release | sed s/\)//)
+                DistroRevision=$(sed s/.*release\ // /etc/mandrake-release | sed s/\ .*//)
+            elif [ -f /etc/debian_version ]; then
+                DistroBasedOn=Debian
+                DistroPkgType=deb
+                DistroFullName=$(grep '^DISTRIB_DESCRIPTION' /etc/lsb-release | awk -F= '{ print $2 }')
+                DistroCodename=$(grep '^DISTRIB_CODENAME' /etc/lsb-release | awk -F= '{ print $2 }')
+                DistroRevision=$(grep '^DISTRIB_RELEASE' /etc/lsb-release | awk -F= '{ print $2 }')
+            elif [ -f /etc/slackware-version ]; then
+                DistroBasedOn=Slackware
+                DistroPkgType=pkgtools
+            fi
         fi
     ;;
     ("NetBSD")
