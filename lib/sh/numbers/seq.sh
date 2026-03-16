@@ -33,7 +33,7 @@ command -v seq >/dev/null 2>&1 && return 0
 # @stdout One integer per line
 # @exitcode 0 Always
 seq() {
-  local first
+  local _first
   # If no parameters are given, print out usage
   if [[ -z "$*" ]]; then
     printf -- '%s\n' "Usage:"
@@ -52,24 +52,24 @@ seq() {
   elif [[ -z "${3}" ]]; then
     eval "printf -- '%d\\n' {$1..$2}"
   # and with three parameters we use the second as our increment
-  elif [[ -n "${3}" ]]; then
+  else
     # First we test if the bash version is 4, if so, use native increment
     if (( BASH_VERSINFO >= 4 )); then
       eval "printf -- '%d\\n' {$1..$3..$2}"
     # Otherwise, use the manual approach
     else
-      first="${1}"
+      _first="${1}"
       # Simply iterate through in ascending order
-      if (( first < $3 )); then
-        while (( first <= $3 )); do
-          printf -- '%d\n' "${first}"
-          first=$(( first + $2 ))
+      if (( _first < $3 )); then
+        while (( _first <= $3 )); do
+          printf -- '%d\n' "${_first}"
+          _first=$(( _first + $2 ))
         done
       # or... undocumented feature: descending order!
-      elif (( first > $3 )); then
-        while (( first >= $3 )); do
-          printf -- '%d\n' "${first}"
-          first=$(( first - $2 ))
+      elif (( _first > $3 )); then
+        while (( _first >= $3 )); do
+          printf -- '%d\n' "${_first}"
+          _first=$(( _first - $2 ))
         done
       fi
     fi

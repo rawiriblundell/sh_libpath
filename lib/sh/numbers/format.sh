@@ -26,7 +26,7 @@ _SHELLAC_LOADED_numbers_format=1
 #
 # @stdout Each value formatted to two decimal places, one per line
 # @exitcode 0 Always
-2dp() {
+num_2dp() {
   printf -- '%0.2f\n' "${@}"
 }
 

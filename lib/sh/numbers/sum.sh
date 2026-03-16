@@ -43,11 +43,11 @@ sum() {
       return 0
     ;;
   esac
-  if [ ! -t 0 ]; then
+  if [ "${#}" -eq 0 ] && [ ! -t 0 ]; then
     while read -r; do
       case "${REPLY}" in
         (*[!0-9]*) : ;;
-        (*) sum=$(( sum + param )) ;;
+        (*) sum=$(( sum + REPLY )) ;;
       esac
     done < "${1:-/dev/stdin}"
     printf -- '%d\n' "${sum}"
