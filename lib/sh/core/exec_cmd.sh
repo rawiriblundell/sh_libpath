@@ -30,29 +30,42 @@ _SHELLAC_LOADED_core_exec_cmd=1
 # @exitcode 0 Command succeeded
 # @exitcode 1 Command failed and -e/--exit-on-fail was given
 exec_cmd() {
+    local _die
+    local _output
+    local _exit_code
+
+    _die=0
     case "${1}" in
-        (-e|--exit-on-fail) shift 1; die=yes ;;
+        (-e|--exit-on-fail) _die=1; shift ;;
     esac
-    if [ -t 0 ]; then
-        inf_fmt='\e[7m====>Timestamp:\e[0m %s\n\e[7m====>Executing:\e[0m %s\n'
-        ok_fmt='\e[7m====>Output   :\e[0m\n%s\n\n\e[32;1m====>Exit Code\e[0m: %s\n\e[32;1m====>all be GOOD\e[0m\n'
-        err_fmt='\e[7m====>Output   :\e[0m\n%s\n\e[31;1m====>Exit Code\e[0m: %s\n\e[31;1m====>in ERROR\e[0m\n'
+
+    if [ -t 1 ]; then
+        printf '\e[7m====>Timestamp:\e[0m %s\n\e[7m====>Executing:\e[0m %s\n' \
+            "$(date +%s)" "${*}"
     else
-        inf_fmt='====>Timestamp: %s\n====>Executing: %s\n'
-        ok_fmt='====>Output: %s\n\n====>Exit Code: %s\n====>all be GOOD\n'
-        err_fmt='====>Output: %s\n====>Exit Code: %s\n====>in ERROR'
+        printf -- '====>Timestamp: %s\n====>Executing: %s\n' \
+            "$(date +%s)" "${*}"
     fi
-    # shellcheck disable=SC2059
-    printf -- "${inf_fmt}" "$(date +%s)" "${*}"
-    output=$("${@}")
-    # shellcheck disable=SC2059
-    case "${?}" in
-        (0)
-            printf -- "${ok_fmt}"  "${output}" "${?}"
-        ;;
-        (*)
-            printf -- "${err_fmt}" "${output}" "${?}"
-            [[ "${die}" = "yes" ]] && exit 1
-        ;;
-    esac
+
+    _output=$("${@}")
+    _exit_code="${?}"
+
+    if (( _exit_code == 0 )); then
+        if [ -t 1 ]; then
+            printf '\e[7m====>Output   :\e[0m\n%s\n\n\e[32;1m====>Exit Code\e[0m: %s\n\e[32;1m====>all be GOOD\e[0m\n' \
+                "${_output}" "${_exit_code}"
+        else
+            printf -- '====>Output: %s\n\n====>Exit Code: %s\n====>all be GOOD\n' \
+                "${_output}" "${_exit_code}"
+        fi
+    else
+        if [ -t 1 ]; then
+            printf '\e[31;1m====>Output   :\e[0m\n%s\n\e[31;1m====>Exit Code\e[0m: %s\n\e[31;1m====>in ERROR\e[0m\n' \
+                "${_output}" "${_exit_code}"
+        else
+            printf -- '====>Output: %s\n====>Exit Code: %s\n====>in ERROR\n' \
+                "${_output}" "${_exit_code}"
+        fi
+        (( _die )) && exit 1
+    fi
 }
