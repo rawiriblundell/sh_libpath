@@ -596,9 +596,68 @@ json_from_dkvp() {
   printf -- '"%s" "%s"' "${_key}" "${_value}"
 }
 
+# @description Emit a JSON array keypair whose values are auto-typed.
+#   Integers, floats, and booleans are unquoted; everything else is quoted.
+#   With '-c' or '--comma', appends a trailing comma.
+#
+# @arg $1 string Optional: '-c'/'--comma' for trailing comma, otherwise the key
+# @arg $2 string Key (when $1 is a flag)
+# @arg $@ string Values to include in the array
+#
+# @example
+#   json_val_arr tags foo bar         # => "tags": ["foo","bar"]
+#   json_val_arr counts 1 2 3         # => "counts": [1,2,3]
+#   json_val_arr flags true false     # => "flags": [true,false]
+#
+# @stdout '"key": [values...]'
+# @exitcode 0 Always
+json_val_arr() {
+  local _comma _key _value _iter_count _bool
+  case "${1}" in
+    (-c|--comma) shift 1; _comma="," ;;
+    (*)          _comma="" ;;
+  esac
+  _key="$(json_sanitise "${1:?No key given}")"
+  shift 1
+  _iter_count=0
+  printf -- '"%s": [' "${_key}"
+  for _value in "${@}"; do
+    (( _iter_count > 0 )) && printf -- '%s' ","
+    case "$(json_gettype "${_value}")" in
+      (int|float)
+        printf -- '%s' "${_value}"
+      ;;
+      (bool)
+        case "${_value}" in
+          ([tT][rR][uU][eE]|[yY][eE][sS]|[oO][nN])    printf -- '%s' "true" ;;
+          ([fF][aA][lL][sS][eE]|[nN][oO]|[oO][fF][fF]) printf -- '%s' "false" ;;
+        esac
+      ;;
+      (string|''|*)
+        printf -- '"%s"' "${_value}"
+      ;;
+    esac
+    (( _iter_count++ ))
+  done
+  printf -- ']%s' "${_comma}"
+}
+
+# @description Comma-prefixed variant of json_val_arr for stacking inside an object.
+#
+# @arg $1 string Key
+# @arg $@ string Values to include in the array
+#
+# @stdout ', "key": [values...]'
+# @exitcode 0 Always
+json_append_val_arr() {
+  printf -- '%s' ", "
+  json_val_arr "${@}"
+}
+
 # @description Emit a complete JSON object from a flat list of alternating key-value pairs.
 #   Automatically selects the correct type function for each value. With '-n'/'--name',
 #   wraps the object under a named key.
+#   Delegates to json_readloop for the iteration logic.
 #
 # @arg $1 string Optional: '-n'/'--name' followed by an object name
 # @arg $@ string Alternating key value pairs
@@ -611,45 +670,19 @@ json_from_dkvp() {
 # @exitcode 0 Always
 # shellcheck disable=SC2048,SC2086,SC2183
 json_foreach() {
-  local _iter_count _key _value
+  local _name
   case "${1}" in
-    (-n|--name) json_open_obj "${2}"; shift 2 ;;
-    (*)         json_open_obj ;;
+    (-n|--name)
+      _name="${2}"
+      shift 2
+      printf -- '%s' "{"
+      printf -- '%s %s\n' ${*} | json_readloop --name "${_name}"
+      printf -- '%s' "}"
+    ;;
+    (*)
+      printf -- '%s %s\n' ${*} | json_readloop
+    ;;
   esac
-  _iter_count=0
-  while read -r _key _value; do
-    _key="$(json_sanitise "${_key}")"
-    _value="$(json_sanitise "${_value}")"
-
-    case "$(json_gettype "${_value}")" in
-      (int|float)
-        if (( _iter_count == 0 )); then
-          json_num "${_key}" "${_value}"
-          (( _iter_count++ ))
-        else
-          json_append_num "${_key}" "${_value}"
-        fi
-      ;;
-      (bool)
-        if (( _iter_count == 0 )); then
-          json_bool "${_key}" "${_value}"
-          (( _iter_count++ ))
-        else
-          json_append_bool "${_key}" "${_value}"
-        fi
-      ;;
-      (string|''|*)
-        if (( _iter_count == 0 )); then
-          json_str "${_key}" "${_value}"
-          (( _iter_count++ ))
-        else
-          json_append_str "${_key}" "${_value}"
-        fi
-      ;;
-    esac
-  done < <(printf -- '%s %s\n' ${*})
-  # shellcheck disable=SC2119
-  json_close_obj
 }
 
 # @description Read key-value pairs from a file or stdin and emit a JSON object.
