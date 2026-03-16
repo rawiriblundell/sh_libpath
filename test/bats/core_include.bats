@@ -129,6 +129,18 @@ teardown() {
 # Error output
 # ---------------------------------------------------------------------------
 
+@test "include: missing library dumps stack trace to stdout" {
+  run bash -c "
+    export SH_LIBPATH='${SHELLAC_LIB}'
+    source '${SHELLAC_BIN}'
+    include numbers/nonexistent 2>/dev/null
+  "
+  [ "${status}" -eq 1 ]
+  # Stack dump lines are formatted as +NNNN: ...
+  local pattern='^\+[0-9]{4}:'
+  [[ "${output}" =~ ${pattern} ]]
+}
+
 @test "include: error message goes to stderr (stack dump goes to stdout)" {
   # On failure, include() dumps the stack to stdout and the error message to stderr.
   # Verify the error message appears on stderr by swapping fd1/fd2.

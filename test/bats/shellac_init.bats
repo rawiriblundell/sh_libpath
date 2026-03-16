@@ -75,6 +75,22 @@ teardown() {
   [ "${status}" -eq 0 ]
 }
 
+@test "discovery: XDG_DATA_HOME path is included" {
+  local xdg_home_lib="${TEST_TMPDIR}/data_home/shellac/lib/sh"
+  mkdir -p "${xdg_home_lib}/core"
+  cp "${SHELLAC_LIB}/core/include.sh" "${xdg_home_lib}/core/"
+  cp "${SHELLAC_LIB}/core/requires.sh" "${xdg_home_lib}/core/"
+  cp "${SHELLAC_LIB}/core/wants.sh" "${xdg_home_lib}/core/"
+  run bash -c "
+    unset SH_LIBPATH
+    export XDG_DATA_HOME='${TEST_TMPDIR}/data_home'
+    source '${SHELLAC_BIN}'
+    printf '%s\n' \"\${SH_LIBPATH}\"
+  "
+  [ "${status}" -eq 0 ]
+  [[ "${output}" == *"${xdg_home_lib}"* ]]
+}
+
 @test "discovery: XDG_DATA_DIRS paths are included" {
   local xdg_lib="${TEST_TMPDIR}/xdg/shellac/lib/sh"
   mkdir -p "${xdg_lib}/core"

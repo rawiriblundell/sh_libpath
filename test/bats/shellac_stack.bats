@@ -42,6 +42,19 @@ load 'helpers/setup'
   [ "${output}" = "found" ]
 }
 
+@test "sh_stack_add: depth arrow grows with call depth" {
+  run shellac_run '
+    nested() { sh_stack_add "from nested"; }
+    nested
+    last="${SH_STACK[-1]}"
+    printf "%s\n" "${last}"
+  '
+  [ "${status}" -eq 0 ]
+  # Called from inside a function: depth >= 1, so arrow must be =>>, not just =>
+  local pattern='^\+[0-9]{4}: =>> from nested$'
+  [[ "${output}" =~ ${pattern} ]]
+}
+
 @test "SHELLAC_INIT_TIME: is set to a non-negative integer at source time" {
   run shellac_run 'printf "%d\n" "${SHELLAC_INIT_TIME}"'
   [ "${status}" -eq 0 ]
