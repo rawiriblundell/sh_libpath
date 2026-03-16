@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_numbers_date_ordinal+x}" ] && return 0
-_SHELLAC_LOADED_numbers_date_ordinal=1
+[ -n "${_SHELLAC_LOADED_time_date_ordinal+x}" ] && return 0
+_SHELLAC_LOADED_time_date_ordinal=1
 
 # @description Wrapper around the system date(1) command that adds a %o format specifier
 #   for ordinal day suffixes (st, nd, rd, th). All other format strings pass through unchanged.

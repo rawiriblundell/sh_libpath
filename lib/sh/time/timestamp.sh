@@ -17,12 +17,12 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_numbers_timestamp+x}" ] && return 0
-_SHELLAC_LOADED_numbers_timestamp=1
+[ -n "${_SHELLAC_LOADED_time_timestamp+x}" ] && return 0
+_SHELLAC_LOADED_time_timestamp=1
 
 command -v date >/dev/null 2>&1 || {
   printf -- 'dst: %s\n' "This library requires 'date', which was not found in PATH" >&2
-  exit 1
+  return 1
 }
 
 # @description Print the current date and time in a human-readable format including timezone.
