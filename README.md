@@ -1,5 +1,7 @@
 # SHELLAC
 
+![SHELLAC](docs/images/shellac.png)
+
 The missing library ecosystem for shell
 
 ## TL;DR?
