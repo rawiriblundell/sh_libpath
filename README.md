@@ -178,9 +178,11 @@ In alphabetical order only for readability:
 * https://github.com/hyperupcall/bash-term
 * https://github.com/kamilcuk/L_lib/
 * https://github.com/kigster/bashmatic
+* https://github.com/labbots/bash-utility
 * https://github.com/jandob/rebash
 * https://github.com/javier-lopez/learn/blob/master/sh/lib
 * https://github.com/jmcantrell/bashful
+* https://github.com/jmooring/bash-function-library
 * https://github.com/jneen/balls
 * https://github.com/juan131/bash-libraries
 * https://github.com/kvz/bash3boilerplate
@@ -197,6 +199,7 @@ In alphabetical order only for readability:
 * https://github.com/reale/bashlets
 * https://github.com/shellfire-dev
 * https://github.com/SpicyLemon/SpicyLemon/tree/master/bash_fun
+* https://github.com/srcshelton/stdlib.sh
 * https://github.com/svn2github/oobash/tree/master/oobash
 * https://github.com/tests-always-included/mo
 * https://github.com/timo-reymann/bash-tui-toolkit
