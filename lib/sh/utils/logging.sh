@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_core_logging+x}" ] && return 0
-_SHELLAC_LOADED_core_logging=1
+[ -n "${_SHELLAC_LOADED_utils_logging+x}" ] && return 0
+_SHELLAC_LOADED_utils_logging=1
 
 # @description Log an informational message via logmsg.
 #

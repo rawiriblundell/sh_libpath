@@ -103,33 +103,3 @@ breakpoint() {
         esac
     done
 }
-
-# @description Make Ctrl+C a no-op to prevent it killing the script.
-#
-# @exitcode 0 Always
-no_ctrl_c() {
-    # @internal
-    _no_ctrl_c() { :; }
-    trap _no_ctrl_c INT
-}
-
-# @description Remove the directory containing the current script from PATH
-#   to prevent infinite recursion when a script shadows a system command.
-#
-# @exitcode 0 Always
-prevent_path_recursion() {
-    local curdir
-    local _element
-    local _new_path
-    local _old_ifs
-    curdir=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
-    _new_path=
-    _old_ifs="${IFS}"
-    IFS=:
-    for _element in ${PATH}; do
-        [ "${_element}" = "${curdir}" ] && continue
-        _new_path="${_new_path:+${_new_path}:}${_element}"
-    done
-    IFS="${_old_ifs}"
-    export PATH="${_new_path}"
-}

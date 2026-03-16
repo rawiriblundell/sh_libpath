@@ -32,6 +32,15 @@ _SHELLAC_LOADED_core_trap=1
 #   trap_add 'printf "caught INT\n" >&2' INT
 #
 # @exitcode 0 Always
+# @description Make Ctrl+C a no-op to prevent it killing the script.
+#
+# @exitcode 0 Always
+no_ctrl_c() {
+    # @internal
+    _no_ctrl_c() { :; }
+    trap _no_ctrl_c INT
+}
+
 trap_add() {
     local _new_cmd
     local _signal
