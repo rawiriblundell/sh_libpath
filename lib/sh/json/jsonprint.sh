@@ -79,7 +79,7 @@ json_comma() {
 # @stdout Input with trailing comma removed
 # @exitcode 0 Always
 json_decomma() {
-  sed 's/\(.*\),/\1 /'
+  sed 's/\(.*\),/\1/'
 }
 
 # @description Sanitise a string for use as a JSON key or value. Strips surrounding
@@ -700,5 +700,81 @@ json_timestamp() {
       (*[0-9]*) json_num utc_epoch "$(date -u '+%s')" ;;
       (*)       json_num utc_YYYYMMDDHHMMSS "$(date -u '+%Y%m%d%H%M%S')" ;;
     esac
+  json_close_obj
+}
+
+# @description Pretty-print JSON from stdin using python3 or jq, whichever is available.
+#   Falls back to cat if neither is found.
+#
+# @example
+#   json_open; json_str foo bar; json_close | json_pretty
+#
+# @stdout Indented, human-readable JSON
+# @exitcode 0 Always
+json_pretty() {
+  if command -v python3 >/dev/null 2>&1; then
+    python3 -m json.tool
+  elif command -v jq >/dev/null 2>&1; then
+    jq .
+  else
+    cat
+  fi
+}
+
+# @description Validate JSON from stdin using python3 or jq, whichever is available.
+#   Prints nothing on success; prints an error message to stderr on failure.
+#
+# @example
+#   json_open; json_str foo bar; json_close | json_validate
+#
+# @exitcode 0 Valid JSON
+# @exitcode 1 Invalid JSON or no validator available
+json_validate() {
+  if command -v python3 >/dev/null 2>&1; then
+    python3 -m json.tool >/dev/null
+  elif command -v jq >/dev/null 2>&1; then
+    jq . >/dev/null
+  else
+    printf -- '%s\n' "json_validate: no validator found (python3 or jq required)" >&2
+    return 1
+  fi
+}
+
+# @description Emit a JSON object from environment variables. With no arguments,
+#   emits all environment variables. With arguments, emits only those named variables.
+#
+# @arg $@ string Optional: names of specific environment variables to include
+#
+# @example
+#   json_from_env HOME SHELL       # => {"HOME": "/root", "SHELL": "/bin/bash"}
+#   json_from_env                  # => all environment variables as a JSON object
+#
+# @stdout JSON object of environment variable keypairs
+# @exitcode 0 Always
+json_from_env() {
+  local _iter_count _name _value
+  _iter_count=0
+  json_open_obj
+  if (( "${#}" > 0 )); then
+    for _name in "${@}"; do
+      _value="${!_name}"
+      if (( _iter_count == 0 )); then
+        json_str "${_name}" "${_value}"
+        (( _iter_count++ ))
+      else
+        json_append_str "${_name}" "${_value}"
+      fi
+    done
+  else
+    while IFS='=' read -r _name _value; do
+      [[ -z "${_name}" ]] && continue
+      if (( _iter_count == 0 )); then
+        json_str "${_name}" "${_value}"
+        (( _iter_count++ ))
+      else
+        json_append_str "${_name}" "${_value}"
+      fi
+    done < <(env)
+  fi
   json_close_obj
 }
