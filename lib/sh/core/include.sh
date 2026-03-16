@@ -24,6 +24,24 @@ _SHELLAC_LOADED_core_include=1
 # TODO: include [url] --> download code to temporary location, source, destroy afterwards?
 
 # @internal
+# Source a file and, when verbose, print any functions newly defined by it.
+_include_source() {
+    local _file _verbose _before _after _func
+    _file="${1}"
+    _verbose="${2:-0}"
+    (( _verbose )) && _before=$(declare -F | awk '{print $3}')
+    # shellcheck disable=SC1090
+    . "${_file}" || return 1
+    if (( _verbose )); then
+        _after=$(declare -F | awk '{print $3}')
+        while IFS= read -r _func; do
+            printf -- 'include: loaded function: %s\n' "${_func}"
+        done < <(comm -13 <(printf '%s\n' "${_before}" | sort) \
+                            <(printf '%s\n' "${_after}"  | sort))
+    fi
+}
+
+# @internal
 _include_sentinel() {
     local _path _rel _element
     _path="${1}"
@@ -65,6 +83,13 @@ include() {
     local _element
     local _subdir
     local _load_target
+    local _verbose
+
+    _verbose=0
+    if [ "${1}" = '-v' ]; then
+        _verbose=1
+        shift
+    fi
 
     sh_stack_add "Entering 'include()' and processing ${#} found arg(s): '${*}'"
 
@@ -92,8 +117,7 @@ include() {
         if [ -r "${_include_target}" ]; then
             _include_is_loaded "${_include_target}" && return 0
             sh_stack_add "Full path: '${_include_target}' readable.  Loading."
-            # shellcheck disable=SC1090
-            if . "${_include_target}"; then
+            if _include_source "${_include_target}" "${_verbose}"; then
                 return 0
             else
                 sh_stack_add "Full path: '${_include_target}' readable but not loadable.  Failing."
@@ -125,8 +149,7 @@ include() {
             for _load_target in "${_subdir}"/*.sh; do
                 _include_is_loaded "${_load_target}" && continue
                 if [ -r "${_load_target}" ]; then
-                    # shellcheck disable=SC1090
-                    . "${_load_target}" || {
+                    _include_source "${_load_target}" "${_verbose}" || {
                         _shellac_stack dump
                         printf -- 'include: %s\n' "Failed to load '${_load_target}'" >&2
                         return 1
@@ -161,8 +184,7 @@ include() {
 
             _include_is_loaded "${_load_target}" && return 0
 
-            # shellcheck disable=SC1090
-            . "${_load_target}" || {
+            _include_source "${_load_target}" "${_verbose}" || {
                 printf -- 'include: %s\n' "Failed to load '${_load_target}'" >&2
                 return 1
             }
