@@ -21,10 +21,10 @@
 _SHELLAC_LOADED_sys_os=1
 
 # Detect the OS and populate OS information variables.
-# Sets OSSTR, OSVER, OS, KERNEL, RELEASE, MACHTYPE, HOSTTYPE, MACH,
+# Sets OSSTR, OSVER, OS, KERNEL, RELEASE, MACHTYPE, HOSTTYPE,
 # OSBOOTTIME, and where applicable: DistroBasedOn, DistroPkgType,
 # DistroFullName, DistroCodename, DistroRevision.
-# Sets LC_ALL=C and LANG=C for consistent parsing.
+# Sets LC_ALL=C and LANG=C for consistent parsing (restored on exit).
 
 _os_LC_ALL="${LC_ALL:-}"
 _os_LANG="${LANG:-}"
@@ -111,23 +111,19 @@ case "${OS}" in
 
         if [ -f /etc/redhat-release ]; then
             DistroBasedOn=RedHat
-            DistroPkgType=rpm
             DistroFullName=$(sed s/\ release.*// /etc/redhat-release)
             DistroCodename=$(sed s/.*\(// /etc/redhat-release | sed s/\)//)
             DistroRevision=$(sed s/.*release\ // /etc/redhat-release | sed s/\ .*//)
         elif [ -f /etc/SuSE-release ]; then
             DistroBasedOn=SuSe
-            DistroPkgType=rpm
             DistroCodename=$(tr "\n" ' ' < /etc/SuSE-release | sed s/VERSION.*//)
             DistroRevision=$(tr "\n" ' ' < /etc/SuSE-release | sed s/.*=\ //)
         elif [ -f /etc/mandrake-release ]; then
             DistroBasedOn=Mandrake
-            DistroPkgType=rpm
             DistroCodename=$(sed s/.*\(// /etc/mandrake-release | sed s/\)//)
             DistroRevision=$(sed s/.*release\ // /etc/mandrake-release | sed s/\ .*//)
         elif [ -f /etc/debian_version ]; then
             DistroBasedOn=Debian
-            DistroPkgType=deb
             DistroFullName=$(grep '^DISTRIB_DESCRIPTION' /etc/lsb-release | awk -F=  '{ print $2 }')
             DistroCodename=$(grep '^DISTRIB_CODENAME' /etc/lsb-release | awk -F=  '{ print $2 }')
             DistroRevision=$(grep '^DISTRIB_RELEASE' /etc/lsb-release | awk -F=  '{ print $2 }')
@@ -148,9 +144,6 @@ case "${OS}" in
         #OSVER=
     ;;
     ("SunOS"|"solaris")
-        ARCH=$(uname -p)
-        OSSTR=$(uname -a)
-        export ARCH OSSTR
         OSSTR=solaris
         #OSVER=
     ;;
@@ -177,18 +170,13 @@ case "${OS}" in
 esac
 
 # Mostly portable, doesn't always work, needs a little more attention
-if who -b > /dev/null 2>&1; then
-    OSBOOTTIME="$(who -b)"
-fi
-
-readonly OSSTR OSVER OSBOOTTIME
-export OSSTR OSVER OSBOOTTIME
+who -b > /dev/null 2>&1 && OSBOOTTIME="$(who -b)"
 
 # This is either the kernel version (Linux) or the release version (everything else)
-if [ -z "${KERNEL}" ]; then KERNEL=$(uname -r); fi
+[ -z "${KERNEL}" ] && KERNEL=$(uname -r)
 
 # If it's unset, set RELEASE to be the same as KERNEL
-if [ -z "${RELEASE}" ]; then RELEASE="${KERNEL}"; fi
+[ -z "${RELEASE}" ] && RELEASE="${KERNEL}"
 
 # Machine Type - identifies the system hardware
 # This typically displays CPU architecture e.g. i686, ia64, sparc etc
@@ -196,6 +184,8 @@ if [ -z "${MACHTYPE}" ]; then
   # -p works on Linux, Solaris and AIX
   if uname -p >/dev/null 2>&1; then
     MACHTYPE=$(uname -p)
+    # It works on Linux etc until it doesn't
+    [ "${MACHTYPE}" = 'unknown' ] && MACHTYPE=$(uname -m)
   # -p is not available on HP-UX, until I know better, we use -m
   elif uname -m >/dev/null 2>&1; then
     MACHTYPE=$(uname -m)
@@ -203,13 +193,11 @@ if [ -z "${MACHTYPE}" ]; then
 fi
 
 # This is the same as MACHTYPE
-if [ -z "${HOSTTYPE}" ]; then HOSTTYPE="${MACHTYPE}"; fi
+[ -z "${HOSTTYPE}" ] && HOSTTYPE="${MACHTYPE}"
 
-MACH=$(uname -m)
-
-export HOSTTYPE KERNEL MACH MACHTYPE OS
-
-OSSTR="${OS} ${DistroBasedOn} ${RELEASE} (${DistroCodename} ${KERNEL} ${MACH})"
+readonly OSSTR OSVER OSBOOTTIME
+export OSSTR OSVER OSBOOTTIME
+export HOSTTYPE KERNEL MACHTYPE OS RELEASE
 
 LC_ALL="${_os_LC_ALL}"
 LANG="${_os_LANG}"
