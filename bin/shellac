@@ -376,10 +376,13 @@ _shellac_rm_libpath() {
   }
   trap 'rm -f "${tmp_file}"' EXIT
 
-  grep -vxF "${rm_path}" "${SHELLAC_PATHS_CONF}" > "${tmp_file}" && mv "${tmp_file}" "${SHELLAC_PATHS_CONF}" || {
+  # grep -v returns exit code 1 when no lines remain (e.g. removing the last entry),
+  # so separate the grep and mv rather than chaining with &&.
+  grep -vxF "${rm_path}" "${SHELLAC_PATHS_CONF}" > "${tmp_file}"
+  if ! mv "${tmp_file}" "${SHELLAC_PATHS_CONF}"; then
     printf -- 'shellac: failed to update %s\n' "${SHELLAC_PATHS_CONF}" >&2
     return 1
-  }
+  fi
   printf -- 'shellac: removed %s from %s\n' "${rm_path}" "${SHELLAC_PATHS_CONF}"
 }
 
@@ -427,10 +430,13 @@ _shellac_rm_confpath() {
   }
   trap 'rm -f "${tmp_file}"' EXIT
 
-  grep -vxF "${rm_path}" "${SHELLAC_CONFPATHS_CONF}" > "${tmp_file}" && mv "${tmp_file}" "${SHELLAC_CONFPATHS_CONF}" || {
+  # grep -v returns exit code 1 when no lines remain (e.g. removing the last entry),
+  # so separate the grep and mv rather than chaining with &&.
+  grep -vxF "${rm_path}" "${SHELLAC_CONFPATHS_CONF}" > "${tmp_file}"
+  if ! mv "${tmp_file}" "${SHELLAC_CONFPATHS_CONF}"; then
     printf -- 'shellac: failed to update %s\n' "${SHELLAC_CONFPATHS_CONF}" >&2
     return 1
-  }
+  fi
   printf -- 'shellac: removed %s from %s\n' "${rm_path}" "${SHELLAC_CONFPATHS_CONF}"
 }
 
