@@ -26,27 +26,27 @@ _SHELLAC_LOADED_numbers_random=1
 # @stdout A large positive integer suitable for use as a PRNG seed
 # @exitcode 0 Always
 random_seed() {
-    # First we check if /dev/urandom is available.
-    # We used to have a method_urandom.  /dev/urandom can generate numbers fast
-    # But selecting numbers in ranges etc made for a fairly slow method
-    if [ -c /dev/urandom ] && command -v od >/dev/null 2>&1; then
-        # Get a string of bytes from /dev/urandom using od
-        od -N 4 -A n -t uL /dev/urandom | tr -d '\n' | awk '{$1=$1+0};1'
-    # Otherwise we try to get another seed
-    elif date '+%s' >/dev/null 2>&1; then
-        date '+%s'
-    # Portable workaround based on http://www.etalabs.net/sh_tricks.html
-    # We take extra steps to try to prevent accidental octal interpretation
-    else
-        secs_var=$(TZ=GMT0 date +%S)
-        mins_var=$(TZ=GMT0 date +%M)
-        hour_var=$(TZ=GMT0 date +%H)
-        day_var=$(TZ=GMT0 date +%j | sed 's/^0*//')
-        yr_offset=$(( $(TZ=GMT0 date +%Y) - 1600 ))
-        year_var=$(( (yr_offset * 365 + yr_offset / 4 - yr_offset / 100 + yr_offset / 400 + day_var - 135140) * 86400 ))
-
-        printf -- '%s\n' "$(( year_var + (${hour_var#0} * 3600) + (${mins_var#0} * 60) + ${secs_var#0} ))"
-    fi
+  # First we check if /dev/urandom is available.
+  # We used to have a method_urandom.  /dev/urandom can generate numbers fast
+  # But selecting numbers in ranges etc made for a fairly slow method
+  if [ -c /dev/urandom ] && command -v od >/dev/null 2>&1; then
+    # Get a string of bytes from /dev/urandom using od
+    od -N 4 -A n -t uL /dev/urandom | tr -d '\n' | awk '{$1=$1+0};1'
+  # Otherwise we try to get another seed
+  elif date '+%s' >/dev/null 2>&1; then
+    date '+%s'
+  # Portable workaround based on http://www.etalabs.net/sh_tricks.html
+  # We take extra steps to try to prevent accidental octal interpretation
+  else
+    local _secs_var _mins_var _hour_var _day_var _yr_offset _year_var
+    _secs_var=$(TZ=GMT0 date +%S)
+    _mins_var=$(TZ=GMT0 date +%M)
+    _hour_var=$(TZ=GMT0 date +%H)
+    _day_var=$(TZ=GMT0 date +%j | sed 's/^0*//')
+    _yr_offset=$(( $(TZ=GMT0 date +%Y) - 1600 ))
+    _year_var=$(( (_yr_offset * 365 + _yr_offset / 4 - _yr_offset / 100 + _yr_offset / 400 + _day_var - 135140) * 86400 ))
+    printf -- '%s\n' "$(( _year_var + (${_hour_var#0} * 3600) + (${_mins_var#0} * 60) + ${_secs_var#0} ))"
+  fi
 }
 
 # @description Generate random integers using a BSD-style Linear Congruential Generator.
@@ -58,28 +58,28 @@ random_seed() {
 # @stdout One random integer per line
 # @exitcode 0 Always
 random_lcg() {
-    rn_count="${1:-1}"
-    rn_seed="${2:-$(random_seed)}"
+  local _rn_count _rn_seed
+  _rn_count="${1:-1}"
+  _rn_seed="${2:-$(random_seed)}"
 
-    # Here's an unnecessary nod to FreeBSD's rand.c
-    if [ "${rn_seed}" = 0 ]; then
-        rn_seed=123459876
-    fi
+  # Here's an unnecessary nod to FreeBSD's rand.c
+  if [ "${_rn_seed}" = 0 ]; then
+    _rn_seed=123459876
+  fi
 
-    while [ "${rn_count}" -gt 0 ]; do
-        # BSD style modulus'ed against 2^31
-        rn_seed=$(( (1103515245 * rn_seed + 12345) % 2147483648 ))
+  while [ "${_rn_count}" -gt 0 ]; do
+    # BSD style modulus'ed against 2^31
+    _rn_seed=$(( (1103515245 * _rn_seed + 12345) % 2147483648 ))
 
-        # Microsoft style
-        #rn_seed=$(( (214013 * rn_seed + 2531011) % 2147483648 ))
+    # Microsoft style
+    #_rn_seed=$(( (214013 * _rn_seed + 2531011) % 2147483648 ))
 
-        # print the generated number as an unsigned int (i.e. positive decimal)
-        # Divided by 2^16
-        printf -- "%u\n" "$(( rn_seed / 65536 ))"
+    # print the generated number as an unsigned int (i.e. positive decimal)
+    # Divided by 2^16
+    printf -- '%u\n' "$(( _rn_seed / 65536 ))"
 
-        # Decrement the counter
-        rn_count=$(( rn_count - 1 ))
-    done
+    _rn_count=$(( _rn_count - 1 ))
+  done
 }
 
 # @description Generate random integers using xorshift128+ with debiased modulo.
@@ -93,57 +93,48 @@ random_lcg() {
 # @stdout One random integer per line within [min, max]
 # @exitcode 0 Always
 random_xorshift128plus() {
-    n_count="${1:-1}"
-    n_min="${2:-1}"
-    seed0=4          # RFC 1149.5
-    seed1="${4:-$(random_Seed)}"
+  local _n_count _n_min _n_max _max_rand _n_range
+  local _seed0 _seed1 _int0 _int1 _skip_ints
+  _n_count="${1:-1}"
+  _n_min="${2:-1}"
+  _seed0=4          # RFC 1149.5
+  _seed1="${4:-$(random_seed)}"
 
-    # Figure out our default max_rand, using 'getconf'
-    case "$(getconf LONG_BIT 2>/dev/null)" in
-        (64)
-            # 2^63-1
-            max_rand=9223372036854775807
-        ;;
-        (32)
-            # 2^31-1
-            max_rand=2147483647
-        ;;
-        (*)
-            # 2^15-1
-            max_rand=32767
-        ;;
-    esac
+  # Figure out our default max_rand, using 'getconf'
+  case "$(getconf LONG_BIT 2>/dev/null)" in
+    (64) _max_rand=9223372036854775807 ;;  # 2^63-1
+    (32) _max_rand=2147483647 ;;           # 2^31-1
+    (*)  _max_rand=32767 ;;               # 2^15-1
+  esac
 
-    n_max="${3:-max_rand}"
+  _n_max="${3:-${_max_rand}}"
+  _n_range=$(( _n_max - _n_min + 1 ))
+  _int0="${_seed0}"
+  _int1="${_seed1}"
 
-    nRange=$(( n_max - n_min + 1 ))
+  while (( _n_count > 0 )); do
+    # This is required for modulo de-biasing
+    # We figure out the number of problematic integers to skip
+    # in order to bring modulo back into uniform alignment
+    # This is significantly faster than naive rejection sampling
+    #_skip_ints=$(( ((_max_rand % _n_max) + 1) % _n_max ))
+    _skip_ints=$(( (_max_rand - _n_range) % _n_range ))
 
-    int0="${seed0}"
-    int1="${seed1}"
-    while (( n_count > 0 )); do
-        # This is required for modulo de-biasing
-        # We figure out the number of problematic integers to skip
-        # in order to bring modulo back into uniform alignment
-        # This is significantly faster than naive rejection sampling
-        #skip_ints=$(( ((max_rand % n_max) + 1) % n_max ))
-        skip_ints=$(( (max_rand - nRange) % nRange ))
+    # xorshift128+ with preselected triples
+    _int1=$(( _int1 ^ _int1 << 23 ))
+    _int1=$(( _int1 ^ _int1 >> 17 ))
+    _int1=$(( _int1 ^ _int0 ))
+    _int1=$(( _int1 ^ _int0 >> 26 ))
+    _seed1="${_int1}"
 
-        # xorshift128+ with preselected triples
-        int1=$(( int1 ^ int1 << 23 ))
-        int1=$(( int1 ^ int1 >> 17 ))
-        int1=$(( int1 ^ int0 ))
-        int1=$(( int1 ^ int0 >> 26 ))
-        seed1="${int1}"
-        
-        # If our generated int is larger than the number of problematic ints
-        # Then we can modulo it safely, otherwise drop it and generate again
-        if (( (seed0 + seed1) > skip_ints )); then
-            #printf '%u\n' "$(( ((seed0 + seed1) % n_max) + 1 ))"
-            printf -- '%u\n' "$(( ((seed0 + seed1) % nRange) + n_min))"
-            n_count=$(( n_count - 1 ))
-        fi
-    
-    done 
+    # If our generated int is larger than the number of problematic ints
+    # then we can modulo it safely, otherwise drop it and generate again
+    if (( (_seed0 + _seed1) > _skip_ints )); then
+      #printf -- '%u\n' "$(( ((_seed0 + _seed1) % _n_max) + 1 ))"
+      printf -- '%u\n' "$(( ((_seed0 + _seed1) % _n_range) + _n_min ))"
+      (( _n_count-- ))
+    fi
+  done
 }
 
 # @description Generate random integers using $RANDOM with debiased modulo.
@@ -155,24 +146,24 @@ random_xorshift128plus() {
 # @stdout One random integer per line within [min, max]
 # @exitcode 0 Success
 # @exitcode 3 min equals max (zero-range)
-randInt() {
-  local n_count n_min n_max n_mod rand_thres i x_int
-  n_count="${1:-1}"
-  n_min="${2:-1}"
-  n_max="${3:-32767}"
-  n_mod=$(( n_max - n_min + 1 ))
-  if (( n_mod == 0 )); then return 3; fi
+rand_int() {
+  local _n_count _n_min _n_max _n_mod _rand_thres _i _x_int
+  _n_count="${1:-1}"
+  _n_min="${2:-1}"
+  _n_max="${3:-32767}"
+  _n_mod=$(( _n_max - _n_min + 1 ))
+  if (( _n_mod == 0 )); then return 3; fi
   # De-bias the modulo as best as possible
-  rand_thres=$(( -(32768 - n_mod) % n_mod ))
-  if (( rand_thres < 0 )); then
-    (( rand_thres = rand_thres * -1 ))
+  _rand_thres=$(( -(32768 - _n_mod) % _n_mod ))
+  if (( _rand_thres < 0 )); then
+    (( _rand_thres = _rand_thres * -1 ))
   fi
-  i=0
-  while (( i < n_count )); do
-    x_int="${RANDOM}"
-    if (( x_int > ${rand_thres:-0} )); then
-      printf -- '%d\n' "$(( x_int % n_mod + n_min ))"
-      (( i++ ))
+  _i=0
+  while (( _i < _n_count )); do
+    _x_int="${RANDOM}"
+    if (( _x_int > ${_rand_thres:-0} )); then
+      printf -- '%d\n' "$(( _x_int % _n_mod + _n_min ))"
+      (( _i++ ))
     fi
   done
 }

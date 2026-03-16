@@ -72,18 +72,19 @@ else
           eval "printf -- '%d\\n' {$1..$2..$3}"
         # Otherwise, use the manual approach
         else
-          first="${1}"
+          local _first
+          _first="${1}"
           # Simply iterate through in ascending order
-          if (( first < $3 )); then
-            while (( first <= $3 )); do
-              printf -- '%d\n' "${first}"
-              first=$(( first + $2 ))
+          if (( _first < ${3} )); then
+            while (( _first <= ${3} )); do
+              printf -- '%d\n' "${_first}"
+              _first=$(( _first + ${2} ))
             done
           # or... undocumented feature: descending order!
-          elif (( first > $3 )); then
-            while (( first >= $3 )); do
-              printf -- '%d\n' "${first}"
-              first=$(( first - $2 ))
+          elif (( _first > ${3} )); then
+            while (( _first >= ${3} )); do
+              printf -- '%d\n' "${_first}"
+              _first=$(( _first - ${2} ))
             done
           fi
         fi
