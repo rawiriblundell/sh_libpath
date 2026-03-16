@@ -75,11 +75,10 @@ is_aws() {
   fi
 }
 
-# @description Parse stdin for known virtualisation product strings and print
-#   the detected hypervisor type. Intended to be used as a filter for the output
-#   of dmidecode, lspci, pciconf, or similar commands.
+# @description Detect the hypervisor or container runtime type.
+#   Tries virt-what first, then dmidecode, then falls back to /proc and filesystem heuristics.
 #
-# @stdout Virtualisation type string, e.g. "virtualbox", "VMware", "Xen", "kvm", "qemu"
+# @stdout Virtualisation type string, e.g. "virtualbox", "vmware", "xen", "kvm", "qemu", "docker", "podman"
 # @exitcode 0 Always
 get_virtual_type() {
   local _sys_type
