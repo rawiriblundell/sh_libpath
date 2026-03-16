@@ -34,13 +34,37 @@ int() {
   printf -- '%s\n' "${1:?No float given}" | awk -F '.' '{print $1}'
 }
 
+# @description Test whether a value can be interpreted as an integer.
+#   Guards against leading quote characters that printf %d treats as octal.
+#
+# @arg $1 string Value to test
+#
+# @exitcode 0 Value is an integer
+# @exitcode 1 Value is not an integer
+num_is_integer() {
+    case "${1:-null}" in
+        ("'"*|'"'*) return 1 ;;
+    esac
+    printf -- '%d' "${1:-null}" >/dev/null 2>&1
+}
+
+# @description Test whether a value can be interpreted as a float.
+#
+# @arg $1 string Value to test
+#
+# @exitcode 0 Value is a float
+# @exitcode 1 Value is not a float
+num_is_float() {
+    printf -- '%f' "${1:-null}" >/dev/null 2>&1
+}
+
 # @description Test whether an integer is odd.
 #
 # @arg $1 int Integer to test
 #
 # @exitcode 0 Number is odd
 # @exitcode 1 Number is even
-is_odd() {
+num_is_odd() {
     (( (${1:?No number specified} % 2) != 0 ))
 }
 
@@ -50,6 +74,6 @@ is_odd() {
 #
 # @exitcode 0 Number is even
 # @exitcode 1 Number is odd
-is_even() {
+num_is_even() {
     (( (${1:?No number specified} % 2) == 0 ))
 }
