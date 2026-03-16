@@ -14,11 +14,51 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ################################################################################
-# Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
+# Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_numbers_round+x}" ] && return 0
-_SHELLAC_LOADED_numbers_round=1
+[ -n "${_SHELLAC_LOADED_numbers_rounding+x}" ] && return 0
+_SHELLAC_LOADED_numbers_rounding=1
+
+# @description Round a float upwards to the nearest integer.
+#
+# @arg $1 float The value to round up
+#
+# @example
+#   ceiling 3.4   # => 4
+#
+# @stdout The ceiling integer value
+# @exitcode 0 Always
+ceiling() {
+  printf -- '%s\n' "${1:?No float given}" |
+    awk '{print ($0-int($0)>0)?int($0)+1:int($0)}'
+}
+
+# @description Round a float downwards to the nearest integer (truncate fractional part).
+#
+# @arg $1 float The value to round down
+#
+# @example
+#   floor 3.7   # => 3
+#
+# @stdout The floor integer value
+# @exitcode 0 Always
+floor() {
+  printf -- '%s\n' "${1:?No float given}" | awk '{print int($0)}'
+}
+
+# @description Remove the fractional part from a float, returning only the integer portion.
+#
+# @arg $1 float The value to truncate
+#
+# @example
+#   trunc 3.7445   # => 3
+#
+# @stdout Integer portion of the value
+# @exitcode 0 Always
+trunc() {
+  printf -- '%s\n' "${1:?No float given}" | awk -F '.' '{print $1}'
+}
 
 # @description Round a float to a given precision.
 #   Default mode is IEEE 754 bankers rounding (round half to even).
@@ -62,8 +102,6 @@ _SHELLAC_LOADED_numbers_round=1
 # https://en.wikipedia.org/wiki/IEEE_754
 # https://floating-point-gui.de/errors/rounding/
 
-# Who knew that rounding could be so esoteric?!
-
 round() {
   local _round_float _round_precision _round_fractional
   # First, we test if we are in common rounding mode
@@ -82,11 +120,11 @@ round() {
       # Next, we test for 1dp precision.  If found, we add 0.5 and then simply bank-round
       case "${_round_float}" in
         (*.[0-9])
-          printf -- '%s\n' "${_round_float}" | 
+          printf -- '%s\n' "${_round_float}" |
             awk -v precision="${_round_precision}" '{ printf("%." precision "f\n", $1 + 0.5) }'
         ;;
         (*.*)
-          printf -- '%s\n' "${_round_float}" | 
+          printf -- '%s\n' "${_round_float}" |
             awk -v precision="${_round_precision}" '{ printf("%." precision "f\n", $1) }'
         ;;
       esac
@@ -96,5 +134,4 @@ round() {
 
   # Otherwise we're in standard bankers rounding mode
   printf -- "%.${2:-0}f\n" "${1:?No float given}"
-  return 0
 }
