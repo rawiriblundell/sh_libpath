@@ -41,10 +41,9 @@ json_die() {
   exit 1
 }
 
-# @description Alias for json_die(). Print an error message to stderr and exit 1.
+# @description Alias for json_die().
 json_exception() {
-  printf -- '====> jsonprint exception: %s\n' "${@}" >&2
-  exit 1
+  json_die "${@}"
 }
 
 # @description Emit an opening curly brace to denote the start of a JSON block.
@@ -92,6 +91,7 @@ json_decomma() {
 # @stdout Sanitised string
 # @exitcode 0 Always
 json_sanitise() {
+  local _input
   if [[ -n "${1}" ]]; then
     _input="${1}"
   else
@@ -118,42 +118,12 @@ json_sanitise() {
   # Remove any trailing whitespace from 'key'
   _input="${_input%"${_input##*[![:space:]]}"}"
 
-  # Return the input from whence it came
   printf -- '%s' "${_input}"
-  unset -v _input
 }
 
 # @description US-English spelling alias for json_sanitise().
 json_sanitize() {
-  if [[ -n "${1}" ]]; then
-    _input="${1}"
-  else
-    read -r _input
-  fi
-
-  # Strip any literal double quotes.
-  # These will be re-added if required by an output function
-  _input="${_input%\"}"
-  _input="${_input#\"}"
-
-  # Strip any literal single quotes.
-  # These will be re-added if required by an output function
-  _input="${_input%\'}"
-  _input="${_input#\'}"
-
-  # Strip any trailing instances of ":" or "="
-  _input="${_input%%:*}"
-  _input="${_input%%=*}"
-
-  # Remove any leading whitespace from 'value'
-  _input="${_input#"${_input%%[![:space:]]*}"}"
-
-  # Remove any trailing whitespace from 'key'
-  _input="${_input%"${_input##*[![:space:]]}"}"
-
-  # Return the input from whence it came
-  printf -- '%s' "${_input}"
-  unset -v _input
+  json_sanitise "${@}"
 }
 
 # @description Verify that required commands or files exist. On failure, emits a JSON
@@ -168,6 +138,8 @@ json_sanitize() {
 # @exitcode 0 All required items found
 # @exitcode 1 One or more items missing
 json_require() {
+  local _fsobj _iter_count
+  local -a _failures
   # shellcheck disable=SC2048
   for _fsobj in ${*}; do
     # First try to determine if it's a command
@@ -189,13 +161,11 @@ json_require() {
 
   # If we have no failures, then no news is good news - return quietly
   if (( "${#_failures[@]}" == 0 )); then
-    # No news is good news
-    unset _fsobj _failures _iter_count
     return 0
   # Otherwise, we process each element of our failure array
   else
     json_open
-      for _fsobj in ${_failures[*]}; do
+      for _fsobj in "${_failures[@]}"; do
         # If we're on our first run through this loop, we need to use json_str()
         # Once we iterate _iter_count by 1, we don't need to touch it again
         if (( _iter_count == 0 )); then
@@ -209,7 +179,6 @@ json_require() {
       done
     json_close
   fi
-  unset _fsobj _failures _iter_count
   exit 1
 }
 
@@ -221,6 +190,7 @@ json_require() {
 # @stdout One of: float, int, bool, string
 # @exitcode 0 Always
 json_gettype() {
+  local _isbool
   # Floats
   if printf -- '%s\n' "${*}" | grep -E '^[-+]?[0-9]+\.[0-9]*$' >/dev/null 2>&1; then
     printf -- '%s\n' "float"
@@ -245,11 +215,8 @@ json_gettype() {
     (*)                     _isbool=false ;;
   esac
   if [[ "${_isbool}" = "true" ]]; then
-    unset -v _isbool
     printf -- '%s\n' "bool"
     return 0
-  else
-    unset -v _isbool
   fi
 
   # Everything else we deal with as a string
@@ -278,12 +245,12 @@ json_open_arr() {
 # @stdout ']' or '],'
 # @exitcode 0 Always
 json_close_arr() {
+  local _comma
   case "${1}" in
-    (-c|--comma) shift 1; _comma="," ;;
+    (-c|--comma) _comma="," ;;
     (*)          _comma="" ;;
   esac
   printf -- '%s%s' "]" "${_comma}"
-  unset -v _comma
 }
 
 # @description Emit a closing-then-opening array bracket sequence to chain arrays.
@@ -333,7 +300,7 @@ json_close_obj() {
   case "${1}" in
     (-c|--comma)  printf -- '%s,' "}" ;;
     (''|*)        printf -- '%s' "}" ;;
-  esac 
+  esac
 }
 
 # @description Emit a closing-then-opening object brace sequence to chain objects.
@@ -369,7 +336,8 @@ json_append_obj() {
 # @exitcode 0 Always
 # shellcheck disable=SC2059
 json_escape_str() {
-    od -A n -t o1 -v | tr ' \t' '\n' | grep . |
+  local _char
+  od -A n -t o1 -v | tr ' \t' '\n' | grep . |
     while read -r _char; do
       case "${_char}" in
         ('00[0-7]')  printf -- '\u00%s' "${_char}" ;;
@@ -391,7 +359,6 @@ json_escape_str() {
         (''|*)       printf -- "\\${_char}" ;;
       esac
     done
-  unset -v _char
 }
 
 # @description Emit a JSON string keypair. With '-c' or '--comma', appends a trailing comma.
@@ -407,17 +374,16 @@ json_escape_str() {
 # @stdout '"key": "value"' or '"key": null'
 # @exitcode 0 Always
 json_str() {
+  local _comma _key
   case "${1}" in
     (-c|--comma) shift 1; _comma="," ;;
     (*)          _comma="" ;;
   esac
-  # Clean and assign the _key variable
   _key="$(json_sanitise "${1:-null}")"
   case "${2}" in
     (null|'') printf -- '"%s": %s%s' "${_key}" "null" "${_comma}" ;;
     (*)       shift 1; printf -- '"%s": "%s"%s' "${_key}" "${*}" "${_comma}" ;;
   esac
-  unset -v _comma _key
 }
 
 # @description Emit a comma-prefixed JSON string keypair for stacking inside an object.
@@ -429,13 +395,12 @@ json_str() {
 # @stdout ', "key": "value"' or ', "key": null'
 # @exitcode 0 Always
 json_append_str() {
-  # Clean and assign the _key variable
+  local _key
   _key="$(json_sanitise "${1:-null}")"
   case "${2}" in
     (null|'') printf -- ', "%s": %s' "${_key}" "null" ;;
     (*)       shift; printf -- ', "%s": "%s"' "${_key}" "${*}" ;;
   esac
-  unset -v _key
 }
 
 # @description Emit a JSON number keypair. Numbers are unquoted. With '-c' or '--comma',
@@ -453,11 +418,11 @@ json_append_str() {
 # @exitcode 0 Always
 # @exitcode 1 If value is not a number
 json_num() {
+  local _comma _key _value
   case "${1}" in
     (-c|--comma) shift 1; _comma="," ;;
     (*)          _comma="" ;;
   esac
-  # Clean and assign the _key and _value variables
   _key="$(json_sanitise "${1}")"
   _value="$(json_sanitise "${2:-null}")"
   case "${_value}" in
@@ -475,7 +440,6 @@ json_num() {
       printf -- '"%s": %.0f%s' "${_key}" "${_value}" "${_comma}"
     ;;
   esac
-  unset -v _key _value _comma
 }
 
 # @description Emit a comma-prefixed JSON number keypair for stacking inside an object.
@@ -488,7 +452,7 @@ json_num() {
 # @exitcode 0 Always
 # @exitcode 1 If value is not a number
 json_append_num() {
-  # Clean and assign the _key and _value variables
+  local _key _value
   _key="$(json_sanitise "${1}")"
   _value="$(json_sanitise "${2:-null}")"
   case "${_value}" in
@@ -505,7 +469,6 @@ json_append_num() {
       printf -- ', "%s": %.0f' "${_key}" "${_value}"
     ;;
   esac
-  unset -v _key _value
 }
 
 # @description Emit a JSON boolean keypair. Booleans are unquoted. With '-c' or '--comma',
@@ -519,11 +482,11 @@ json_append_num() {
 # @exitcode 0 Always
 # @exitcode 1 If value is not a recognised boolean
 json_bool() {
+  local _comma _key _value _bool
   case "${1}" in
     (-c|--comma) shift 1; _comma="," ;;
     (*)          _comma="" ;;
   esac
-  # Clean and assign the _key and _value variables
   _key="$(json_sanitise "${1:-null}")"
   _value="$(json_sanitise "${2:-null}")"
   case "${_value}" in
@@ -536,7 +499,6 @@ json_bool() {
     (*)                    json_die "Value not a recognised boolean" ;;
   esac
   printf -- '"%s": %s%s' "${_key}" "${_bool}" "${_comma}"
-  unset -v _key _value _bool _comma
 }
 
 # @description Emit a comma-prefixed JSON boolean keypair for stacking inside an object.
@@ -549,7 +511,7 @@ json_bool() {
 # @exitcode 0 Always
 # @exitcode 1 If value is not a recognised boolean
 json_append_bool() {
-  # Clean and assign the _key and _value variables
+  local _key _value _bool
   _key="$(json_sanitise "${1:-null}")"
   _value="$(json_sanitise "${2:-null}")"
   case "${_value}" in
@@ -562,7 +524,6 @@ json_append_bool() {
     (*)                    json_die "Value not a recognised boolean" ;;
   esac
   printf -- ', "%s": %s' "${_key}" "${_bool}"
-  unset -v _key _value _bool
 }
 
 # @description Emit a JSON keypair, automatically selecting the correct type function
@@ -574,15 +535,14 @@ json_append_bool() {
 # @stdout JSON keypair in the appropriate format
 # @exitcode 0 Always
 json_auto() {
-  # Clean and assign the _key and _value variables
+  local _key _value
   _key="$(json_sanitise "${1}")"
   _value="$(json_sanitise "${2:-null}")"
-  case $(json_gettype "${_value}") in
+  case "$(json_gettype "${_value}")" in
     (int|float) json_num "${_key}" "${_value}" ;;
     (bool)      json_bool "${_key}" "${_value}" ;;
     (string)    json_str "${_key}" "${_value}" ;;
   esac
-  unset -v _key _value
 }
 
 # @description Emit a comma-prefixed JSON keypair, automatically selecting the correct
@@ -594,15 +554,14 @@ json_auto() {
 # @stdout Comma-prefixed JSON keypair in the appropriate format
 # @exitcode 0 Always
 json_append_auto() {
-  # Clean and assign the _key and _value variables
+  local _key _value
   _key="$(json_sanitise "${1}")"
   _value="$(json_sanitise "${2:-null}")"
-  case $(json_gettype "${_value}") in
+  case "$(json_gettype "${_value}")" in
     (int|float) json_append_num "${_key}" "${_value}" ;;
     (bool)      json_append_bool "${_key}" "${_value}" ;;
     (string)    json_append_str "${_key}" "${_value}" ;;
   esac
-  unset -v _key _value
 }
 
 # @description Parse a delimited key-value pair (using ':' or '=') and emit its
@@ -616,6 +575,7 @@ json_append_auto() {
 # @stdout '"key" "value"'
 # @exitcode 0 Always
 json_from_dkvp() {
+  local _line _key _value
   _line="${*}"
   case "${_line}" in
     (*:*)
@@ -631,11 +591,9 @@ json_from_dkvp() {
       :
     ;;
   esac
-  # Clean the _key and _value variables
   _key="$(json_sanitise "${_key}")"
   _value="$(json_sanitise "${_value}")"
   printf -- '"%s" "%s"' "${_key}" "${_value}"
-  unset -v _line _key _value
 }
 
 # @description Emit a complete JSON object from a flat list of alternating key-value pairs.
@@ -653,19 +611,16 @@ json_from_dkvp() {
 # @exitcode 0 Always
 # shellcheck disable=SC2048,SC2086,SC2183
 json_foreach() {
+  local _iter_count _key _value
   case "${1}" in
     (-n|--name) json_open_obj "${2}"; shift 2 ;;
     (*)         json_open_obj ;;
   esac
-  # Tare a loop iteration counter
   _iter_count=0
   while read -r _key _value; do
-    # Clean and the _key and _value variables
     _key="$(json_sanitise "${_key}")"
     _value="$(json_sanitise "${_value}")"
 
-    # Now we determine what variable "type" _value is and
-    # based on that, we select the appropriate output function
     case "$(json_gettype "${_value}")" in
       (int|float)
         if (( _iter_count == 0 )); then
@@ -695,7 +650,6 @@ json_foreach() {
   done < <(printf -- '%s %s\n' ${*})
   # shellcheck disable=SC2119
   json_close_obj
-  unset -v _iter_count _key _value
 }
 
 # @description Read key-value pairs from a file or stdin and emit a JSON object.
@@ -707,33 +661,32 @@ json_foreach() {
 # @stdout JSON object built from input key-value pairs
 # @exitcode 0 Always
 json_readloop() {
+  local _loop_iter _key _value
   _loop_iter=0
-    case "${1}" in
-      (-n|--name) json_open_obj "${2}"; shift 2 ;;
-      (*)         json_open_obj ;;
-    esac
-    while read -r _key _value; do
-      # Clean the _key and _value variables
-      _key="$(json_sanitise "${_key}")"
-      _value="$(json_sanitise "${_value}")"
+  case "${1}" in
+    (-n|--name) json_open_obj "${2}"; shift 2 ;;
+    (*)         json_open_obj ;;
+  esac
+  while read -r _key _value; do
+    _key="$(json_sanitise "${_key}")"
+    _value="$(json_sanitise "${_value}")"
 
-      if (( _loop_iter == 0 )); then
-        case $(json_gettype "${_value}") in
-          (int|float) json_num "${_key}" "${_value}" ;;
-          (bool)      json_bool "${_key}" "${_value}" ;;
-          (string)    json_str "${_key}" "${_value}" ;;
-        esac
-        (( _loop_iter++ ))
-      else
-        case $(json_gettype "${_value}") in
-          (int|float) json_append_num "${_key}" "${_value}" ;;
-          (bool)      json_append_bool "${_key}" "${_value}" ;;
-          (string)    json_append_str "${_key}" "${_value}" ;;
-        esac
-      fi
-    done < "${1:-/dev/stdin}"
+    if (( _loop_iter == 0 )); then
+      case "$(json_gettype "${_value}")" in
+        (int|float) json_num "${_key}" "${_value}" ;;
+        (bool)      json_bool "${_key}" "${_value}" ;;
+        (string)    json_str "${_key}" "${_value}" ;;
+      esac
+      (( _loop_iter++ ))
+    else
+      case "$(json_gettype "${_value}")" in
+        (int|float) json_append_num "${_key}" "${_value}" ;;
+        (bool)      json_append_bool "${_key}" "${_value}" ;;
+        (string)    json_append_str "${_key}" "${_value}" ;;
+      esac
+    fi
+  done < "${1:-/dev/stdin}"
   json_close_obj
-  unset -v _loop_iter _key _value
 }
 
 # @description Append a timestamp object to the current JSON output. Tries epoch first;
