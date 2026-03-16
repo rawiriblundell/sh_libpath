@@ -122,13 +122,13 @@ include() {
             else
                 sh_stack_add "Full path: '${_include_target}' readable but not loadable.  Failing."
                 _shellac_stack dump
-                printf -- 'include: %s\n' "Error while includeing '${_include_target}'" >&2
+                printf -- 'include: %s\n' "Error while including '${_include_target}'" >&2
                 return 1
             fi
         else
             sh_stack_add "Full path: '${_include_target}' unreadable.  Failing."
             _shellac_stack dump
-            printf -- 'include: %s\n' "Insufficient permissions while includeing '${_include_target}'" >&2
+            printf -- 'include: %s\n' "Insufficient permissions while including '${_include_target}'" >&2
             return 1
         fi
     fi
@@ -156,7 +156,7 @@ include() {
                     }
                 else
                     _shellac_stack dump
-                    printf -- 'include: %s\n' "Insufficient permissions while includeing '${_load_target}'" >&2
+                    printf -- 'include: %s\n' "Insufficient permissions while including '${_load_target}'" >&2
                     return 1
                 fi
             done
@@ -178,7 +178,7 @@ include() {
                 _load_target="${_element}/${_include_target}.sh"
             else
                 _shellac_stack dump
-                printf -- 'include: %s\n' "Insufficient permissions while includeing '${_include_target}' from '${_element}'" >&2
+                printf -- 'include: %s\n' "Insufficient permissions while including '${_include_target}' from '${_element}'" >&2
                 return 1
             fi
 

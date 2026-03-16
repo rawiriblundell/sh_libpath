@@ -20,25 +20,31 @@
 [ -n "${_SHELLAC_LOADED_core_logging+x}" ] && return 0
 _SHELLAC_LOADED_core_logging=1
 
-# @description Log an informational message. Stub implementation.
+# @description Log an informational message via logmsg.
+#
+# @arg $@ string Message text
 #
 # @exitcode 0 Always
 log_info() {
- :
+    logmsg -t "${0##*/}" "INFO: ${*}"
 }
 
-# @description Log an error message. Stub implementation.
+# @description Log an error message via logmsg.
+#
+# @arg $@ string Message text
 #
 # @exitcode 0 Always
 log_error() {
- :
+    logmsg -t "${0##*/}" "ERROR: ${*}"
 }
 
-# @description Log a warning message. Stub implementation.
+# @description Log a warning message via logmsg.
+#
+# @arg $@ string Message text
 #
 # @exitcode 0 Always
 log_warn() {
- :
+    logmsg -t "${0##*/}" "WARN: ${*}"
 }
 
 # @description Log a message to the system log using systemd-cat, logger, or a fallback
@@ -58,6 +64,7 @@ logmsg() {
     local _std_out
     local _log_file
     local OPTIND
+    _std_out=0
 
     while getopts ":t:s" _opt; do
         case "${_opt}" in

@@ -188,6 +188,8 @@ requires() {
             (*=*)
             _key="${_item%%=*}" # Everything left of the first '='
             _val="${_item#*=}"  # Everything right of the first '='
+            # Note: eval used intentionally for portability (POSIX sh compatible).
+            # In bash-only contexts ${!_key} indirect expansion would be cleaner.
             eval [ \$"${_key}" = "${_val}" ] && continue
             ;;
 

@@ -24,19 +24,19 @@ _SHELLAC_LOADED_core_wants=1
 # @internal
 # Warn if a file is world-writable, add a trace entry, then source the file.
 _wants_source() {
-  local _target
-  _target="${1}"
+    local _target
+    _target="${1}"
 
-  if [ -n "$(find "${_target}" -maxdepth 0 -perm -o+w 2>/dev/null)" ]; then
-    printf -- 'wants: warning: %s is world-writable\n' "${_target}" >&2
-  fi
+    if [ -n "$(find "${_target}" -maxdepth 0 -perm -o+w 2>/dev/null)" ]; then
+        printf -- 'wants: warning: %s is world-writable\n' "${_target}" >&2
+    fi
 
-  sh_stack_add "Reading config from ${_target}"
-  # shellcheck disable=SC1090
-  . "${_target}" || {
-    printf -- 'wants: failed to load %s\n' "${_target}" >&2
-    return 1
-  }
+    sh_stack_add "Reading config from ${_target}"
+    # shellcheck disable=SC1090
+    . "${_target}" || {
+        printf -- 'wants: failed to load %s\n' "${_target}" >&2
+        return 1
+    }
 }
 
 # @description Source a file only if it exists; silently skip if it does not.
@@ -53,33 +53,33 @@ _wants_source() {
 # @exitcode 0 File(s) sourced successfully, or not found
 # @exitcode 1 File exists but is unreadable or failed to source
 wants() {
-  local _fstarget
-  local _conf_element
-  local _candidate
-  _fstarget="${1:?No target specified}"
+    local _fstarget
+    local _conf_element
+    local _candidate
+    _fstarget="${1:?No target specified}"
 
-  case "${_fstarget}" in
-    (*/*)
-      # Has a path separator — treat as a direct path
-      [ -e "${_fstarget}" ] || return 0
-      if [ ! -r "${_fstarget}" ]; then
-        printf -- 'wants: %s exists but is not readable\n' "${_fstarget}" >&2
-        return 1
-      fi
-      _wants_source "${_fstarget}" || return 1
-    ;;
-    (*)
-      # Bare filename — search all SH_CONFPATH_ARRAY entries in order.
-      # Every match is sourced so higher-precedence entries can override lower ones.
-      for _conf_element in "${SH_CONFPATH_ARRAY[@]}"; do
-        _candidate="${_conf_element}/${_fstarget}"
-        [ -e "${_candidate}" ] || continue
-        if [ ! -r "${_candidate}" ]; then
-          printf -- 'wants: %s exists but is not readable\n' "${_candidate}" >&2
-          return 1
-        fi
-        _wants_source "${_candidate}" || return 1
-      done
-    ;;
-  esac
+    case "${_fstarget}" in
+        (*/*)
+            # Has a path separator — treat as a direct path
+            [ -e "${_fstarget}" ] || return 0
+            if [ ! -r "${_fstarget}" ]; then
+                printf -- 'wants: %s exists but is not readable\n' "${_fstarget}" >&2
+                return 1
+            fi
+            _wants_source "${_fstarget}" || return 1
+        ;;
+        (*)
+            # Bare filename — search all SH_CONFPATH_ARRAY entries in order.
+            # Every match is sourced so higher-precedence entries can override lower ones.
+            for _conf_element in "${SH_CONFPATH_ARRAY[@]}"; do
+                _candidate="${_conf_element}/${_fstarget}"
+                [ -e "${_candidate}" ] || continue
+                if [ ! -r "${_candidate}" ]; then
+                    printf -- 'wants: %s exists but is not readable\n' "${_candidate}" >&2
+                    return 1
+                fi
+                _wants_source "${_candidate}" || return 1
+            done
+        ;;
+    esac
 }
