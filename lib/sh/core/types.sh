@@ -20,14 +20,14 @@
 [ -n "${_SHELLAC_LOADED_core_types+x}" ] && return 0
 _SHELLAC_LOADED_core_types=1
 
-# @description Classify a string value by its apparent type.
+# @description Detect the apparent type of a value.
 #   Classification order (most to least specific): empty, integer, float, bool, string.
 #   Note: 0 and 1 classify as integer, not bool.
 #
 # @arg $1 string Value to classify
 #
 # @example
-#   case "$(string_type "${var}")" in
+#   case "$(detect_type "${var}")" in
 #     (integer) ...;;
 #     (float)   ...;;
 #     (bool)    ...;;
@@ -37,7 +37,7 @@ _SHELLAC_LOADED_core_types=1
 #
 # @stdout One of: empty, integer, float, bool, string
 # @exitcode 0 Always
-string_type() {
+detect_type() {
     [ -z "${1:-}" ] && { printf -- '%s\n' "empty"; return 0; }
     printf -- '%d' "${1}" >/dev/null 2>&1 && { printf -- '%s\n' "integer"; return 0; }
     printf -- '%f' "${1}" >/dev/null 2>&1 && { printf -- '%s\n' "float"; return 0; }
