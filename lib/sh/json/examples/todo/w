@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# A demonstration of 'w' command output with json output
+
+# A simple aesthetic function to give another name for '.'
+# shellcheck disable=SC1090
+include() { . "${1}" || exit 1; }
+
+include ../lib/jsonprint.sh
+
+json_require w
+
+# Use -h to suppress the header if supported, otherwise strip the first two lines
+mapfile -t w_raw < <(w -h 2>/dev/null || w | tail -n +3)
+
+loop_iter=0
+element_count="${#w_raw[@]}"
+
+json_open
+  json_open_arr w
+    if (( element_count > 0 )); then
+      json_open_obj
+      for entry in "${w_raw[@]}"; do
+        # shellcheck disable=SC2086
+        set -- ${entry}
+        json_str user "${1}"
+        json_append_str tty "${2}"
+        json_append_str from "${3}"
+        json_append_str login_at "${4}"
+        json_append_str idle "${5}"
+        json_append_str jcpu "${6}"
+        json_append_str pcpu "${7}"
+        shift 7
+        json_append_str what "${*}"
+        (( loop_iter++ ))
+        if (( loop_iter < element_count )); then
+          json_append_obj
+        else
+          json_close_obj
+        fi
+      done
+    fi
+  json_close_arr
+json_close

@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# A demonstration of '/etc/services' with json output
+
+# A simple aesthetic function to give another name for '.'
+# shellcheck disable=SC1090
+include() { . "${1}" || exit 1; }
+
+include ../lib/jsonprint.sh
+
+json_require /etc/services
+
+# Strip comments, blank lines, and inline comments
+mapfile -t services_raw < <(grep -v '^[[:space:]]*#' /etc/services \
+  | grep -v '^[[:space:]]*$' \
+  | sed 's/[[:space:]]*#.*//')
+
+loop_iter=0
+element_count="${#services_raw[@]}"
+
+json_open
+  json_open_arr services
+    json_open_obj
+    for entry in "${services_raw[@]}"; do
+      # shellcheck disable=SC2086
+      set -- ${entry}
+      _name="${1}"
+      _port="${2%%/*}"
+      _proto="${2##*/}"
+      shift 2
+      json_str name "${_name}"
+      json_append_num port "${_port}"
+      json_append_str protocol "${_proto}"
+      json_append_str aliases "${*}"
+      (( loop_iter++ ))
+      if (( loop_iter < element_count )); then
+        json_append_obj
+      else
+        json_close_obj
+      fi
+    done
+  json_close_arr
+json_close

@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# A demonstration of '/etc/fstab' with json output
+
+# A simple aesthetic function to give another name for '.'
+# shellcheck disable=SC1090
+include() { . "${1}" || exit 1; }
+
+include ../lib/jsonprint.sh
+
+json_require /etc/fstab
+
+# Strip comments and blank lines
+mapfile -t fstab_raw < <(grep -v '^[[:space:]]*#' /etc/fstab | grep -v '^[[:space:]]*$')
+
+loop_iter=0
+element_count="${#fstab_raw[@]}"
+
+json_open
+  json_open_arr fstab
+    json_open_obj
+    for entry in "${fstab_raw[@]}"; do
+      # shellcheck disable=SC2086
+      set -- ${entry}
+      json_str device "${1}"
+      json_append_str mountpoint "${2}"
+      json_append_str fstype "${3}"
+      json_append_str options "${4}"
+      json_append_num dump "${5:-0}"
+      json_append_num pass "${6:-0}"
+      (( loop_iter++ ))
+      if (( loop_iter < element_count )); then
+        json_append_obj
+      else
+        json_close_obj
+      fi
+    done
+  json_close_arr
+json_close

@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# A demonstration of '/etc/group' with json output
+
+# A simple aesthetic function to give another name for '.'
+# shellcheck disable=SC1090
+include() { . "${1}" || exit 1; }
+
+include ../lib/jsonprint.sh
+
+json_require /etc/group
+
+mapfile -t group_raw < <(grep -v '^[[:space:]]*#' /etc/group)
+
+loop_iter=0
+element_count="${#group_raw[@]}"
+
+json_open
+  json_open_arr group
+    json_open_obj
+    for entry in "${group_raw[@]}"; do
+      IFS=: read -r _name _password _gid _members <<< "${entry}"
+      json_str name "${_name}"
+      json_append_num gid "${_gid}"
+      json_append_str members "${_members}"
+      (( loop_iter++ ))
+      if (( loop_iter < element_count )); then
+        json_append_obj
+      else
+        json_close_obj
+      fi
+    done
+  json_close_arr
+json_close

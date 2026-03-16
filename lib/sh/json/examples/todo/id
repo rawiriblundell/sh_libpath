@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# A simple demonstration of 'id' command output with json output
+
+# A simple aesthetic function to give another name for '.'
+# shellcheck disable=SC1090
+include() { . "${1}" || exit 1; }
+
+include ../lib/jsonprint.sh
+
+json_require id
+
+json_open
+  json_open_obj id
+    json_num uid "$(id -u)"
+    json_append_str uid_name "$(id -un)"
+    json_append_num gid "$(id -g)"
+    json_append_str gid_name "$(id -gn)"
+    json_append_str groups "$(id -G)"
+    json_append_str group_names "$(id -Gn)"
+  json_close_obj
+json_close
