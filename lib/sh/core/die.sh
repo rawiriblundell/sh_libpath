@@ -42,6 +42,21 @@ die() {
     kill -s TERM "${_self_pid}"
 }
 
+# @description Print a formatted warning message to stderr and return (non-fatal).
+#   Uses colour when stderr is a terminal.
+#
+# @arg $@ string Warning message text
+#
+# @stderr Formatted warning message prefixed with script name and line number
+# @exitcode 0 Always
+warn() {
+    if [ -t 2 ]; then
+        printf '\e[33;1m====>%s\e[0m\n' "${0}:(${LINENO}): ${*}" >&2
+    else
+        printf -- '====>%s\n' "${0}:(${LINENO}): ${*}" >&2
+    fi
+}
+
 # @description Run a command and die with a descriptive message if it fails.
 #   A lightweight alternative to exec_cmd() for critical one-liners.
 #
@@ -51,4 +66,27 @@ die() {
 # @exitcode 1 Command failed (via die())
 try() {
     "${@}" || die "cannot ${*}"
+}
+
+# @description Run a command up to N times until it succeeds.
+#   Prints a failure message and returns 1 if all attempts are exhausted.
+#
+# @arg $1 int Number of attempts
+# @arg $@ string The command and its arguments to execute
+#
+# @exitcode 0 Command succeeded within the allowed attempts
+# @exitcode 1 All attempts exhausted
+retry() {
+    local _attempts
+    local _count
+    _attempts="${1:?No attempt count given}"
+    shift
+    _count=0
+    until "${@}"; do
+        : $(( _count += 1 ))
+        if (( _count >= _attempts )); then
+            printf -- 'retry: %s\n' "command failed after ${_attempts} attempt(s): ${*}" >&2
+            return 1
+        fi
+    done
 }
