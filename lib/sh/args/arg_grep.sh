@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_args_scan_opts+x}" ] && return 0
-_SHELLAC_LOADED_args_scan_opts=1
+[ -n "${_SHELLAC_LOADED_args_arg_grep+x}" ] && return 0
+_SHELLAC_LOADED_args_arg_grep=1
 
 # @description Scan a list of arguments for a given flag or word.
 #   Returns 0 if found, 1 if not found.  Handles short flags (-v),
@@ -28,13 +28,13 @@ _SHELLAC_LOADED_args_scan_opts=1
 # @arg $@ string The arguments to scan (pass "$@" from the caller)
 #
 # @example
-#   scan_opts --verbose "$@"
-#   scan_opts -v "$@"
-#   scan_opts debug "$@"
+#   arg_grep --verbose "$@"
+#   arg_grep -v "$@"
+#   arg_grep debug "$@"
 #
 # @exitcode 0 Flag/word found
 # @exitcode 1 Flag/word not found
-scan_opts() {
+arg_grep() {
   local _target
   _target="${1:?No flag or word given}"
   shift
