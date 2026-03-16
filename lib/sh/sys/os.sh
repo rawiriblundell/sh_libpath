@@ -43,22 +43,6 @@ case "${OS}" in
     ("Darwin")
         OSSTR=mac
         OSVER="$(sw_vers -productName 2>/dev/null) $(sw_vers -productVersion 2>/dev/null)"
-        : "${XDG_DATA_HOME:-$HOME/Library/Application Support}"
-        : "${XDG_DATA_DIRS:-/Library/Application Support}"
-        : "${XDG_CONFIG_HOME:-$HOME/Library/Application Support}"
-        : "${XDG_CONFIG_DIRS:-$HOME/Library/Preferences:/Library/Application Support:/Library/Preferences}"
-        : "${XDG_STATE_HOME:-$HOME/Library/Application Support}"
-        : "${XDG_CACHE_HOME:-$HOME/Library/Caches}"
-        : "${XDG_RUNTIME_DIR:-$HOME/Library/Application Support}"
-
-        : "${XDG_DESKTOP_DIR:-$HOME/Desktop}"
-        : "${XDG_DOWNLOAD_DIR:-$HOME/Downloads}"
-        : "${XDG_DOCUMENTS_DIR:-$HOME/Documents}"
-        : "${XDG_MUSIC_DIR:-$HOME/Music}"
-        : "${XDG_PICTURES_DIR:-$HOME/Pictures}"
-        : "${XDG_VIDEOS_DIR:-$HOME/Videos}"
-        : "${XDG_TEMPLATES_DIR:-$HOME/Templates}"
-        : "${XDG_PUBLICSHARE_DIR:-$HOME/Public}"
     ;;
     ("FreeBSD")
         OSSTR=freebsd
@@ -68,22 +52,6 @@ case "${OS}" in
     ;;
     ("Linux"|"linux-gnu"|"GNU"*)
         OSSTR=linux
-        : "${XDG_DATA_HOME:-$HOME/.local/share}"
-        : "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
-        : "${XDG_CONFIG_HOME:-$HOME/.config}"
-        : "${XDG_CONFIG_DIRS:-/etc/xdg}"
-        : "${XDG_STATE_HOME:-$HOME/.local/state}"
-        : "${XDG_CACHE_HOME:-$HOME/.cache}"
-        : "${XDG_RUNTIME_DIR:-/run/user/$UID}"
-
-        : "${XDG_DESKTOP_DIR:-$HOME/Desktop}"
-        : "${XDG_DOWNLOAD_DIR:-$HOME/Downloads}"
-        : "${XDG_DOCUMENTS_DIR:-$HOME/Documents}"
-        : "${XDG_MUSIC_DIR:-$HOME/Music}"
-        : "${XDG_PICTURES_DIR:-$HOME/Pictures}"
-        : "${XDG_VIDEOS_DIR:-$HOME/Videos}"
-        : "${XDG_TEMPLATES_DIR:-$HOME/Templates}"
-        : "${XDG_PUBLICSHARE_DIR:-$HOME/Public}"
 
         # OSVER = PRETTY_NAME from os-release (systemd standard, ~2012+),
         # then lsb_release, then legacy files, then uname -sr fallback.
