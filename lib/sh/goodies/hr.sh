@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_text_hr+x}" ] && return 0
-_SHELLAC_LOADED_text_hr=1
+[ -n "${_SHELLAC_LOADED_goodies_hr+x}" ] && return 0
+_SHELLAC_LOADED_goodies_hr=1
 
 # @internal
 _hr_width_helper() {

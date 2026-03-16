@@ -112,3 +112,112 @@ str_slug() {
     tr '[:upper:]' '[:lower:]' |
     sed 's/[^a-z0-9]\+/-/g; s/^-//; s/-$//'
 }
+
+# @internal
+_str_altcaps_lowercase() {
+  # shellcheck disable=SC2059
+  case "${1}" in
+    ([[:upper:]])
+      printf \\"$(printf '%o' "$(( $(printf '%d' "'${1}") + 32 ))")"
+    ;;
+    (*)
+      printf '%s' "${1}"
+    ;;
+  esac
+}
+
+# @internal
+_str_altcaps_uppercase() {
+  # shellcheck disable=SC2059
+  case "${1}" in
+    ([[:lower:]])
+      printf \\"$(printf '%o' "$(( $(printf '%d' "'${1}") - 32 ))")"
+    ;;
+    (*)
+      printf '%s' "${1}"
+    ;;
+  esac
+}
+
+# @description Convert text to alternating caps (mocking spongebob style).
+#
+# @arg $@ string One or more words to convert
+#
+# @stdout Text with alternating uppercase/lowercase characters
+# @exitcode 0 Always
+str_altcaps() {
+  local _lastswitch
+  local _count
+  local _word
+  local _char
+  _lastswitch=lower
+  _count=0
+  for _word in "${@}"; do
+    for _char in $(printf -- '%s\n' "${_word}" | fold -w 1); do
+      case "${_lastswitch}" in
+        (lower)
+          _str_altcaps_uppercase "${_char}"
+          _lastswitch=upper
+        ;;
+        (upper)
+          _str_altcaps_lowercase "${_char}"
+          _lastswitch=lower
+        ;;
+      esac
+    done
+    _count=$(( _count + 1 ))
+    (( _count != "${#}" )) && printf -- '%s' " "
+  done
+  printf -- '%s\n' ""
+}
+
+# @description Uppercase the first character of a string. Requires bash 4+.
+#
+# @arg $@ string The string to convert
+#
+# @example
+#   str_ucfirst "hello world"   # => Hello world
+#
+# @stdout String with first character uppercased
+# @exitcode 0 Always
+str_ucfirst() {
+  local _input
+  _input="${*}"
+  printf -- '%s\n' "${_input^}"
+}
+
+# @description Lowercase the first character of a string. Requires bash 4+.
+#
+# @arg $@ string The string to convert
+#
+# @example
+#   str_lcfirst "Hello World"   # => hello World
+#
+# @stdout String with first character lowercased
+# @exitcode 0 Always
+str_lcfirst() {
+  local _input
+  _input="${*}"
+  printf -- '%s\n' "${_input,}"
+}
+
+# @description Uppercase the first character of each word. Requires bash 4+.
+#
+# @arg $@ string The string to convert
+#
+# @example
+#   str_ucwords "hello world"   # => Hello World
+#
+# @stdout String with first character of each word uppercased
+# @exitcode 0 Always
+str_ucwords() {
+  local _input
+  local _word
+  local _result
+  _input="${*}"
+  _result=''
+  for _word in ${_input}; do
+    _result="${_result}${_result:+ }${_word^}"
+  done
+  printf -- '%s\n' "${_result}"
+}

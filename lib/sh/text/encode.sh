@@ -110,3 +110,14 @@ str_from_base64() {
 str_escape() {
   printf -- '%q\n' "${*}"
 }
+
+# @description Convert a string to its hexadecimal representation.
+#   Requires xxd.
+#
+# @arg $1 string The string to convert
+#
+# @stdout Hex-encoded string (no spaces, lowercase)
+# @exitcode 0 Always
+str_to_hex() {
+  printf -- '%s' "${1:?No string supplied}" | xxd -pu
+}

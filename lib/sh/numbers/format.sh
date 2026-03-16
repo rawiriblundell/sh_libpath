@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_numbers_2dp+x}" ] && return 0
-_SHELLAC_LOADED_numbers_2dp=1
+[ -n "${_SHELLAC_LOADED_numbers_format+x}" ] && return 0
+_SHELLAC_LOADED_numbers_format=1
 
 # @description Format one or more numbers to two decimal places.
 #
@@ -28,4 +28,25 @@ _SHELLAC_LOADED_numbers_2dp=1
 # @exitcode 0 Always
 2dp() {
   printf -- '%0.2f\n' "${@}"
+}
+
+# @description Right-pad an integer with zeros to reach a minimum length.
+#   If the integer is already at or above the target length, it is printed unchanged.
+#
+# @arg $1 int The integer to pad
+# @arg $2 int Optional: target minimum length (default: 3)
+#
+# @stdout Zero-right-padded integer
+# @exitcode 0 Always
+zeropad_right() {
+  local _int _len
+  _int="${1:?No number provided}"
+  _len="${2:-3}"
+
+  if (( "${#_int}" >= _len )); then
+    printf -- '%d\n' "${_int}"
+    return 0
+  fi
+
+  printf -- '%d%0*d\n' "${_int}" "$(( _len - "${#_int}" ))" 0
 }

@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_text_nagios_output+x}" ] && return 0
-_SHELLAC_LOADED_text_nagios_output=1
+[ -n "${_SHELLAC_LOADED_misc_nagios_output+x}" ] && return 0
+_SHELLAC_LOADED_misc_nagios_output=1
 
 # @description Emit a Nagios-formatted output line with status code and job name.
 #   If the second argument contains '=', it is treated as performance data;

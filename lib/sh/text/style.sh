@@ -37,6 +37,7 @@ _SHELLAC_LOADED_text_style=1
 # @stdout Blink-formatted text
 # @exitcode 0 Always
 text_blink() {
+  local LC_CTYPE
   LC_CTYPE=C
   if [[ -r "${1}" ]]||[[ -z "${1}" ]]; then
     while read -r; do
@@ -55,6 +56,7 @@ text_blink() {
 # @stdout Bold-formatted text
 # @exitcode 0 Always
 text_bold() {
+  local LC_CTYPE
   LC_CTYPE=C
   # If an arg is given and it's readable, then it's a file
   # Treat it line by line.  This caters for stdin as well
@@ -120,6 +122,7 @@ text_center() {
 # @stdout Faint-formatted text
 # @exitcode 0 Always
 text_faint() {
+  local LC_CTYPE
   LC_CTYPE=C
   if [[ -r "${1}" ]]||[[ -z "${1}" ]]; then
     while read -r; do
@@ -140,6 +143,7 @@ text_faint() {
 # @stdout Inverted-color text
 # @exitcode 0 Always
 text_invert() {
+  local LC_CTYPE
   LC_CTYPE=C
   if [[ -r "${1}" ]]||[[ -z "${1}" ]]; then
     while read -r; do
@@ -158,6 +162,7 @@ text_invert() {
 # @stdout Italic-formatted text
 # @exitcode 0 Always
 text_italic() {
+  local LC_CTYPE
   LC_CTYPE=C
   if [[ -r "${1}" ]]||[[ -z "${1}" ]]; then
     while read -r; do
@@ -194,6 +199,9 @@ text_n2s() { paste -sd ' ' "${1:--}"; }
 # @exitcode 0 Success
 # @exitcode 1 Invalid line number or unreadable file
 text_printline() {
+  local _line_no
+  local _file
+
   # If $1 is empty, print a usage message
   if [[ -z "${1}" ]]; then
     printf -- '%s\n' "Usage:  text_printline n [file]" ""
@@ -204,34 +212,34 @@ text_printline() {
 
   # Check that $1 is a number, if it isn't print an error message
   # If it is, blindly convert it to base10 to remove any leading zeroes
-  case $1 in
-    (''|*[!0-9]*) 
-      printf -- '%s\n' "[ERROR] text_printline: '${1}' does not appear to be a number." "" \
-      "Run 'printline' with no arguments for usage.";
+  case "${1}" in
+    (''|*[!0-9]*)
+      printf -- '%s\n' "text_printline: '${1}' does not appear to be a number." >&2
+      printf -- '%s\n' "Run 'text_printline' with no arguments for usage." >&2
       return 1
     ;;
     (*)
-      local lineNo="$((10#$1))"
+      _line_no="$(( 10#${1} ))"
     ;;
   esac
 
   # Next, if $2 is set, check that we can actually read it
   if [[ -n "${2}" ]]; then
     if [[ ! -r "${2}" ]]; then
-      printf -- '%s\n' "[ERROR] text_printline: '$2' does not appear to exist or I can't read it." "" \
-        "Run 'printline' with no arguments for usage."
+      printf -- '%s\n' "text_printline: '${2}' does not appear to exist or is not readable." >&2
+      printf -- '%s\n' "Run 'text_printline' with no arguments for usage." >&2
       return 1
     else
-      local file="${2}"
+      _file="${2}"
     fi
   fi
 
   # Finally after all that testing is done, we throw in a cursory test for 'sed'
   if is_command sed; then
-    sed -ne "${lineNo}{p;q;}" -e "\$s/.*/[ERROR] text_printline: End of stream reached./" -e '$ w /dev/stderr' "${file:-/dev/stdin}"
+    sed -ne "${_line_no}{p;q;}" -e "\$s/.*/text_printline: end of stream reached./" -e '$ w /dev/stderr' "${_file:-/dev/stdin}"
   # Otherwise we print a message that 'sed' isn't available
   else
-    printf -- '%s\n' "[ERROR] text_printline: This function depends on 'sed' which was not found."
+    printf -- '%s\n' "text_printline: this function depends on 'sed' which was not found." >&2
     return 1
   fi
 }
@@ -244,6 +252,7 @@ text_printline() {
 # @stdout Strikethrough-formatted text
 # @exitcode 0 Always
 text_strike() {
+  local LC_CTYPE
   LC_CTYPE=C
   if [[ -r "${1}" ]]||[[ -z "${1}" ]]; then
     while read -r; do
@@ -263,6 +272,7 @@ text_strike() {
 # @stdout Underlined text
 # @exitcode 0 Always
 text_underline() {
+  local LC_CTYPE
   LC_CTYPE=C
   if [[ -r "${1}" ]]||[[ -z "${1}" ]]; then
     while read -r; do
@@ -298,8 +308,9 @@ text_wordwrap() {
 # @stdout Color-formatted text
 # @exitcode 0 Always
 text_fg() {
-  LC_CTYPE=C
+  local LC_CTYPE
   local fg_colour
+  LC_CTYPE=C
   case "${1}" in
     (b|B|black|Black)        fg_colour='\033[38;5;0m';;
     (r|R|red|Red)            fg_colour='\033[1;31m';;
@@ -339,8 +350,9 @@ text_fg() {
 # @stdout Background-color-formatted text
 # @exitcode 0 Always
 text_bg() {
-  LC_CTYPE=C
+  local LC_CTYPE
   local bg_colour
+  LC_CTYPE=C
   case "${1}" in
     (b|B|black|Black)        bg_colour='\033[48;5;0m';;
     (r|R|red|Red)            bg_colour='\033[0;41m';;
@@ -500,8 +512,11 @@ fi
 # @exitcode 1 Both stdin and argument provided simultaneously
 text_capitalise() {
   # Ignore any instances of '*' that may be in a file
-  local GLOBIGNORE="*"
-  
+  local GLOBIGNORE
+  local _eof
+  local _in_string
+  GLOBIGNORE="*"
+
   # Check that stdin or $1 isn't empty
   if [[ -t 0 ]] && [[ -z "${1}" ]]; then
     printf -- '%s\n' "Usage:  capitalise string" ""
@@ -509,7 +524,7 @@ text_capitalise() {
     return 0
   # Disallow both piping in strings and declaring strings
   elif [[ ! -t 0 ]] && [[ -n "${1}" ]]; then
-    printf -- '%s\n' "[ERROR] capitalise: Please select either piping in or declaring a string to capitalise, not both."
+    printf -- '%s\n' "text_capitalise: please select either piping in or declaring a string to capitalise, not both." >&2
     return 1
   fi
 
@@ -518,34 +533,33 @@ text_capitalise() {
   if [[ -r "${1}" ]]||[[ ! -t 0 ]]; then
     # We require an exit condition for 'read', this covers the edge case
     # where a line is read that does not have a newline
-    eof=
-    while [[ -z "${eof}" ]]; do
+    _eof=
+    while [[ -z "${_eof}" ]]; do
       # Read each line of input
-      read -r || eof=true
+      read -r || _eof=true
       # If the line is blank, then print a blank line and continue
       if [[ -z "${REPLY}" ]]; then
         printf -- '%s\n' ""
         continue
       fi
       # Split each line element for processing
-      for inString in ${REPLY}; do
-        # If inString is an integer, skip to the next element
-        test "${inString}" -eq "${inString}" 2>/dev/null && continue
-        text_capitalise-string "${inString}"
-      # We use to trim to remove any trailing whitespace
+      for _in_string in ${REPLY}; do
+        # If _in_string is an integer, skip to the next element
+        test "${_in_string}" -eq "${_in_string}" 2>/dev/null && continue
+        text_capitalise-string "${_in_string}"
+      # We use paste to trim and rejoin any trailing whitespace
       done | paste -sd ' ' -
     done < "${1:-/dev/stdin}"
 
   # Otherwise, if a parameter exists, then capitalise all given elements
   # Processing follows the same path as before.
   elif [[ -n "$*" ]]; then
-    for inString in "$@"; do
-      text_capitalise-string "${inString}"
+    for _in_string in "$@"; do
+      text_capitalise-string "${_in_string}"
     done | paste -sd ' ' -
   fi
-  
-  # Unset GLOBIGNORE, even though we've tried to limit it to this function
-  local GLOBIGNORE=
+
+  GLOBIGNORE=
 }
 
 # @description Convert text to lowercase. Accepts a string argument, file path, or stdin.

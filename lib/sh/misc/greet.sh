@@ -17,12 +17,22 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_text_readcolumn+x}" ] && return 0
-_SHELLAC_LOADED_text_readcolumn=1
+[ -n "${_SHELLAC_LOADED_misc_greet+x}" ] && return 0
+_SHELLAC_LOADED_misc_greet=1
 
-# @description Read a given column of input into an array. (Not yet implemented.)
+# @description Print a time-appropriate greeting (morning, afternoon, or evening).
+#   Uses the current hour from `date`, or the value of the $DayGreet variable if set.
 #
+# @stdout "Good morning!", "Good afternoon!", or "Good evening!"
 # @exitcode 0 Always
-readcolumn() {
-        : # TBD
+get_greeting() {
+  local greet_moment
+  if (( "${DayGreet:-$(date +%H)}" >= 18 )); then
+    greet_moment="evening"
+  elif (( "${DayGreet:-$(date +%H)}" >= 12 )); then
+    greet_moment="afternoon"
+  else
+    greet_moment="morning"
+  fi
+  printf -- 'Good %s!\n' "${greet_moment}"
 }

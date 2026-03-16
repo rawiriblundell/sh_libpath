@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_text_rounded_box+x}" ] && return 0
-_SHELLAC_LOADED_text_rounded_box=1
+[ -n "${_SHELLAC_LOADED_goodies_rounded_box+x}" ] && return 0
+_SHELLAC_LOADED_goodies_rounded_box=1
 
 # @description Print text wrapped in a Unicode rounded box.
 #   Supports an optional title in the top border and custom width.
@@ -32,6 +32,9 @@ _SHELLAC_LOADED_text_rounded_box=1
 # @exitcode 0 Always
 rounded_box() {
     local u_left u_right b_left b_right h_bar v_bar h_width title content
+    local _title_visual_width _title_padding _i _processed_content _line _folded_line
+    local _line_visual_width _padding_width
+    local OPTIND
     u_left="\xe2\x95\xad"   # upper left corner
     u_right="\xe2\x95\xae"  # upper right corner
     b_left="\xe2\x95\xb0"   # bottom left corner
@@ -65,16 +68,16 @@ rounded_box() {
     # If the title is defined, then make space for it within the top bar
     if [[ -n "${title}" ]]; then
         # Calculate visual width of title (accounting for UTF-8)
-        title_visual_width=$(printf -- '%s' "${title}" | wc -m)
-        title_padding=$(( h_width - title_visual_width - 2 ))
+        _title_visual_width=$(printf -- '%s' "${title}" | wc -m)
+        _title_padding=$(( h_width - _title_visual_width - 2 ))
 
         printf -- '%b %s ' "${h_bar}" "${title}"
-        for (( i=0; i<title_padding; i++)); do
+        for (( _i=0; _i<_title_padding; _i++)); do
             printf -- '%b' "${h_bar}"
         done
     # Otherwise, just print the full bar
     else
-        for (( i=0; i<h_width; i++)); do
+        for (( _i=0; _i<h_width; _i++)); do
             printf -- '%b' "${h_bar}"
         done
     fi
@@ -83,27 +86,27 @@ rounded_box() {
     # Print our content
     if [[ -n "${content}" ]]; then
         # Replace literal "\n" with actual newlines
-        processed_content=$(printf -- '%s' "${content}" | sed 's/\\n/\n/g')
+        _processed_content=$(printf -- '%s' "${content}" | sed 's/\\n/\n/g')
 
         # Process each line, including empty lines
-        while IFS= read -r line || [[ -n "${line}" ]]; do
+        while IFS= read -r _line || [[ -n "${_line}" ]]; do
             # Wrap long lines with fold
-            while IFS= read -r folded_line; do
-                line_visual_width=$(printf -- '%s' "${folded_line}" | wc -m)
-                padding_width=$(( h_width - line_visual_width ))
-                printf -- '%b %s' "${v_bar}" "${folded_line}"
-                printf -- '%*s' "$padding_width"
+            while IFS= read -r _folded_line; do
+                _line_visual_width=$(printf -- '%s' "${_folded_line}" | wc -m)
+                _padding_width=$(( h_width - _line_visual_width ))
+                printf -- '%b %s' "${v_bar}" "${_folded_line}"
+                printf -- '%*s' "${_padding_width}"
                 printf -- ' %b\n' "${v_bar}"
-            done < <(printf '%s\n' "${line}" | fold -s -w "${h_width}")
-        done < <(printf -- '%s\n' "${processed_content}")
+            done < <(printf -- '%s\n' "${_line}" | fold -s -w "${h_width}")
+        done < <(printf -- '%s\n' "${_processed_content}")
     else
         # Empty content - print one blank line
-        printf -- '%b %*s %b\n' "${v_bar}" "$h_width" "" "${v_bar}"
+        printf -- '%b %*s %b\n' "${v_bar}" "${h_width}" "" "${v_bar}"
     fi
 
     # Print our bottom bar
     printf -- '%b' "${b_left}${h_bar}"
-    for (( i=0; i<h_width; i++)); do
+    for (( _i=0; _i<h_width; _i++)); do
         printf -- '%b' "${h_bar}"
     done
     printf -- '%b\n' "${h_bar}${b_right}"

@@ -18,8 +18,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_text_linenoise+x}" ] && return 0
-_SHELLAC_LOADED_text_linenoise=1
+[ -n "${_SHELLAC_LOADED_goodies_linenoise+x}" ] && return 0
+_SHELLAC_LOADED_goodies_linenoise=1
 
 # @description Simulate a fake SSH connection attempt with animated ASCII noise.
 #   Cycles through ASCII characters in-place for a visual "hashing" effect,
@@ -30,30 +30,35 @@ _SHELLAC_LOADED_text_linenoise=1
 # @stdout Animated connection noise followed by a fatal error line
 # @exitcode 0 Always
 linenoise() {
-  local target failmsg
-  target="${1:?No target specified}"
-  failmsg="(connectssh) FATAL ERROR: ${target} unreachable!"
-  len=20
+  local _target
+  local _failmsg
+  local _len
+  local _i
+  local _j
+  local _x_int
+  _target="${1:?No target specified}"
+  _failmsg="(connectssh) FATAL ERROR: ${_target} unreachable!"
+  _len=20
 
-  printf -- '%s ' "Connecting to ${target}, using additional hashing:"
+  printf -- '%s ' "Connecting to ${_target}, using additional hashing:"
 
-  for (( i=0; i<len; ++i )); do
-    until (( x_int <= 88 )); do
-      x_int="${RANDOM}"
+  for (( _i=0; _i<_len; ++_i )); do
+    until (( _x_int <= 88 )); do
+      _x_int="${RANDOM}"
     done
-    x_int="$(( x_int % 95 + 32 ))"
+    _x_int="$(( _x_int % 95 + 32 ))"
 
     tput sc
-    for (( j=32; j<x_int; j++ )); do
+    for (( _j=32; _j<_x_int; _j++ )); do
       tput rc
-      printf "\\$(printf -- '%03o' "${j}")"
+      printf "\\$(printf -- '%03o' "${_j}")"
     done
-    tput rc && tput bold; printf "\\$(printf -- '%03o' "${j}")"; tput sgr0
-    tput rc && printf "\\$(printf -- '%03o' "${j}")"
+    tput rc && tput bold; printf "\\$(printf -- '%03o' "${_j}")"; tput sgr0
+    tput rc && printf "\\$(printf -- '%03o' "${_j}")"
   done
 
   tput setaf 1
-  printf -- '\n%s\n' "${failmsg}" 
+  printf -- '\n%s\n' "${_failmsg}"
   tput sgr0
 }
 
