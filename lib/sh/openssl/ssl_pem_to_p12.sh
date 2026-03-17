@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -17,15 +17,15 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_openssl_convert_pem_to_p12+x}" ] && return 0
-_SHELLAC_LOADED_openssl_convert_pem_to_p12=1
+[ -n "${_SHELLAC_LOADED_openssl_ssl_pem_to_p12+x}" ] && return 0
+_SHELLAC_LOADED_openssl_ssl_pem_to_p12=1
 
 if ! command -v openssl >/dev/null 2>&1; then
-    printf -- 'convert_pem_to_p12: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
+    printf -- 'ssl_pem_to_p12: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
     exit 1
 fi
 
-convert_pem_to_p12() {
+ssl_pem_to_p12() {
     local _pem_to_p12_key _pem_to_p12_cert _pem_to_p12_ca _pem_to_p12_out
     _pem_to_p12_key="${1}"
     _pem_to_p12_cert="${2}"
@@ -33,20 +33,20 @@ convert_pem_to_p12() {
     _pem_to_p12_out="${4}"
 
     if (( "${#}" != 4 )); then
-        printf -- 'convert_pem_to_p12: %s\n' "No input file provided" >&2
+        printf -- 'ssl_pem_to_p12: %s\n' "No input file provided" >&2
         return 1
     fi
 
     if [[ -s "${_pem_to_p12_key}" ]]; then
-        printf -- 'convert_pem_to_p12: %s\n' "Input key file eppears to be empty" >&2
+        printf -- 'ssl_pem_to_p12: %s\n' "Input key file eppears to be empty" >&2
         return 1
     fi
     if [[ -s "${_pem_to_p12_cert}" ]]; then
-        printf -- 'convert_pem_to_p12: %s\n' "Input cert file eppears to be empty" >&2
+        printf -- 'ssl_pem_to_p12: %s\n' "Input cert file eppears to be empty" >&2
         return 1
     fi
     if [[ -s "${_pem_to_p12_ca}" ]]; then
-        printf -- 'convert_pem_to_p12: %s\n' "Input CA file eppears to be empty" >&2
+        printf -- 'ssl_pem_to_p12: %s\n' "Input CA file eppears to be empty" >&2
         return 1
     fi
 

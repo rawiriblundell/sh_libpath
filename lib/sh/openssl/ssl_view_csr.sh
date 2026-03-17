@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -17,33 +17,34 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_openssl_convert_p12_to_pem+x}" ] && return 0
-_SHELLAC_LOADED_openssl_convert_p12_to_pem=1
+[ -n "${_SHELLAC_LOADED_openssl_ssl_ssl_view_csr+x}" ] && return 0
+_SHELLAC_LOADED_openssl_ssl_ssl_view_csr=1
 
 if ! command -v openssl >/dev/null 2>&1; then
-    printf -- 'convert_p12_to_pem: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
+    printf -- 'ssl_view_csr: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
     exit 1
 fi
 
-convert_p12_to_pem() {
-    local _p12_to_pem_in _p12_to_pem_out
-    _p12_to_pem_in="${1}"
-    _p12_to_pem_out="${2}"
+ssl_view_csr () {
+    local _ssl_view_csr_in
+    _ssl_view_csr_in="${1}"
 
-    if (( "${#_p12_to_pem_in}" == 0 )); then
-        printf -- 'convert_p12_to_pem: %s\n' "No input file provided" >&2
+    if (( "${#_ssl_view_csr_in}" == 0 )); then
+        printf -- 'ssl_view_csr: %s\n' "No input file provided" >&2
         return 1
     fi
 
-    if [[ -s "${_p12_to_pem_in}" ]]; then
-        printf -- 'convert_p12_to_pem: %s\n' "Input file eppears to be empty" >&2
+    openssl req -text -noout -verify -in "${_ssl_view_csr_in}"
+}
+
+ssl_view_csr_modulus() {
+    local _ssl_view_csr_modulus_in
+    _ssl_view_csr_modulus_in="${1}"
+
+    if (( "${#_ssl_view_csr_modulus_in}" == 0 )); then
+        printf -- 'ssl_view_csr_modulus: %s\n' "No input file provided" >&2
         return 1
     fi
 
-    if (( "${#_p12_to_pem_out}" == 0 )); then
-        _p12_to_pem_out="${_p12_to_pem_in%.*}"
-        _p12_to_pem_out="${_p12_to_pem_out}.pem"
-    fi
-
-    openssl pkcs12 -nodes -in "${_p12_to_pem_in}" -out "${_p12_to_pem_out}"
+    openssl req -noout -modulus -in "${_ssl_view_csr_modulus_in}" | shasum -a 256
 }

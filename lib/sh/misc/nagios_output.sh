@@ -32,7 +32,7 @@ _SHELLAC_LOADED_misc_nagios_output=1
 #
 # @stdout Nagios-formatted status line(s)
 # @exitcode 0 Always
-print_out() {
+nagios_out() {
   local _job
   _job="${this_job:-${0##*/}}"
   if [[ "${2}" == *"="* ]]; then
@@ -42,17 +42,17 @@ print_out() {
   fi
 }
 
-# @description Emit a Nagios performance data output line, using print_long for multiple args.
+# @description Emit a Nagios performance data output line, using nagios_long for multiple args.
 #
 # @arg $@ string Message or performance data
 #
 # @stdout Nagios-formatted output
 # @exitcode 0 Always
-print_auto() {
+nagios_auto() {
   if (( $# == 1 )); then
-    print_out P "${*}"
+    nagios_out P "${*}"
   elif (( $# > 1 )); then
-    print_out P "${@}" | print_long
+    nagios_out P "${@}" | nagios_long
   fi
 }
 
@@ -64,16 +64,16 @@ print_auto() {
 #
 # @stdout Nagios OK output
 # @exitcode 0 Always
-print_ok() {
+nagios_ok() {
   local _return_mode _exit_mode
   case "${1}" in
     (-r|--return) _return_mode=true; shift ;;
     (-x|--exit)   _exit_mode=true;   shift ;;
   esac
   if (( $# == 1 )); then
-    print_out 0 "${*}"
+    nagios_out 0 "${*}"
   elif (( $# > 1 )); then
-    print_out 0 "${@}" | print_long
+    nagios_out 0 "${@}" | nagios_long
   fi
   [[ "${_return_mode}" = "true" ]] && return 0
   [[ "${_exit_mode}"   = "true" ]] && exit 0
@@ -87,16 +87,16 @@ print_ok() {
 #
 # @stdout Nagios WARNING output
 # @exitcode 0 Always
-print_warn() {
+nagios_warn() {
   local _return_mode _exit_mode
   case "${1}" in
     (-r|--return) _return_mode=true; shift ;;
     (-x|--exit)   _exit_mode=true;   shift ;;
   esac
   if (( $# == 1 )); then
-    print_out 1 "${*}"
+    nagios_out 1 "${*}"
   elif (( $# > 1 )); then
-    print_out 1 "${@}" | print_long
+    nagios_out 1 "${@}" | nagios_long
   fi
   [[ "${_return_mode}" = "true" ]] && return 1
   [[ "${_exit_mode}"   = "true" ]] && exit 1
@@ -110,16 +110,16 @@ print_warn() {
 #
 # @stdout Nagios CRITICAL output
 # @exitcode 0 Always
-print_crit() {
+nagios_crit() {
   local _return_mode _exit_mode
   case "${1}" in
     (-r|--return) _return_mode=true; shift ;;
     (-x|--exit)   _exit_mode=true;   shift ;;
   esac
   if (( $# == 1 )); then
-    print_out 2 "${*}"
+    nagios_out 2 "${*}"
   elif (( $# > 1 )); then
-    print_out 2 "${@}" | print_long
+    nagios_out 2 "${@}" | nagios_long
   fi
   [[ "${_return_mode}" = "true" ]] && return 2
   [[ "${_exit_mode}"   = "true" ]] && exit 2
@@ -133,16 +133,16 @@ print_crit() {
 #
 # @stdout Nagios UNKNOWN output
 # @exitcode 0 Always
-print_unknown() {
+nagios_unknown() {
   local _return_mode _exit_mode
   case "${1}" in
     (-r|--return) _return_mode=true; shift ;;
     (-x|--exit)   _exit_mode=true;   shift ;;
   esac
   if (( $# == 1 )); then
-    print_out 3 "${*}"
+    nagios_out 3 "${*}"
   elif (( $# > 1 )); then
-    print_out 3 "${@}" | print_long
+    nagios_out 3 "${@}" | nagios_long
   fi
   [[ "${_return_mode}" = "true" ]] && return 3
   [[ "${_exit_mode}"   = "true" ]] && exit 3
@@ -153,6 +153,6 @@ print_unknown() {
 #
 # @stdout Input with actual newlines replaced by the literal string \n
 # @exitcode 0 Always
-print_long() {
+nagios_long() {
   sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/\\n/g'
 }

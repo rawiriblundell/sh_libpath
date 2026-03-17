@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_openssl_cert_join+x}" ] && return 0
-_SHELLAC_LOADED_openssl_cert_join=1
+[ -n "${_SHELLAC_LOADED_openssl_ssl_ssl_cert_join+x}" ] && return 0
+_SHELLAC_LOADED_openssl_ssl_ssl_cert_join=1
 
 # TODO: Create a function that joins certs into chains
 # I likely have the code for this already - must check my archives...

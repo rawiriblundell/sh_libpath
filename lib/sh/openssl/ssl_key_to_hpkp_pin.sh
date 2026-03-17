@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -17,22 +17,24 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_openssl_view_pkcs12+x}" ] && return 0
-_SHELLAC_LOADED_openssl_view_pkcs12=1
+[ -n "${_SHELLAC_LOADED_openssl_ssl_ssl_key_to_hpkp_pin+x}" ] && return 0
+_SHELLAC_LOADED_openssl_ssl_ssl_key_to_hpkp_pin=1
 
 if ! command -v openssl >/dev/null 2>&1; then
-    printf -- 'view_pkcs12: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
+    printf -- 'ssl_key_to_hpkp_pin: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
     exit 1
 fi
 
-view_pkcs12 () {
-    local _view_pkcs12_in
-    _view_pkcs12_in="${1}"
+ssl_key_to_hpkp_pin() {
+    local _ssl_key_to_hpkp_pin_in
+    _ssl_key_to_hpkp_pin_in="${1}"
 
-    if (( "${#_view_pkcs12_in}" == 0 )); then
-        printf -- 'view_pkcs12: %s\n' "No input file provided" >&2
+    if (( "${#_ssl_key_to_hpkp_pin_in}" == 0 )); then
+        printf -- 'ssl_key_to_hpkp_pin: %s\n' "No input file provided" >&2
         return 1
     fi
 
-    openssl pkcs12 -info -in "${_view_pkcs12_in}"
+    openssl rsa -in "${_ssl_key_to_hpkp_pin_in}" -outform der -pubout |
+        openssl dgst -sha256 -binary |
+        openssl enc -base64 
 }

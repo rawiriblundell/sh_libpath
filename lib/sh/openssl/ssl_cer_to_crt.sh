@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -17,26 +17,26 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_openssl_convert_cer_to_crt+x}" ] && return 0
-_SHELLAC_LOADED_openssl_convert_cer_to_crt=1
+[ -n "${_SHELLAC_LOADED_openssl_ssl_cer_to_crt+x}" ] && return 0
+_SHELLAC_LOADED_openssl_ssl_cer_to_crt=1
 
 if ! command -v openssl >/dev/null 2>&1; then
-    printf -- 'convert_cer_to_crt: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
+    printf -- 'ssl_cer_to_crt: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
     exit 1
 fi
 
-convert_cer_to_crt() {
+ssl_cer_to_crt() {
     local _cer_to_crt_in _cer_to_crt_out _cer_to_crt_enctype
     _cer_to_crt_in="${1}"
     _cer_to_crt_out="${2}"
 
     if (( "${#_cer_to_crt_in}" == 0 )); then
-        printf -- 'convert_cer_to_crt: %s\n' "No input file provided" >&2
+        printf -- 'ssl_cer_to_crt: %s\n' "No input file provided" >&2
         return 1
     fi
 
     if ! [[ -s "${_cer_to_crt_in}" ]]; then
-        printf -- 'convert_cer_to_crt: %s\n' "Input file eppears to be empty" >&2
+        printf -- 'ssl_cer_to_crt: %s\n' "Input file eppears to be empty" >&2
         return 1
     fi
 

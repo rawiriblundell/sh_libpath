@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -17,34 +17,33 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_openssl_view_key+x}" ] && return 0
-_SHELLAC_LOADED_openssl_view_key=1
+[ -n "${_SHELLAC_LOADED_openssl_ssl_crt_to_pem+x}" ] && return 0
+_SHELLAC_LOADED_openssl_ssl_crt_to_pem=1
 
 if ! command -v openssl >/dev/null 2>&1; then
-    printf -- 'view_key: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
+    printf -- 'ssl_crt_to_pem: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
     exit 1
 fi
 
-view_key () {
-    local _view_key_in
-    _view_key_in="${1}"
+ssl_crt_to_pem() {
+    local _crt_to_pem_in _crt_to_pem_out _crt_to_pem_enctype
+    _crt_to_pem_in="${1}"
+    _crt_to_pem_out="${2}"
 
-    if (( "${#_view_key_in}" == 0 )); then
-        printf -- 'view_key: %s\n' "No input file provided" >&2
+    if (( "${#_crt_to_pem_in}" == 0 )); then
+        printf -- 'ssl_crt_to_pem: %s\n' "No input file provided" >&2
         return 1
     fi
 
-    openssl rsa -check -in "${_view_key_in}"
-}
-
-view_key_modulus() {
-    local _view_key_modulus_in
-    _view_key_modulus_in="${1}"
-
-    if (( "${#_view_key_modulus_in}" == 0 )); then
-        printf -- 'view_key_modulus: %s\n' "No input file provided" >&2
+    if [[ -s "${_crt_to_pem_in}" ]]; then
+        printf -- 'ssl_crt_to_pem: %s\n' "Input file eppears to be empty" >&2
         return 1
     fi
 
-    openssl rsa -noout -modulus -in "${_view_key_modulus_in}" | shasum -a 256
+    if (( "${#_crt_to_pem_out}" == 0 )); then
+        _crt_to_pem_out="${_crt_to_pem_in%.*}"
+        _crt_to_pem_out="${_crt_to_pem_out}.pem"
+    fi
+
+    openssl x509 -in "${_crt_to_pem_in}" -out "${_crt_to_pem_out}" -outform PEM
 }

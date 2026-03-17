@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -17,26 +17,33 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_openssl_website_to_hpkp_pin+x}" ] && return 0
-_SHELLAC_LOADED_openssl_website_to_hpkp_pin=1
+[ -n "${_SHELLAC_LOADED_openssl_ssl_p12_to_pem+x}" ] && return 0
+_SHELLAC_LOADED_openssl_ssl_p12_to_pem=1
 
 if ! command -v openssl >/dev/null 2>&1; then
-    printf -- 'website_to_hpkp_pin: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
+    printf -- 'ssl_p12_to_pem: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
     exit 1
 fi
 
-website_to_hpkp_pin() {
-    local _website_to_hpkp_pin_in
-    _website_to_hpkp_pin_in="${1}"
+ssl_p12_to_pem() {
+    local _p12_to_pem_in _p12_to_pem_out
+    _p12_to_pem_in="${1}"
+    _p12_to_pem_out="${2}"
 
-    if (( "${#_website_to_hpkp_pin_in}" == 0 )); then
-        printf -- 'website_to_hpkp_pin: %s\n' "No input file provided" >&2
+    if (( "${#_p12_to_pem_in}" == 0 )); then
+        printf -- 'ssl_p12_to_pem: %s\n' "No input file provided" >&2
         return 1
     fi
 
-    openssl s_client -connect "${_website_to_hpkp_pin_in}:443" |
-        openssl x509 -pubkey -noout |
-        openssl rsa -pubin -outform der |
-        openssl dgst -sha256 -binary |
-        openssl enc -base64
+    if [[ -s "${_p12_to_pem_in}" ]]; then
+        printf -- 'ssl_p12_to_pem: %s\n' "Input file eppears to be empty" >&2
+        return 1
+    fi
+
+    if (( "${#_p12_to_pem_out}" == 0 )); then
+        _p12_to_pem_out="${_p12_to_pem_in%.*}"
+        _p12_to_pem_out="${_p12_to_pem_out}.pem"
+    fi
+
+    openssl pkcs12 -nodes -in "${_p12_to_pem_in}" -out "${_p12_to_pem_out}"
 }

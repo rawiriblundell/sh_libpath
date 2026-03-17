@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -17,33 +17,34 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_openssl_convert_crt_to_pem+x}" ] && return 0
-_SHELLAC_LOADED_openssl_convert_crt_to_pem=1
+[ -n "${_SHELLAC_LOADED_openssl_ssl_pem_to_crt+x}" ] && return 0
+_SHELLAC_LOADED_openssl_ssl_pem_to_crt=1
 
 if ! command -v openssl >/dev/null 2>&1; then
-    printf -- 'convert_crt_to_pem: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
+    printf -- 'ssl_pem_to_crt: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
     exit 1
 fi
 
-convert_crt_to_pem() {
-    local _crt_to_pem_in _crt_to_pem_out _crt_to_pem_enctype
-    _crt_to_pem_in="${1}"
-    _crt_to_pem_out="${2}"
+ssl_pem_to_crt() {
+    local _pem_to_crt_in _pem_to_crt_out _pem_to_crt_enctype
+    _pem_to_crt_in="${1}"
+    _pem_to_crt_out="${2}"
+    _pem_to_crt_out="${3}"
 
-    if (( "${#_crt_to_pem_in}" == 0 )); then
-        printf -- 'convert_crt_to_pem: %s\n' "No input file provided" >&2
+    if (( "${#_pem_to_crt_in}" == 0 )); then
+        printf -- 'ssl_pem_to_crt: %s\n' "No input file provided" >&2
         return 1
     fi
 
-    if [[ -s "${_crt_to_pem_in}" ]]; then
-        printf -- 'convert_crt_to_pem: %s\n' "Input file eppears to be empty" >&2
+    if [[ -s "${_pem_to_crt_in}" ]]; then
+        printf -- 'ssl_pem_to_crt: %s\n' "Input file eppears to be empty" >&2
         return 1
     fi
 
-    if (( "${#_crt_to_pem_out}" == 0 )); then
-        _crt_to_pem_out="${_crt_to_pem_in%.*}"
-        _crt_to_pem_out="${_crt_to_pem_out}.pem"
+    if (( "${#_pem_to_crt_out}" == 0 )); then
+        _pem_to_crt_out="${_pem_to_crt_in%.*}"
+        _pem_to_crt_out="${_pem_to_crt_out}.crt"
     fi
 
-    openssl x509 -in "${_crt_to_pem_in}" -out "${_crt_to_pem_out}" -outform PEM
+    openssl x509 -outform "${_pem_to_crt_enctype:-PEM}" -in "${_pem_to_crt_in}" -out "${_pem_to_crt_out}"
 }

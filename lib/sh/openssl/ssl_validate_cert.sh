@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -17,52 +17,52 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_openssl_validate_cert+x}" ] && return 0
-_SHELLAC_LOADED_openssl_validate_cert=1
+[ -n "${_SHELLAC_LOADED_openssl_ssl_ssl_validate_cert+x}" ] && return 0
+_SHELLAC_LOADED_openssl_ssl_ssl_validate_cert=1
 
 if ! command -v openssl >/dev/null 2>&1; then
-    printf -- 'validate_cert: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
+    printf -- 'ssl_validate_cert: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
     exit 1
 fi
 
 # Validate a certificate against a key and csr
-# Usage: validate_cert certificate.crt [optional: certificate.key] [optional: certificate.csr]
+# Usage: ssl_validate_cert certificate.crt [optional: certificate.key] [optional: certificate.csr]
 # If the key and/or csr are not explicitly defined, we will assume the same basename as the crt
 # e.g. for 'example.com.crt', 'example.com.key' and 'example.com.csr' will be assumed
-validate_cert() {
-    local _validate_cert _validate_key _validate_csr _cert_hash _key_hash _csr_hash
-    _validate_cert="${1}"
+ssl_validate_cert() {
+    local _ssl_validate_cert _validate_key _validate_csr _cert_hash _key_hash _csr_hash
+    _ssl_validate_cert="${1}"
     _validate_key="${2}"
     _validate_csr="${3}"
 
-    if (( "${#_validate_cert}" == 0 )); then
-        printf -- 'validate_cert: %s\n' "No input file provided" >&2
+    if (( "${#_ssl_validate_cert}" == 0 )); then
+        printf -- 'ssl_validate_cert: %s\n' "No input file provided" >&2
         return 1
     fi
 
     if (( "${#_validate_key}" == 0 )); then
         # We assume either a .pem or .crt extension and remove it
-        _validate_key="${_validate_cert%.*}"
+        _validate_key="${_ssl_validate_cert%.*}"
         # We assume a .key file with the same name exists
         _validate_key="${_validate_key}.key"
     fi
 
     if (( "${#_validate_csr}" == 0 )); then
-        _validate_key="${_validate_cert%.*}"
+        _validate_key="${_ssl_validate_cert%.*}"
         _validate_key="${_validate_key}.csr"
     fi
 
     if [ ! -r "${_validate_key}" ]; then
-        printf -- 'validate_cert: %s\n' "key file not found, specified, or readable" >&2
+        printf -- 'ssl_validate_cert: %s\n' "key file not found, specified, or readable" >&2
         return 1
     fi
 
     if [ ! -r "${_validate_csr}" ]; then
-        printf -- 'validate_cert: %s\n' "csr file not found, specified, or readable" >&2
+        printf -- 'ssl_validate_cert: %s\n' "csr file not found, specified, or readable" >&2
         return 1
     fi
 
-    _cert_hash="$(openssl x509 -noout -modulus -in "${_validate_cert}" | openssl md5)"
+    _cert_hash="$(openssl x509 -noout -modulus -in "${_ssl_validate_cert}" | openssl md5)"
     _key_hash="$(openssl rsa -noout -modulus -in "${_validate_key}" | openssl md5)"
     _csr_hash="$(openssl req -noout -modulus -in "${_validate_csr}" | openssl md5)"
 

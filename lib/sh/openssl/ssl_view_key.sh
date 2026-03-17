@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -17,24 +17,34 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_openssl_key_to_hpkp_pin+x}" ] && return 0
-_SHELLAC_LOADED_openssl_key_to_hpkp_pin=1
+[ -n "${_SHELLAC_LOADED_openssl_ssl_ssl_view_key+x}" ] && return 0
+_SHELLAC_LOADED_openssl_ssl_ssl_view_key=1
 
 if ! command -v openssl >/dev/null 2>&1; then
-    printf -- 'key_to_hpkp_pin: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
+    printf -- 'ssl_view_key: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
     exit 1
 fi
 
-key_to_hpkp_pin() {
-    local _key_to_hpkp_pin_in
-    _key_to_hpkp_pin_in="${1}"
+ssl_view_key () {
+    local _ssl_view_key_in
+    _ssl_view_key_in="${1}"
 
-    if (( "${#_key_to_hpkp_pin_in}" == 0 )); then
-        printf -- 'key_to_hpkp_pin: %s\n' "No input file provided" >&2
+    if (( "${#_ssl_view_key_in}" == 0 )); then
+        printf -- 'ssl_view_key: %s\n' "No input file provided" >&2
         return 1
     fi
 
-    openssl rsa -in "${_key_to_hpkp_pin_in}" -outform der -pubout |
-        openssl dgst -sha256 -binary |
-        openssl enc -base64 
+    openssl rsa -check -in "${_ssl_view_key_in}"
+}
+
+ssl_view_key_modulus() {
+    local _ssl_view_key_modulus_in
+    _ssl_view_key_modulus_in="${1}"
+
+    if (( "${#_ssl_view_key_modulus_in}" == 0 )); then
+        printf -- 'ssl_view_key_modulus: %s\n' "No input file provided" >&2
+        return 1
+    fi
+
+    openssl rsa -noout -modulus -in "${_ssl_view_key_modulus_in}" | shasum -a 256
 }
