@@ -20,6 +20,10 @@
 [ -n "${_SHELLAC_LOADED_sys_mem+x}" ] && return 0
 _SHELLAC_LOADED_sys_mem=1
 
+# TODO: This file is a partial fragment from an external diagnostic tool.
+# The opening '{' for the compound redirect on line ~57 is missing.
+# Needs a full audit and rewrite before it can be used or linted cleanly.
+
   # Start by checking for 'top'
   if command -v top >/dev/null 2>&1; then
     printMdSubHead "Memory information from 'top'"

@@ -106,8 +106,10 @@ stop_loading_animation() {
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#
 
 # Demo the loading animation
+# shellcheck disable=SC2218  # demo calls functions defined later in this file
 start_loading_animation
 sleep 10
+# shellcheck disable=SC2218
 stop_loading_animation
 exit 0
 
@@ -116,8 +118,10 @@ exit 0
 ##############
 
 # Use the chosen loading animation this way:
+# shellcheck disable=SC2218  # how-to example calls functions defined later in this file
 start_loading_animation
 your_command_here
+# shellcheck disable=SC2218
 stop_loading_animation
 
 # If your command prints some output in the terminal, it will mess with the loading animation.

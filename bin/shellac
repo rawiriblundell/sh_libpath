@@ -22,6 +22,7 @@ SHELLAC_LOADED=0
 if [ -n "${ZSH_VERSION}" ]; then
   case "${ZSH_EVAL_CONTEXT}" in (*:file) SHELLAC_LOADED=1 ;; esac
 elif [ -n "${KSH_VERSION}" ]; then
+  # shellcheck disable=SC2296  # ${.sh.file} is KSH93-specific syntax; not valid in bash
   [ "$(cd -- "$(dirname -- "$0")" && pwd -P)/$(basename -- "$0")" != "$(cd -- "$(dirname -- "${.sh.file}")" && pwd -P)/$(basename -- "${.sh.file}")" ] && SHELLAC_LOADED=1
 elif [ -n "${BASH_VERSION}" ]; then
   (return 0 2>/dev/null) && SHELLAC_LOADED=1
@@ -126,6 +127,7 @@ else
     SH_LIBPATH="${SH_LIBPATH}:${FPATH}"
   fi
 
+  # shellcheck disable=SC2154  # fpath is a zsh array variable; may be set in environment
   if (( ${#fpath} > 0 )); then
     SH_LIBPATH="${SH_LIBPATH}:${fpath}"
   fi

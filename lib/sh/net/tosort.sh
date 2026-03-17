@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Misc functions from my archives
 
 [ -n "${_SHELLAC_LOADED_net_tosort+x}" ] && return 0
@@ -36,7 +37,7 @@ _SHELLAC_LOADED_net_tosort=1
       while read -r; do
         iptables -I INPUT 1 -s "${REPLY}" -j REJECT
         iptables -I OUTPUT 1 -s "${REPLY}" -j REJECT
-      done &lt; &lt;(get-asn-attr "${asnArray[@]}" | awk '{print $2}')
+      done < <(get-asn-attr "${asnArray[@]}" | awk '{print $2}')
       printf '%s\n' "'iptables' rules for blocking Facebook's IP ranges now added"
     fi
 
@@ -51,16 +52,16 @@ It doesn't work because it's redirecting.  If you set yourself up with a functio
       curl "${remote_target}" > "${local_target}" || return 1  
     }
 
-In practice you'll get something that looks like this:
-
-   $ software::fetch "https://go.microsoft.com/fwlink/?LinkID=121721&arch=x64"
-    Attempting to fetch https://definitionupdates.microsoft.com/download/DefinitionUpdates/VersionedSignatures/AM/1.329.689.0/amd64/mpam-fe.exe...
-      % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                     Dload  Upload   Total   Spent    Left  Speed
-    100  123M  100  123M    0     0  7432k      0  0:00:17  0:00:17 --:--:-- 7170k
-
-    api::get_http_code() {
-      local curl_args
-      curl_args="${CURL_OPTS} --silent --output /dev/null --write-out %{http_code}"
-      curl ${curl_args} "${1:?No API URI specified}"
-    }
+# In practice you'll get something that looks like this:
+#
+#    $ software::fetch "https://go.microsoft.com/fwlink/?LinkID=121721&arch=x64"
+#     Attempting to fetch https://...mpam-fe.exe...
+#       % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+#                                      Dload  Upload   Total   Spent    Left  Speed
+#     100  123M  100  123M    0     0  7432k      0  0:00:17  0:00:17 --:--:-- 7170k
+#
+#     api::get_http_code() {
+#       local curl_args
+#       curl_args="${CURL_OPTS} --silent --output /dev/null --write-out %{http_code}"
+#       curl ${curl_args} "${1:?No API URI specified}"
+#     }

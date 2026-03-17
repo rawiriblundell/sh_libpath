@@ -305,7 +305,7 @@ install_platform_packages () {
 			names_a+=( "${name}" )
 		fi
 	done <<<"${specs}"
-	if [[ -z "${names_a[@]:+_}" ]]; then
+	if [[ -z "${names_a[*]:+_}" ]]; then
 		return 0
 	fi
 
