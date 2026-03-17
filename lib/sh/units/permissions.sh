@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -33,29 +33,6 @@ _perm_digit_to_rwx() {
     (0) printf -- '%s' '---' ;;
     (*) printf -- 'permissions: %s\n' "Invalid octal digit: ${1}" >&2; return 1 ;;
   esac
-}
-
-# @description Get the octal permission mode and path for a file or directory.
-#   Tries GNU stat, then BSD stat, then falls back to perl.
-#
-# @arg $1 string Path to the target file or directory
-#
-# @example
-#   get_permissions /etc/passwd   # => 644 /etc/passwd
-#
-# @stdout Octal mode and path separated by a space
-# @exitcode 0 Success
-# @exitcode 1 File not found (from perl fallback)
-get_permissions() {
-  local _target
-  _target="${1:?No target given}"
-  stat -c '%a %n' "${_target}" 2>/dev/null ||
-    stat -f '%Op %N' "${_target}" 2>/dev/null ||
-    perl -e '
-      if (! -e $ARGV[0]) { die "File not found\n" }
-      my $mode = (stat($ARGV[0]))[2];
-      printf "%04o %s\n", $mode & 07777, $ARGV[0];
-    ' "${_target}"
 }
 
 # @description Convert an octal permission mode to symbolic rwx notation.

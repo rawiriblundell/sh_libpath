@@ -76,7 +76,7 @@ whoowns() {
 # @stdout Age of the file in seconds
 # @exitcode 0 Success
 # @exitcode 1 File does not exist or is unreadable
-get_file_age() {
+fs_file_age() {
   if [[ -f "${1:?No file specified}" ]]; then
     printf -- '%s\n' "$(( $(date +%s) - $(stat_file mtime "${1}") ))"
   else
