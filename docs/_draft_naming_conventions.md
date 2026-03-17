@@ -184,6 +184,22 @@ match the new path.
 
 ---
 
+## Named exceptions
+
+Some functions are exempt from the module-prefix rule where the prefix
+would be tautological or the short form is clearly the better name.
+
+| Function | File | Why exempt |
+|---|---|---|
+| `toarray` | `array/toarray.sh` | `array_toarray` reads as a stutter; the filename already provides the namespace |
+| `mapfile` | `array/mapfile.sh` | Deliberate shadow of the bash builtin; must match the builtin name to act as a drop-in |
+| `cpuhogs`, `memhogs`, `swaphogs` | `sys/*.sh` | Short, well-known names; `sys_cpuhogs` adds no clarity. `sys_hogs` is the namespaced entry point. |
+
+The test: if adding the prefix makes the name *longer without making it clearer*,
+the short form is the right call.
+
+---
+
 ## What we explicitly rejected
 
 | Pattern | Reason |
