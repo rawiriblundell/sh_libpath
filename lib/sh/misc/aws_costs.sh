@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -51,7 +51,7 @@ current_month_end_minus1="$(date -d "${current_month_end} -1 day" '+%Y-%m-%d')"
 # @stdout JSON object of service names to blended cost, sorted by amount
 # @exitcode 0 Success
 # @exitcode 1 aws-cli or jq failed
-aws_get_cost_last_month() {
+aws_cost_last_month() {
     aws ce get-cost-and-usage \
         --time-period Start="${last_month_start}",End="${last_month_end}" \
         --granularity MONTHLY \
@@ -72,7 +72,7 @@ aws_get_cost_last_month() {
 # @stdout JSON object of service names to blended cost, sorted by amount
 # @exitcode 0 Success
 # @exitcode 1 aws-cli or jq failed
-aws_get_cost_this_month() {
+aws_cost_this_month() {
     aws ce get-cost-and-usage \
         --time-period Start="${current_month_start}",End="${current_month_end}" \
         --granularity MONTHLY \
@@ -92,7 +92,7 @@ aws_get_cost_this_month() {
 # @stdout JSON forecast object from the AWS Cost Explorer API
 # @exitcode 0 Success
 # @exitcode 1 aws-cli or jq failed
-aws_get_cost_forecast() {
+aws_cost_forecast() {
     aws ce get-cost-forecast \
         --time-period Start="${current_month_end_minus1}",End="${current_month_end}" \
         --granularity MONTHLY \
