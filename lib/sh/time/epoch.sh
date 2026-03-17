@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_time_get_epoch+x}" ] && return 0
-_SHELLAC_LOADED_time_get_epoch=1
+[ -n "${_SHELLAC_LOADED_time_epoch+x}" ] && return 0
+_SHELLAC_LOADED_time_epoch=1
 
 # @description Return the current Unix epoch in seconds.
 #   Selects the fastest available method at load time:
@@ -31,26 +31,26 @@ _SHELLAC_LOADED_time_get_epoch=1
 # Prioritise builtin approaches over externals to improve performance
 # We start by testing for the EPOCHSECONDS shell var (bash 5.0 and newer, zsh w/ datetime module)
 if [ -n "${EPOCHSECONDS}" ]; then
-    get_epoch() { printf -- '%d\n' "${EPOCHSECONDS}"; }
+    time_epoch() { printf -- '%d\n' "${EPOCHSECONDS}"; }
 
 # Next, we try for 'printf' (bash 4.2 and newer, some ksh)
 elif printf '%(%s)T\n' -1 | grep "^[0-9].*$" >/dev/null 2>&1; then
-    get_epoch() { printf '%(%s)T\n' -1; }
+    time_epoch() { printf '%(%s)T\n' -1; }
 
 # Next we try for 'date'
 # Because some 'date' variants will return a literal '+%s', we perform a capability check
 elif date -u +%s | grep "^[0-9].*$" >/dev/null 2>&1; then
-    get_epoch() { date -u +%s; }
+    time_epoch() { date -u +%s; }
 
 # Next we try for 'perl', fairly ubiquitous but fading away slowly...
 elif command -v perl >/dev/null 2>&1; then
-    get_epoch() { perl -e 'print($^T."\n");'; }
-    # Alternative: get_epoch() { perl -e 'print time."\n";'; }
+    time_epoch() { perl -e 'print($^T."\n");'; }
+    # Alternative: time_epoch() { perl -e 'print time."\n";'; }
 
 # We can try reaching out to the internet...
 elif command -v curl >/dev/null 2>&1; then
     if curl -s -m 1 http://icanhazepoch.com/ | grep "^[0-9].*$" >/dev/null 2>&1; then
-        get_epoch() { curl -s -m 1 http://icanhazepoch.com/; }
+        time_epoch() { curl -s -m 1 http://icanhazepoch.com/; }
     fi
 
 # Otherwise we failover to a portable-ish shell method
@@ -60,7 +60,7 @@ else
 # Portable version based on http://www.etalabs.net/sh_tricks.html
 # We strip leading 0's in order to prevent unwanted octal math
 # This seems terse, but the vars are the same as their 'date' formats
-    get_epoch() {
+    time_epoch() {
         # TODO: Update format on these vars
         local y j h m s yo
 
@@ -82,7 +82,7 @@ fi
 # @stdout Integer day count since epoch
 # @exitcode 0 Always
 epochdays() {
-  printf -- '%s\n' "$(( $(get_epoch) / 86400 ))"
+  printf -- '%s\n' "$(( $(time_epoch) / 86400 ))"
 }
 
 # To get the epoch date at particular times
