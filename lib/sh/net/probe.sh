@@ -27,52 +27,22 @@ _SHELLAC_LOADED_net_probe=1
 # @arg $3 string Protocol: tcp or udp (default: tcp)
 #
 # @example
-#   probe-port example.com 443
-#   probe-port example.com 53 udp
+#   probe_port example.com 443
+#   probe_port example.com 53 udp
 #
 # @exitcode 0 Port is reachable
 # @exitcode 1 Port is unreachable or timed out
-probe-port() {
+probe_port() {
   timeout 1 bash -c "</dev/${3:-tcp}/${1:?No target}/${2:-22}" 2>/dev/null
 }
 
-# @description Test SSH connectivity to a remote host using probe-port.
+# @description Test SSH connectivity to a remote host using probe_port.
 #
 # @arg $1 string Remote hostname or IP address
 # @arg $2 int SSH port (default: 22)
 #
 # @exitcode 0 SSH port is reachable
 # @exitcode 1 SSH port is unreachable or timed out
-probe-ssh() {
-  probe-port "${1:?No target}" "${2:-22}"
-}
-
-# @description Check whether a remote port is open, trying telnet, nc, or nmap
-#   in that order. Exits with an error if none are available.
-#
-# @arg $1 string Remote hostname or IP address
-# @arg $2 int Port number
-#
-# @exitcode 0 Port is open
-# @exitcode 1 Port is closed, unreachable, or no tool found
-portcheck() {
-  # Ensure that $1 and $2 are present
-  if [[ -z $2 ]]||[[ -z $1 ]]; then
-    printf "%s\n" "ERROR - server or port not defined" \
-      "Usage: portcheck [remote servername or IP] [port to check]"
-    exit 1
-  fi
-
-  # Now run through a list of potential ways to do this
-  if command -v telnet >/dev/null 2>&1; then
-    ... # you'd have to build in some timeout logic
-  elif command -v nc > /dev/null 2>&1; then
-    # Or you could check for netcat if you can ensure portable behaviour
-    nc -z -w 1 "$1" "$2"
-  elif command -v nmap >/dev/null 2>&1; then
-    ... # You can also do this check with nmap
-  else
-    printf "%s\n" "ERROR - could not determine a method for checking ports"
-    exit 1
-  fi
+probe_ssh() {
+  probe_port "${1:?No target}" "${2:-22}"
 }

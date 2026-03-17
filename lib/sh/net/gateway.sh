@@ -17,29 +17,30 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_net_get_gateway+x}" ] && return 0
-_SHELLAC_LOADED_net_get_gateway=1
+[ -n "${_SHELLAC_LOADED_net_gateway+x}" ] && return 0
+_SHELLAC_LOADED_net_gateway=1
 
 # @description Get the default gateway address. Tries 'ip route', then 'netstat',
 #   then 'route' in order. Handles Linux and Solaris differences via OSSTR.
 #
 # @stdout The default gateway IP address
 # @exitcode 0 Always
-get_gateway() {
+net_gateway() {
   local _get_gwaddr
-  # Default Gateway
   if command -v ip >/dev/null 2>&1; then
     _get_gwaddr=$(ip route show | awk '/^default|^0.0.0.0/{ print $3 }')
-  elif [[ -z ${_get_gwaddr} ]]; then
-    case "${OSSTR}" in
-      (linux)
+  fi
+  if [[ -z "${_get_gwaddr}" ]]; then
+    case "${OSSTR:-$(uname -s)}" in
+      (linux|Linux)
         _get_gwaddr=$(netstat -nrv | awk '/^default|^0.0.0.0/{ print $2; exit }')
       ;;
-      (solaris)
+      (solaris|SunOS)
         _get_gwaddr=$(netstat -nrv | awk '/^default|^0.0.0.0/{ print $3; exit }')
       ;;
     esac
-  elif [[ -z ${_get_gwaddr} ]]; then
+  fi
+  if [[ -z "${_get_gwaddr}" ]]; then
     _get_gwaddr=$(route -n | awk '/^default|^0.0.0.0/{ print $2 }')
   fi
   printf -- '%s\n' "${_get_gwaddr}"

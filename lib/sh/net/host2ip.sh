@@ -28,16 +28,16 @@ _SHELLAC_LOADED_net_host2ip=1
 # @stdout The resolved IP address, or the hostname from a reverse lookup
 # @exitcode 0 Success
 # @exitcode 1 No argument supplied or unrecognised input
-host2ip() {
+net_host2ip() {
   if [[ -z "${1:-}" ]]; then
-    printf -- 'Usage: host2ip [hostname|ip.add.re.ss]\n' >&2
+    printf -- 'Usage: net_host2ip [hostname|ip.add.re.ss]\n' >&2
     return 1
   elif [[ "${1}" =~ ^[a-zA-Z] ]]; then
     host -4 -W 1 "${1}" | awk '{ print $4 }'
   elif [[ "${1}" =~ ^((25[0-5]|2[0-4][0-9]|[01][0-9][0-9]|[0-9]{1,2})[.]){3}(25[0-5]|2[0-4][0-9]|[01][0-9][0-9]|[0-9]{1,2})$ ]]; then
     host -4 -W 1 "${1}" | awk '{ print $NF }' | cut -d '.' -f1
   else
-    printf -- 'host2ip: unrecognised input: %s\n' "${1}" >&2
+    printf -- 'net_host2ip: unrecognised input: %s\n' "${1}" >&2
     return 1
   fi
 }

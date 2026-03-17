@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_net_get_dns+x}" ] && return 0
-_SHELLAC_LOADED_net_get_dns=1
+[ -n "${_SHELLAC_LOADED_net_dns+x}" ] && return 0
+_SHELLAC_LOADED_net_dns=1
 
 # @description Get the DNS server addresses for the current host. Tries a range of
 #   methods in order: scutil (macOS), resolvectl, systemd-resolve, nm-tool, nmcli,
@@ -27,7 +27,7 @@ _SHELLAC_LOADED_net_get_dns=1
 # @stdout Comma-separated DNS server IP addresses
 # @exitcode 0 Success
 # @exitcode 1 Unable to determine any DNS servers
-get_dns() {
+net_dns() {
   case "${OSSTR:-$(uname -s)}" in
     (mac|Darwin)
       printf -- '%s\n' "Attempting lookup test using 'scutil' command..." >&2
@@ -84,7 +84,7 @@ get_dns() {
   fi
   # As above, but for OSX
   if [ -r /var/run/resolv.conf ]; then
-    printf -- '%s\n' "Parsing /etc/resolv.conf..." >&2
+    printf -- '%s\n' "Parsing /var/run/resolv.conf..." >&2
     awk '/nameserver/{print $2}' /etc/resolv.conf | paste -sd ',' -
     return 0
   fi

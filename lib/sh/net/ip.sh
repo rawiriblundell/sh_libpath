@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_net_get_ip+x}" ] && return 0
-_SHELLAC_LOADED_net_get_ip=1
+[ -n "${_SHELLAC_LOADED_net_ip+x}" ] && return 0
+_SHELLAC_LOADED_net_ip=1
 
 # External options
 # http https IPv DNS
@@ -53,7 +53,7 @@ _SHELLAC_LOADED_net_get_ip=1
 # @stdout The IP address(es), one per line
 # @exitcode 0 Success
 # @exitcode 1 Could not determine address
-get_ip() {
+net_ip() {
   case "${1}" in
     (external|public)
       case "${2}" in
@@ -71,7 +71,7 @@ get_ip() {
         ifconfig -a |
           sed -e '/^docker/{N;N;d;}' |
           awk '/inet6 / && $2 !~ /::1/ {print $2; exit}' |
-          sed 's/addr"//g'
+          sed 's/addr://g'
         return "${?}"
       fi
     ;;
@@ -85,7 +85,7 @@ get_ip() {
         ifconfig -a |
           sed -e '/^docker/{N;N;d;}' |
           awk '/inet / && $2 !~ /127.0.0.1/ {print $2; exit}' |
-          sed 's/addr"//g'
+          sed 's/addr://g'
         return "${?}"
       fi
     
@@ -94,7 +94,7 @@ get_ip() {
         # Because nslookup exits with 0 even on failure, we test for failure first
         if nslookup "$(hostname)" 2>&1 |
              grep -E "Server failed|SERVFAIL|can't find" >/dev/null 2>&1; then
-          printf '%s\n' "Could not determine the local IP address"
+          printf -- '%s\n' "Could not determine the local IP address"
           return 1
         else
           # Alt to test:

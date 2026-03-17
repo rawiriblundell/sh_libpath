@@ -17,12 +17,14 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_net_get_mac+x}" ] && return 0
-_SHELLAC_LOADED_net_get_mac=1
+[ -n "${_SHELLAC_LOADED_net_mac+x}" ] && return 0
+_SHELLAC_LOADED_net_mac=1
 
 # @internal
 _sanitise_mac_addr() {
-  for octet in ${rawMac}; do
+  local raw_mac octet
+  raw_mac="${1:?No MAC data}"
+  for octet in ${raw_mac}; do
     if [[ "${#octet}" -eq "1" ]]; then
       printf "0%s-" "${octet}"
     else
@@ -38,20 +40,22 @@ _sanitise_mac_addr() {
 #
 # @stdout The MAC address in XX-YY-ZZ-AA-BB-CC format (uppercase)
 # @exitcode 0 Always
-get_mac() {
+net_mac() {
+  local mac_addr raw_mac
   if command -v ip >/dev/null 2>&1; then
-    macAddr=$(ip -brief link | awk '$2 == "UP" {print $3; exit}' | tr ":" "-")
-    #macAddr=$(ip -s link | grep -A 1 UP | awk '/ether/{print $2; exit}' | tr ":" "-")
+    mac_addr=$(ip -brief link | awk '$2 == "UP" {print $3; exit}' | tr ":" "-")
   elif command -v ifconfig >/dev/null 2>&1; then
-    macAddr=$(ifconfig | awk '$0 ~ /HWaddr/ {print $5}' | tr ":" "-" | head -n 1)
+    mac_addr=$(ifconfig | awk '$0 ~ /HWaddr/ {print $5}' | tr ":" "-" | head -n 1)
     # If we're here, then we might have a different ifconfig output format.  Yay.
-    if [[ -z "${macAddr}" ]]; then
-      macAddr=$(ifconfig | awk '$0 ~ /ether/ {print $2; exit}' | tr ":" "-")
+    if [[ -z "${mac_addr}" ]]; then
+      mac_addr=$(ifconfig | awk '$0 ~ /ether/ {print $2; exit}' | tr ":" "-")
     fi
   # Solaris
   elif command -v dladm >/dev/null 2>&1; then
-    dladm show-linkprop -p mac-address | awk '/^LINK/{print $4; exit}' | tr ":" " "
+    mac_addr=$(dladm show-linkprop -p mac-address | awk '/^LINK/{print $4; exit}' | tr ":" " ")
   elif arp "$(hostname)" >/dev/null 2>&1; then
-    rawMac=$(arp "$(hostname)" | awk '{ print $4 }' | tr ":" " ")
+    raw_mac=$(arp "$(hostname)" | awk '{ print $4 }' | tr ":" " ")
+    mac_addr=$(_sanitise_mac_addr "${raw_mac}")
   fi
+  printf -- '%s\n' "${mac_addr}"
 }

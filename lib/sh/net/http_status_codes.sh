@@ -22,46 +22,46 @@ _SHELLAC_LOADED_net_http_status_codes=1
 #   client, client_errors, server, server_errors
 #
 # @example
-#   explain_http_status_code 404
-#   explain_http_status_code server
+#   net_http_code_explain 404
+#   net_http_code_explain server
 #
 # @stdout The numeric code, short name, and description
 # @exitcode 0 Success
 # @exitcode 1 No argument or unrecognised code
-explain_http_status_code() {
+net_http_code_explain() {
   local _code _http_status_code _http_status_description 
   case "${1}" in
     ([iI]nfo|[iI]nformational)
       for _code in 100 101 102 103; do
-        explain_http_status_code "${_code}"
+        net_http_code_explain "${_code}"
         printf -- '%s\n' ""
       done
       return 0
     ;;
     ([sS]uccess|[sS]uccessful)
       for _code in 200 201 202 203 204 205 206 207 208 226; do
-        explain_http_status_code "${_code}"
+        net_http_code_explain "${_code}"
         printf -- '%s\n' ""
       done
       return 0
     ;;
     ([rR]edirection)
       for _code in 300 301 302 303 304 305 306 307 308; do
-        explain_http_status_code "${_code}"
+        net_http_code_explain "${_code}"
         printf -- '%s\n' ""
       done
       return 0
     ;;
     ([cC]lient|[cC]lient_[eE]rrors)
       for _code in 400 401 402 403 404 405 406 407 408 409 410 411 412 413 414 415 416 417 418 421 422 423 424 425 426 428 429 431 444 451 499; do
-        explain_http_status_code "${_code}"
+        net_http_code_explain "${_code}"
         printf -- '%s\n' ""
       done
       return 0
     ;;
     ([sS]erver|[sS]erver_[eE]rrors)
       for _code in 500 501 502 503 504 505 506 507 508 510 511 599; do
-        explain_http_status_code "${_code}"
+        net_http_code_explain "${_code}"
         printf -- '%s\n' ""
       done
       return 0
@@ -471,7 +471,7 @@ explain_http_status_code() {
       _http_status_description='(Non-standard, misc) Used by some HTTP proxies to signal a network connect timeout behind the proxy to a client in front of the proxy.'
     ;;
     (''|*)
-      printf -- 'explain_http_status_code: %s\n' "Usage: explain_http_status_code ARGUMENT" >&2
+      printf -- 'net_http_code_explain: %s\n' "Usage: net_http_code_explain ARGUMENT" >&2
       printf -- '%s\n' "ARGUMENT can be one of: a three digit http code, info, informational, success, successful, redirect, redirection, client, client_errors, server, server_errors" >&2
       return 1
     ;;
