@@ -21,7 +21,7 @@
 _SHELLAC_LOADED_sys_mount=1
 
 if ! command -v mount >/dev/null 2>&1; then
-  printf -- 'get_mounts: %s\n' "'mount' was not found in PATH" >&2
+  printf -- 'sys_mounts: %s\n' "'mount' was not found in PATH" >&2
   return 1
 fi
 
@@ -29,12 +29,12 @@ fi
 #
 # @stdout Output of 'mount', or a warning to stderr if mount returns nothing
 # @exitcode 0 Always
-get_mounts() {
+sys_mounts() {
   local output
   output="$(mount)"
   if [[ -n "${output}" ]]; then
     printf -- '%s\n' "${output}"
   else
-    printf -- "get_mounts: 'mount' returned no output\n" >&2
+    printf -- "sys_mounts: 'mount' returned no output\n" >&2
   fi
 }

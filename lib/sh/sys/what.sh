@@ -28,7 +28,7 @@ _SHELLAC_LOADED_sys_what=1
 #
 # @stdout One line per user: username, memory (KiB), CPU (%)
 # @exitcode 0 Always
-what() {
+sys_what() {
   case "${1}" in
     (-h|--help)
       printf -- '%s\n' "what - list all users and their memory/cpu usage (think 'who' and 'what')" \

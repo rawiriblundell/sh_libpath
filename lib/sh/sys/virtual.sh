@@ -17,15 +17,15 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_sys_get_virtual_status+x}" ] && return 0
-_SHELLAC_LOADED_sys_get_virtual_status=1
+[ -n "${_SHELLAC_LOADED_sys_sys_virt_status+x}" ] && return 0
+_SHELLAC_LOADED_sys_sys_virt_status=1
 
 # @description Determine whether the host is a virtual machine or physical host
 #   by inspecting /proc/cpuinfo for hypervisor and virtualisation CPU flags.
 #
 # @stdout "virtual", "physical", or "unknown"
 # @exitcode 0 Always
-get_virtual_status() {
+sys_virt_status() {
   if grep -q hypervisor /proc/cpuinfo; then
     printf -- '%s\n' "virtual"
   elif grep -qE '^flags.*svm|^flags.*vmx' /proc/cpuinfo; then
@@ -80,7 +80,7 @@ is_aws() {
 #
 # @stdout Virtualisation type string, e.g. "virtualbox", "vmware", "xen", "kvm", "qemu", "docker", "podman"
 # @exitcode 0 Always
-get_virtual_type() {
+sys_virt_type() {
   local _sys_type
 
   # virt-what is the gold standard

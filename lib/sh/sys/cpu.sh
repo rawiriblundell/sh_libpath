@@ -26,7 +26,7 @@ _SHELLAC_LOADED_sys_cpu=1
 #
 # @stdout Number of physical CPU sockets
 # @exitcode 0 Always
-get_cpuinfo_slots() {
+sys_cpu_slots() {
   if command -v lscpu >/dev/null 2>&1; then
     lscpu | awk '/[Ss]ocket\(s\):/ { print $NF; exit }'
   elif dmidecode --type processor 2>/dev/null | grep -q "Status: Populated, Enabled"; then
@@ -44,7 +44,7 @@ get_cpuinfo_slots() {
 #
 # @stdout Number of cores per socket
 # @exitcode 0 Always
-get_cpuinfo_cores() {
+sys_cpu_cores() {
   if command -v lscpu >/dev/null 2>&1; then
     lscpu | awk '/^Core\(s\) per socket:/ { print $NF; exit }'
   elif dmidecode --type processor 2>/dev/null | grep -q "Core Count"; then
@@ -60,15 +60,15 @@ get_cpuinfo_cores() {
 
 # @description Print the number of enabled cores per socket, if determinable.
 #   Only dmidecode exposes this detail; relevant for software licensed per enabled core.
-#   Falls back to get_cpuinfo_cores when the information is unavailable.
+#   Falls back to sys_cpu_cores when the information is unavailable.
 #
 # @stdout Number of enabled cores per socket
 # @exitcode 0 Always
-get_cpuinfo_cores_enabled() {
+sys_cpu_cores_enabled() {
   if dmidecode --type processor 2>/dev/null | grep -q "Core Enabled"; then
     dmidecode --type processor | awk '/Core Enabled/ { print $NF; exit }'
   else
-    get_cpuinfo_cores
+    sys_cpu_cores
   fi
 }
 
@@ -78,7 +78,7 @@ get_cpuinfo_cores_enabled() {
 #
 # @stdout Number of threads per core
 # @exitcode 0 Always
-get_cpuinfo_threads() {
+sys_cpu_threads() {
   local sibling_count
   local core_count
 
@@ -88,7 +88,7 @@ get_cpuinfo_threads() {
     awk '/Thread\(s\) per core:/ { print $NF; exit }' /proc/cpuinfo
   elif grep -q "siblings" /proc/cpuinfo; then
     sibling_count="$(awk '/siblings/ { print $NF; exit }' /proc/cpuinfo)"
-    core_count="$(get_cpuinfo_cores)"
+    core_count="$(sys_cpu_cores)"
     if (( sibling_count > core_count )); then
       printf -- '%s\n' "$(( sibling_count / core_count ))"
     else
@@ -96,7 +96,7 @@ get_cpuinfo_threads() {
     fi
   elif [[ -r /sys/devices/system/cpu/cpu0/topology/thread_siblings ]]; then
     sibling_count="$(awk -F ',' '{ printf NF; exit }' /sys/devices/system/cpu/cpu0/topology/thread_siblings)"
-    core_count="$(get_cpuinfo_cores)"
+    core_count="$(sys_cpu_cores)"
     if (( sibling_count > core_count )); then
       printf -- '%s\n' "$(( sibling_count / core_count ))"
     else
@@ -111,13 +111,13 @@ get_cpuinfo_threads() {
 #
 # @stdout Total vCPU count
 # @exitcode 0 Always
-get_cpuinfo_count() {
+sys_cpu_count() {
   local slots
   local cores
   local threads
-  slots="$(get_cpuinfo_slots)"
-  cores="$(get_cpuinfo_cores)"
-  threads="$(get_cpuinfo_threads)"
+  slots="$(sys_cpu_slots)"
+  cores="$(sys_cpu_cores)"
+  threads="$(sys_cpu_threads)"
   printf -- '%s\n' "$(( slots * cores * threads ))"
 }
 
@@ -127,7 +127,7 @@ get_cpuinfo_count() {
 #
 # @stdout CPU speed in MHz (integer)
 # @exitcode 0 Always
-get_cpuinfo_mhz() {
+sys_cpu_mhz() {
   # Prefer static max frequency: cpufreq gives the rated max, not a scaled value.
   if [[ -r /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq ]]; then
     printf -- '%s\n' "$(( $(< /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq) / 1000 ))"
@@ -150,7 +150,7 @@ get_cpuinfo_mhz() {
 #
 # @stdout CPU vendor string, e.g. "GenuineIntel" or "AuthenticAMD"
 # @exitcode 0 Always
-get_cpuinfo_manufacturer() {
+sys_cpu_manufacturer() {
   if [[ -r /proc/cpuinfo ]]; then
     awk -F ': ' '/^vendor_id/ { print $2; exit }' /proc/cpuinfo
   fi
@@ -161,7 +161,7 @@ get_cpuinfo_manufacturer() {
 #
 # @stdout CPU model name, e.g. "AMD Ryzen 7 PRO 6850U with Radeon Graphics"
 # @exitcode 0 Always
-get_cpuinfo_model() {
+sys_cpu_model() {
   if [[ -r /proc/cpuinfo ]]; then
     awk -F ': ' '/^model name/ { print $2; exit }' /proc/cpuinfo
   fi
@@ -173,22 +173,22 @@ get_cpuinfo_model() {
 # @arg $1 string Sub-command: slots, cores, cores-enabled, threads, count, mhz, manufacturer, model
 # @stdout Requested value, or summary line
 # @exitcode 0 Always
-get_cpuinfo() {
+sys_cpu() {
   case "${1:-}" in
-    (slots)         get_cpuinfo_slots ;;
-    (cores)         get_cpuinfo_cores ;;
-    (cores-enabled) get_cpuinfo_cores_enabled ;;
-    (threads)       get_cpuinfo_threads ;;
-    (count)         get_cpuinfo_count ;;
-    (mhz)           get_cpuinfo_mhz ;;
-    (manufacturer)  get_cpuinfo_manufacturer ;;
-    (model)         get_cpuinfo_model ;;
+    (slots)         sys_cpu_slots ;;
+    (cores)         sys_cpu_cores ;;
+    (cores-enabled) sys_cpu_cores_enabled ;;
+    (threads)       sys_cpu_threads ;;
+    (count)         sys_cpu_count ;;
+    (mhz)           sys_cpu_mhz ;;
+    (manufacturer)  sys_cpu_manufacturer ;;
+    (model)         sys_cpu_model ;;
     (*)
       printf -- '%s %s %sMHz (x%s)\n' \
-        "$(get_cpuinfo_manufacturer)" \
-        "$(get_cpuinfo_model)" \
-        "$(get_cpuinfo_mhz)" \
-        "$(get_cpuinfo_count)"
+        "$(sys_cpu_manufacturer)" \
+        "$(sys_cpu_model)" \
+        "$(sys_cpu_mhz)" \
+        "$(sys_cpu_count)"
     ;;
   esac
 }

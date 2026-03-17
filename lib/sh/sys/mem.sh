@@ -61,7 +61,7 @@ _mem_convert_kb() {
 # @stdout RAM total in the requested unit
 # @exitcode 0 Success
 # @exitcode 1 /proc/meminfo not readable
-get_meminfo_total() {
+sys_mem_total() {
   local value
   value="$(_mem_read MemTotal)" || return 1
   _mem_convert_kb "${value}" "${1:-}"
@@ -75,7 +75,7 @@ get_meminfo_total() {
 # @stdout Available RAM in the requested unit
 # @exitcode 0 Success
 # @exitcode 1 /proc/meminfo not readable
-get_meminfo_available() {
+sys_mem_available() {
   local value
   value="$(_mem_read MemAvailable)"
   if [[ -z "${value}" ]]; then
@@ -90,7 +90,7 @@ get_meminfo_available() {
 # @stdout Used RAM in the requested unit
 # @exitcode 0 Success
 # @exitcode 1 /proc/meminfo not readable
-get_meminfo_used() {
+sys_mem_used() {
   local total
   local available
   total="$(_mem_read MemTotal)" || return 1
@@ -102,13 +102,13 @@ get_meminfo_used() {
 }
 
 # @description Print free RAM (MemFree — genuinely unused pages).
-#   Note: MemFree is typically much lower than MemAvailable; see get_meminfo_available.
+#   Note: MemFree is typically much lower than MemAvailable; see sys_mem_available.
 #
 # @arg $1 string Optional unit flag
 # @stdout Free RAM in the requested unit
 # @exitcode 0 Success
 # @exitcode 1 /proc/meminfo not readable
-get_meminfo_free() {
+sys_mem_free() {
   local value
   value="$(_mem_read MemFree)" || return 1
   _mem_convert_kb "${value}" "${1:-}"
@@ -119,7 +119,7 @@ get_meminfo_free() {
 # @stdout Percentage with one decimal place, e.g. "34.2"
 # @exitcode 0 Success
 # @exitcode 1 /proc/meminfo not readable
-get_meminfo_percent() {
+sys_mem_percent() {
   local total
   local available
   total="$(_mem_read MemTotal)" || return 1
@@ -138,18 +138,18 @@ get_meminfo_percent() {
 # @arg $2 string Optional unit flag for numeric sub-commands: -K, -M, -G
 # @stdout Requested value, or summary line
 # @exitcode 0 Always
-get_meminfo() {
+sys_mem() {
   case "${1:-}" in
-    (total)     get_meminfo_total     "${2:-}" ;;
-    (available) get_meminfo_available "${2:-}" ;;
-    (used)      get_meminfo_used      "${2:-}" ;;
-    (free)      get_meminfo_free      "${2:-}" ;;
-    (percent)   get_meminfo_percent ;;
+    (total)     sys_mem_total     "${2:-}" ;;
+    (available) sys_mem_available "${2:-}" ;;
+    (used)      sys_mem_used      "${2:-}" ;;
+    (free)      sys_mem_free      "${2:-}" ;;
+    (percent)   sys_mem_percent ;;
     (*)
       printf -- 'RAM: %sM total, %sM available (%s%% used)\n' \
-        "$(get_meminfo_total -M)" \
-        "$(get_meminfo_available -M)" \
-        "$(get_meminfo_percent)"
+        "$(sys_mem_total -M)" \
+        "$(sys_mem_available -M)" \
+        "$(sys_mem_percent)"
     ;;
   esac
 }
@@ -160,7 +160,7 @@ get_meminfo() {
 # @stdout Swap total in the requested unit
 # @exitcode 0 Success
 # @exitcode 1 /proc/meminfo not readable
-get_swapinfo_total() {
+sys_swap_total() {
   local value
   value="$(_mem_read SwapTotal)" || return 1
   _mem_convert_kb "${value}" "${1:-}"
@@ -172,7 +172,7 @@ get_swapinfo_total() {
 # @stdout Used swap in the requested unit
 # @exitcode 0 Success
 # @exitcode 1 /proc/meminfo not readable
-get_swapinfo_used() {
+sys_swap_used() {
   local total
   local free
   total="$(_mem_read SwapTotal)" || return 1
@@ -186,7 +186,7 @@ get_swapinfo_used() {
 # @stdout Free swap in the requested unit
 # @exitcode 0 Success
 # @exitcode 1 /proc/meminfo not readable
-get_swapinfo_free() {
+sys_swap_free() {
   local value
   value="$(_mem_read SwapFree)" || return 1
   _mem_convert_kb "${value}" "${1:-}"
@@ -198,7 +198,7 @@ get_swapinfo_free() {
 # @stdout Percentage with one decimal place, e.g. "12.5"
 # @exitcode 0 Always
 # @exitcode 1 /proc/meminfo not readable
-get_swapinfo_percent() {
+sys_swap_percent() {
   local total
   local free
   total="$(_mem_read SwapTotal)" || return 1
@@ -218,17 +218,17 @@ get_swapinfo_percent() {
 # @arg $2 string Optional unit flag for numeric sub-commands: -K, -M, -G
 # @stdout Requested value, or summary line
 # @exitcode 0 Always
-get_swapinfo() {
+sys_swap() {
   case "${1:-}" in
-    (total)   get_swapinfo_total   "${2:-}" ;;
-    (used)    get_swapinfo_used    "${2:-}" ;;
-    (free)    get_swapinfo_free    "${2:-}" ;;
-    (percent) get_swapinfo_percent ;;
+    (total)   sys_swap_total   "${2:-}" ;;
+    (used)    sys_swap_used    "${2:-}" ;;
+    (free)    sys_swap_free    "${2:-}" ;;
+    (percent) sys_swap_percent ;;
     (*)
       printf -- 'Swap: %sM total, %sM used (%s%%)\n' \
-        "$(get_swapinfo_total -M)" \
-        "$(get_swapinfo_used -M)" \
-        "$(get_swapinfo_percent)"
+        "$(sys_swap_total -M)" \
+        "$(sys_swap_used -M)" \
+        "$(sys_swap_percent)"
     ;;
   esac
 }

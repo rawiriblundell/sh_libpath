@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_sys_get_child_pids+x}" ] && return 0
-_SHELLAC_LOADED_sys_get_child_pids=1
+[ -n "${_SHELLAC_LOADED_sys_sys_child_pids+x}" ] && return 0
+_SHELLAC_LOADED_sys_sys_child_pids=1
 
 # @description List the PIDs of all direct child processes of a given parent PID.
 #   Uses pgrep if available, otherwise falls back to parsing 'ps -e'.
@@ -27,7 +27,7 @@ _SHELLAC_LOADED_sys_get_child_pids=1
 #
 # @stdout One PID per line
 # @exitcode 0 Always
-get_child_pids() {
+sys_child_pids() {
   local _ppid
   _ppid="${1:?No PPID supplied}"
   if command -v pgrep >/dev/null 2>&1; then

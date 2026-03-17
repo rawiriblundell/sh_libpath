@@ -58,7 +58,7 @@ if command -v systemctl >/dev/null 2>&1; then
   #
   # @exitcode 0 Service is enabled
   # @exitcode 1 Service is not enabled or not found
-  get_service_enabled() {
+  svc_enabled() {
     systemctl list-unit-files | grep -q "${1:?svc unset}.*enabled"
   }
 
@@ -68,7 +68,7 @@ if command -v systemctl >/dev/null 2>&1; then
   #
   # @exitcode 0 Service is running
   # @exitcode 1 Service is not running or not found
-  get_service_active() {
+  svc_active() {
     systemctl | grep -q "${1:?svc unset}.service.*running"
   }
 

@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_sys_get_shell+x}" ] && return 0
-_SHELLAC_LOADED_sys_get_shell=1
+[ -n "${_SHELLAC_LOADED_sys_sys_shell+x}" ] && return 0
+_SHELLAC_LOADED_sys_sys_shell=1
 
 # @description Print the name of the currently running shell.
 #   Tries /proc/$$cmdline, then various 'ps' invocations, then procstat (FreeBSD),
@@ -29,7 +29,7 @@ _SHELLAC_LOADED_sys_get_shell=1
 # @stdout Shell name, e.g. "bash", "ksh", "zsh"
 # @exitcode 0 Success
 # @exitcode 1 Unable to determine the running shell
-get_shell() {
+sys_shell() {
   if [ -r "/proc/$$/cmdline" ]; then
     # We use 'tr' because 'cmdline' files have NUL terminated lines
     # TODO: Possibly handle multi-word output e.g. 'busybox ash'
