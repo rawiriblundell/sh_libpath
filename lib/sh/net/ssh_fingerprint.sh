@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -28,13 +28,13 @@ _SHELLAC_LOADED_net_ssh_fingerprint=1
 # @arg $2 string One or more hostnames or IP addresses
 #
 # @example
-#   ssh-fingerprint example.com
-#   ssh-fingerprint --append example.com 10.0.0.1
+#   ssh_fingerprint example.com
+#   ssh_fingerprint --append example.com 10.0.0.1
 #
 # @stdout SSH key fingerprints (without --append)
 # @exitcode 0 Success
 # @exitcode 1 No host resolved or empty keyscan result
-ssh-fingerprint() {
+ssh_fingerprint() {
   local fingerprint keyscanargs
   fingerprint=$(mktemp)
 
@@ -58,7 +58,7 @@ ssh-fingerprint() {
         uniq > "${HOME}"/.ssh/known_hosts
     ;;
     (''|-h|--help)
-      printf -- '%s\n' "Usage: ssh-fingerprint (-a|--append) [list of hostnames]"
+      printf -- '%s\n' "Usage: ssh_fingerprint (-a|--append) [list of hostnames]"
       return 1
     ;;
     (*)

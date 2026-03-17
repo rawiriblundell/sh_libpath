@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -14,24 +14,43 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ################################################################################
-# Provenance: https://github.com/rawiriblundell/sh_libpath
+# Provenance: https://github.com/rawiriblundell/shellac
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_net_fetch+x}" ] && return 0
-_SHELLAC_LOADED_net_fetch=1
+[ -n "${_SHELLAC_LOADED_net_download+x}" ] && return 0
+_SHELLAC_LOADED_net_download=1
+
+# @description Follow redirects on a URL and download the final target file,
+#   saving it under its remote filename in the current directory.
+#
+# @arg $1 string URL to download
+#
+# @stdout Progress from curl
+# @exitcode 0 Download succeeded
+# @exitcode 1 Download failed
+net_download() {
+  local remote_target local_target
+  remote_target="${1:?No target specified}"
+  remote_target="$(curl "${remote_target}" -s -L -I -o /dev/null -w '%{url_effective}')"
+  local_target="${remote_target##*/}"
+  printf -- '%s\n' "Attempting to download ${remote_target}..."
+  curl -- "${remote_target}" -o "${local_target}" || return 1
+}
 
 # @description Download the best release of a SourceForge project for the current
-#   (or specified) platform using curl and the SourceForge best_release JSON API.
-#   Requires curl and jq. Follows redirects to resolve the final download URL.
+#   (or specified) platform. Requires 'curl' and 'jq'.
 #
 # @arg $1 string SourceForge project name
-# @arg $2 string Optional: target platform: linux, mac, or windows (default: auto-detect)
+# @arg $2 string Target OS: linux, mac, or windows (default: auto-detect)
 #
-# @stdout Progress message with the resolved download URL
-# @exitcode 0 Download succeeded
-# @exitcode 1 curl or jq not found, or download failed
-fetch_sourceforge() {
-  # We require 'curl' and 'jq'
+# @example
+#   net_download_sourceforge omegat
+#   net_download_sourceforge omegat linux
+#
+# @exitcode 0 Success
+# @exitcode 1 Missing dependency or download failure
+net_download_sourceforge() {
+  local binary fail_count
   fail_count=0
   for binary in curl jq; do
     if ! command -v "${binary}" >/dev/null 2>&1; then
@@ -40,15 +59,15 @@ fetch_sourceforge() {
     fi
   done
   (( fail_count > 0 )) && return 1
-  unset -v binary fail_count
 
   local sf_proj os_str curl_opts curl_target element remote_target
+  local linux_src mac_src win_src
   sf_proj="${1:?No sourceforge project defined}"
   os_str="${2:-auto}"
   curl_opts=( -s -L -I -o /dev/null -w '%{url_effective}' )
 
   mapfile -t < <(
-    curl -s "https://sourceforge.net/projects/${sf_proj}/best_release.json" | 
+    curl -s "https://sourceforge.net/projects/${sf_proj}/best_release.json" |
       jq -r '.platform_releases[].url'
   )
 
@@ -71,42 +90,10 @@ fetch_sourceforge() {
         (Darwin)     curl_target="${mac_src}" ;;
         (Win*|*WIN*) curl_target="${win_src}" ;;
       esac
+    ;;
   esac
 
   remote_target="$(curl "${curl_opts[@]}" "${curl_target}")"
-  printf -- '%s\n' "Attempting to fetch ${remote_target}..."
+  printf -- '%s\n' "Attempting to download ${remote_target}..."
   curl -O "${remote_target}" || return 1
-}
-
-# @description Follow redirects on a URL and download the final target file,
-#   saving it under its remote filename into the local_dir directory.
-#
-# @arg $1 string URL to fetch
-#
-# @exitcode 0 Download succeeded
-# @exitcode 1 Download failed
-software::fetch() {
-  local local_target remote_target
-  remote_target="${1:?No target specified}"
-  remote_target="$(curl "${remote_target}" -s -L -I -o /dev/null -w '%{url_effective}')"
-  local_target="${remote_target##*/}"
-  printf -- '%s\n' "Attempting to fetch ${remote_target}..."
-  curl "${remote_target}" > "${local_dir}"/"${local_target}" || return 1
-}
-
-# @description Minimal curl wrapper that fetches a URL and streams it to stdout.
-#   With a single URL, uses HTTP/1.0 for broader compatibility. With additional
-#   arguments, passes them all directly to curl.
-#
-# @arg $1 string URL to fetch
-# @arg $2 string Optional: additional curl arguments
-#
-# @stdout Response body
-# @exitcode 0 Success
-# @exitcode 1 curl failed
-fetch() {
-  case "${2}" in
-    ('') curl -sL -0 "${1}" ;;
-    (*) curl -sL "${*}" ;;
-  esac
 }

@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # 'HTTP response status codes' by Mozilla Contributors is licensed under CC-BY-SA 2.5.
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
