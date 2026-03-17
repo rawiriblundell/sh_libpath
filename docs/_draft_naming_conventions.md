@@ -207,6 +207,8 @@ Note: `math_ceiling`, `math_floor`, `math_round`, `math_trunc` (`numbers/roundin
 
 Note: `sum` and `average` (`numbers/sum.sh`, `numbers/average.sh`) are stream aggregators rather than unary math operations. No language puts these in a `math.*` namespace. They stay as named exceptions; `array_sum` in the array module handles the array case.
 
+Note: `strict_euopipefail`, `strict_nowhitesplitting` (`core/`) are intentional exceptions. The project discourages `set -e` / `pipefail` patterns, but these are provided for users who want them. The `strict_` prefix is the namespace; no module prefix is added.
+
 Note: `cmd_check`, `cmd_list` (`utils/cmd.sh`) use `cmd_` rather than `util_cmd_`. This is a deferred decision — `cmd_` reads naturally and is unambiguous, but may gain a `util_` prefix if the `utils/` module develops a broader convention. Revisit when other `utils/` functions are reviewed.
 
 Note: functions in `units/` that read filesystem or system state are **not** exempt — those belong in the appropriate module. `get_permissions()` was moved to `fs/permissions.sh` as `fs_permissions()` for this reason. The boundary is: if the function converts between representations, it lives in `units/`; if it reads external state to produce a value, it belongs in `fs/`, `sys/`, or `net/`.
