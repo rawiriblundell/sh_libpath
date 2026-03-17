@@ -159,7 +159,7 @@ sys/info.sh           → sys_info, sys_info_*
 sys/hogs.sh           → sys_hogs (dispatcher over cpuhogs/memhogs/swaphogs)
 net/query.sh          → net_query_*
 net/dns.sh            → net_dns, net_dns_resolve
-fs/stat_file.sh       → stat_file, fs_file_age, whoowns
+fs/stat_file.sh       → fs_stat, fs_file_age, whoowns
 fs/permissions.sh     → fs_permissions
 units/temperature.sh  → celsius_to_fahrenheit, temp_convert, … (see exceptions)
 units/permissions.sh  → octal_to_rwx, rwx_to_octal, permissions_convert

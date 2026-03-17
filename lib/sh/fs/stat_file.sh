@@ -28,7 +28,7 @@ _SHELLAC_LOADED_fs_stat_file=1
 #
 # @stdout Requested attribute value (epoch seconds for times, bytes for size, username for owner)
 # @exitcode 0 Success
-stat_file() {
+fs_stat() {
   case "${1}" in
     (atime)
       stat -c %X "${2:?No Target Defined}" 2>/dev/null || 
@@ -66,7 +66,7 @@ stat_file() {
 # @stdout Username of the file owner
 # @exitcode 0 Success
 whoowns() {
-  stat_file owner "${1}"
+  fs_stat owner "${1}"
 }
 
 # @description Return how many seconds ago a file was last modified.
