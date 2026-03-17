@@ -110,13 +110,13 @@ _uuid_gettime() {
   local _uuid_lillian _uuid_unix _uuid_epoch _uuid_g1582 _uuid_g1582ns100
   local _uuid_ns100_now _uuid_nano_100
 
-  # TODO: Rope in get_epoch()
+  # TODO: Rope in time_epoch()
   if ! date +%s 2>&1 | grep "^[0-9].*$" >/dev/null 2>&1; then
     printf -- 'uuid: %s\n' "This library requires a version of 'date' that supports epoch time" >&2
     return 1
   fi
 
-  # TODO: Failover to simply multiplying the output of get_epoch()
+  # TODO: Failover to simply multiplying the output of time_epoch()
   if ! date +%N 2>&1 | grep "^[0-9].*$" >/dev/null 2>&1; then
     printf -- 'uuid: %s\n' "This library requires a version of 'date' that supports nanosecond time" >&2
     return 1

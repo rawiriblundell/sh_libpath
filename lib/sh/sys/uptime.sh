@@ -20,7 +20,7 @@
 [ -n "${_SHELLAC_LOADED_sys_uptime+x}" ] && return 0
 _SHELLAC_LOADED_sys_uptime=1
 
-include numbers/get_epoch
+include time/epoch
 
 case $(uname -s) in
     ("AIX"|"HP-UX")
@@ -74,14 +74,14 @@ case $(uname -s) in
     ;;
     ("Darwin"|"NetBSD"|"OpenBSD")
         get_uptime() {
-            printf -- '%s\n' "$(get_epoch) - $(sysctl -n kern.boottime | cut -d' ' -f 4,7 | tr ',' '.' | tr -d ' ')" | bc
+            printf -- '%s\n' "$(time_epoch) - $(sysctl -n kern.boottime | cut -d' ' -f 4,7 | tr ',' '.' | tr -d ' ')" | bc
         }
     ;;
     ("FreeBSD")
         get_uptime() {
             local _up_seconds _idle_seconds
             # Calculate the uptime in seconds since epoch compatible to /proc/uptime in linux
-            _up_seconds=$(( $(get_epoch) - $(sysctl -n kern.boottime  | cut -f1 -d\, | awk '{print $4}') ))
+            _up_seconds=$(( $(time_epoch) - $(sysctl -n kern.boottime  | cut -f1 -d\, | awk '{print $4}') ))
             # pgrep is not appropriate (or even available?) here
             # shellcheck disable=SC2009
             _idle_seconds=$(ps axw | grep "[i]dle" | awk '/idle/{print $4}' | cut -f1 -d':' )
@@ -91,7 +91,7 @@ case $(uname -s) in
     ("Linux"|"linux-gnu"|"GNU"*)
         get_uptime() {
             if [ -f /.dockerenv ] || grep -q 'docker\|lxc' /proc/1/cgroup 2>/dev/null; then
-                printf -- '%s\n' "$(($(get_epoch) - $(stat -c %Z /dev/pts)))"
+                printf -- '%s\n' "$(($(time_epoch) - $(stat -c %Z /dev/pts)))"
             else
                 cat /proc/uptime
             fi
@@ -143,7 +143,7 @@ case $(uname -s) in
                 _boot_epoch=$(date -j -f "%b %d %H:%M" "${_boot_str}" +%s 2>/dev/null) ||
                 return 1
 
-            printf -- '%s\n' "$(( $(get_epoch) - _boot_epoch ))"
+            printf -- '%s\n' "$(( $(time_epoch) - _boot_epoch ))"
         }
     ;;
 esac
