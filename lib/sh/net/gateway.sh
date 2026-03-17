@@ -25,7 +25,7 @@ _SHELLAC_LOADED_net_gateway=1
 #
 # @stdout The default gateway IP address
 # @exitcode 0 Always
-net_get_gateway() {
+net_gateway() {
   local _get_gwaddr
   if command -v ip >/dev/null 2>&1; then
     _get_gwaddr=$(ip route show | awk '/^default|^0.0.0.0/{ print $3 }')

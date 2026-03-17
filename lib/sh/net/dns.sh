@@ -27,7 +27,7 @@ _SHELLAC_LOADED_net_dns=1
 # @stdout Comma-separated DNS server IP addresses
 # @exitcode 0 Success
 # @exitcode 1 Unable to determine any DNS servers
-net_get_dns() {
+net_dns() {
   case "${OSSTR:-$(uname -s)}" in
     (mac|Darwin)
       printf -- '%s\n' "Attempting lookup test using 'scutil' command..." >&2

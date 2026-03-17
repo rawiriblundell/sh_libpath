@@ -33,7 +33,7 @@ _SHELLAC_LOADED_net_query=1
 # -    -     4 6 y   resolver1.opendns.com. myip.opendns.com. A
 
 # @description Query the public/external IP address of this host using a
-#   reflection service. For the local IP address, use net_get_ip instead.
+#   reflection service. For the local IP address, use net_query_ip instead.
 #
 # @arg $1 string Optional: '-6' for IPv6 (default: IPv4)
 #

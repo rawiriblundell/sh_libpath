@@ -40,7 +40,7 @@ _sanitise_mac_addr() {
 #
 # @stdout The MAC address in XX-YY-ZZ-AA-BB-CC format (uppercase)
 # @exitcode 0 Always
-net_get_mac() {
+net_mac() {
   local mac_addr raw_mac
   if command -v ip >/dev/null 2>&1; then
     mac_addr=$(ip -brief link | awk '$2 == "UP" {print $3; exit}' | tr ":" "-")

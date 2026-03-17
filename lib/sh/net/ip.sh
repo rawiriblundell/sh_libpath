@@ -34,13 +34,13 @@ _SHELLAC_LOADED_net_ip=1
 # @arg $1 string Optional: '-4' for IPv4 (default); '-6' for IPv6
 #
 # @example
-#   net_get_ip      # => local IPv4 address
-#   net_get_ip -6   # => local IPv6 address
+#   net_ip      # => local IPv4 address
+#   net_ip -6   # => local IPv6 address
 #
 # @stdout The IP address(es), one per line
 # @exitcode 0 Success
 # @exitcode 1 Could not determine address
-net_get_ip() {
+net_ip() {
   case "${1}" in
     (-6)
       if command -v ip >/dev/null 2>&1; then
