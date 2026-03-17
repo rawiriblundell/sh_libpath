@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -29,7 +29,7 @@ prevent_path_recursion() {
     local _element
     local _new_path
     local _old_ifs
-    curdir=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
+    curdir=$(cd -P -- "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && printf -- '%s' "${PWD}")
     _new_path=
     _old_ifs="${IFS}"
     IFS=:

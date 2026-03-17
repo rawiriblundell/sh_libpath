@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -21,19 +21,20 @@
 _SHELLAC_LOADED_sys_mount=1
 
 if ! command -v mount >/dev/null 2>&1; then
-  printf -- 'get_mounts: %s\n' "This library requires 'mount', which was not found in PATH" >&2
-  exit 1
+  printf -- 'get_mounts: %s\n' "'mount' was not found in PATH" >&2
+  return 1
 fi
 
 # @description Print all currently mounted filesystems using 'mount'.
 #
-# @stdout Output of 'mount', or an info message if mount returns nothing
+# @stdout Output of 'mount', or a warning to stderr if mount returns nothing
 # @exitcode 0 Always
 get_mounts() {
-    #findmnt --real
-    if [[ $(mount | wc -l) -gt 0 ]]; then
-      mount
-    else
-      printInf "'mount' returned no output"
-    fi
+  local output
+  output="$(mount)"
+  if [[ -n "${output}" ]]; then
+    printf -- '%s\n' "${output}"
+  else
+    printf -- "get_mounts: 'mount' returned no output\n" >&2
+  fi
 }

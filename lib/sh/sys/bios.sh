@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -20,27 +20,30 @@
 [ -n "${_SHELLAC_LOADED_sys_bios+x}" ] && return 0
 _SHELLAC_LOADED_sys_bios=1
 
-case "${OSSTR:-$(uname -s)}" in
-  ([lL]inux)
-    if command -v dmidecode >/dev/null 2>&1; then
-      sys_bios=$(dmidecode | grep -m 1 -A 2 Vendor | awk -F ':' '{print $2}' | paste -sd '' - | trim)
-    fi
-  ;;
-  (SunOS|solaris)
-    # BIOS Version
-    if command -v prtdiag >/dev/null 2>&1; then
-      if prtdiag >/dev/null 2>&1; then
-        sys_bios=$(prtdiag -v | grep -E '^OBP|^BIOS')
+# @description Print BIOS vendor, version, and release date as a single line.
+#   On Linux: uses dmidecode -t bios. On Solaris: uses prtdiag or smbios.
+#
+# @stdout Space-separated BIOS info string
+# @exitcode 0 Always
+get_biosinfo() {
+  case "${OSSTR:-$(uname -s)}" in
+    ([lL]inux)
+      if command -v dmidecode >/dev/null 2>&1; then
+        dmidecode -t bios 2>/dev/null |
+          awk -F ': ' '/(Vendor|Version|Release Date)/ { printf "%s ", $2 }' |
+          awk '{$1=$1; print}'
       fi
-    elif smbios -t SMB_TYPE_BIOS >/dev/null 2>&1; then
-      sys_bios=$( \
-        smbios -t SMB_TYPE_BIOS \
-        | grep -E 'Vendor|Version|Release' \
-        | awk -F ':' '{print $2}' \
-        | paste -sd ' ' - \
-        | trim)
-    else
-      sys_bios=unknown
-    fi
-  ;;
-esac
+    ;;
+    (SunOS|solaris)
+      if command -v prtdiag >/dev/null 2>&1 && prtdiag >/dev/null 2>&1; then
+        prtdiag -v | grep -E '^OBP|^BIOS'
+      elif smbios -t SMB_TYPE_BIOS >/dev/null 2>&1; then
+        smbios -t SMB_TYPE_BIOS |
+          awk -F ': ' '/Vendor|Version|Release/ { printf "%s ", $2 }' |
+          awk '{$1=$1; print}'
+      else
+        printf -- 'unknown\n'
+      fi
+    ;;
+  esac
+}

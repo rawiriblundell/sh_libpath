@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2023 Rawiri Blundell
 #
@@ -54,7 +54,7 @@ _memhogs_print_fmt() {
 # @stdout Table of PID, mem%, and command name
 # @exitcode 0 Always
 memhogs() {
-    local wrap_limit pid mem cmd
+    local wrap_limit pid mem cmd lines mem_use
     # Capture the width of the terminal window
     wrap_limit="${COLUMNS:-$(tput cols)}"
     # If we still don't have an answer, default to 80 columns
@@ -89,5 +89,5 @@ memhogs() {
         else
             _memhogs_print_fmt green "${pid}" "${mem}" "${cmd}"
         fi
-    done < <(ps -eo pid,%mem,cmd --sort=%mem | sed '1d' | tail -n "${lines:-10}")
+    done < <(ps -eo pid,%mem,cmd --sort=%mem | tail -n +2 | tail -n "${lines:-10}")
 }

@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -20,75 +20,215 @@
 [ -n "${_SHELLAC_LOADED_sys_mem+x}" ] && return 0
 _SHELLAC_LOADED_sys_mem=1
 
-# TODO: This file is a partial fragment from an external diagnostic tool.
-# The opening '{' for the compound redirect on line ~57 is missing.
-# Needs a full audit and rewrite before it can be used or linted cleanly.
-
-  # Start by checking for 'top'
-  if command -v top >/dev/null 2>&1; then
-    printMdSubHead "Memory information from 'top'"
-    top -n 1 -b | grep -E "Mem|Swap"
-    printMdTags
-  else
-    printInf "'top' was not found on this host"
+# @description Read a named field from /proc/meminfo and print its value in kB.
+#
+# @arg $1 string Field name (e.g. MemTotal, MemAvailable, SwapTotal)
+# @stdout Value in kB
+# @exitcode 0 Field found
+# @exitcode 1 /proc/meminfo not readable
+_mem_read() {
+  local field
+  field="${1:?No field specified}"
+  if [[ ! -r /proc/meminfo ]]; then
+    printf -- 'mem: /proc/meminfo not readable\n' >&2
+    return 1
   fi
+  awk -v f="${field}:" '$1 == f { print $2; exit }' /proc/meminfo
+}
 
-  # Pad the output
-  printBlankLine
+# @description Convert a kB value to the requested unit and print it.
+#   With no flag, passes through kB unchanged.
+#
+# @arg $1 integer Value in kB
+# @arg $2 string  Optional unit flag: -K/--kb, -M/--mb, -G/--gb
+# @stdout Converted integer value
+_mem_convert_kb() {
+  local value
+  local flag
+  value="${1:?No value provided}"
+  flag="${2:-}"
+  case "${flag}" in
+    (-K|--kb) printf -- '%s\n' "${value}" ;;
+    (-M|--mb) printf -- '%s\n' "$(( value / 1024 ))" ;;
+    (-G|--gb) printf -- '%s\n' "$(( value / 1024 / 1024 ))" ;;
+    (*)       printf -- '%s\n' "${value}" ;;
+  esac
+}
 
-  # Now try to cull the info from /proc
-  if [[ -f /proc/meminfo ]]; then
-    printMdSubHead "Memory information from '/proc'"
-    grep -E "MemTotal|SwapTotal" /proc/meminfo 2>/dev/null
-    printMdTags
-  else
-    printInf "'/proc/meminfo' was not found on this host"
+# @description Print total physical RAM.
+#
+# @arg $1 string Optional unit flag: -K/--kb (default), -M/--mb, -G/--gb
+# @stdout RAM total in the requested unit
+# @exitcode 0 Success
+# @exitcode 1 /proc/meminfo not readable
+get_meminfo_total() {
+  local value
+  value="$(_mem_read MemTotal)" || return 1
+  _mem_convert_kb "${value}" "${1:-}"
+}
+
+# @description Print available RAM. Uses MemAvailable (kernel 3.14+), which
+#   accounts for reclaimable pages and is more useful than MemFree for
+#   "can I allocate more?" queries. Falls back to MemFree on older kernels.
+#
+# @arg $1 string Optional unit flag
+# @stdout Available RAM in the requested unit
+# @exitcode 0 Success
+# @exitcode 1 /proc/meminfo not readable
+get_meminfo_available() {
+  local value
+  value="$(_mem_read MemAvailable)"
+  if [[ -z "${value}" ]]; then
+    value="$(_mem_read MemFree)" || return 1
   fi
+  _mem_convert_kb "${value}" "${1:-}"
+}
 
-  # Pad the output
-  printBlankLine
-
-  # And finally try to cull more info from 'free'
-  if command -v free >/dev/null 2>&1; then
-    printMdSubHead "Memory information from 'free'"
-    free -l 2>/dev/null || printErr "no output from 'free -l'"
-    printMdTags
-  else
-    printInf "'free' was not found on this host"
+# @description Print used RAM (MemTotal - MemAvailable).
+#
+# @arg $1 string Optional unit flag
+# @stdout Used RAM in the requested unit
+# @exitcode 0 Success
+# @exitcode 1 /proc/meminfo not readable
+get_meminfo_used() {
+  local total
+  local available
+  total="$(_mem_read MemTotal)" || return 1
+  available="$(_mem_read MemAvailable)"
+  if [[ -z "${available}" ]]; then
+    available="$(_mem_read MemFree)" || return 1
   fi
+  _mem_convert_kb "$(( total - available ))" "${1:-}"
+}
 
-# Output all captured output
-} > "${dcgBaseData}/info_mem"
+# @description Print free RAM (MemFree — genuinely unused pages).
+#   Note: MemFree is typically much lower than MemAvailable; see get_meminfo_available.
+#
+# @arg $1 string Optional unit flag
+# @stdout Free RAM in the requested unit
+# @exitcode 0 Success
+# @exitcode 1 /proc/meminfo not readable
+get_meminfo_free() {
+  local value
+  value="$(_mem_read MemFree)" || return 1
+  _mem_convert_kb "${value}" "${1:-}"
+}
 
-# Physical Memory.  'dmidecode' is the gold standard here
-if dmidecode -t 17 2>/dev/null | grep -q "Size.*MB" 2>/dev/null; then
-  hwMemory=$(dmidecode -t 17 | awk '/Size.*MB/{ s+=$2 } END { print s "MB" }')
-# If we're on a VM, sometimes dmidecode won't give us the detail we need
-else
-  # Firstly, /proc/meminfo does not correctly report the physical memory size
-  # This affects methods like 'free' and 'vmstat' etc that depend on /proc/meminfo
-  # The best alternative to dmidecode we have at the moment is the DirectMap
-  # entries in /proc/meminfo.  It seems that adding them gives us the physical
-  # memory amount in kB, we can then simply divide to our desired scale
-  # Nb: Not guaranteed to be exact!  Just closer than /proc/meminfo's MemTotal line.
-  if grep -q "^DirectMap" /proc/meminfo 2>/dev/null; then
-    hwMemory=$(awk '/DirectMap/{ s+=$2 } END { printf("%0.fMB\n", s/1024) }' /proc/meminfo)
-  # Otherwise we accept /proc/meminfo's inaccuracy.
-  # 'free -h' seems to choose a sane point to switch from KB to MB to GB
-  elif free -h >/dev/null 2>&1; then
-    hwMemory=$(printf '%s\n' "$(free -h | awk '/Mem:/{print $2}')B")
-  # If not, output to Megabytes
-  else
-    hwMemory=$(printf '%s\n' "$(free -m | awk '/Mem:/{print $2}')MB")
+# @description Print RAM usage as a percentage (used / total * 100).
+#
+# @stdout Percentage with one decimal place, e.g. "34.2"
+# @exitcode 0 Success
+# @exitcode 1 /proc/meminfo not readable
+get_meminfo_percent() {
+  local total
+  local available
+  total="$(_mem_read MemTotal)" || return 1
+  available="$(_mem_read MemAvailable)"
+  if [[ -z "${available}" ]]; then
+    available="$(_mem_read MemFree)" || return 1
   fi
-fi
+  awk -v total="${total}" -v available="${available}" \
+    'BEGIN { printf "%.1f\n", (total - available) / total * 100 }'
+}
 
-# Total Memory
-# I began approaching this from the view that "total memory" meant
-# physical memory + swap.  A look at the Altiris data feed seemed to say that
-# total memory = physical memory.  What's the point of this field then?
-totalMemory="${hwMemory}"
+# @description Dispatcher for RAM information sub-commands.
+#   With no argument, prints a one-line summary.
+#
+# @arg $1 string Sub-command: total, available, used, free, percent
+# @arg $2 string Optional unit flag for numeric sub-commands: -K, -M, -G
+# @stdout Requested value, or summary line
+# @exitcode 0 Always
+get_meminfo() {
+  case "${1:-}" in
+    (total)     get_meminfo_total     "${2:-}" ;;
+    (available) get_meminfo_available "${2:-}" ;;
+    (used)      get_meminfo_used      "${2:-}" ;;
+    (free)      get_meminfo_free      "${2:-}" ;;
+    (percent)   get_meminfo_percent ;;
+    (*)
+      printf -- 'RAM: %sM total, %sM available (%s%% used)\n' \
+        "$(get_meminfo_total -M)" \
+        "$(get_meminfo_available -M)" \
+        "$(get_meminfo_percent)"
+    ;;
+  esac
+}
 
-# Otherwise, we might use something like:
-#  totalMemory=$(egrep 'MemTotal|SwapTotal' /proc/meminfo | awk '{ s+=$2 } END { tot = s /1024/ 1024; printf "%.0fGB\n", tot}')
+# @description Print total swap space.
+#
+# @arg $1 string Optional unit flag: -K/--kb (default), -M/--mb, -G/--gb
+# @stdout Swap total in the requested unit
+# @exitcode 0 Success
+# @exitcode 1 /proc/meminfo not readable
+get_swapinfo_total() {
+  local value
+  value="$(_mem_read SwapTotal)" || return 1
+  _mem_convert_kb "${value}" "${1:-}"
+}
 
+# @description Print used swap space (SwapTotal - SwapFree).
+#
+# @arg $1 string Optional unit flag
+# @stdout Used swap in the requested unit
+# @exitcode 0 Success
+# @exitcode 1 /proc/meminfo not readable
+get_swapinfo_used() {
+  local total
+  local free
+  total="$(_mem_read SwapTotal)" || return 1
+  free="$(_mem_read SwapFree)" || return 1
+  _mem_convert_kb "$(( total - free ))" "${1:-}"
+}
+
+# @description Print free swap space.
+#
+# @arg $1 string Optional unit flag
+# @stdout Free swap in the requested unit
+# @exitcode 0 Success
+# @exitcode 1 /proc/meminfo not readable
+get_swapinfo_free() {
+  local value
+  value="$(_mem_read SwapFree)" || return 1
+  _mem_convert_kb "${value}" "${1:-}"
+}
+
+# @description Print swap usage as a percentage (used / total * 100).
+#   Returns 0.0 if no swap is configured.
+#
+# @stdout Percentage with one decimal place, e.g. "12.5"
+# @exitcode 0 Always
+# @exitcode 1 /proc/meminfo not readable
+get_swapinfo_percent() {
+  local total
+  local free
+  total="$(_mem_read SwapTotal)" || return 1
+  free="$(_mem_read SwapFree)" || return 1
+  if (( total == 0 )); then
+    printf -- '0.0\n'
+    return 0
+  fi
+  awk -v total="${total}" -v free="${free}" \
+    'BEGIN { printf "%.1f\n", (total - free) / total * 100 }'
+}
+
+# @description Dispatcher for swap information sub-commands.
+#   With no argument, prints a one-line summary.
+#
+# @arg $1 string Sub-command: total, used, free, percent
+# @arg $2 string Optional unit flag for numeric sub-commands: -K, -M, -G
+# @stdout Requested value, or summary line
+# @exitcode 0 Always
+get_swapinfo() {
+  case "${1:-}" in
+    (total)   get_swapinfo_total   "${2:-}" ;;
+    (used)    get_swapinfo_used    "${2:-}" ;;
+    (free)    get_swapinfo_free    "${2:-}" ;;
+    (percent) get_swapinfo_percent ;;
+    (*)
+      printf -- 'Swap: %sM total, %sM used (%s%%)\n' \
+        "$(get_swapinfo_total -M)" \
+        "$(get_swapinfo_used -M)" \
+        "$(get_swapinfo_percent)"
+    ;;
+  esac
+}

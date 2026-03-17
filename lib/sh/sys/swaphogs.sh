@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2023 Rawiri Blundell
 #
@@ -70,7 +70,7 @@ _swaphogs_print_fmt() {
 # @stdout Table of PID, swap%, and command name
 # @exitcode 0 Always
 swaphogs() {
-  local wrap_limit swap swap_pct _swaphogs_swap_total lines
+  local wrap_limit swap swap_pct _swaphogs_swap_total lines swap_int cmd pid
   # Capture the width of the terminal window
   wrap_limit="${COLUMNS:-$(tput cols)}"
   # If we still don't have an answer, default to 80 columns

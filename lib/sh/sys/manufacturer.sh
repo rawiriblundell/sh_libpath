@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -20,36 +20,33 @@
 [ -n "${_SHELLAC_LOADED_sys_manufacturer+x}" ] && return 0
 _SHELLAC_LOADED_sys_manufacturer=1
 
-case "${OSSTR:-$(uname -s)}" in
-  ([lL]inux)
-    if grep -q . /sys/devices/virtual/dmi/id/sys_vendor 2>/dev/null; then
-      sysManufacturer=$(</sys/devices/virtual/dmi/id/sys_vendor)
-    elif dmidecode | grep -q -m 1 "Manufacturer" 2>/dev/null; then
-      sysManufacturer=$(dmidecode | awk -F ':' '/Manufacturer/{print $2; exit}' | trim)
-    elif dmidecode | grep -q -m 1 "Vendor" 2>/dev/null; then
-      sysManufacturer=$(dmidecode | awk -F ':' '/Vendor/{print $2; exit}' | trim)
-    else
-      sysManufacturer="Generic or unknown"
-    fi
-  ;;
-  (SunOS|solaris)
-    # System Manufacturer
-    # Possible alternative for x86:
-    # prtconf -pv | awk -F ':' '/machine-mfg/{print $2; exit}' | trim
-    if command -v smbios >/dev/null 2>&1; then
-      if smbios -t SMB_TYPE_SYSTEM >/dev/null 2>&1; then
-        sysManufacturer=$( \
-          smbios -t SMB_TYPE_SYSTEM \
-          | grep -E 'Manufacturer|Product' \
-          | awk -F ":" '{print $2}' \
-          | paste -sd ' ' - \
-          | trim)
+# @description Print the system hardware manufacturer.
+#   On Linux: tries /sys/devices/virtual/dmi/id/sys_vendor, then dmidecode.
+#   On Solaris: tries smbios. Falls back to "Generic or unknown".
+#
+# @stdout Manufacturer name
+# @exitcode 0 Always
+get_sysinfo_manufacturer() {
+  case "${OSSTR:-$(uname -s)}" in
+    ([lL]inux)
+      if [[ -s /sys/devices/virtual/dmi/id/sys_vendor ]]; then
+        printf -- '%s\n' "$(< /sys/devices/virtual/dmi/id/sys_vendor)"
+      elif dmidecode 2>/dev/null | grep -q -m 1 "Manufacturer"; then
+        dmidecode 2>/dev/null | awk -F ': ' '/Manufacturer/ { print $2; exit }'
+      elif dmidecode 2>/dev/null | grep -q -m 1 "Vendor"; then
+        dmidecode 2>/dev/null | awk -F ': ' '/Vendor/ { print $2; exit }'
+      else
+        printf -- 'Generic or unknown\n'
       fi
-    else
-      sysManufacturer="Sun Inc"
-    fi
-  ;;
-esac
-
-
-
+    ;;
+    (SunOS|solaris)
+      if command -v smbios >/dev/null 2>&1 && smbios -t SMB_TYPE_SYSTEM >/dev/null 2>&1; then
+        smbios -t SMB_TYPE_SYSTEM |
+          awk -F ': ' '/Manufacturer|Product/ { printf "%s ", $2 }' |
+          awk '{$1=$1; print}'
+      else
+        printf -- 'Sun Inc\n'
+      fi
+    ;;
+  esac
+}

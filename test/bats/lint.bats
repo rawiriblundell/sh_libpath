@@ -6,10 +6,6 @@
 #   as they require major structural changes beyond lint scope.
 #   Warning-level issues (e.g. SC2178 nameref false positives) are tracked
 #   separately.
-#
-# Excluded files:
-#   lib/sh/sys/mem.sh — structurally broken fragment (missing opening '{');
-#   needs a full audit and rewrite before it can be linted cleanly.
 
 load 'helpers/setup'
 
@@ -22,7 +18,7 @@ load 'helpers/setup'
   [ "${status}" -eq 0 ]
 }
 
-@test "shellcheck: all library .sh files pass (excluding known-broken mem.sh)" {
+@test "shellcheck: all library .sh files pass" {
   run bash -c "
     failed=0
     while IFS= read -r f; do
@@ -30,7 +26,7 @@ load 'helpers/setup'
         printf '%s\n' \"\${out}\"
         failed=1
       fi
-    done < <(find '${SHELLAC_LIB}' -name '*.sh' ! -name 'mem.sh' | sort)
+    done < <(find '${SHELLAC_LIB}' -name '*.sh' | sort)
     exit \"\${failed}\"
   "
   [ "${status}" -eq 0 ]

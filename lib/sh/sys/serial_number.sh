@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -20,62 +20,64 @@
 [ -n "${_SHELLAC_LOADED_sys_serial_number+x}" ] && return 0
 _SHELLAC_LOADED_sys_serial_number=1
 
-case "${OSSTR:-$(uname -s)}" in
-  ([lL]inux)
-    if grep . /sys/devices/virtual/dmi/id/product_serial >/dev/null 2>&1; then
-      serialNumber=$(</sys/devices/virtual/dmi/id/product_serial)
-    elif command -v dmidecode >/dev/null 2>&1; then
-      serialNumber=$(dmidecode | awk -F ':' '/Serial Number/{print $2; exit}' | trim)
-    elif command -v lshw >/dev/null 2>&1; then
-      serialNumber=$(lshw | awk -F ':' '/serial:/{print $2; exit}')
-    elif command -v facter >/dev/null 2>&1; then
-      serialNumber=$(facter | awk '/serialnumber/{print $3}')
-    fi
+# @description Print the system serial number.
+#   On Linux: tries /sys DMI, dmidecode, lshw, facter; falls back to UUID then
+#   hostid. On Solaris: tries sneep, smbios, eeprom, ipmitool, prtfru, hostid.
+#   A blank or literal "0" serial is treated as absent and the next fallback tried.
+#
+# @stdout Serial number string
+# @exitcode 0 Always
+get_sysinfo_serial() {
+  local serial_number
 
-    # On some virtualised systems, the Serial Number might be blank or "0",
-    # so we can try to use the system UUID instead.  Don't use
-    # '[[ "${serialNumber}" -eq 0 ]]; then' for the second test as it can be interpreted as octal/hex!
-    if [[ -z "${serialNumber}" ]]|| grep -x "0" <<< "${serialNumber}"; then
-      serialNumber=$(dmidecode | awk -F ':' '/UUID/{print $2; exit}' | trim)
-      # If at this point, we still don't have anything, try 'hostid'
-      if [[ -z "${serialNumber}" ]]|| grep -x "0" <<< "${serialNumber}"; then
-        if command -v hostid; then
-          serialNumber=$(hostid)
-        # Finally fail back to a generic option
-        else
-          serialNumber="Unknown"
+  case "${OSSTR:-$(uname -s)}" in
+    ([lL]inux)
+      if [[ -s /sys/devices/virtual/dmi/id/product_serial ]]; then
+        serial_number="$(< /sys/devices/virtual/dmi/id/product_serial)"
+      elif command -v dmidecode >/dev/null 2>&1; then
+        serial_number="$(dmidecode 2>/dev/null | awk -F ': ' '/Serial Number/ { print $2; exit }')"
+      elif command -v lshw >/dev/null 2>&1; then
+        serial_number="$(lshw 2>/dev/null | awk -F ': ' '/serial/ { print $2; exit }')"
+      elif command -v facter >/dev/null 2>&1; then
+        serial_number="$(facter 2>/dev/null | awk '/serialnumber/ { print $3 }')"
+      fi
+
+      # On some virtualised systems the serial may be blank or literally "0";
+      # fall back to the system UUID, then hostid.
+      if [[ -z "${serial_number}" ]] || [[ "${serial_number}" = "0" ]]; then
+        serial_number="$(dmidecode 2>/dev/null | awk -F ': ' '/UUID/ { print $2; exit }')"
+        if [[ -z "${serial_number}" ]] || [[ "${serial_number}" = "0" ]]; then
+          if command -v hostid >/dev/null 2>&1; then
+            serial_number="$(hostid)"
+          fi
         fi
       fi
-    fi
-  ;;
-  (SunOS|solaris)
-    # Serial Number.  Start with 'sneep'
-    if command -v sneep >/dev/null 2>&1; then
-      serialNumber=$(sneep)
-    # Otherwise, we try smbios, first we check the Serial Number field
-    elif smbios -t SMB_TYPE_SYSTEM >/dev/null 2>&1; then
-      serialNumber=$(smbios -t SMB_TYPE_SYSTEM | awk '/Serial/{print $3}')
-      # If that's blank (represented by a '0'), then we try the UUID field
-      if [ "${serialNumber}" = 0 ]||[ -z "${serialNumber}" ]; then
-        serialNumber=$(smbios -t SMB_TYPE_SYSTEM | awk '/UUID/{print $2}')
+    ;;
+    (SunOS|solaris)
+      if command -v sneep >/dev/null 2>&1; then
+        serial_number="$(sneep)"
+      elif smbios -t SMB_TYPE_SYSTEM >/dev/null 2>&1; then
+        serial_number="$(smbios -t SMB_TYPE_SYSTEM | awk '/Serial/ { print $3 }')"
+        if [[ "${serial_number}" = "0" ]] || [[ -z "${serial_number}" ]]; then
+          serial_number="$(smbios -t SMB_TYPE_SYSTEM | awk '/UUID/ { print $2 }')"
+        fi
+      elif eeprom 2>/dev/null | grep -q ChassisSerialNumber; then
+        serial_number="$(eeprom | awk '/ChassisSerialNumber/ { print $3 }')"
+      elif ipmitool fru >/dev/null 2>&1; then
+        serial_number="$(
+          ipmitool fru print |
+            grep -E 'Mainboard|/SYS' |
+            awk '{ print $7 }' |
+            cut -d ')' -f1 |
+            awk '/Product Serial/ { print $4 }'
+        )"
+      elif command -v prtfru >/dev/null 2>&1; then
+        serial_number="sneep not found"
+      else
+        serial_number="$(hostid)"
       fi
-    # Next we try eeprom
-    elif eeprom | grep -q ChassisSerialNumber 2>/dev/null; then
-      serialNumber=$(eeprom | awk '/ChassisSerialNumber/{print $3}')
-    # Otherwise, we can try ipmitool (x86).  This is untested
-    elif ipmitool fru >/dev/null 2>&1; then
-      serialNumber=$(ipmitool fru print |
-        grep -E 'Mainboard|/SYS' |
-        awk '{print $7}' |
-        cut -d ")" -f1 |
-        awk '/Product Serial/{print $4}'
-      )
-    # Alternatively we could make something up based on prtfru (SPARC)
-    elif command -v prtfru >/dev/null 2>&1; then
-      serialNumber="sneep not found"
-    # IF all of that fails, we use 'hostid'
-    else
-      serialNumber=$(hostid)
-    fi
-  ;;
-esac
+    ;;
+  esac
+
+  printf -- '%s\n' "${serial_number:-Unknown}"
+}

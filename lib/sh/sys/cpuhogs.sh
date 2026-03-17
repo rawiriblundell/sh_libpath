@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2023 Rawiri Blundell
 #
@@ -54,7 +54,7 @@ _cpuhogs_print_fmt() {
 # @stdout Table of PID, CPU%, and command name
 # @exitcode 0 Always
 cpuhogs() {
-    local wrap_limit pid cpu cmd lines
+    local wrap_limit pid cpu cmd lines cpu_use
     # Capture the width of the terminal window
     wrap_limit="${COLUMNS:-$(tput cols)}"
     # If we still don't have an answer, default to 80 columns
@@ -89,5 +89,5 @@ cpuhogs() {
         else
             _cpuhogs_print_fmt green "${pid}" "${cpu}" "${cmd}"
         fi
-    done < <(ps -eo pid,%cpu,cmd --sort=%cpu | sed '1d' | tail -n "${lines:-10}")
+    done < <(ps -eo pid,%cpu,cmd --sort=%cpu | tail -n +2 | tail -n "${lines:-10}")
 }

@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -58,9 +58,8 @@ if command -v systemctl >/dev/null 2>&1; then
   #
   # @exitcode 0 Service is enabled
   # @exitcode 1 Service is not enabled or not found
-  get-service-enabled() {
+  get_service_enabled() {
     systemctl list-unit-files | grep -q "${1:?svc unset}.*enabled"
-    return "$?"
   }
 
   # @description Check whether a systemd service unit is currently running.
@@ -69,9 +68,8 @@ if command -v systemctl >/dev/null 2>&1; then
   #
   # @exitcode 0 Service is running
   # @exitcode 1 Service is not running or not found
-  get-service-active() {
+  get_service_active() {
     systemctl | grep -q "${1:?svc unset}.service.*running"
-    return "$?"
   }
 
 elif [[ -x /sbin/service ]]; then
@@ -85,7 +83,7 @@ elif [[ -x /sbin/service ]]; then
     /sbin/service "${1:?No service specified}" status >/dev/null 2>&1
   }
 
-elif [[ -f /etc/init.d/"${1:?No service specified}" ]]; then
+elif [[ -d /etc/init.d ]]; then
   svc_start() {
     /etc/init.d/"${1:?No service specified}" start >/dev/null 2>&1
   }

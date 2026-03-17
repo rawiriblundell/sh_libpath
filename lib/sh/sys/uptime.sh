@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -22,10 +22,6 @@ _SHELLAC_LOADED_sys_uptime=1
 
 include numbers/get_epoch
 
-LC_ALL=C
-LANG=C
-export LANG LC_ALL
-
 case $(uname -s) in
     ("AIX"|"HP-UX")
         # @description Print system uptime in seconds. Defined per-OS in a case block;
@@ -43,6 +39,11 @@ case $(uname -s) in
         # 08:47AM  up 66 days,  18:34,   1 user,  load average: 2.25, 2.43, 2.61 --> 5769240
         # 08:45AM  up 76 days,  34 mins, 1 user,  load average: 2.25, 2.43, 2.61 --> 5769240
         get_uptime() {
+            local LC_ALL LANG
+            local _uptime _up_days _up_hours _up_mins
+            LC_ALL=C
+            LANG=C
+
             _uptime=$(uptime | sed -e 's/^.*up//g' -e 's/[0-9]* user.*//g')
             case ${_uptime} in
                 ( *day* ) _up_days=$(printf -- '%s\n' "${_uptime}" | sed -e 's/days\{0,1\},.*//g') ;;
@@ -69,7 +70,6 @@ case $(uname -s) in
             esac
 
             printf -- '%s\n' "$(( (_up_days*86400)+(_up_hours*3600)+(_up_mins*60) ))"
-            unset -v _uptime _up_hours _up_mins
         }
     ;;
     ("Darwin"|"NetBSD"|"OpenBSD")
@@ -79,13 +79,13 @@ case $(uname -s) in
     ;;
     ("FreeBSD")
         get_uptime() {
+            local _up_seconds _idle_seconds
             # Calculate the uptime in seconds since epoch compatible to /proc/uptime in linux
             _up_seconds=$(( $(get_epoch) - $(sysctl -n kern.boottime  | cut -f1 -d\, | awk '{print $4}') ))
             # pgrep is not appropriate (or even available?) here
             # shellcheck disable=SC2009
             _idle_seconds=$(ps axw | grep "[i]dle" | awk '/idle/{print $4}' | cut -f1 -d':' )
             printf -- '%s\n' "${_up_seconds} ${_idle_seconds}"
-            unset -v _up_seconds _idle_seconds            
         }
     ;;
     ("Linux"|"linux-gnu"|"GNU"*)
@@ -99,6 +99,11 @@ case $(uname -s) in
     ;;
     ("SunOS"|"solaris")
         get_uptime() {
+            local LC_ALL LANG
+            local _ctime _btime
+            LC_ALL=C
+            LANG=C
+
             # Solaris doesn't always give a consistent output on uptime, thus include side information
             # Tested in VM for solaris 10/11
             _ctime=$(nawk 'BEGIN{print srand()}')
@@ -110,12 +115,14 @@ case $(uname -s) in
             uptime
             kstat -p unix:0:system_misc:snaptime
             printf -- '%s\n' '[uptime_solaris_end]'
-            unset -v _ctime _btime 
         }
     ;;
     (*)
         get_uptime() {
+            local LC_ALL LANG
             local _boot_line _boot_str _boot_epoch
+            LC_ALL=C
+            LANG=C
 
             _boot_line=$(who -b 2>/dev/null) || return 1
             [ -z "${_boot_line}" ] && return 1
@@ -137,7 +144,6 @@ case $(uname -s) in
                 return 1
 
             printf -- '%s\n' "$(( $(get_epoch) - _boot_epoch ))"
-            unset -v _boot_line _boot_str _boot_epoch
         }
     ;;
 esac

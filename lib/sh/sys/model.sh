@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -20,17 +20,25 @@
 [ -n "${_SHELLAC_LOADED_sys_model+x}" ] && return 0
 _SHELLAC_LOADED_sys_model=1
 
-case "${OSSTR:-$(uname -s)}" in
-  ([lL]inux)
-    if grep . /sys/devices/virtual/dmi/id/product_name >/dev/null 2>&1; then
-      sysModel=$(</sys/devices/virtual/dmi/id/product_name)
-    elif dmidecode | grep -m 1 "Product" >/dev/null 2>&1; then
-      sysModel=$(dmidecode | awk -F ':' '/Product/{print $2; exit}' | trim)
-    else
-      sysModel="Generic or unknown"
-    fi
-  ;;
-  (SunOS|solaris)
-    sysModel=$(uname -i | cut -d, -f2- | tr "-" " ")
-  ;;
-esac
+# @description Print the system hardware model/product name.
+#   On Linux: tries /sys/devices/virtual/dmi/id/product_name, then dmidecode.
+#   On Solaris: uses uname -i. Falls back to "Generic or unknown".
+#
+# @stdout Model name
+# @exitcode 0 Always
+get_sysinfo_model() {
+  case "${OSSTR:-$(uname -s)}" in
+    ([lL]inux)
+      if [[ -s /sys/devices/virtual/dmi/id/product_name ]]; then
+        printf -- '%s\n' "$(< /sys/devices/virtual/dmi/id/product_name)"
+      elif dmidecode 2>/dev/null | grep -q -m 1 "Product"; then
+        dmidecode 2>/dev/null | awk -F ': ' '/Product/ { print $2; exit }'
+      else
+        printf -- 'Generic or unknown\n'
+      fi
+    ;;
+    (SunOS|solaris)
+      uname -i | cut -d, -f2- | tr '-' ' '
+    ;;
+  esac
+}

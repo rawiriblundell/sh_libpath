@@ -30,6 +30,7 @@ permitted.
 - Some numbers for uuid.sh, BSD 3-Clause License, (c) 2009,2014 Google Inc. https://github.com/google/uuid/blob/master/time.go
 - chacha20.sh, MIT (c) 2020 Jason A. Donenfeld. https://git.zx2c4.com/chacha20.sh/plain/chacha20.sh
 - realpaths.sh, CC0 1.0 Universal https://raw.githubusercontent.com/bashup/realpaths/master/realpaths
+- realpath.portable_follow in realpaths.sh, based on readlinkf_posix, MIT License (c) 2019 Koichi Nakashima (ko1nksm) https://github.com/ko1nksm/readlinkf/blob/master/readlinkf.sh
 - bash_loading_animations.sh, WTFPLv2 (c) 2022 Silejonu, https://github.com/Silejonu/bash_loading_animations/
 - http_status_codes.sh, CC-BY-SA 2.5 https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
 - os.sh, XDG vars referenced from xdg (go).  MIT License (c) 2014 Adrian-George Bostan <adrg@epistack.com> https://github.com/adrg/xdg
