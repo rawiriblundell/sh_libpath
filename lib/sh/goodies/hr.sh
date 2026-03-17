@@ -23,10 +23,10 @@ _SHELLAC_LOADED_goodies_hr=1
 # @internal
 _hr_width_helper() {
   local _hr_height _hr_width
-  command -v get_terminal_size >/dev/null 2>&1 || return
+  command -v sys_terminal_size >/dev/null 2>&1 || return
 # heredocs can't be indented unless you use dirty hard tabs
 IFS= read -r _hr_height _hr_width << EOF
-$(get_terminal_size)
+$(sys_terminal_size)
 EOF
   printf -- '%s\n' "${_hr_width}"
 }
