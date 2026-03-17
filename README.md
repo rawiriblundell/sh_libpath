@@ -181,6 +181,7 @@ In alphabetical order only for readability:
 * https://github.com/labbots/bash-utility
 * https://github.com/jandob/rebash
 * https://github.com/javier-lopez/learn/blob/master/sh/lib
+* https://github.com/jcaillon/valet
 * https://github.com/jmcantrell/bashful
 * https://github.com/jmooring/bash-function-library
 * https://github.com/jneen/balls
