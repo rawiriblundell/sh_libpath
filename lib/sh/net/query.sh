@@ -70,3 +70,19 @@ net_query_internet() {
   test_port="${2:-53}"
   timeout 1 bash -c ">/dev/tcp/${test_host}/${test_port}" >/dev/null 2>&1
 }
+
+# @description Test connectivity to a remote host's port via bash /dev/tcp or /dev/udp.
+#
+# @arg $1 string Remote hostname or IP address
+# @arg $2 int Port number (default: 22)
+# @arg $3 string Protocol: tcp or udp (default: tcp)
+#
+# @example
+#   net_query_port example.com 443
+#   net_query_port example.com 53 udp
+#
+# @exitcode 0 Port is reachable
+# @exitcode 1 Port is unreachable or timed out
+net_query_port() {
+  timeout 1 bash -c "</dev/${3:-tcp}/${1:?No target}/${2:-22}" 2>/dev/null
+}
