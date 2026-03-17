@@ -199,6 +199,7 @@ would be tautological or the short form is clearly the better name.
 | `mapfile` | `array/mapfile.sh` | Deliberate shadow of the bash builtin; must match the builtin name to act as a drop-in |
 | `cpuhogs`, `memhogs`, `swaphogs` | `sys/*.sh` | Short, well-known names; `sys_cpuhogs` adds no clarity. `sys_hogs` is the namespaced entry point. |
 | `celsius_to_fahrenheit`, `octal_to_rwx`, etc. | `units/*.sh` | The `<unit>_to_<unit>` pattern is self-describing; a module prefix adds nothing. `units_celsius_to_fahrenheit` is worse in every way. |
+| `whoowns` | `fs/stat_file.sh` | `fs_whoowns` adds no clarity; the name reads as a natural English question. Thin wrapper over `fs_stat owner`. |
 
 Note: functions in `units/` that read filesystem or system state are **not** exempt — those belong in the appropriate module. `get_permissions()` was moved to `fs/permissions.sh` as `fs_permissions()` for this reason. The boundary is: if the function converts between representations, it lives in `units/`; if it reads external state to produce a value, it belongs in `fs/`, `sys/`, or `net/`.
 
