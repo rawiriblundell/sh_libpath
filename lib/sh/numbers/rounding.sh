@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -29,10 +29,13 @@ _SHELLAC_LOADED_numbers_rounding=1
 #
 # @stdout The ceiling integer value
 # @exitcode 0 Always
-ceiling() {
+math_ceiling() {
   printf -- '%s\n' "${1:?No float given}" |
     awk '{print ($0-int($0)>0)?int($0)+1:int($0)}'
 }
+
+# @description Alias for math_ceiling.
+ceiling() { math_ceiling "${@}"; }
 
 # @description Round a float downwards to the nearest integer (truncate fractional part).
 #
@@ -43,9 +46,12 @@ ceiling() {
 #
 # @stdout The floor integer value
 # @exitcode 0 Always
-floor() {
+math_floor() {
   printf -- '%s\n' "${1:?No float given}" | awk '{print int($0)}'
 }
+
+# @description Alias for math_floor.
+floor() { math_floor "${@}"; }
 
 # @description Remove the fractional part from a float, returning only the integer portion.
 #
@@ -56,9 +62,12 @@ floor() {
 #
 # @stdout Integer portion of the value
 # @exitcode 0 Always
-trunc() {
+math_trunc() {
   printf -- '%s\n' "${1:?No float given}" | awk -F '.' '{print $1}'
 }
+
+# @description Alias for math_trunc.
+trunc() { math_trunc "${@}"; }
 
 # @description Round a float to a given precision.
 #   Default mode is IEEE 754 bankers rounding (round half to even).
@@ -102,7 +111,7 @@ trunc() {
 # https://en.wikipedia.org/wiki/IEEE_754
 # https://floating-point-gui.de/errors/rounding/
 
-round() {
+math_round() {
   local _round_float _round_precision _round_fractional
   # First, we test if we are in common rounding mode
   case "${1}" in
@@ -135,3 +144,6 @@ round() {
   # Otherwise we're in standard bankers rounding mode
   printf -- "%.${2:-0}f\n" "${1:?No float given}"
 }
+
+# @description Alias for math_round.
+round() { math_round "${@}"; }

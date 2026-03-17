@@ -203,6 +203,10 @@ would be tautological or the short form is clearly the better name.
 | `greet` | `misc/greet.sh` | `misc_greet` adds nothing; the function is a self-contained imperative with no attribute to qualify. |
 | `validate_config` | `utils/validate_config.sh` | Parked pending a decision on where config validation belongs. May move to a `config/` module or gain a `util_` prefix in a future pass. |
 
+Note: `math_ceiling`, `math_floor`, `math_round`, `math_trunc` (`numbers/rounding.sh`) use `math_` rather than `num_`. Python, Go, and JavaScript all converge on a `math` namespace for these operations; `num_` is the canonical project prefix but `math_` is the cross-language convention and wins here. The short forms (`ceiling`, `floor`, `round`, `trunc`) are kept as aliases.
+
+Note: `sum` and `average` (`numbers/sum.sh`, `numbers/average.sh`) are stream aggregators rather than unary math operations. No language puts these in a `math.*` namespace. They stay as named exceptions; `array_sum` in the array module handles the array case.
+
 Note: `cmd_check`, `cmd_list` (`utils/cmd.sh`) use `cmd_` rather than `util_cmd_`. This is a deferred decision — `cmd_` reads naturally and is unambiguous, but may gain a `util_` prefix if the `utils/` module develops a broader convention. Revisit when other `utils/` functions are reviewed.
 
 Note: functions in `units/` that read filesystem or system state are **not** exempt — those belong in the appropriate module. `get_permissions()` was moved to `fs/permissions.sh` as `fs_permissions()` for this reason. The boundary is: if the function converts between representations, it lives in `units/`; if it reads external state to produce a value, it belongs in `fs/`, `sys/`, or `net/`.
