@@ -31,7 +31,7 @@ command -v zdump >/dev/null 2>&1 || {
 #
 # @stdout Two lines showing DST start and end: day month year
 # @exitcode 0 Always
-dst() {
+time_dst() {
   if (( "${#TZ}" == 0 )); then
     # RHEL7 / systemd
     if command -v timedatectl >/dev/null 2>&1; then
