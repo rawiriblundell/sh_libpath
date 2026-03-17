@@ -95,11 +95,11 @@ epochdays() {
 # @arg $1 int LDAP timestamp (100-nanosecond intervals since 1601-01-01)
 #
 # @example
-#   ldaptime_to_epoch 132000000000000000   # => Unix epoch integer
+#   time_ldaptime_to_epoch 132000000000000000   # => Unix epoch integer
 #
 # @stdout Unix epoch as an integer
 # @exitcode 0 Always
-ldaptime_to_epoch() {
+time_ldaptime_to_epoch() {
   local _ldap_timestamp _ldap_offset
   _ldap_timestamp="${1:?No ldap timestamp supplied}"
   _ldap_timestamp=$(( _ldap_timestamp / 10000000 ))
@@ -120,10 +120,10 @@ ldaptime_to_epoch() {
 # @stdout Unix epoch integer
 # @exitcode 0 Always
 # @exitcode 1 perl not available
-convert_time_to_epoch() {
+time_date_to_epoch() {
     local _sec _min _hours _day _month _year _timestamp
     if ! command -v perl >/dev/null 2>&1; then
-        printf -- 'convert_time_to_epoch: %s\n' "This function requires 'perl', which was not found in PATH" >&2
+        printf -- 'time_date_to_epoch: %s\n' "This function requires 'perl', which was not found in PATH" >&2
         return 1
     fi
     # Read our incoming date/time information into our variables
