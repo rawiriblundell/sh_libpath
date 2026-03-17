@@ -153,12 +153,16 @@ no verb. The filename should match the primary function or dispatcher
 it contains.
 
 ```
-sys/cpu.sh       → sys_cpu, sys_cpu_*
-sys/mem.sh       → sys_mem, sys_mem_*, sys_swap, sys_swap_*
-sys/info.sh      → sys_info, sys_info_*
-sys/hogs.sh      → sys_hogs (dispatcher over cpuhogs/memhogs/swaphogs)
-net/query.sh     → net_query_*
-net/dns.sh       → net_dns, net_dns_resolve
+sys/cpu.sh            → sys_cpu, sys_cpu_*
+sys/mem.sh            → sys_mem, sys_mem_*, sys_swap, sys_swap_*
+sys/info.sh           → sys_info, sys_info_*
+sys/hogs.sh           → sys_hogs (dispatcher over cpuhogs/memhogs/swaphogs)
+net/query.sh          → net_query_*
+net/dns.sh            → net_dns, net_dns_resolve
+fs/stat_file.sh       → stat_file, fs_file_age, whoowns
+fs/permissions.sh     → fs_permissions
+units/temperature.sh  → celsius_to_fahrenheit, temp_convert, … (see exceptions)
+units/permissions.sh  → octal_to_rwx, rwx_to_octal, permissions_convert
 ```
 
 ---
@@ -194,6 +198,9 @@ would be tautological or the short form is clearly the better name.
 | `toarray` | `array/toarray.sh` | `array_toarray` reads as a stutter; the filename already provides the namespace |
 | `mapfile` | `array/mapfile.sh` | Deliberate shadow of the bash builtin; must match the builtin name to act as a drop-in |
 | `cpuhogs`, `memhogs`, `swaphogs` | `sys/*.sh` | Short, well-known names; `sys_cpuhogs` adds no clarity. `sys_hogs` is the namespaced entry point. |
+| `celsius_to_fahrenheit`, `octal_to_rwx`, etc. | `units/*.sh` | The `<unit>_to_<unit>` pattern is self-describing; a module prefix adds nothing. `units_celsius_to_fahrenheit` is worse in every way. |
+
+Note: functions in `units/` that read filesystem or system state are **not** exempt — those belong in the appropriate module. `get_permissions()` was moved to `fs/permissions.sh` as `fs_permissions()` for this reason. The boundary is: if the function converts between representations, it lives in `units/`; if it reads external state to produce a value, it belongs in `fs/`, `sys/`, or `net/`.
 
 The test: if adding the prefix makes the name *longer without making it clearer*,
 the short form is the right call.
