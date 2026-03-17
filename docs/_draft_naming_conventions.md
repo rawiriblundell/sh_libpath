@@ -201,6 +201,8 @@ would be tautological or the short form is clearly the better name.
 | `celsius_to_fahrenheit`, `octal_to_rwx`, etc. | `units/*.sh` | The `<unit>_to_<unit>` pattern is self-describing; a module prefix adds nothing. `units_celsius_to_fahrenheit` is worse in every way. |
 | `whoowns` | `fs/stat_file.sh` | `fs_whoowns` adds no clarity; the name reads as a natural English question. Thin wrapper over `fs_stat owner`. |
 
+Note: `cmd_check`, `cmd_list` (`utils/cmd.sh`) use `cmd_` rather than `util_cmd_`. This is a deferred decision — `cmd_` reads naturally and is unambiguous, but may gain a `util_` prefix if the `utils/` module develops a broader convention. Revisit when other `utils/` functions are reviewed.
+
 Note: functions in `units/` that read filesystem or system state are **not** exempt — those belong in the appropriate module. `get_permissions()` was moved to `fs/permissions.sh` as `fs_permissions()` for this reason. The boundary is: if the function converts between representations, it lives in `units/`; if it reads external state to produce a value, it belongs in `fs/`, `sys/`, or `net/`.
 
 The test: if adding the prefix makes the name *longer without making it clearer*,
