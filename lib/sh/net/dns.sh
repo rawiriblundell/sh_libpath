@@ -27,7 +27,7 @@ _SHELLAC_LOADED_net_dns=1
 # @stdout Comma-separated DNS server IP addresses
 # @exitcode 0 Success
 # @exitcode 1 Unable to determine any DNS servers
-net_dns() {
+net_get_dns() {
   case "${OSSTR:-$(uname -s)}" in
     (mac|Darwin)
       printf -- '%s\n' "Attempting lookup test using 'scutil' command..." >&2
@@ -91,4 +91,26 @@ net_dns() {
   # If we get to this point, we have failed.
   printf -- '%s\n' "Unable to determine any dns servers" >&2
   return 1
+}
+
+# @description Resolve a hostname to an IPv4 address, or reverse-resolve an IP
+#   to its hostname. Uses 'host -4' for lookups.
+#
+# @arg $1 string Hostname or IPv4 address to look up
+#
+# @stdout The resolved IP address, or the hostname from a reverse lookup
+# @exitcode 0 Success
+# @exitcode 1 No argument supplied or unrecognised input
+net_dns_resolve() {
+  if [[ -z "${1:-}" ]]; then
+    printf -- 'Usage: net_dns_resolve [hostname|ip.add.re.ss]\n' >&2
+    return 1
+  elif [[ "${1}" =~ ^[a-zA-Z] ]]; then
+    host -4 -W 1 "${1}" | awk '{ print $4 }'
+  elif [[ "${1}" =~ ^((25[0-5]|2[0-4][0-9]|[01][0-9][0-9]|[0-9]{1,2})[.]){3}(25[0-5]|2[0-4][0-9]|[01][0-9][0-9]|[0-9]{1,2})$ ]]; then
+    host -4 -W 1 "${1}" | awk '{ print $NF }' | cut -d '.' -f1
+  else
+    printf -- 'net_dns_resolve: unrecognised input: %s\n' "${1}" >&2
+    return 1
+  fi
 }

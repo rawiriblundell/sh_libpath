@@ -33,7 +33,7 @@ _SHELLAC_LOADED_net_next_port=1
 # @stdout The first available port number
 # @exitcode 0 An available port was found
 # @exitcode 1 No available port found within the scan range
-net_next_port() {
+net_get_next_port() {
     local test_port
     # Default to port 9000
     test_port="${1:-9000}"

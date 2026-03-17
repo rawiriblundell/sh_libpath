@@ -26,7 +26,7 @@ _SHELLAC_LOADED_net_nics=1
 #
 # @stdout Network interface details from available tools
 # @exitcode 0 Always
-get_nics() {
+net_get_nics() {
   local output
   local net_if
 
@@ -35,7 +35,7 @@ get_nics() {
     if [[ -n "${output}" ]]; then
       printf -- '%s\n' "${output}"
     else
-      printf -- 'get_nics: no devices found in /sys/class/net/\n' >&2
+      printf -- 'net_get_nics: no devices found in /sys/class/net/\n' >&2
     fi
   fi
 
@@ -44,7 +44,7 @@ get_nics() {
     if [[ -n "${output}" ]]; then
       printf -- '%s\n' "${output}"
     else
-      printf -- "get_nics: 'ip a' returned no output\n" >&2
+      printf -- "net_get_nics: 'ip a' returned no output\n" >&2
     fi
   fi
 
@@ -53,7 +53,7 @@ get_nics() {
     if [[ -n "${output}" ]]; then
       printf -- '%s\n' "${output}"
     else
-      printf -- "get_nics: 'ifconfig -a' returned no output\n" >&2
+      printf -- "net_get_nics: 'ifconfig -a' returned no output\n" >&2
     fi
   fi
 

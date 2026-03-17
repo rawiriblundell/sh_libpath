@@ -20,6 +20,69 @@
 [ -n "${_SHELLAC_LOADED_net_query+x}" ] && return 0
 _SHELLAC_LOADED_net_query=1
 
+# Public IP reflection services (for net_query_ip):
+# http https IPv DNS
+#            4 6
+# y    y     4 6 -   ifconfig.co/
+# y    *     4 n -   whatismyip.akamai.com/ # cert may not match
+# y    y     4 6 -   icanhazip.com/
+# y    y     4 n -   ipinfo.io/ip
+# y    y     4 6 -   ifconfig.me/
+# y    y     4 n -   echoip.xyz/
+# -    -     4 6 y   ns1.google.com. o-o.myaddr.l.google.com. TXT
+# -    -     4 6 y   resolver1.opendns.com. myip.opendns.com. A
+
+# @description Query the public/external IP address of this host using a
+#   reflection service. For the local IP address, use net_get_ip instead.
+#
+# @arg $1 string Optional: '-6' for IPv6 (default: IPv4)
+#
+# @stdout The public IP address
+# @exitcode 0 Success
+# @exitcode 1 curl failed
+net_query_ip() {
+  case "${1}" in
+    (-6) curl -s -6 ifconfig.io ;;
+    (*)  curl -s -4 ifconfig.io ;;
+  esac
+}
+
+# @description Look up geo and network metadata for an IP address or hostname
+#   using ipinfo.io. Requires IPINFO_TOKEN to be set in the environment.
+#
+# @arg $1 string Optional: '-b' or '--brief' for country code only
+# @arg $2 string IP address or hostname to look up (default: caller's public IP)
+#
+# @example
+#   net_query_ipinfo 8.8.8.8
+#   net_query_ipinfo --brief 8.8.8.8
+#
+# @stdout JSON metadata, or 'IP: COUNTRY' in brief mode
+# @exitcode 0 Success
+# @exitcode 1 IPINFO_TOKEN not set
+net_query_ipinfo() {
+  local target mode country
+  (( "${#IPINFO_TOKEN}" == 0 )) && {
+    printf -- '%s\n' "IPINFO_TOKEN not found in the environment" >&2
+    return 1
+  }
+  while (( $# > 0 )); do
+    case "${1}" in
+      (-b|--brief) mode=brief; shift 1 ;;
+      (*)          target="${1}"; shift 1 ;;
+    esac
+  done
+  case "${mode}" in
+    (brief)
+      country=$(curl -s "https://ipinfo.io/${target}/country?token=${IPINFO_TOKEN}")
+      printf -- '%s: %s\n' "${target}" "${country}"
+    ;;
+    (*)
+      curl -s "https://ipinfo.io/${target}?token=${IPINFO_TOKEN}"
+    ;;
+  esac
+}
+
 # @description Return the HTTP status code for a URL.
 #
 # @arg $1 string URL to query
