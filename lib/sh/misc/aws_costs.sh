@@ -28,7 +28,7 @@ _SHELLAC_LOADED_misc_aws_costs=1
 #
 # @stdout Last day of the current month in YYYY-MM-DD format
 # @exitcode 0 Always
-get_month_end() {
+aws_month_end() {
     local date_int
     date_int=$(date +%Y%m27)
     for (( i=0; i<4; i++ )); do
@@ -41,7 +41,7 @@ last_month_start="$(date -d "last month" '+%Y-%m-01')"
 # Could be "$(printf '%(%Y-%m-01)T\n' -1)" to spare a fork
 current_month_start="$(date '+%Y-%m-01')"
 last_month_end="$(date -d "${current_month_start} -1 day" '+%Y-%m-%d')" 
-current_month_end="$(get_month_end)"
+current_month_end="$(aws_month_end)"
 current_month_end_minus1="$(date -d "${current_month_end} -1 day" '+%Y-%m-%d')"
 
 # @description Retrieve AWS cost and usage for last month, grouped by service.
