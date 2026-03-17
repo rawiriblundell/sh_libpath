@@ -2,8 +2,8 @@
 # CC0 1.0 Universal
 # Provenance: https://raw.githubusercontent.com/bashup/realpaths/master/realpaths
 
-[ -n "${_SHELLAC_LOADED_sys_realpaths+x}" ] && return 0
-_SHELLAC_LOADED_sys_realpaths=1
+[ -n "${_SHELLAC_LOADED_path_realpaths+x}" ] && return 0
+_SHELLAC_LOADED_path_realpaths=1
 
 # @description Resolve symlinks and return the parent directory of the target.
 #   Result is written to the global REPLY variable, not stdout.
@@ -75,4 +75,49 @@ realpath.relative() {
 	done
 	[[ $1 == "$REPLY" ]] && REPLY=${target%/} || REPLY="$target${1#${REPLY%/}/}"
 	REPLY=${REPLY:-.}
+}
+
+# @description Resolve a symlink chain to its ultimate target using only POSIX
+#   tools (ls -dl, not readlink). Handles up to 40 levels of indirection.
+#   Unlike other realpath.* functions, writes the resolved path to stdout, not REPLY.
+#   Attribution: based on readlinkf_posix by ko1nksm. See NOTICE.md.
+#
+# @arg $1 string Path to resolve
+# @stdout Resolved absolute path
+# @exitcode 0 Path resolved successfully
+# @exitcode 1 Path not found, too many symlinks, or cd failed
+realpath.portable_follow() {
+  local CDPATH
+  local max_symlinks
+  local target
+  local link
+
+  [ -n "${1:-}" ] || return 1
+  CDPATH=''  # shadow env CDPATH to prevent cd from changing to unexpected dirs
+  max_symlinks=40
+
+  target="${1}"
+  [ -e "${target%/}" ] || target="${1%"${1##*[!/]}"}"  # strip trailing slashes
+  [ -d "${target:-/}" ] && target="${target}/"
+
+  cd -P -- "$(dirname -- "${target}")" 2>/dev/null || return 1
+  target="$(basename -- "${target}")"
+
+  while [ "${max_symlinks}" -ge 0 ] && max_symlinks=$(( max_symlinks - 1 )); do
+    if [ "${target}" != "${target%/*}" ]; then
+      # shellcheck disable=SC2164
+      cd -P -- "${target%/*}" 2>/dev/null || break
+      target="${target##*/}"
+    fi
+
+    if [ ! -L "${target}" ]; then
+      printf -- '%s\n' "${PWD%/}/${target}"
+      return 0
+    fi
+
+    # ls -dl output format: "lrwxrwxrwx ... filename -> link_target"
+    link="$(ls -dl -- "${target}" 2>/dev/null)" || break
+    target="${link#*" ${target} -> "}"
+  done
+  return 1
 }

@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -17,33 +17,49 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_sys_nics+x}" ] && return 0
-_SHELLAC_LOADED_sys_nics=1
+[ -n "${_SHELLAC_LOADED_net_nics+x}" ] && return 0
+_SHELLAC_LOADED_net_nics=1
 
 # @description Print information about all network interfaces on the host.
 #   Checks /sys/class/net, then 'ip a', then 'ifconfig -a', then ethtool per
-#   interface if available.
+#   interface if available. Informational messages go to stderr.
 #
 # @stdout Network interface details from available tools
 # @exitcode 0 Always
 get_nics() {
-  # Let's check /sys/class/net
+  local output
+  local net_if
+
   if [[ -d /sys/class/net ]]; then
-    ls -ltr /sys/class/net/* 2>/dev/null || printInf "no devices found in /sys/class/net/"
+    output="$(ls -ltr /sys/class/net/ 2>/dev/null)"
+    if [[ -n "${output}" ]]; then
+      printf -- '%s\n' "${output}"
+    else
+      printf -- 'get_nics: no devices found in /sys/class/net/\n' >&2
+    fi
   fi
 
   if command -v ip >/dev/null 2>&1; then
-    ip a 2>/dev/null | grep -v "valid_lft" || printInf "'ip a' did not return any output"
+    output="$(ip a 2>/dev/null | grep -v "valid_lft")"
+    if [[ -n "${output}" ]]; then
+      printf -- '%s\n' "${output}"
+    else
+      printf -- "get_nics: 'ip a' returned no output\n" >&2
+    fi
   fi
 
   if command -v ifconfig >/dev/null 2>&1; then
-    ifconfig -a 2>/dev/null | grep -Ev 'RX|TX|collisions' || printInf "'ifconfig -a' did not return any output"
+    output="$(ifconfig -a 2>/dev/null | grep -Ev 'RX|TX|collisions')"
+    if [[ -n "${output}" ]]; then
+      printf -- '%s\n' "${output}"
+    else
+      printf -- "get_nics: 'ifconfig -a' returned no output\n" >&2
+    fi
   fi
 
-  # If ethtool is present, let's use it to produce information about ethx interfaces
-  if command -v ethtool >/dev/null 2>&1; then
-    for NetIF in $(ip a | grep "^[0-9]" | cut -d: -f2); do
-      ethtool "${NetIF}" 2>/dev/null
-    done
+  if command -v ethtool >/dev/null 2>&1 && command -v ip >/dev/null 2>&1; then
+    while read -r net_if; do
+      ethtool "${net_if}" 2>/dev/null
+    done < <(ip -o link show 2>/dev/null | awk -F ': ' '{ print $2 }')
   fi
 }

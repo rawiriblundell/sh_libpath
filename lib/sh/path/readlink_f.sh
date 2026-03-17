@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -17,49 +17,20 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_sys_readlink_f+x}" ] && return 0
-_SHELLAC_LOADED_sys_readlink_f=1
+[ -n "${_SHELLAC_LOADED_path_readlink_f+x}" ] && return 0
+_SHELLAC_LOADED_path_readlink_f=1
 
-# Portable version of 'readlink -f' for versions that don't have '-f'
+include path/realpaths
 
-# Test for readlink as a requirement
-# TODO: Consider a capability test for 'readlink' i.e. if 'readlink -f' already works, just map to it
-if ! command -v readlink >/dev/null 2>&1; then
-  printf -- '%s\n' "readlink_f: 'readlink' is required for this library" >&2
-  return 1
-fi
-
-# @description Portable implementation of 'readlink -f' for systems where readlink
-#   does not support the -f flag. Resolves symlink chains up to 20 levels deep.
-#   Runs in a subshell to avoid side effects. Requires readlink to be in PATH.
+# @description Compatibility stub for 'readlink -f'. Delegates to
+#   realpath.portable_follow, which resolves symlink chains portably without
+#   requiring readlink -f support.
 #
-# @arg $1 string Symlink path to resolve
+# @arg $1 string Path to resolve
 #
-# @stdout Absolute canonical path of the resolved symlink
+# @stdout Absolute canonical path
 # @exitcode 0 Success
-# @exitcode 1 Path does not exist, is not a symlink, or recursion limit reached
+# @exitcode 1 Path not found or resolution failed
 readlink_f() {
-  (
-    _count=0
-    _target="${1:?No target specified}"
-    # Ensure that a customised CDPATH doesn't interfere
-    CDPATH=''
-
-    # Ensure that target actually exists and is actually a symlink
-    [ -e "${_target}" ] || return 1
-    [ -L "${_target}" ] || return 1
-
-    while [ -L "${_target}" ]; do
-      _target="$(readlink "${_target}")"
-      _count=$(( _count + 1 ))
-      # This shouldn't be required, but just in case,
-      # we ensure that we don't get stuck in an infinite loop
-      if [ "${_count}" -gt 20 ]; then
-        printf -- '%s\n' "readlink_f error: recursion limit reached" >&2
-        return 1
-      fi
-    done
-    cd "$(dirname "${_target}")" >/dev/null 2>&1 || return 1
-    printf -- '%s\n' "${PWD%/}/${_target##*/}"
-  )
+  realpath.portable_follow "${1:?No path specified}"
 }

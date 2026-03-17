@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_sys_brew+x}" ] && return 0
-_SHELLAC_LOADED_sys_brew=1
+[ -n "${_SHELLAC_LOADED_misc_brew+x}" ] && return 0
+_SHELLAC_LOADED_misc_brew=1
 
 # @description Check whether one or more Homebrew packages are installed.
 #   Exits the process (exit 1) if brew itself is not found. Prints a status
@@ -34,7 +34,7 @@ brew_is_installed() {
   failcount=0
   if ! command -v brew >/dev/null 2>&1; then
     printf -- '%s\n' "This script requires brew on a mac.  This wasn't found..." >&2
-    exit 1
+    return 1
   fi
   for brew_pkg in ${*:?Package unspecified}; do
     if brew list | grep -w "${brew_pkg}" >/dev/null 2>&1; then

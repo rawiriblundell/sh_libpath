@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_sys_get_terminal_size+x}" ] && return 0
-_SHELLAC_LOADED_sys_get_terminal_size=1
+[ -n "${_SHELLAC_LOADED_text_get_terminal_size+x}" ] && return 0
+_SHELLAC_LOADED_text_get_terminal_size=1
 
 # @description Print the current terminal dimensions as rows and columns.
 #   Tries $LINES/$COLUMNS, then tput, then stty, then a raw ANSI cursor probe
@@ -27,6 +27,7 @@ _SHELLAC_LOADED_sys_get_terminal_size=1
 # @stdout Two integers separated by a space: rows columns
 # @exitcode 0 Always
 get_terminal_size() {
+  local _rows _cols
   if [ "${#LINES}" -gt 0 ] && [ "${#COLUMNS}" -gt 0 ]; then
     printf '%d %d\n' "${LINES}" "${COLUMNS}"
     return 0

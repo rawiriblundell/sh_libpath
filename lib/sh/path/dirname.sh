@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_sys_dirname+x}" ] && return 0
-_SHELLAC_LOADED_sys_dirname=1
+[ -n "${_SHELLAC_LOADED_path_dirname+x}" ] && return 0
+_SHELLAC_LOADED_path_dirname=1
 
 command -v dirname >/dev/null 2>&1 && return 0
 

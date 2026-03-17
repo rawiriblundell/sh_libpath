@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -17,8 +17,8 @@
 # Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_sys_basename+x}" ] && return 0
-_SHELLAC_LOADED_sys_basename=1
+[ -n "${_SHELLAC_LOADED_path_basename+x}" ] && return 0
+_SHELLAC_LOADED_path_basename=1
 
 command -v basename >/dev/null 2>&1 && return 0
 
