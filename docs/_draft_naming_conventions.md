@@ -200,6 +200,7 @@ would be tautological or the short form is clearly the better name.
 | `cpuhogs`, `memhogs`, `swaphogs` | `sys/*.sh` | Short, well-known names; `sys_cpuhogs` adds no clarity. `sys_hogs` is the namespaced entry point. |
 | `celsius_to_fahrenheit`, `octal_to_rwx`, etc. | `units/*.sh` | The `<unit>_to_<unit>` pattern is self-describing; a module prefix adds nothing. `units_celsius_to_fahrenheit` is worse in every way. |
 | `whoowns` | `fs/stat_file.sh` | `fs_whoowns` adds no clarity; the name reads as a natural English question. Thin wrapper over `fs_stat owner`. |
+| `greet` | `misc/greet.sh` | `misc_greet` adds nothing; the function is a self-contained imperative with no attribute to qualify. |
 
 Note: `cmd_check`, `cmd_list` (`utils/cmd.sh`) use `cmd_` rather than `util_cmd_`. This is a deferred decision — `cmd_` reads naturally and is unambiguous, but may gain a `util_` prefix if the `utils/` module develops a broader convention. Revisit when other `utils/` functions are reviewed.
 

@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -25,7 +25,7 @@ _SHELLAC_LOADED_misc_greet=1
 #
 # @stdout "Good morning!", "Good afternoon!", or "Good evening!"
 # @exitcode 0 Always
-get_greeting() {
+greet() {
   local greet_moment
   if (( "${DayGreet:-$(date +%H)}" >= 18 )); then
     greet_moment="evening"

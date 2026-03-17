@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_path_absolute_path+x}" ] && return 0
-_SHELLAC_LOADED_path_absolute_path=1
+[ -n "${_SHELLAC_LOADED_path_absolute+x}" ] && return 0
+_SHELLAC_LOADED_path_absolute=1
 
 # @description Convert a relative path to an absolute path without using readlink -f.
 #   Works for both files and directories that exist on disk. Returns 1 if the path
@@ -29,7 +29,7 @@ _SHELLAC_LOADED_path_absolute_path=1
 # @stdout Absolute path
 # @exitcode 0 Success
 # @exitcode 1 Path does not exist
-get_absolute_path() {
+path_absolute() {
   local _filename
 
   _filename="${1:?No filename specified}"
