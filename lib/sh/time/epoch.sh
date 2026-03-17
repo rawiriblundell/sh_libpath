@@ -77,12 +77,28 @@ EOF
     }
 fi
 
-# @description Return the number of complete days elapsed since the Unix epoch.
+# @description Return the current Unix epoch expressed in a larger time unit.
 #
-# @stdout Integer day count since epoch
+# @arg $1 string Unit: seconds, minutes, hours, or days
+#
+# @example
+#   time_epoch_in days
+#   time_epoch_in hours
+#
+# @stdout Integer epoch value in the requested unit
 # @exitcode 0 Always
-epochdays() {
-  printf -- '%s\n' "$(( $(time_epoch) / 86400 ))"
+# @exitcode 1 Unrecognised unit
+time_epoch_in() {
+  case "${1:-}" in
+    (seconds) time_epoch ;;
+    (minutes) printf -- '%s\n' "$(( $(time_epoch) / 60 ))" ;;
+    (hours)   printf -- '%s\n' "$(( $(time_epoch) / 3600 ))" ;;
+    (days)    printf -- '%s\n' "$(( $(time_epoch) / 86400 ))" ;;
+    (*)
+      printf -- 'Usage: time_epoch_in [seconds|minutes|hours|days]\n' >&2
+      return 1
+    ;;
+  esac
 }
 
 # To get the epoch date at particular times
