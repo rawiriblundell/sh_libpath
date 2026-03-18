@@ -37,7 +37,7 @@ wants /opt/secrets/squirrels.conf
 
 ## OK... Do you have more information?
 
-This project proposes adding a library ecosystem, primarily for use in shell scripts.
+This project proposes adding a library ecosystem for shell scripts.
 
 `shellac` bootstraps a few environment vars, most importantly:
 
@@ -97,7 +97,7 @@ By dealing with this at the very start of the script, we ensure that we fail ear
 requires BASH42 git jq storcli /etc/multipath.conf
 ```
 
-It's clear what the script needs in order to run i.e. it's self-documenting code.
+It's clear what the script _requires_ in order to run i.e. it's self-documenting code.
 
 ### `wants`
 
