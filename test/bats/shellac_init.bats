@@ -56,10 +56,12 @@ teardown() {
     cp '${SHELLAC_LIB}/core/requires.sh' '${TEST_TMPDIR}/shellac/lib/sh/core/'
     cp '${SHELLAC_LIB}/core/wants.sh' '${TEST_TMPDIR}/shellac/lib/sh/core/'
     source '${SHELLAC_BIN}'
-    printf '%s\n' \"\${SH_LIBPATH_ARRAY[0]}\"
+    printf '%s\n' \"\${SH_LIBPATH_ARRAY[@]}\"
   "
   [ "${status}" -eq 0 ]
-  [ "${output}" = "${TEST_TMPDIR}/shellac/lib/sh" ]
+  # _self_libpath is now prepended during discovery, so the XDG path may not
+  # be at index 0. Assert membership rather than position.
+  [[ "${output}" == *"${TEST_TMPDIR}/shellac/lib/sh"* ]]
 }
 
 @test "discovery: missing path is silently skipped" {
