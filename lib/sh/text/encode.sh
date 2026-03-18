@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -69,7 +69,37 @@ str_url_decode() {
   printf -- '%b\n' "${_input//%/\\x}"
 }
 
-# @description Base64-encode a string. Requires the base64 command.
+# @internal
+# Encode stdin to base64. Tries base64, then openssl, then uuencode.
+_str_base64_encode() {
+  if command -v base64 >/dev/null 2>&1; then
+    base64
+  elif command -v openssl >/dev/null 2>&1; then
+    openssl base64
+  elif command -v uuencode >/dev/null 2>&1; then
+    uuencode -r -m -
+  else
+    printf -- '%s\n' "str_to_base64: no base64 tool found (tried: base64, openssl, uuencode)" >&2
+    return 1
+  fi
+}
+
+# @internal
+# Decode base64 stdin. Tries base64 -d, then openssl, then uudecode.
+_str_base64_decode() {
+  if command -v base64 >/dev/null 2>&1; then
+    base64 -d
+  elif command -v openssl >/dev/null 2>&1; then
+    openssl base64 -d
+  elif command -v uudecode >/dev/null 2>&1; then
+    uudecode -r -m
+  else
+    printf -- '%s\n' "str_from_base64: no base64 tool found (tried: base64, openssl, uudecode)" >&2
+    return 1
+  fi
+}
+
+# @description Base64-encode a string. Tries base64, openssl, uuencode in order.
 #
 # @arg $@ string The string to encode
 #
@@ -77,12 +107,13 @@ str_url_decode() {
 #   str_to_base64 "hello world"   # => aGVsbG8gd29ybGQ=
 #
 # @stdout Base64-encoded string
-# @exitcode 0 Always
+# @exitcode 0 Success
+# @exitcode 1 No suitable tool found
 str_to_base64() {
-  printf -- '%s' "${*}" | base64
+  printf -- '%s' "${*}" | _str_base64_encode
 }
 
-# @description Decode a base64-encoded string. Requires the base64 command.
+# @description Decode a base64-encoded string. Tries base64, openssl, uudecode in order.
 #
 # @arg $@ string The base64-encoded string to decode
 #
@@ -90,9 +121,10 @@ str_to_base64() {
 #   str_from_base64 "aGVsbG8gd29ybGQ="   # => hello world
 #
 # @stdout Decoded string
-# @exitcode 0 Always
+# @exitcode 0 Success
+# @exitcode 1 No suitable tool found
 str_from_base64() {
-  printf -- '%s' "${*}" | base64 --decode
+  printf -- '%s' "${*}" | _str_base64_decode
 }
 
 # @description Escape a string for safe use as a shell argument.
