@@ -184,3 +184,23 @@ str_is_alnum() {
 str_is_digits() {
   [[ "${1:-}" =~ ^[[:digit:]]+$ ]]
 }
+
+# @description Test if a string is a plausible email address.
+#   Checks structural format only — no DNS or deliverability checks.
+#
+# @arg $1 string String to test
+#
+# @example
+#   str_is_email "user@example.com"   # => exit 0
+#   str_is_email "notanemail"          # => exit 1
+#
+# @exitcode 0 Valid email format
+# @exitcode 1 Invalid format
+# @exitcode 2 Missing argument
+# Adapted from labbots/bash-utility (MIT) https://github.com/labbots/bash-utility
+str_is_email() {
+  local email_re
+  [[ $# -eq 0 ]] && { printf -- '%s\n' "str_is_email: missing argument" >&2; return 2; }
+  email_re="^([A-Za-z]+[A-Za-z0-9]*\+?((\.|\-|\_)?[A-Za-z]+[A-Za-z0-9]*)*)@(([A-Za-z0-9]+)+((\.|\-|\_)?([A-Za-z0-9]+)+)*)+\.([A-Za-z]{2,})+$"
+  [[ "${1}" =~ ${email_re} ]]
+}

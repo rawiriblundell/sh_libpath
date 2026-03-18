@@ -16,7 +16,7 @@
 ################################################################################
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
-# IPv6 and email validators adapted from labbots/bash-utility (MIT)
+# IPv6 validator adapted from labbots/bash-utility (MIT)
 #   https://github.com/labbots/bash-utility
 
 [ -n "${_SHELLAC_LOADED_net_validate+x}" ] && return 0
@@ -81,35 +81,24 @@ _net_validate_ipv6() {
   [[ "${1}" =~ ${re} ]]
 }
 
-# @internal Validate an email address string via regex.
-#   Structural check only — no DNS or deliverability verification.
-_net_validate_email() {
-  local email_re
-  email_re="^([A-Za-z]+[A-Za-z0-9]*\+?((\.|\-|\_)?[A-Za-z]+[A-Za-z0-9]*)*)@(([A-Za-z0-9]+)+((\.|\-|\_)?([A-Za-z0-9]+)+)*)+\.([A-Za-z]{2,})+$"
-  [[ "${1}" =~ ${email_re} ]]
-}
-
-# @description Validate a string as an IPv4 address, IPv6 address, or email address.
+# @description Validate a string as an IPv4 or IPv6 address.
 #   Without a flag, the type is detected heuristically:
-#     '@' in input  →  email
 #     ':' in input  →  IPv6
 #     otherwise     →  IPv4
-#   Use -4, -6, or -e/--email to force a specific validator.
+#   Use -4 or -6 to force a specific validator.
 #   IPv4 accepts optional CIDR notation and strips double quotes before checking.
 #   IPv6 handles full, compressed (::), link-local, IPv4-mapped, and zone-ID (%eth0) forms.
-#   Email performs a structural format check only — no DNS or deliverability checks.
+#   For email address validation, use str_is_email (text/predicates).
 #
-# @arg $1 string Flag (optional): -4 (force IPv4), -6 (force IPv6), -e/--email (force email)
-# @arg $@ string Value(s) to validate
+# @arg $1 string Flag (optional): -4 (force IPv4) or -6 (force IPv6)
+# @arg $@ string Value to validate
 #
 # @example
-#   net_validate 192.168.1.1           # auto-detects IPv4 => exit 0
-#   net_validate 192.168.1.1/24        # IPv4 with CIDR    => exit 0
-#   net_validate 2001:db8::1           # auto-detects IPv6 => exit 0
-#   net_validate user@example.com      # auto-detects email => exit 0
-#   net_validate -4 192.168.1.1        # explicit IPv4     => exit 0
-#   net_validate -6 ::1                # explicit IPv6     => exit 0
-#   net_validate -e user@example.com   # explicit email    => exit 0
+#   net_validate 192.168.1.1      # auto-detects IPv4 => exit 0
+#   net_validate 192.168.1.1/24   # IPv4 with CIDR    => exit 0
+#   net_validate 2001:db8::1      # auto-detects IPv6 => exit 0
+#   net_validate -4 192.168.1.1   # explicit IPv4     => exit 0
+#   net_validate -6 ::1           # explicit IPv6     => exit 0
 #
 # @exitcode 0 Valid
 # @exitcode 1 Invalid
@@ -120,10 +109,9 @@ net_validate() {
 
   while (( $# > 0 )); do
     case "${1}" in
-      (-4)           _mode=ipv4;  shift ;;
-      (-6)           _mode=ipv6;  shift ;;
-      (-e|--email)   _mode=email; shift ;;
-      (--)           shift; break ;;
+      (-4) _mode=ipv4; shift ;;
+      (-6) _mode=ipv6; shift ;;
+      (--) shift; break ;;
       (-*)
         printf -- 'net_validate: unknown option: %s\n' "${1}" >&2
         return 2
@@ -141,21 +129,18 @@ net_validate() {
 
   if [[ -z "${_mode}" ]]; then
     case "${_input}" in
-      (*@*) _mode=email ;;
-      (*:*) _mode=ipv6  ;;
-      (*)   _mode=ipv4  ;;
+      (*:*) _mode=ipv6 ;;
+      (*)   _mode=ipv4 ;;
     esac
   fi
 
   case "${_mode}" in
-    (ipv4)  _net_validate_ipv4  "${_input}" ;;
-    (ipv6)  _net_validate_ipv6  "${_input}" ;;
-    (email) _net_validate_email "${_input}" ;;
+    (ipv4) _net_validate_ipv4 "${_input}" ;;
+    (ipv6) _net_validate_ipv6 "${_input}" ;;
   esac
 }
 
 # Backward-compat aliases
 net_validate_ipv4()    { net_validate -4 "${@}"; }
 net_validate_ipv6()    { net_validate -6 "${@}"; }
-net_validate_email()   { net_validate -e "${@}"; }
 net_validate_address() { net_validate -4 "${@}"; }
