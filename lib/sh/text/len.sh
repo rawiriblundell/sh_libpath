@@ -78,3 +78,43 @@ strlen() {
 len() {
   str_len "${@}"
 }
+
+# @description Count the number of non-overlapping occurrences of a substring
+#   within a string.
+#
+# @arg $1 string The string to search within
+# @arg $2 string The substring to count
+#
+# @example
+#   str_count "banana" "an"   # => 2
+#   str_count "hello" "l"     # => 2
+#
+# @stdout Integer count of occurrences
+# @exitcode 0 Always
+str_count() {
+  local _str _substr _stripped _count
+  _str="${1:?No string given}"
+  _substr="${2:?No substring given}"
+  _stripped="${_str//"${_substr}"/}"
+  _count=$(( (${#_str} - ${#_stripped}) / ${#_substr} ))
+  printf -- '%d\n' "${_count}"
+}
+
+# @description Count the number of words in a string (split on whitespace).
+#
+# @arg $@ string The string to count words in
+#
+# @example
+#   str_word_count "hello world foo"   # => 3
+#   str_word_count "  spaced  out  "   # => 2
+#
+# @stdout Integer word count
+# @exitcode 0 Always
+str_word_count() {
+  local _input
+  _input="${*}"
+  local -a _words
+  # shellcheck disable=SC2206
+  _words=( ${_input} )
+  printf -- '%d\n' "${#_words[@]}"
+}

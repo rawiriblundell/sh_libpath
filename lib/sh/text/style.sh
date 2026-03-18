@@ -16,6 +16,7 @@
 ################################################################################
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
+# Adapted from adoyle-h/lobash (Apache-2.0) https://github.com/adoyle-h/lobash
 
 [ -n "${_SHELLAC_LOADED_text_style+x}" ] && return 0
 _SHELLAC_LOADED_text_style=1
@@ -633,5 +634,24 @@ text_toupper() {
       printf -- '%s\n' "text_toupper - no available method found" >&2
       return 1
     fi < "${1:-/dev/stdin}"
+  fi
+}
+
+# @description Remove ANSI/VT100 color and formatting escape codes from a string.
+#   Useful for measuring true display length or logging colored output to plain text.
+#
+# @arg $1 string String to strip (reads from stdin if omitted)
+#
+# @example
+#   str_strip_ansi $'\033[32mhello\033[0m'   # => "hello"
+#   printf '%s' "${colored_var}" | str_strip_ansi
+#
+# @stdout String with all ANSI escape sequences removed
+# @exitcode 0 Always
+str_strip_ansi() {
+  if [[ $# -gt 0 ]]; then
+    printf -- '%s\n' "${1}" | sed 's/\x1b\[[0-9;]*m//g'
+  else
+    sed 's/\x1b\[[0-9;]*m//g'
   fi
 }

@@ -42,3 +42,26 @@ first() {
 str_first() {
   first "${@}"
 }
+
+# @description Return the last character, column, or line of input.
+#   Without a subcommand, returns the last line from stdin or a file.
+#
+# @arg $1 string Optional: 'char', 'col'/'column', or 'row'/'line' to select what to return
+# @arg $2 string Optional: file path (for col/row modes)
+#
+# @stdout Last character, column, or line of the input
+# @exitcode 0 Always
+last() {
+  local _line
+  case "${1}" in
+    (char)       shift 1; read -r _line; printf -- '%s' "${_line#"${_line%?}"}" ;;
+    (col|column) shift 1; awk '{print $NF}' "${@}" ;;
+    (row|line)   shift 1; tail -n 1 "${@}" ;;
+    (*)          tail -n 1 "${@}" ;;
+  esac
+}
+
+# @description Alias for last().
+str_last() {
+  last "${@}"
+}

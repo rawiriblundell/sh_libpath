@@ -52,3 +52,13 @@ chr() {
   # shellcheck disable=SC2059
   printf "\\$(printf -- '%03o' "${int}")"
 }
+
+# @description Convert an ASCII character to its decimal value.
+#
+# @arg $1 string Single ASCII character to convert
+#
+# @stdout Decimal value of the character
+# @exitcode 0 Always
+ord() {
+  printf -- '%d' "'${1}"
+}
