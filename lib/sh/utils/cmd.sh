@@ -62,10 +62,10 @@ cmd_check() {
 }
 
 # @description List all commands available in the current shell environment,
-#   optionally filtered by one or more search strings. Powered by compgen -c.
-#   Pass plain substrings, not glob patterns.
+#   optionally filtered by one or more search strings. Multiple patterns are
+#   OR-joined into a single ERE pass over compgen -c output.
 #
-# @arg $@ string Optional: one or more substrings to filter the command list
+# @arg $@ string Optional: one or more substrings or ERE patterns to filter by
 #
 # @example
 #   cmd_list
@@ -74,13 +74,62 @@ cmd_check() {
 # @stdout Matching command names, one per line
 # @exitcode 0 Always
 cmd_list() {
-  local needle
+  local IFS
   case "${1}" in
     ('') compgen -c ;;
     (*)
-      for needle in "${@}"; do
-        compgen -c | grep "${needle}"
-      done
+      IFS='|'
+      compgen -c | grep -E "${*}"
     ;;
   esac
+}
+
+# @description Execute a command while logging its timestamp, output and exit code.
+#   Uses colour when stdout is a terminal. Pass -e/--exit-on-fail to abort on error.
+#
+# @arg $1 string Optional: -e or --exit-on-fail to exit on non-zero return
+# @arg $@ string The command and its arguments to execute
+#
+# @stdout Formatted execution log with timestamp, command output and exit code
+# @exitcode 0 Command succeeded
+# @exitcode 1 Command failed and -e/--exit-on-fail was given
+cmd_exec() {
+  local _die
+  local _output
+  local _exit_code
+
+  _die=0
+  case "${1}" in
+    (-e|--exit-on-fail) _die=1; shift ;;
+  esac
+
+  if [ -t 1 ]; then
+    printf '\e[7m====>Timestamp:\e[0m %s\n\e[7m====>Executing:\e[0m %s\n' \
+      "$(date +%s)" "${*}"
+  else
+    printf -- '====>Timestamp: %s\n====>Executing: %s\n' \
+      "$(date +%s)" "${*}"
+  fi
+
+  _output=$("${@}")
+  _exit_code="${?}"
+
+  if (( _exit_code == 0 )); then
+    if [ -t 1 ]; then
+      printf '\e[7m====>Output   :\e[0m\n%s\n\n\e[32;1m====>Exit Code\e[0m: %s\n\e[32;1m====>all be GOOD\e[0m\n' \
+        "${_output}" "${_exit_code}"
+    else
+      printf -- '====>Output: %s\n\n====>Exit Code: %s\n====>all be GOOD\n' \
+        "${_output}" "${_exit_code}"
+    fi
+  else
+    if [ -t 1 ]; then
+      printf '\e[31;1m====>Output   :\e[0m\n%s\n\e[31;1m====>Exit Code\e[0m: %s\n\e[31;1m====>in ERROR\e[0m\n' \
+        "${_output}" "${_exit_code}"
+    else
+      printf -- '====>Output: %s\n====>Exit Code: %s\n====>in ERROR\n' \
+        "${_output}" "${_exit_code}"
+    fi
+    (( _die )) && exit 1
+  fi
 }
