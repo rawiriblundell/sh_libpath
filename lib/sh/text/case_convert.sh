@@ -16,6 +16,8 @@
 ################################################################################
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
+# Adapted from elibs/ebash (Apache-2.0) https://github.com/elibs/ebash
+# Original author: Marshall McMullen <marshall.mcmullen@gmail.com>
 
 [ -n "${_SHELLAC_LOADED_text_case_convert+x}" ] && return 0
 _SHELLAC_LOADED_text_case_convert=1
@@ -220,4 +222,23 @@ str_ucwords() {
     _result="${_result}${_result:+ }${_word^}"
   done
   printf -- '%s\n' "${_result}"
+}
+
+# @description Convert a lower_snake_case string to Title Case.
+#   Splits on underscores and capitalises each word.
+#   Requires bash 4+ for the ${^} case modifier.
+#
+# @arg $1 string Input string in snake_case or similar
+#
+# @example
+#   str_title_case "slice_drive_size"   # => "Slice Drive Size"
+#   str_title_case "foo_bar"            # => "Foo Bar"
+#
+# @stdout Title-cased string
+# @exitcode 0 Always
+str_title_case() {
+  local input
+  input="${1:-}"
+  [[ -z "${input}" ]] && return 0
+  printf -- '%s\n' "${input^}" | sed 's/_\([a-z]\)/ \u\1/g'
 }

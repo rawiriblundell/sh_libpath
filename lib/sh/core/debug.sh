@@ -32,6 +32,10 @@ debug_trap_err() {
 }
 
 # @description Handle ERR trap: print a stack trace and exit.
+#   Uses the portable caller(1) builtin for the stack trace.
+#   Bash users can get richer output (function names, formatted frames) by
+#   loading core/stacktrace before enabling this trap — stacktrace() will
+#   then be available as an alternative to the caller loop below.
 #
 # @arg $1 int The exit code from the failing command
 #

@@ -16,23 +16,28 @@
 ################################################################################
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
+# Adapted from elibs/ebash (Apache-2.0) https://github.com/elibs/ebash
+# Original author: Marshall McMullen <marshall.mcmullen@gmail.com>
 
-[ -n "${_SHELLAC_LOADED_sys_sys_child_pids+x}" ] && return 0
-_SHELLAC_LOADED_sys_sys_child_pids=1
+[ -n "${_SHELLAC_LOADED_text_collapse+x}" ] && return 0
+_SHELLAC_LOADED_text_collapse=1
 
-# @description List the PIDs of all direct child processes of a given parent PID.
-#   Uses pgrep if available, otherwise falls back to parsing 'ps -e'.
+# @description Collapse all runs of whitespace in a string down to single spaces.
+#   Leading and trailing whitespace is also collapsed (becomes a single space at each end
+#   unless the input is already trimmed).
 #
-# @arg $1 int Parent PID to query
+# @arg $@ string Text to collapse (may also be piped via stdin)
 #
-# @stdout One PID per line
+# @example
+#   str_collapse "foo   bar     baz"   # => "foo bar baz"
+#   printf 'a  b\tc\n' | str_collapse  # => "a b c"
+#
+# @stdout String with consecutive whitespace reduced to single spaces
 # @exitcode 0 Always
-sys_child_pids() {
-  local _ppid
-  _ppid="${1:?No PPID supplied}"
-  if command -v pgrep >/dev/null 2>&1; then
-    pgrep -P "${_ppid}"
+str_collapse() {
+  if [[ $# -gt 0 ]]; then
+    printf -- '%s\n' "$*" | tr -s '[:space:]' ' '
   else
-    ps -e -o pid,ppid | awk -v _ppid="${_ppid}" '$2 == _ppid{print $1}'
+    tr -s '[:space:]' ' '
   fi
 }

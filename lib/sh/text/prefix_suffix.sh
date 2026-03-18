@@ -98,3 +98,77 @@ str_prepend_if_missing() {
   [[ "${_str}" = "${_prefix}"* ]] || _str="${_prefix}${_str}"
   printf -- '%s\n' "${_str}"
 }
+
+# @description Append one string to another and print the result.
+#   Optionally define a delimiter with -d|--delimiter (defaults to a single space).
+#
+# @arg $1 string Optional: -d|--delimiter followed by delimiter string
+# @arg $2 string First string
+# @arg $3 string Second string to append
+#
+# @example
+#   str_append -d ':' foo bar   # => foo:bar
+#   str_append foo bar          # => foo bar
+#
+# @stdout Concatenated string
+# @exitcode 0 Always
+str_append() {
+  local _append_delimiter
+  case "${1}" in
+    (-d|--delimiter)
+      _append_delimiter="${2}"
+      shift 2
+    ;;
+  esac
+  printf -- '%s\n' "${1}${_append_delimiter:- }${2}"
+}
+
+# @description Alias for str_append.
+append() {
+  str_append "${@}"
+}
+
+# @description Prepend one string to another and print the result.
+#   Optionally define a delimiter with -d|--delimiter (defaults to a single space).
+#
+# @arg $1 string Optional: -d|--delimiter followed by delimiter string
+# @arg $2 string The string to prepend
+# @arg $3 string The string to prepend to
+#
+# @example
+#   str_prepend -d ':' bar foo   # => bar:foo
+#   str_prepend bar foo          # => bar foo
+#
+# @stdout Concatenated string
+# @exitcode 0 Always
+str_prepend() {
+  local _prepend_delimiter
+  case "${1}" in
+    (-d|--delimiter)
+      _prepend_delimiter="${2}"
+      shift 2
+    ;;
+  esac
+  printf -- '%s\n' "${1}${_prepend_delimiter:- }${2}"
+}
+
+# @description Prepend a string to each line of stdin.
+#   Optionally define a delimiter with -d|--delimiter (defaults to a single space).
+#
+# @arg $1 string Optional: -d|--delimiter followed by delimiter string
+# @arg $2 string The string to prepend to each line
+#
+# @stdout Each stdin line prefixed with the given string and delimiter
+# @exitcode 0 Always
+prepend() {
+  local _prepend_delimiter
+  case "${1}" in
+    (-d|--delimiter)
+      _prepend_delimiter="${2}"
+      shift 2
+    ;;
+  esac
+  while read -r; do
+    printf -- '%s\n' "${1}${_prepend_delimiter:- }${REPLY}"
+  done
+}

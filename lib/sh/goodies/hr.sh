@@ -94,8 +94,8 @@ block50="\xe2\x96\x92"   # u2592\0xe2 0x96 0x92 Half shade 50%
 block25="\xe2\x96\x91"   # u2591\0xe2 0x96 0x91 Light shade 25%
 
 # Put those block characters in ascending and descending triplets
-blockAsc="$(printf -- '%b\n' "${block25}${block50}${block75}")"
-blockDwn="$(printf -- '%b\n' "${block75}${block50}${block25}")"
+block_asc="$(printf -- '%b\n' "${block25}${block50}${block75}")"
+block_dwn="$(printf -- '%b\n' "${block75}${block50}${block25}")"
 
 
 # Source: https://gist.github.com/hypergig/ea6a60469ab4075b2310b56fa27bae55
@@ -131,10 +131,10 @@ hrps1(){
   # Define our initial color code
   color="$(_select_random_color)"
   tput setaf "${color}"               # Set our color
-  printf -- '%s' "${blockAsc}"        # Print the ascending block sequence
+  printf -- '%s' "${block_asc}"       # Print the ascending block sequence
   for (( i=1; i<=width; ++i )); do    # Fill the gap with hard blocks
     printf -- '%b' "${block100}"
   done
-  printf -- '%s\n' "${blockDwn}"      # Print our descending block sequence
+  printf -- '%s\n' "${block_dwn}"     # Print our descending block sequence
   tput sgr0                           # Unset our color
 }

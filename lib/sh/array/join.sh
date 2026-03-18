@@ -20,6 +20,31 @@
 [ -n "${_SHELLAC_LOADED_array_join+x}" ] && return 0
 _SHELLAC_LOADED_array_join=1
 
+# @description Split a string on a delimiter into a named array.
+#   The delimiter must be a single character.
+#
+# @arg $1 string Name of the array variable.
+# @arg $2 string Single-character delimiter.
+# @arg $3 string The string to split.
+#
+# @example
+#   array_split myarr , "a,b,c,d"
+#   printf '%s\n' "${myarr[@]}"
+#   # => a
+#   # => b
+#   # => c
+#   # => d
+#
+# @exitcode 0 Always
+array_split() {
+  local -n _arr="${1:?No array name given}"
+  local _delim
+  local _str
+  _delim="${2:?No delimiter given}"
+  _str="${3:?No string given}"
+  IFS="${_delim}" read -ra _arr <<< "${_str}"
+}
+
 # @description Join array elements with a delimiter and output a single string.
 #
 # @arg $1 string The delimiter string.

@@ -132,6 +132,38 @@ array_pop() {
 #
 # @stdout The removed elements, one per line.
 # @exitcode 0 Always
+# @description Insert one or more elements into a named array at a given index.
+#   Existing elements at and after the index are shifted right.
+#
+# @arg $1 string Name of the array variable.
+# @arg $2 int Zero-based index at which to insert.
+# @arg $@ string One or more elements to insert.
+#
+# @example
+#   myarr=( a b d e )
+#   array_insert myarr 2 c
+#   printf '%s\n' "${myarr[@]}"
+#   # => a
+#   # => b
+#   # => c
+#   # => d
+#   # => e
+#
+# @exitcode 0 Always
+array_insert() {
+  local -n _arr="${1:?No array name given}"
+  local _idx
+  local -a _new_arr
+  _idx="${2:?No index given}"
+  shift 2
+  _new_arr=(
+    "${_arr[@]:0:${_idx}}"
+    "${@}"
+    "${_arr[@]:${_idx}}"
+  )
+  _arr=( "${_new_arr[@]}" )
+}
+
 array_splice() {
   local -n _arr="${1:?No array name given}"
   local _start _count _i

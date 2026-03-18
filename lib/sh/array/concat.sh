@@ -68,3 +68,66 @@ array_concat() {
     unset -n _src
   done
 }
+
+# @description Append one or more elements to a named array.
+#
+# @arg $1 string Name of the array variable.
+# @arg $@ string One or more elements to append.
+#
+# @example
+#   myarr=( a b c )
+#   array_append myarr d e
+#   printf '%s\n' "${myarr[@]}"
+#   # => a b c d e
+#
+# @exitcode 0 Always
+array_append() {
+  local -n _arr="${1:?No array name given}"
+  shift
+  _arr+=( "${@}" )
+}
+
+# @description Prepend one or more elements to the front of a named array.
+#
+# @arg $1 string Name of the array variable.
+# @arg $@ string One or more elements to prepend.
+#
+# @example
+#   myarr=( c d e )
+#   array_prepend myarr a b
+#   printf '%s\n' "${myarr[@]}"
+#   # => a b c d e
+#
+# @exitcode 0 Always
+array_prepend() {
+  local -n _arr="${1:?No array name given}"
+  shift
+  _arr=( "${@}" "${_arr[@]}" )
+}
+
+# @description Interleave elements from two arrays, pairing by index.
+#   Stops at the shorter array's length.
+#
+# @arg $1 string Name of the first array variable.
+# @arg $2 string Name of the second array variable.
+#
+# @example
+#   keys=( a b c )
+#   vals=( 1 2 3 )
+#   array_zip keys vals
+#   # => a 1
+#   # => b 2
+#   # => c 3
+#
+# @stdout Paired elements as space-separated lines.
+# @exitcode 0 Always
+array_zip() {
+  local -n _arr_a="${1:?No first array name given}"
+  local -n _arr_b="${2:?No second array name given}"
+  local _i _len
+  _len="${#_arr_a[@]}"
+  (( ${#_arr_b[@]} < _len )) && _len="${#_arr_b[@]}"
+  for (( _i = 0; _i < _len; _i++ )); do
+    printf -- '%s %s\n' "${_arr_a[_i]}" "${_arr_b[_i]}"
+  done
+}

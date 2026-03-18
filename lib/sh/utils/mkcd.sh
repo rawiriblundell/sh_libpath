@@ -16,20 +16,23 @@
 ################################################################################
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
+# Adapted from modernish (ISC) https://github.com/modernish/modernish
 
-[ -n "${_SHELLAC_LOADED_path_dirname+x}" ] && return 0
-_SHELLAC_LOADED_path_dirname=1
+[ -n "${_SHELLAC_LOADED_utils_mkcd+x}" ] && return 0
+_SHELLAC_LOADED_utils_mkcd=1
 
-command -v dirname >/dev/null 2>&1 && return 0
-
-# @description Minimal step-in replacement for 'dirname'. Strips the filename
-#   component using parameter expansion. Does not handle dotfiles, tilde, or
-#   other edge cases; see source comments for discussion.
+# @description Create a directory (including parents) and change into it.
+#   No-op on the mkdir if the directory already exists.
 #
-# @arg $1 string File path
+# @arg $1 string Directory path to create and enter
 #
-# @stdout Directory component of the path
-# @exitcode 0 Always
-dirname() {
-  printf -- '%s\n' "${1%/*}"
+# @example
+#   mkcd /tmp/my-project/src    # equivalent to: mkdir -p /tmp/my-project/src && cd /tmp/my-project/src
+#
+# @exitcode 0 Success; 1 mkdir or cd failed; 2 Missing argument
+mkcd() {
+  local dir
+  dir="${1:?mkcd: missing directory argument}"
+  mkdir -p -- "${dir}" || return 1
+  cd -- "${dir}" || return 1
 }

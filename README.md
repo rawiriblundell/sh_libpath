@@ -176,9 +176,6 @@ In alphabetical order only for readability:
 * https://github.com/hastec-fr/apash
 * https://github.com/hornos/shf3
 * https://github.com/hyperupcall/bash-term
-* https://github.com/kamilcuk/L_lib/
-* https://github.com/kigster/bashmatic
-* https://github.com/labbots/bash-utility
 * https://github.com/jandob/rebash
 * https://github.com/javier-lopez/learn/blob/master/sh/lib
 * https://github.com/jcaillon/valet
@@ -186,6 +183,8 @@ In alphabetical order only for readability:
 * https://github.com/jmooring/bash-function-library
 * https://github.com/jneen/balls
 * https://github.com/juan131/bash-libraries
+* https://github.com/kamilcuk/L_lib/
+* https://github.com/kigster/bashmatic
 * https://github.com/kvz/bash3boilerplate
 * https://github.com/labbots/bash-utility
 * https://github.com/m10k/toolbox

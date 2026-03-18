@@ -1,6 +1,6 @@
 # shellcheck shell=bash
 
-# Copyright 2023 Rawiri Blundell
+# Copyright 2022 Rawiri Blundell
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,10 +15,97 @@
 # limitations under the License.
 ################################################################################
 # Provenance: https://github.com/rawiriblundell/shellac
+# Adapted from HariSekhon/DevOps-Bash-tools (MIT) https://github.com/HariSekhon/DevOps-Bash-tools
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_git_git+x}" ] && return 0
-_SHELLAC_LOADED_git_git=1
+[ -n "${_SHELLAC_LOADED_git_base+x}" ] && return 0
+_SHELLAC_LOADED_git_base=1
+
+# @description Return 0 if the current directory is inside a git repository.
+# @exitcode 0 Inside a git repo; 1 Otherwise
+git_is_repo() {
+  git rev-parse --is-inside-work-tree >/dev/null 2>&1
+}
+
+# @description Get the absolute path to the root of the current git repository.
+#
+# @stdout Repository root path
+# @exitcode 0 Success; 1 Not in a git repo
+git_root() {
+  git rev-parse --show-toplevel 2>/dev/null
+}
+
+# @description Get the name of the current git repository (from the remote URL,
+#   falling back to the directory name).
+#
+# @stdout Repository name (without .git suffix)
+# @exitcode 0 Always
+git_repo_name() {
+  local remote name
+  remote="$(git remote get-url origin 2>/dev/null)"
+  if [[ -n "${remote}" ]]; then
+    # Strip trailing .git and take the basename
+    name="${remote##*/}"
+    name="${name%.git}"
+    printf -- '%s\n' "${name}"
+  else
+    # Fall back to directory name
+    basename "$(git_root 2>/dev/null || pwd)"
+  fi
+}
+
+# @description Get the name of the current branch.
+#
+# @stdout Branch name
+# @exitcode 0 Success; 1 Not in a git repo or detached HEAD
+git_current_branch() {
+  local branch
+  branch="$(git symbolic-ref --short HEAD 2>/dev/null)" || return 1
+  printf -- '%s\n' "${branch}"
+}
+
+# @description Get the default branch name (main or master) for the repo.
+#   Checks remote HEAD reference first; falls back to probing local branches.
+#
+# @stdout Default branch name (e.g. "main" or "master")
+# @exitcode 0 Found; 1 Unable to determine
+git_default_branch() {
+  local branch
+  # Try remote HEAD symbolic ref
+  branch="$(git remote show origin 2>/dev/null | awk '/HEAD branch/{print $NF}')"
+  if [[ -n "${branch}" && "${branch}" != "(unknown)" ]]; then
+    printf -- '%s\n' "${branch}"
+    return 0
+  fi
+  # Probe common names in local refs
+  local candidate
+  for candidate in main master trunk develop; do
+    if git show-ref --verify --quiet "refs/heads/${candidate}" 2>/dev/null; then
+      printf -- '%s\n' "${candidate}"
+      return 0
+    fi
+  done
+  return 1
+}
+
+# @description Get the short (7-char) SHA of the current HEAD commit.
+#
+# @stdout Short SHA string
+# @exitcode 0 Success; 1 Not in a git repo
+git_short_sha() {
+  git rev-parse --short HEAD 2>/dev/null
+}
+
+# @description Return 0 if the given file is tracked by git.
+#
+# @arg $1 string File path
+#
+# @exitcode 0 Tracked; 1 Not tracked or not in repo
+git_is_tracked() {
+  local file
+  file="${1:?git_is_tracked: missing file argument}"
+  git ls-files --error-unmatch -- "${file}" >/dev/null 2>&1
+}
 
 # @description Print the commit date of the most recent commit that touched a file,
 #   in epoch seconds followed by a relative date string, for easy sorting.

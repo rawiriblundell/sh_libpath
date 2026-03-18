@@ -98,3 +98,50 @@ array_entries() {
     printf -- '%s:%s\n' "${_i}" "${_arr[${_i}]}"
   done
 }
+
+# @description Print an array's contents in "index: value" format.
+#   Works for both indexed and associative arrays.
+#   Requires bash 4.3+ for namerefs.
+#
+# @arg $1 string Name of the array variable.
+#
+# @example
+#   declare -a fruits=( apple banana cherry )
+#   array_print fruits
+#   # 0: apple
+#   # 1: banana
+#   # 2: cherry
+#
+#   declare -A colours=( [red]="#ff0000" [blue]="#0000ff" )
+#   array_print colours
+#   # red: #ff0000
+#   # blue: #0000ff
+#
+# @stdout "key: value" lines
+# @exitcode 0 Always; 1 Missing argument
+array_print() {
+  local -n _ap_arr="${1:?array_print: missing array name argument}"
+  local key
+  for key in "${!_ap_arr[@]}"; do
+    printf -- '%s: %s\n' "${key}" "${_ap_arr[${key}]}"
+  done
+}
+
+# @description Return 0 if an associative array contains the given key.
+#   Requires bash 4.3+ for namerefs.
+#
+# @arg $1 string Name of the associative array variable.
+# @arg $2 string Key to test.
+#
+# @example
+#   declare -A colours=( [red]="#ff0000" )
+#   array_has_key colours red     # 0
+#   array_has_key colours blue    # 1
+#
+# @exitcode 0 Key present; 1 Key absent; 2 Missing argument
+array_has_key() {
+  local -n _ahk_arr="${1:?array_has_key: missing array name argument}"
+  local key
+  key="${2:?array_has_key: missing key argument}"
+  [[ -n "${_ahk_arr[${key}]+x}" ]]
+}

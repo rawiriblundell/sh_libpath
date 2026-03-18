@@ -14,30 +14,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ################################################################################
-# Provenance: https://raw.githubusercontent.com/rawiriblundell/dotfiles/master/.bashrc
+# Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
+# Adapted from adoyle-h/lobash (Apache-2.0) https://github.com/adoyle-h/lobash
 
-[ -n "${_SHELLAC_LOADED_array_append+x}" ] && return 0
-_SHELLAC_LOADED_array_append=1
+[ -n "${_SHELLAC_LOADED_utils_choose+x}" ] && return 0
+_SHELLAC_LOADED_utils_choose=1
 
-# @description Append one or more elements to a named array.
+# @description Pick one element at random from the given arguments.
 #
-# @arg $1 string Name of the array variable.
-# @arg $@ string One or more elements to append.
+# @arg $@ string Elements to choose from
 #
 # @example
-#   myarr=( a b c )
-#   array_append myarr d e
-#   printf '%s\n' "${myarr[@]}"
-#   # => a
-#   # => b
-#   # => c
-#   # => d
-#   # => e
+#   choose apple banana cherry    # prints one of the three
+#   day=$(choose Mon Tue Wed Thu Fri)
 #
-# @exitcode 0 Always
-array_append() {
-  local -n _arr="${1:?No array name given}"
-  shift
-  _arr+=( "${@}" )
+# @stdout The chosen element
+# @exitcode 0 Always; 1 No arguments
+choose() {
+  [[ $# -eq 0 ]] && { printf -- '%s\n' "choose: no elements provided" >&2; return 1; }
+  printf -- '%s\n' "${@:$(( (RANDOM % $#) + 1 )):1}"
 }

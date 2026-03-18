@@ -16,6 +16,8 @@
 ################################################################################
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
+# Adapted from adoyle-h/lobash (Apache-2.0) https://github.com/adoyle-h/lobash
+# Adapted from kigster/bash-orb (MIT) https://github.com/kigster/bash-orb
 
 [ -n "${_SHELLAC_LOADED_time_epoch+x}" ] && return 0
 _SHELLAC_LOADED_time_epoch=1
@@ -105,6 +107,7 @@ time_epoch_in() {
 #BSD $(date -j -f "%Y-%m-%dT%T" "$1" "+%s")
 #Busybox $(date -d "${1//T/ }" +%s)
 
+
 # @description Convert a Windows/LDAP 100-nanosecond interval timestamp to a Unix epoch.
 #   The LDAP timestamp counts 100ns intervals since 1 January 1601.
 #
@@ -165,4 +168,61 @@ time_date_to_epoch() {
         perl -e 'use Time::Local; print timegm(@ARGV[0,1,2,3,4], $ARGV[5]-1900)."\n";' \
             "${_sec}" "${_min}" "${_hours}" "${_day}" "${_month}" "${_year}"
     done
+}
+
+# @description Get the current Unix epoch in milliseconds.
+#   Uses date %3N (milliseconds) when available; falls back to seconds * 1000
+#   for systems where %N is unsupported (e.g. macOS date).
+#
+# @example
+#   time_epoch_ms    # => 1710000000123
+#
+# @stdout Current epoch in milliseconds
+# @exitcode 0 Always
+time_epoch_ms() {
+  local ns
+  ns="$(date +%s%3N 2>/dev/null)"
+  # If %3N is unsupported (macOS date), fall back to seconds * 1000
+  if [[ "${ns}" == *N* ]] || [[ -z "${ns}" ]]; then
+    printf -- '%d000\n' "$(date +%s)"
+  else
+    printf -- '%s\n' "${ns}"
+  fi
+}
+
+# @description Sleep until a given Unix epoch second (or epoch millisecond).
+#   If the target time is in the past, returns immediately.
+#   Pass --ms to treat the argument as milliseconds.
+#
+# @arg [--ms] flag  Treat $1 as epoch milliseconds rather than seconds
+# @arg $1 int       Target epoch (seconds, or ms when --ms given)
+#
+# @example
+#   time_sleep_until $(( $(date +%s) + 30 ))   # sleep ~30s from now
+#   time_sleep_until --ms $(( $(time_epoch_ms) + 5000 ))
+#
+# @exitcode 0 Awoke at or after target; 1 Bad argument
+time_sleep_until() {
+  local target now diff use_ms
+  use_ms=0
+
+  case "${1:-}" in
+    (--ms) use_ms=1; shift ;;
+  esac
+
+  target="${1:?time_sleep_until: missing target epoch argument}"
+
+  if (( use_ms )); then
+    now="$(time_epoch_ms)"
+    diff=$(( target - now ))
+    (( diff <= 0 )) && return 0
+    sleep "$(printf -- '0.%03d\n' "$(( diff % 1000 ))")" 2>/dev/null || true
+    diff=$(( diff / 1000 ))
+    (( diff > 0 )) && sleep "${diff}"
+  else
+    now="$(date +%s)"
+    diff=$(( target - now ))
+    (( diff <= 0 )) && return 0
+    sleep "${diff}"
+  fi
 }

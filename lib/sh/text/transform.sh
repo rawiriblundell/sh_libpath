@@ -77,25 +77,6 @@ str_reverse() {
   printf -- '%s\n' "${_reversed}"
 }
 
-# @description Truncate a string to a maximum number of characters.
-#   If the string is shorter than the limit, it is returned unchanged.
-#
-# @arg $1 string The string to truncate
-# @arg $2 int    Maximum length in characters
-#
-# @example
-#   str_truncate "hello world" 5   # => hello
-#   str_truncate "hi" 10           # => hi
-#
-# @stdout Truncated string
-# @exitcode 0 Always
-str_truncate() {
-  local _str _len
-  _str="${1:?No string given}"
-  _len="${2:?No length given}"
-  printf -- '%s\n' "${_str:0:${_len}}"
-}
-
 # @description Truncate a string to a maximum length, appending an ellipsis
 #   (or custom suffix) when truncation occurs. The total output length
 #   (including suffix) will not exceed the specified maximum.
@@ -195,4 +176,49 @@ str_fields() {
       printf -- '%s\n' "${_parts[$(( _field - 1 ))]}"
     done
   fi
+}
+
+# @description Remove trailing newlines from a string and print the result.
+#
+# @arg $@ string The input string
+#
+# @stdout Input string with trailing newline stripped
+# @exitcode 0 Always
+str_chomp() {
+  local _chomp_str
+  _chomp_str="${*}"
+  _chomp_str="${_chomp_str%$'\n'}"
+  printf -- '%s\n' "${_chomp_str}"
+}
+
+# @description Alias for str_chomp.
+chomp() {
+  str_chomp "${@}"
+}
+
+# @description Remove the last n characters from a string.
+#   Defaults to removing 1 character (Perl chop semantics).
+#
+# @arg $1 string Optional: -n followed by count of characters to remove
+# @arg $@ string The input string
+#
+# @example
+#   str_chop "hello,"        # => hello
+#   str_chop -n 3 "hello..."  # => hello
+#
+# @stdout Input string with last n characters removed
+# @exitcode 0 Always
+str_chop() {
+  local _n _input
+  _n=1
+  case "${1}" in
+    (-n) _n="${2:?str_chop -n requires a count}"; shift 2 ;;
+  esac
+  _input="${*}"
+  printf -- '%s\n' "${_input:0:$(( ${#_input} - _n ))}"
+}
+
+# @description Alias for str_chop.
+chop() {
+  str_chop "${@}"
 }

@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/shellac
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_users_accounts+x}" ] && return 0
-_SHELLAC_LOADED_users_accounts=1
+[ -n "${_SHELLAC_LOADED_users_query+x}" ] && return 0
+_SHELLAC_LOADED_users_query=1
 
 # Lowest UID considered a regular user account; falls back to 500 for older distros
 _uid_min=$(awk '/^UID_MIN/{print $2}' /etc/login.defs)
