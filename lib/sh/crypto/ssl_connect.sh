@@ -37,3 +37,78 @@ ssl_connect () {
 
     openssl s_client -status -connect "${_ssl_connect_remote_host}:${_ssl_connect_remote_port}"
 }
+
+# @description Connect to a TLS host with an explicit SNI name.
+#   Useful for virtual-hosted TLS where the SNI name differs from the connect address.
+#
+# @arg $1 string Remote host
+# @arg $2 int    Port (default: 443)
+# @arg $3 string SNI hostname (default: same as host)
+#
+# @example
+#   ssl_connect_sni 192.168.1.10 443 example.com
+#
+# @exitcode 0 Connection established (interactive)
+ssl_connect_sni() {
+    local _host _port _sni
+    _host="${1:?ssl_connect_sni: No remote host provided}"
+    _port="${2:-443}"
+    _sni="${3:-${_host}}"
+    openssl s_client -connect "${_host}:${_port}" -servername "${_sni}"
+}
+
+# @description Connect to a STARTTLS service for certificate inspection.
+#   Protocol determines the default port; port may be overridden as third argument.
+#
+# @arg $1 string Remote host
+# @arg $2 string Protocol: smtp (587), imap (143), pop3 (110), ftp (21), xmpp (5222) (default: smtp)
+# @arg $3 int    Port override (optional)
+#
+# @example
+#   ssl_connect_starttls mail.example.com smtp
+#   ssl_connect_starttls mail.example.com imap 993
+#
+# @exitcode 0 Connection established (interactive)
+ssl_connect_starttls() {
+    local _host _proto _port
+    _host="${1:?ssl_connect_starttls: No remote host provided}"
+    _proto="${2:-smtp}"
+    case "${_proto}" in
+        (smtp)  _port="${3:-587}"  ;;
+        (imap)  _port="${3:-143}"  ;;
+        (pop3)  _port="${3:-110}"  ;;
+        (ftp)   _port="${3:-21}"   ;;
+        (xmpp)  _port="${3:-5222}" ;;
+        (*)     _port="${3:-25}"   ;;
+    esac
+    openssl s_client -connect "${_host}:${_port}" -starttls "${_proto}"
+}
+
+# @description Retrieve the TLS certificate from a remote host and print it as PEM.
+#   Non-interactive: reads from /dev/null so openssl does not wait for input.
+#   If an output file is given, writes PEM there instead of stdout.
+#
+# @arg $1 string Remote host
+# @arg $2 int    Port (default: 443)
+# @arg $3 string Output file path (optional; default: stdout)
+#
+# @example
+#   ssl_fetch_cert example.com > example.pem
+#   ssl_fetch_cert example.com 443 example.pem
+#
+# @stdout PEM certificate (if no output file given)
+# @exitcode 0 Success
+# @exitcode 1 Connection or parse error
+ssl_fetch_cert() {
+    local _host _port _out
+    _host="${1:?ssl_fetch_cert: No remote host provided}"
+    _port="${2:-443}"
+    _out="${3:-}"
+    if [[ -n "${_out}" ]]; then
+        openssl s_client -connect "${_host}:${_port}" -servername "${_host}" \
+            </dev/null 2>/dev/null | openssl x509 -out "${_out}"
+    else
+        openssl s_client -connect "${_host}:${_port}" -servername "${_host}" \
+            </dev/null 2>/dev/null | openssl x509
+    fi
+}
