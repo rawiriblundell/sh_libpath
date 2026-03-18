@@ -192,3 +192,36 @@ net_nics() {
     done < <(ip -o link show 2>/dev/null | awk -F ': ' '{ print $2 }')
   fi
 }
+
+# @description Find the next available local port by scanning with 'ss'.
+#   Starts from a given port and increments until a free port is found.
+#
+# @arg $1 int Starting port number (default: 9000)
+# @arg $2 int Number of ports to scan before giving up (default: 100)
+#
+# @example
+#   net_next_port          # => 9000 (or next available above 9000)
+#   net_next_port 8080 50
+#
+# @stdout The first available port number
+# @exitcode 0 An available port was found
+# @exitcode 1 No available port found within the scan range
+net_next_port() {
+  local test_port max_port
+  test_port="${1:-9000}"
+  # Set an upper bound.  100 cycles should be plenty.
+  max_port="$(( test_port + "${2:-100}" ))"
+  while true; do
+    if (( test_port == max_port )); then
+      printf -- '%s\n' "net_next_port: no available port found in range" >&2
+      return 1
+    fi
+    # bash builtins weren't working in WSL2 for me, so I'm using 'ss' here
+    # TODO: figure out a more portable way to do this, or multiple methods failing over?
+    if ! ss 2>&1 | grep -q "127.0.0.1:${test_port}"; then
+      printf -- '%d\n' "${test_port}"
+      break
+    fi
+    (( test_port++ ))
+  done
+}
