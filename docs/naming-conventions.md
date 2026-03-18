@@ -202,6 +202,9 @@ would be tautological or the short form is clearly the better name.
 | `whoowns` | `fs/stat_file.sh` | `fs_whoowns` adds no clarity; the name reads as a natural English question. Thin wrapper over `fs_stat owner`. |
 | `greet` | `misc/greet.sh` | `misc_greet` adds nothing; the function is a self-contained imperative with no attribute to qualify. |
 | `validate_config` | `utils/validate_config.sh` | Parked pending a decision on where config validation belongs. May move to a `config/` module or gain a `util_` prefix in a future pass. |
+| `util_genpasswd`, `util_genphrase` | `utils/genpasswd.sh`, `utils/genphrase.sh` | Password/passphrase generation belongs conceptually in a `secrets_*` or `crypto_*` namespace (cf. Python `secrets`, Go `crypto/rand`). Parked in `util_` until a `secrets/` or `crypto/` module justifies the move. When that happens: rename to `secrets_genpasswd`/`secrets_genphrase` and keep `util_` forms as aliases. |
+| `confirm` | `utils/confirm.sh` | Natural English imperative; `cmd_confirm` is a plausible fit but `prompt_*` is the stronger long-term home. Parked until a `prompt_*` cluster justifies the rename. When that happens: rename to `prompt_confirm` and keep `confirm` as an alias. |
+| `detect_type` | `core/types.sh` | Every language converges on `type()` or `typeof` for this concept. The shell builtin `type` is already taken (command lookup), making `detect_type` the closest available form. `core_detect_type` adds no clarity. |
 
 Note: `math_ceiling`, `math_floor`, `math_round`, `math_trunc` (`numbers/rounding.sh`) use `math_` rather than `num_`. Python, Go, and JavaScript all converge on a `math` namespace for these operations; `num_` is the canonical project prefix but `math_` is the cross-language convention and wins here. The short forms (`ceiling`, `floor`, `round`, `trunc`) are kept as aliases.
 

@@ -25,7 +25,7 @@ _SHELLAC_LOADED_goodies_8ball=1
 # @stdout One random response from the standard 8-ball set
 # @exitcode 0 Always
 8ball() {
-  ansArray=(
+  eightball_answers=(
     "It is certain" "It is decidedly so" "Without a doubt"
     "Yes definitely" "You may rely on it" "You can count on it"
     "As I see it, yes" "Most likely" "Outlook good" "Yes"
@@ -35,5 +35,5 @@ _SHELLAC_LOADED_goodies_8ball=1
     "My sources say no" "Outlook not so good" "Very doubtful"
     "Chances aren't good"
   )
-  printf -- '%s\n' "${ansArray[$(( RANDOM % ${#ansArray[@]} ))]}"
+  printf -- '%s\n' "${eightball_answers[$(( RANDOM % ${#eightball_answers[@]} ))]}"
 }
