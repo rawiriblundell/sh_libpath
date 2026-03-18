@@ -32,7 +32,7 @@ net_http_code_explain() {
   local _code _http_status_code _http_status_description 
   case "${1}" in
     ([iI]nfo|[iI]nformational)
-      for _code in 100 101 102 103; do
+      for _code in 100 101 102 103 104; do
         net_http_code_explain "${_code}"
         printf -- '%s\n' ""
       done
@@ -53,14 +53,14 @@ net_http_code_explain() {
       return 0
     ;;
     ([cC]lient|[cC]lient_[eE]rrors)
-      for _code in 400 401 402 403 404 405 406 407 408 409 410 411 412 413 414 415 416 417 418 421 422 423 424 425 426 428 429 431 444 451 499; do
+      for _code in 400 401 402 403 404 405 406 407 408 409 410 411 412 413 414 415 416 417 418 421 422 423 424 425 426 428 429 431 440 444 449 451 460 463 464 499; do
         net_http_code_explain "${_code}"
         printf -- '%s\n' ""
       done
       return 0
     ;;
     ([sS]erver|[sS]erver_[eE]rrors)
-      for _code in 500 501 502 503 504 505 506 507 508 510 511 599; do
+      for _code in 500 501 502 503 504 505 506 507 508 510 511 562 599; do
         net_http_code_explain "${_code}"
         printf -- '%s\n' ""
       done
@@ -81,6 +81,10 @@ net_http_code_explain() {
     (103)
       _http_status_code='Early Hints'
       _http_status_description='This status code is primarily intended to be used with the Link header, letting the user agent start preloading resources while the server prepares a response.'
+    ;;
+    (104)
+      _http_status_code='Upload Resumption Supported'
+      _http_status_description='(Draft) Indicates that the server supports resumable uploads per draft-ietf-httpbis-resumable-upload. The client may resume an interrupted upload from the byte offset indicated in the response.'
     ;;
     (110)
       _http_status_code='Response is Stale'
@@ -145,6 +149,10 @@ net_http_code_explain() {
     (214)
       _http_status_code='Transformation Applied'
       _http_status_description='(Obsolete) Added by a proxy if it applies any transformation to the representation, such as changing the content encoding, media type or the like.'
+    ;;
+    (218)
+      _http_status_code='This Is Fine'
+      _http_status_description='(Non-standard, Apache) Used as a catch-all success response to let a request pass through even when an error has occurred, allowing the response body to still be read. Named after the "This Is Fine" internet meme.'
     ;;
     (226)
       _http_status_code='IM Used (HTTP Delta encoding)'
@@ -243,8 +251,8 @@ net_http_code_explain() {
       _http_status_description='The client has indicated preconditions in its headers which the server does not meet.'
     ;;
     (413)
-      _http_status_code='Payload Too Large'
-      _http_status_description='Request entity is larger than limits defined by server. The server might close the connection or return an Retry-After header field.'
+      _http_status_code='Content Too Large'
+      _http_status_description='The request body is larger than limits defined by the server. The server may close the connection or return a Retry-After header field. Previously named "Payload Too Large" (RFC 7231) and "Request Entity Too Large".'
     ;;
     (414)
       _http_status_code='URI Too Long'
@@ -263,8 +271,8 @@ net_http_code_explain() {
       _http_status_description='This response code means the expectation indicated by the Expect request header field cannot be met by the server.'
     ;;
     (418)
-      _http_status_code="I'm a teapot"
-      _http_status_description='The server refuses the attempt to brew coffee with a teapot.'
+      _http_status_code="(Unused) / I'm a teapot"
+      _http_status_description='IANA lists this code as "(Unused)". It originated in RFC 2324 (April Fools 1998, Hyper Text Coffee Pot Control Protocol) and was never formally removed. The server refuses the attempt to brew coffee with a teapot.'
     ;;
     (419)
       _http_status_code="Page Expired"
@@ -280,8 +288,8 @@ net_http_code_explain() {
       _http_status_description='The request was directed at a server that is not able to produce a response. This can be sent by a server that is not configured to produce responses for the combination of scheme and authority that are included in the request URI.'
     ;;
     (422)
-      _http_status_code='Unprocessable Entity (WebDAV)'
-      _http_status_description='The request was well-formed but was unable to be followed due to semantic errors.'
+      _http_status_code='Unprocessable Content'
+      _http_status_description='The request was well-formed but was unable to be followed due to semantic errors. Previously named "Unprocessable Entity (WebDAV)" in RFC 4918; renamed in RFC 9110.'
     ;;
     (423)
       _http_status_code='Locked (WebDAV)'
@@ -337,12 +345,16 @@ net_http_code_explain() {
       (Non-standard, Microsoft IIS) Used in Exchange ActiveSync to tell the client to re-run the HTTP AutoDiscover operation to find a more appropriate server.'
     ;;
     (460)
-      _http_status_code='AWS ELB'
-      _http_status_description="(Non-standard, AWS) Client closed the connection with the load balancer before the idle timeout period elapsed. Typically when client timeout is sooner than the Elastic Load Balancer's timeout."
+      _http_status_code='Client Closed Connection'
+      _http_status_description="(Non-standard, AWS ELB) The client closed the connection with the load balancer before the idle timeout period elapsed. Typically occurs when the client timeout is shorter than the Elastic Load Balancer's timeout."
     ;;
     (463)
-      _http_status_code='AWS ELB'
-      _http_status_description='(Non-standard, AWS) The load balancer received an X-Forwarded-For request header with more than 30 IP addresses.'
+      _http_status_code='Too Many X-Forwarded-For IPs'
+      _http_status_description='(Non-standard, AWS ELB) The load balancer received an X-Forwarded-For request header with more than 30 IP addresses.'
+    ;;
+    (464)
+      _http_status_code='Incompatible Protocol Versions'
+      _http_status_description='(Non-standard, AWS ELB) The request protocol is incompatible with the protocol version configured on the target group. For example, sending an HTTP/1.1 request to a target group configured for gRPC.'
     ;;
     (494)
       _http_status_code='Request header too large'
@@ -446,8 +458,8 @@ net_http_code_explain() {
       _http_status_description="(Non-standard, Cloudflare) Cloudflare could not validate the SSL certificate on the origin web server. Also used by Cloud Foundry's gorouter."
     ;;
     (527)
-      _http_status_code='Railgun Error'
-      _http_status_description="(Non-standard, Cloudflare) Error 527 indicates an interrupted connection between Cloudflare and the origin server's Railgun server."
+      _http_status_code='Railgun Listener to Origin Error'
+      _http_status_description="(Non-standard, Cloudflare) An interrupted connection between Cloudflare and the origin server's Railgun server. Railgun has since been deprecated by Cloudflare."
     ;;
     (529)
       _http_status_code='Site is overloaded'
@@ -460,7 +472,11 @@ net_http_code_explain() {
     ;;
     (561)
       _http_status_code='Unauthorized'
-      _http_status_description='(Non-standard, AWS) An error around authentication returned by a server registered with a load balancer. You configured a listener rule to authenticate users, but the identity provider (IdP) returned an error code when authenticating the user.'
+      _http_status_description='(Non-standard, AWS ELB) An error around authentication returned by a server registered with a load balancer. A listener rule was configured to authenticate users, but the identity provider (IdP) returned an error code when authenticating the user.'
+    ;;
+    (562)
+      _http_status_code='JWKS Request Failed'
+      _http_status_description='(Non-standard, AWS ELB) The load balancer failed to receive a valid response from the JSON Web Key Set (JWKS) endpoint during authentication. The IdP JWKS endpoint may be unreachable or returned an invalid response.'
     ;;
     (598)
       _http_status_code='Network Read Timeout Error'
@@ -469,6 +485,10 @@ net_http_code_explain() {
     (599)
       _http_status_code='Network Connect Timeout Error'
       _http_status_description='(Non-standard, misc) Used by some HTTP proxies to signal a network connect timeout behind the proxy to a client in front of the proxy.'
+    ;;
+    (999)
+      _http_status_code='Request Denied'
+      _http_status_description='(Non-standard, LinkedIn) Returned by LinkedIn for requests it considers unauthorised or suspicious, such as unauthenticated scraping attempts.'
     ;;
     (''|*)
       printf -- 'net_http_code_explain: %s\n' "Usage: net_http_code_explain ARGUMENT" >&2
