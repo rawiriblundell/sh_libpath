@@ -23,7 +23,7 @@ include sys/os
 # Give a specific extension to load a shell specific lib
 include utils/git.zsh
 # If you have a full path to a library for whatever reason
-include /opt/mycompany/some/full/path/to/a/specific/library.sh
+include /opt/mycompany/lib/company_lib.sh
 # Or just load all libraries under the text libpath
 include text
 
@@ -113,7 +113,7 @@ The people quickest to reach for Python or Ruby are often unaware that what they
 
 There are existing shell library projects, but most have at least one of these problems: restrictive licensing, Linux-only, so deeply self-referential the code is unreadable, or naming conventions that make you feel like you're writing enterprise Java (`____awesome__shell_library____+5000____class::::text__split__` is hyperbole, but not by much).
 
-This project aims for something simpler: a permissively licensed, broadly portable library of solid shell functions, loadable on demand, with sane names.
+This project aims for something simpler: a permissively licensed, broadly portable library of solid shell functions, loadable on demand, with sane names, and only a sparing use of self-references.
 
 ## Why use libraries and not just a package of scripts
 
@@ -126,7 +126,7 @@ Libraries, insofar as they're presented in this project, are simply collections 
 
 ### Story time
 
-At a former job I inherited a slow shell script — a very long pipeline of chained `grep -v` calls.  I refactored it: put the filter strings in an array, used `array::join()` to build a single `grep -Ev` pattern from them.  Cleaner, documented, measurably faster.  The PR was not well received.  The function was apparently proof that shell was the language of the Nazis, I had brought shame upon the company, and so forth.
+At a former job I inherited a slow shell script — a very long pipeline of chained `grep -v` calls.  I refactored it: put the filter strings in an array, built a function named `array::join()` to join them into a single `grep -Ev` pattern.  Cleaner, documented, measurably faster.  The PR was not well received.  Apparently the function was proof that shell is the language of the Nazis, I had brought shame upon the company, and so forth.
 
 Had my PR instead been:
 
@@ -141,7 +141,7 @@ Had my PR instead been:
 
 There would have been no controversy at all.
 
-If you're a `python`ista or a `perl`er: when did you last read the source of a library you depend on?  "Approximately never" is the honest answer.  QED.
+If you're a `python`ista or a `perl` guru: when did you last read the source code of a library you depend on?  And when did you last include the lines-of-code of said libraries into your lines-of-code arguments?  "Approximately never" is the honest answer.  QED.
 
 ## Incomplete list of other bash libraries and frameworks
 
