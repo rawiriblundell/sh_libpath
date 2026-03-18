@@ -17,34 +17,34 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_openssl_ssl_pem_to_ppk+x}" ] && return 0
-_SHELLAC_LOADED_openssl_ssl_pem_to_ppk=1
+[ -n "${_SHELLAC_LOADED_crypto_ssl_ppk_to_pem+x}" ] && return 0
+_SHELLAC_LOADED_crypto_ssl_ppk_to_pem=1
 
 if ! command -v puttygen >/dev/null 2>&1; then
-    printf -- 'ssl_pem_to_ppk: %s\n' "This library requires 'puttygen', which was not found in PATH" >&2
+    printf -- 'ssl_ppk_to_pem: %s\n' "This library requires 'puttygen', which was not found in PATH" >&2
     exit 1
 fi
 
-ssl_pem_to_ppk() {
-    local _pem_to_ppk_in _pem_to_ppk_out
-    _pem_to_ppk_in="${1}"
-    _pem_to_ppk_out="${2}"
+ssl_ppk_to_pem() {
+    local _ppk_to_pem_in _ppk_to_pem_out
+    _ppk_to_pem_in="${1}"
+    _ppk_to_pem_out="${2}"
 
-    if (( "${#_pem_to_ppk_in}" == 0 )); then
-        printf -- 'ssl_pem_to_ppk: %s\n' "No input file provided" >&2
+    if (( "${#_ppk_to_pem_in}" == 0 )); then
+        printf -- 'ssl_ppk_to_pem: %s\n' "No input file provided" >&2
         return 1
     fi
 
     # TODO: Figure out a portable test.  Fails on binary files.
-    # if [[ -s "${_pem_to_ppk_in}" ]]; then
-    #     printf -- 'ssl_pem_to_ppk: %s\n' "Input file eppears to be empty" >&2
+    # if [[ -s "${_ppk_to_pem_in}" ]]; then
+    #     printf -- 'ssl_ppk_to_pem: %s\n' "Input file eppears to be empty" >&2
     #     return 1
     # fi
 
-    if (( "${#_pem_to_ppk_out}" == 0 )); then
-        _pem_to_ppk_out="${_pem_to_ppk_in%.*}"
-        _pem_to_ppk_out="${_pem_to_ppk_out}.ppk"
+    if (( "${#_ppk_to_pem_out}" == 0 )); then
+        _ppk_to_pem_out="${_ppk_to_pem_in%.*}"
+        _ppk_to_pem_out="${_ppk_to_pem_out}.pem"
     fi
 
-    puttygen "${_pem_to_ppk_in}" -O private -o "${_pem_to_ppk_out}"
+    puttygen "${_ppk_to_pem_in}" -O private-openssh -o "${_ppk_to_pem_out}"
 }

@@ -17,34 +17,34 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_openssl_ssl_pem_to_crt+x}" ] && return 0
-_SHELLAC_LOADED_openssl_ssl_pem_to_crt=1
+[ -n "${_SHELLAC_LOADED_crypto_ssl_view_key+x}" ] && return 0
+_SHELLAC_LOADED_crypto_ssl_view_key=1
 
 if ! command -v openssl >/dev/null 2>&1; then
-    printf -- 'ssl_pem_to_crt: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
+    printf -- 'ssl_view_key: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
     exit 1
 fi
 
-ssl_pem_to_crt() {
-    local _pem_to_crt_in _pem_to_crt_out _pem_to_crt_enctype
-    _pem_to_crt_in="${1}"
-    _pem_to_crt_out="${2}"
-    _pem_to_crt_out="${3}"
+ssl_view_key () {
+    local _ssl_view_key_in
+    _ssl_view_key_in="${1}"
 
-    if (( "${#_pem_to_crt_in}" == 0 )); then
-        printf -- 'ssl_pem_to_crt: %s\n' "No input file provided" >&2
+    if (( "${#_ssl_view_key_in}" == 0 )); then
+        printf -- 'ssl_view_key: %s\n' "No input file provided" >&2
         return 1
     fi
 
-    if [[ -s "${_pem_to_crt_in}" ]]; then
-        printf -- 'ssl_pem_to_crt: %s\n' "Input file eppears to be empty" >&2
+    openssl rsa -check -in "${_ssl_view_key_in}"
+}
+
+ssl_view_key_modulus() {
+    local _ssl_view_key_modulus_in
+    _ssl_view_key_modulus_in="${1}"
+
+    if (( "${#_ssl_view_key_modulus_in}" == 0 )); then
+        printf -- 'ssl_view_key_modulus: %s\n' "No input file provided" >&2
         return 1
     fi
 
-    if (( "${#_pem_to_crt_out}" == 0 )); then
-        _pem_to_crt_out="${_pem_to_crt_in%.*}"
-        _pem_to_crt_out="${_pem_to_crt_out}.crt"
-    fi
-
-    openssl x509 -outform "${_pem_to_crt_enctype:-PEM}" -in "${_pem_to_crt_in}" -out "${_pem_to_crt_out}"
+    openssl rsa -noout -modulus -in "${_ssl_view_key_modulus_in}" | shasum -a 256
 }

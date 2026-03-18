@@ -17,33 +17,33 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_openssl_ssl_crt_to_pem+x}" ] && return 0
-_SHELLAC_LOADED_openssl_ssl_crt_to_pem=1
+[ -n "${_SHELLAC_LOADED_crypto_ssl_p12_to_pem+x}" ] && return 0
+_SHELLAC_LOADED_crypto_ssl_p12_to_pem=1
 
 if ! command -v openssl >/dev/null 2>&1; then
-    printf -- 'ssl_crt_to_pem: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
+    printf -- 'ssl_p12_to_pem: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
     exit 1
 fi
 
-ssl_crt_to_pem() {
-    local _crt_to_pem_in _crt_to_pem_out _crt_to_pem_enctype
-    _crt_to_pem_in="${1}"
-    _crt_to_pem_out="${2}"
+ssl_p12_to_pem() {
+    local _p12_to_pem_in _p12_to_pem_out
+    _p12_to_pem_in="${1}"
+    _p12_to_pem_out="${2}"
 
-    if (( "${#_crt_to_pem_in}" == 0 )); then
-        printf -- 'ssl_crt_to_pem: %s\n' "No input file provided" >&2
+    if (( "${#_p12_to_pem_in}" == 0 )); then
+        printf -- 'ssl_p12_to_pem: %s\n' "No input file provided" >&2
         return 1
     fi
 
-    if [[ -s "${_crt_to_pem_in}" ]]; then
-        printf -- 'ssl_crt_to_pem: %s\n' "Input file eppears to be empty" >&2
+    if [[ -s "${_p12_to_pem_in}" ]]; then
+        printf -- 'ssl_p12_to_pem: %s\n' "Input file eppears to be empty" >&2
         return 1
     fi
 
-    if (( "${#_crt_to_pem_out}" == 0 )); then
-        _crt_to_pem_out="${_crt_to_pem_in%.*}"
-        _crt_to_pem_out="${_crt_to_pem_out}.pem"
+    if (( "${#_p12_to_pem_out}" == 0 )); then
+        _p12_to_pem_out="${_p12_to_pem_in%.*}"
+        _p12_to_pem_out="${_p12_to_pem_out}.pem"
     fi
 
-    openssl x509 -in "${_crt_to_pem_in}" -out "${_crt_to_pem_out}" -outform PEM
+    openssl pkcs12 -nodes -in "${_p12_to_pem_in}" -out "${_p12_to_pem_out}"
 }

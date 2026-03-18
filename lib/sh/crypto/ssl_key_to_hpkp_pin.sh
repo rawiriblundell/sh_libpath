@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -17,31 +17,24 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_openssl_ssl_decrypt+x}" ] && return 0
-_SHELLAC_LOADED_openssl_ssl_decrypt=1
+[ -n "${_SHELLAC_LOADED_crypto_ssl_key_to_hpkp_pin+x}" ] && return 0
+_SHELLAC_LOADED_crypto_ssl_key_to_hpkp_pin=1
 
 if ! command -v openssl >/dev/null 2>&1; then
-    printf -- 'ssl_decrypt: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
+    printf -- 'ssl_key_to_hpkp_pin: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
     exit 1
 fi
 
-ssl_decrypt() {
-    local _ssl_decrypt_in _ssl_decrypt_out
-    _ssl_decrypt_in="${1}"
-    _ssl_decrypt_out="${2}"
+ssl_key_to_hpkp_pin() {
+    local _ssl_key_to_hpkp_pin_in
+    _ssl_key_to_hpkp_pin_in="${1}"
 
-    if (( "${#_ssl_decrypt_in}" == 0 )); then
-        printf -- 'ssl_decrypt: %s\n' "No input file provided" >&2
+    if (( "${#_ssl_key_to_hpkp_pin_in}" == 0 )); then
+        printf -- 'ssl_key_to_hpkp_pin: %s\n' "No input file provided" >&2
         return 1
     fi
 
-    if (( "${#_ssl_decrypt_out}" == 0 )); then
-        _ssl_decrypt_out="${_ssl_decrypt_in}.decrypted"
-    fi
-
-    openssl aes-256-cbc -d -a -pbkdf2 -iter 600000 -in "${_ssl_decrypt_in}" -out "${_ssl_decrypt_out}"
+    openssl rsa -in "${_ssl_key_to_hpkp_pin_in}" -outform der -pubout |
+        openssl dgst -sha256 -binary |
+        openssl enc -base64 
 }
-
-# Decrypt using private key
-# If key is not supplied, try "${HOME}/.ssh/ssl_encrypt.key"
-# openssl pkeyutl -decrypt -inkey radium -in testhashed -out testunhashed

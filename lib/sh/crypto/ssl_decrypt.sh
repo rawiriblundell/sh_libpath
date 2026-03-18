@@ -1,4 +1,4 @@
-# shellcheck shell=bash
+# shellcheck shell=ksh
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -17,33 +17,31 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_openssl_ssl_p12_to_pem+x}" ] && return 0
-_SHELLAC_LOADED_openssl_ssl_p12_to_pem=1
+[ -n "${_SHELLAC_LOADED_crypto_ssl_decrypt+x}" ] && return 0
+_SHELLAC_LOADED_crypto_ssl_decrypt=1
 
 if ! command -v openssl >/dev/null 2>&1; then
-    printf -- 'ssl_p12_to_pem: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
+    printf -- 'ssl_decrypt: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
     exit 1
 fi
 
-ssl_p12_to_pem() {
-    local _p12_to_pem_in _p12_to_pem_out
-    _p12_to_pem_in="${1}"
-    _p12_to_pem_out="${2}"
+ssl_decrypt() {
+    local _ssl_decrypt_in _ssl_decrypt_out
+    _ssl_decrypt_in="${1}"
+    _ssl_decrypt_out="${2}"
 
-    if (( "${#_p12_to_pem_in}" == 0 )); then
-        printf -- 'ssl_p12_to_pem: %s\n' "No input file provided" >&2
+    if (( "${#_ssl_decrypt_in}" == 0 )); then
+        printf -- 'ssl_decrypt: %s\n' "No input file provided" >&2
         return 1
     fi
 
-    if [[ -s "${_p12_to_pem_in}" ]]; then
-        printf -- 'ssl_p12_to_pem: %s\n' "Input file eppears to be empty" >&2
-        return 1
+    if (( "${#_ssl_decrypt_out}" == 0 )); then
+        _ssl_decrypt_out="${_ssl_decrypt_in}.decrypted"
     fi
 
-    if (( "${#_p12_to_pem_out}" == 0 )); then
-        _p12_to_pem_out="${_p12_to_pem_in%.*}"
-        _p12_to_pem_out="${_p12_to_pem_out}.pem"
-    fi
-
-    openssl pkcs12 -nodes -in "${_p12_to_pem_in}" -out "${_p12_to_pem_out}"
+    openssl aes-256-cbc -d -a -pbkdf2 -iter 600000 -in "${_ssl_decrypt_in}" -out "${_ssl_decrypt_out}"
 }
+
+# Decrypt using private key
+# If key is not supplied, try "${HOME}/.ssh/ssl_encrypt.key"
+# openssl pkeyutl -decrypt -inkey radium -in testhashed -out testunhashed

@@ -17,24 +17,26 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_openssl_ssl_ssl_key_to_hpkp_pin+x}" ] && return 0
-_SHELLAC_LOADED_openssl_ssl_ssl_key_to_hpkp_pin=1
+[ -n "${_SHELLAC_LOADED_crypto_ssl_website_to_hpkp_pin+x}" ] && return 0
+_SHELLAC_LOADED_crypto_ssl_website_to_hpkp_pin=1
 
 if ! command -v openssl >/dev/null 2>&1; then
-    printf -- 'ssl_key_to_hpkp_pin: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
+    printf -- 'ssl_website_to_hpkp_pin: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
     exit 1
 fi
 
-ssl_key_to_hpkp_pin() {
-    local _ssl_key_to_hpkp_pin_in
-    _ssl_key_to_hpkp_pin_in="${1}"
+ssl_website_to_hpkp_pin() {
+    local _ssl_website_to_hpkp_pin_in
+    _ssl_website_to_hpkp_pin_in="${1}"
 
-    if (( "${#_ssl_key_to_hpkp_pin_in}" == 0 )); then
-        printf -- 'ssl_key_to_hpkp_pin: %s\n' "No input file provided" >&2
+    if (( "${#_ssl_website_to_hpkp_pin_in}" == 0 )); then
+        printf -- 'ssl_website_to_hpkp_pin: %s\n' "No input file provided" >&2
         return 1
     fi
 
-    openssl rsa -in "${_ssl_key_to_hpkp_pin_in}" -outform der -pubout |
+    openssl s_client -connect "${_ssl_website_to_hpkp_pin_in}:443" |
+        openssl x509 -pubkey -noout |
+        openssl rsa -pubin -outform der |
         openssl dgst -sha256 -binary |
-        openssl enc -base64 
+        openssl enc -base64
 }

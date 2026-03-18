@@ -17,22 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_openssl_ssl_ssl_view_pkcs12+x}" ] && return 0
-_SHELLAC_LOADED_openssl_ssl_ssl_view_pkcs12=1
+[ -n "${_SHELLAC_LOADED_crypto_ssl_cert_join+x}" ] && return 0
+_SHELLAC_LOADED_crypto_ssl_cert_join=1
 
-if ! command -v openssl >/dev/null 2>&1; then
-    printf -- 'ssl_view_pkcs12: %s\n' "This library requires 'openssl', which was not found in PATH" >&2
-    exit 1
-fi
-
-ssl_view_pkcs12 () {
-    local _ssl_view_pkcs12_in
-    _ssl_view_pkcs12_in="${1}"
-
-    if (( "${#_ssl_view_pkcs12_in}" == 0 )); then
-        printf -- 'ssl_view_pkcs12: %s\n' "No input file provided" >&2
-        return 1
-    fi
-
-    openssl pkcs12 -info -in "${_ssl_view_pkcs12_in}"
-}
+# TODO: Create a function that joins certs into chains
+# I likely have the code for this already - must check my archives...
