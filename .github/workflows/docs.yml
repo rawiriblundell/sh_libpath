@@ -1,0 +1,47 @@
+name: Deploy Docs
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install shdoc
+        run: |
+          curl -sL https://github.com/reconquest/shdoc/releases/download/v1.2/shdoc \
+            -o /usr/local/bin/shdoc
+          chmod +x /usr/local/bin/shdoc
+
+      - name: Generate API docs
+        run: |
+          find lib/sh -name '*.sh' | sort | while IFS= read -r file; do
+            module="${file#lib/sh/}"
+            module="${module%/*}"
+            outfile="docs/api/${module}/${file##*/}"
+            outfile="${outfile%.sh}.md"
+            mkdir -p "$(dirname "${outfile}")"
+            shdoc < "${file}" > "${outfile}"
+            # Drop empty files (no shdoc annotations found)
+            [ -s "${outfile}" ] || rm -f "${outfile}"
+          done
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install MkDocs
+        run: pip install mkdocs-material mkdocs-awesome-pages-plugin
+
+      - name: Deploy
+        run: mkdocs gh-deploy --force
