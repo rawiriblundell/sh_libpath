@@ -80,13 +80,21 @@ if [ -n "${SH_LIBPATH}" ]; then
   # bashism: 'read -ra' and herestring require bash; acceptable as this file requires bash
   IFS=':' read -ra SH_LIBPATH_ARRAY <<< "${SH_LIBPATH}"
 else
+  # Derive candidate from this file's own location (bin/shellac → lib/sh).
+  # Handles dev clones, custom prefixes, and direct profile.d sourcing without
+  # any configuration.  Falls through gracefully if the path doesn't resolve.
+  _self_libpath="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd -P)"
+  _self_libpath="${_self_libpath%/bin}/lib/sh"
+
   # Potential basepaths for where our libraries might be placed
   POSSIBLE_SH_LIBPATHS=(
+    "${_self_libpath}"
     "${XDG_DATA_HOME:-${HOME}/.local/share}/shellac/lib/sh"
     "${HOME}/.local/lib/sh"
     /opt/shellac/lib/sh
     /usr/local/lib/sh
   )
+  unset -v _self_libpath
 
   # Append shellac/lib/sh under each dir in XDG_DATA_DIRS
   # bashism: 'read -ra' and herestring for splitting colon-separated var
