@@ -25,6 +25,14 @@ if ! command -v openssl >/dev/null 2>&1; then
     exit 1
 fi
 
+# @description Decrypt a file encrypted with ssl_encrypt (AES-256-CBC, base64, PBKDF2).
+#   openssl will prompt for the passphrase interactively.
+#
+# @arg $1 string Input encrypted file
+# @arg $2 string Output decrypted file (default: input path with .decrypted suffix)
+#
+# @exitcode 0 Success
+# @exitcode 1 No input file provided
 ssl_decrypt() {
     local _ssl_decrypt_in _ssl_decrypt_out
     _ssl_decrypt_in="${1}"

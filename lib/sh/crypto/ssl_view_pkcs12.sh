@@ -25,6 +25,14 @@ if ! command -v openssl >/dev/null 2>&1; then
     exit 1
 fi
 
+# @description Display the contents of a PKCS#12 bundle (.p12 / .pfx).
+#   openssl will prompt for the import password interactively.
+#
+# @arg $1 string PKCS#12 file (.p12 or .pfx)
+#
+# @stdout Certificate and key information from the bundle
+# @exitcode 0 Success
+# @exitcode 1 No input provided
 ssl_view_pkcs12 () {
     local _ssl_view_pkcs12_in
     _ssl_view_pkcs12_in="${1}"

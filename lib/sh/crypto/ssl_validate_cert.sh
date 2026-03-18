@@ -25,10 +25,16 @@ if ! command -v openssl >/dev/null 2>&1; then
     exit 1
 fi
 
-# Validate a certificate against a key and csr
-# Usage: ssl_validate_cert certificate.crt [optional: certificate.key] [optional: certificate.csr]
-# If the key and/or csr are not explicitly defined, we will assume the same basename as the crt
-# e.g. for 'example.com.crt', 'example.com.key' and 'example.com.csr' will be assumed
+# @description Validate that a certificate, private key, and CSR all share the same modulus.
+#   If key and/or CSR paths are omitted, they are inferred from the certificate basename.
+#   e.g. for 'example.com.crt', 'example.com.key' and 'example.com.csr' are assumed.
+#
+# @arg $1 string Certificate file (.crt or .pem)
+# @arg $2 string Private key file (optional; default: cert basename + .key)
+# @arg $3 string CSR file (optional; default: cert basename + .csr)
+#
+# @exitcode 0 Certificate, key, and CSR moduli all match
+# @exitcode 1 No certificate provided, missing/unreadable files, or modulus mismatch
 ssl_validate_cert() {
     local _ssl_validate_cert _validate_key _validate_csr _cert_hash _key_hash _csr_hash
     _ssl_validate_cert="${1}"

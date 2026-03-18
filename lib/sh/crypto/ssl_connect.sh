@@ -25,6 +25,13 @@ if ! command -v openssl >/dev/null 2>&1; then
     exit 1
 fi
 
+# @description Open an interactive TLS connection to a remote host, displaying OCSP status.
+#
+# @arg $1 string Remote hostname or IP
+# @arg $2 int    Port (default: 443)
+#
+# @exitcode 0 Connection established (interactive)
+# @exitcode 1 No host provided
 ssl_connect () {
     local _ssl_connect_remote_host _ssl_connect_remote_port
     _ssl_connect_remote_host="${1}"

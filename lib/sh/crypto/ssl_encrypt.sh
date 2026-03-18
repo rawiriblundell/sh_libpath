@@ -25,6 +25,14 @@ if ! command -v openssl >/dev/null 2>&1; then
     exit 1
 fi
 
+# @description Encrypt a file using AES-256-CBC with base64 encoding and PBKDF2 key derivation.
+#   openssl will prompt for a passphrase interactively.  Decrypt with ssl_decrypt.
+#
+# @arg $1 string Input file to encrypt
+# @arg $2 string Output encrypted file (default: input path with .crypted suffix)
+#
+# @exitcode 0 Success
+# @exitcode 1 No input file provided
 ssl_encrypt() {
     local _ssl_encrypt_in _ssl_encrypt_out
     _ssl_encrypt_in="${1}"

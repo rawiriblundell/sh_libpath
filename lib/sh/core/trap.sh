@@ -20,6 +20,15 @@
 [ -n "${_SHELLAC_LOADED_core_trap+x}" ] && return 0
 _SHELLAC_LOADED_core_trap=1
 
+# @description Make Ctrl+C a no-op to prevent it killing the script.
+#
+# @exitcode 0 Always
+no_ctrl_c() {
+    # @internal
+    _no_ctrl_c() { :; }
+    trap _no_ctrl_c INT
+}
+
 # @description Append a command to an existing trap rather than replacing it.
 #   Allows multiple callers to register cleanup handlers on the same signal
 #   without clobbering each other.
@@ -32,15 +41,6 @@ _SHELLAC_LOADED_core_trap=1
 #   trap_add 'printf "caught INT\n" >&2' INT
 #
 # @exitcode 0 Always
-# @description Make Ctrl+C a no-op to prevent it killing the script.
-#
-# @exitcode 0 Always
-no_ctrl_c() {
-    # @internal
-    _no_ctrl_c() { :; }
-    trap _no_ctrl_c INT
-}
-
 trap_add() {
     local _new_cmd
     local _signal

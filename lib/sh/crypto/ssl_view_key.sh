@@ -25,6 +25,13 @@ if ! command -v openssl >/dev/null 2>&1; then
     exit 1
 fi
 
+# @description Display the decoded components of an RSA private key and verify its consistency.
+#
+# @arg $1 string PEM private key file
+#
+# @stdout Decoded key components (modulus, public exponent, etc.)
+# @exitcode 0 Key is consistent
+# @exitcode 1 No input provided or key check failed
 ssl_view_key () {
     local _ssl_view_key_in
     _ssl_view_key_in="${1}"
@@ -37,6 +44,14 @@ ssl_view_key () {
     openssl rsa -check -in "${_ssl_view_key_in}"
 }
 
+# @description Print the SHA-256 hash of the public key modulus from a private key.
+#   Used to verify that a key and its corresponding certificate share the same modulus.
+#
+# @arg $1 string PEM private key file
+#
+# @stdout SHA-256 hash of the modulus
+# @exitcode 0 Success
+# @exitcode 1 No input provided
 ssl_view_key_modulus() {
     local _ssl_view_key_modulus_in
     _ssl_view_key_modulus_in="${1}"

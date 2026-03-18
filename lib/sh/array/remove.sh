@@ -112,26 +112,6 @@ array_pop() {
   _arr=( "${_arr[@]:0:$(( ${#_arr[@]} - 1 ))}" )
 }
 
-# @description Remove elements from a named array at a given position, optionally inserting replacements.
-#   Prints the removed elements.
-#
-# @arg $1 string Name of the array variable.
-# @arg $2 int Start index (supports negative indices from end).
-# @arg $3 int Number of elements to delete (default: all remaining from start).
-# @arg $@ string Optional replacement elements to insert at the start position.
-#
-# @example
-#   myarr=( a b c d e )
-#   array_splice myarr 1 2
-#   # => b
-#   # => c
-#   printf '%s\n' "${myarr[@]}"
-#   # => a
-#   # => d
-#   # => e
-#
-# @stdout The removed elements, one per line.
-# @exitcode 0 Always
 # @description Insert one or more elements into a named array at a given index.
 #   Existing elements at and after the index are shifted right.
 #
@@ -164,6 +144,26 @@ array_insert() {
   _arr=( "${_new_arr[@]}" )
 }
 
+# @description Remove elements from a named array at a given position, optionally inserting replacements.
+#   Prints the removed elements, one per line.
+#
+# @arg $1 string Name of the array variable.
+# @arg $2 int    Start index (supports negative indices from end).
+# @arg $3 int    Number of elements to delete (default: all remaining from start index).
+# @arg $@ string Optional replacement elements to insert at the start position.
+#
+# @example
+#   myarr=( a b c d e )
+#   array_splice myarr 1 2
+#   # => b
+#   # => c
+#   printf '%s\n' "${myarr[@]}"
+#   # => a
+#   # => d
+#   # => e
+#
+# @stdout The removed elements, one per line.
+# @exitcode 0 Always
 array_splice() {
   local -n _arr="${1:?No array name given}"
   local _start _count _i

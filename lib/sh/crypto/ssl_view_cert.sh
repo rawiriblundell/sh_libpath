@@ -25,7 +25,18 @@ if ! command -v openssl >/dev/null 2>&1; then
     exit 1
 fi
 
-# This function absorbs code from 
+# @description Display a specific field or the full decoded text of an X.509 certificate.
+#   The first argument selects the field; the second is the certificate file.
+#   For the 'expiry'/'end' field the second argument may be a remote hostname
+#   (port defaults to 443 or may be passed as the third argument).
+#
+# @arg $1 string Field: algorithm | CN | email | expiry | end | fingerprint | issuer | modulus | OrgName | SANs | serial | start | state — or any other value for full text
+# @arg $2 string Certificate file path (or hostname for remote expiry check)
+#
+# @stdout Requested certificate field value or full decoded certificate text
+# @exitcode 0 Success
+# @exitcode 1 No input provided
+# This function absorbs code from
 # https://github.com/rawiriblundell/scripts/blob/master/ssl_audit
 # (c) 2019 Rawiri Blundell, Datacom Compute.  MIT License.
 ssl_view_cert () {
