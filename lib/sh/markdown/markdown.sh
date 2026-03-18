@@ -25,22 +25,22 @@ _SHELLAC_LOADED_markdown_markdown=1
 # fragment with no trailing newline, for use inside printf/command substitution.
 
 # @description Print a level-1 heading.
-# @arg $* string Heading text
+# @arg $@ string Heading text
 # @stdout "# text\n"
 md_h1() { printf -- '# %s\n' "${*}"; }
 
 # @description Print a level-2 heading.
-# @arg $* string Heading text
+# @arg $@ string Heading text
 # @stdout "## text\n"
 md_h2() { printf -- '## %s\n' "${*}"; }
 
 # @description Print a level-3 heading.
-# @arg $* string Heading text
+# @arg $@ string Heading text
 # @stdout "### text\n"
 md_h3() { printf -- '### %s\n' "${*}"; }
 
 # @description Print a level-4 heading.
-# @arg $* string Heading text
+# @arg $@ string Heading text
 # @stdout "#### text\n"
 md_h4() { printf -- '#### %s\n' "${*}"; }
 
@@ -62,13 +62,13 @@ md_fence_open() { printf -- '\x60\x60\x60%s\n' "${1:-}"; }
 md_fence_close() { printf -- '\x60\x60\x60\n'; }
 
 # @description Print a bullet list item.
-# @arg $* string Item text
+# @arg $@ string Item text
 # @stdout "- text\n"
 md_bullet() { printf -- '- %s\n' "${*}"; }
 
 # @description Print a numbered list item.
 # @arg $1 integer Item number
-# @arg $* string  Item text
+# @arg $@ string  Item text
 # @stdout "N. text\n"
 md_numbered() {
   local n
@@ -78,23 +78,23 @@ md_numbered() {
 }
 
 # @description Print a blockquote line.
-# @arg $* string Quote text
+# @arg $@ string Quote text
 # @stdout "> text\n"
 md_blockquote() { printf -- '> %s\n' "${*}"; }
 
 # Inline elements — no trailing newline; intended for use inside printf or $().
 
 # @description Emit bold-formatted text (no trailing newline).
-# @arg $* string Text to bold
+# @arg $@ string Text to bold
 # @stdout "**text**"
 md_bold() { printf -- '**%s**' "${*}"; }
 
 # @description Emit italic-formatted text (no trailing newline).
-# @arg $* string Text to italicise
+# @arg $@ string Text to italicise
 # @stdout "_text_"
 md_italic() { printf -- '_%s_' "${*}"; }
 
 # @description Emit inline code-formatted text (no trailing newline).
-# @arg $* string Text to format as inline code
+# @arg $@ string Text to format as inline code
 # @stdout "`text`"
 md_code() { printf -- '\x60%s\x60' "${*}"; }
