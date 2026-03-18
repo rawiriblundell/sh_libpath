@@ -165,6 +165,37 @@ units/temperature.sh  → celsius_to_fahrenheit, temp_convert, … (see exceptio
 units/permissions.sh  → octal_to_rwx, rwx_to_octal, permissions_convert
 ```
 
+### Module layout patterns
+
+When a module's functions fit naturally into a single file, name it
+`base.sh`. The include then reads as `include <module>/base`, which
+is unambiguous and avoids the tautological `include path/path` or
+`include git/git`.
+
+When the module splits cleanly along read/write lines, use two files
+named to reflect that split. The default pair is:
+
+- **`inspect.sh`** — read-only queries, predicates, introspection.
+  No state is modified.
+- **`manage.sh`** — write operations, idempotent create/update/delete.
+
+Use domain-appropriate names where something more expressive fits.
+`users/query.sh` + `users/provision.sh` is clearer than
+`users/inspect.sh` + `users/manage.sh` in that context. The
+`inspect/manage` pair is the fallback when nothing better presents
+itself.
+
+Literal `read`/`write`, verb-only names (`get`, `set`), and HTTP
+methods (`GET`, `POST`) are all rejected — they are either too close
+to reserved words or carry the wrong connotations.
+
+```
+git/base.sh           → single-file module; all git_* functions
+path/base.sh          → single-file module; all path_* functions
+users/query.sh        → read-only: user_uid, user_gid, user_accounts …
+users/provision.sh    → write/idempotent: ensure_user_exists, ensure_group_exists …
+```
+
 ---
 
 ## Sentinel variables
@@ -202,14 +233,16 @@ would be tautological or the short form is clearly the better name.
 | `whoowns` | `fs/stat_file.sh` | `fs_whoowns` adds no clarity; the name reads as a natural English question. Thin wrapper over `fs_stat owner`. |
 | `greet` | `misc/greet.sh` | `misc_greet` adds nothing; the function is a self-contained imperative with no attribute to qualify. |
 | `validate_config` | `utils/validate_config.sh` | Parked pending a decision on where config validation belongs. May move to a `config/` module or gain a `util_` prefix in a future pass. |
-| `util_genpasswd`, `util_genphrase` | `utils/genpasswd.sh`, `utils/genphrase.sh` | Password/passphrase generation belongs conceptually in a `secrets_*` or `crypto_*` namespace (cf. Python `secrets`, Go `crypto/rand`). Parked in `util_` until a `secrets/` or `crypto/` module justifies the move. When that happens: rename to `secrets_genpasswd`/`secrets_genphrase` and keep `util_` forms as aliases. |
-| `confirm` | `utils/confirm.sh` | Natural English imperative; `cmd_confirm` is a plausible fit but `prompt_*` is the stronger long-term home. Parked until a `prompt_*` cluster justifies the rename. When that happens: rename to `prompt_confirm` and keep `confirm` as an alias. |
+| `secrets_genpasswd`, `secrets_genphrase` | `crypto/genpasswd.sh`, `crypto/genphrase.sh` | Password/passphrase generation lives in `crypto/` under the `secrets_*` sub-namespace (cf. Go `crypto/rand`, Python `secrets`). Short forms `genpasswd` and `genphrase` are kept as aliases. |
+| `confirm` | `utils/prompt.sh` | Alias for `prompt_confirm`; kept for natural English readability and backwards compatibility. Lives alongside `prompt_response` and `prompt_password` in the prompt cluster. |
 | `detect_type` | `core/types.sh` | Every language converges on `type()` or `typeof` for this concept. The shell builtin `type` is already taken (command lookup), making `detect_type` the closest available form. `core_detect_type` adds no clarity. |
 | `readlist` | `array/readlist.sh` | Deliberately echoes the `readarray`/`mapfile` builtin naming. `array_readlist` would be a stutter. Defaults to `READLIST` as the target array, mirroring `mapfile`→`MAPFILE`. |
+| `int` | `numbers/numeric.sh` | Alias for `num_parse`; equivalent to Go's `strconv.Atoi`. `num_int` would be a stutter; the short form is the universal cross-language name. |
+| `is_integer`, `is_float`, `is_numeric`, `is_positive_integer` | `numbers/numeric.sh` | Backward-compatible aliases for `num_is_integer --regex`, `num_is_float --regex`, `num_is_numeric`, `num_is_positive_integer`. The `is_*` names are the canonical public predicates; `num_is_*` exposes the additional `--regex` flag. |
 
 Note: `math_ceiling`, `math_floor`, `math_round`, `math_trunc` (`numbers/rounding.sh`) use `math_` rather than `num_`. Python, Go, and JavaScript all converge on a `math` namespace for these operations; `num_` is the canonical project prefix but `math_` is the cross-language convention and wins here. The short forms (`ceiling`, `floor`, `round`, `trunc`) are kept as aliases.
 
-Note: `sum` and `average` (`numbers/sum.sh`, `numbers/average.sh`) are stream aggregators rather than unary math operations. No language puts these in a `math.*` namespace. They stay as named exceptions; `array_sum` in the array module handles the array case.
+Note: `sum` and `average` (`numbers/sum.sh`) are stream aggregators rather than unary math operations. No language puts these in a `math.*` namespace. They stay as named exceptions; `array_sum` in the array module handles the array case.
 
 Note: `strict_euopipefail`, `strict_nowhitesplitting` (`core/`) are intentional exceptions. The project discourages `set -e` / `pipefail` patterns, but these are provided for users who want them. The `strict_` prefix is the namespace; no module prefix is added.
 
