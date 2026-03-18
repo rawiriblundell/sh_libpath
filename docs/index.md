@@ -22,11 +22,10 @@ fs_hash /etc/passwd
 
 | Module | Description |
 |--------|-------------|
-| `archive` | Compress and extract archives |
 | `args` | Argument parsing and validation |
 | `array` | Array manipulation and functional operations |
 | `core` | Error handling, traps, type detection, status |
-| `fs` | Filesystem operations, hashing, permissions, stat |
+| `fs` | Filesystem operations, archives, hashing, permissions, stat |
 | `git` | Git repository utilities |
 | `goodies` | Animations and novelty functions |
 | `line` | Line-oriented text operations |

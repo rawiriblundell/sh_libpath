@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_archive_extract+x}" ] && return 0
-_SHELLAC_LOADED_archive_extract=1
+[ -n "${_SHELLAC_LOADED_fs_archive+x}" ] && return 0
+_SHELLAC_LOADED_fs_archive=1
 
 # @description Compress files into a common archive format determined by the
 #   output filename extension. Supports .tar.bz2, .tar.gz, .tgz, .zip, and .rar.
@@ -28,7 +28,7 @@ _SHELLAC_LOADED_archive_extract=1
 #
 # @exitcode 0 Success
 # @exitcode 1 Unrecognised file extension
-archive_compress() {
+fs_compress() {
   local _fsobj
   _fsobj=$1
   shift
@@ -50,7 +50,7 @@ archive_compress() {
 #
 # @exitcode 0 All archives extracted successfully
 # @exitcode 1 One or more files were unreadable or had unrecognised extensions
-archive_extract() {
+fs_extract() {
   local _xcmd _rc _fsobj
 
   (($#)) || return
