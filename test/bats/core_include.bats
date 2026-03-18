@@ -19,7 +19,7 @@ teardown() {
   run bash -c "
     export SH_LIBPATH='${SHELLAC_LIB}'
     source '${SHELLAC_BIN}'
-    include '${SHELLAC_LIB}/numbers/int.sh'
+    include '${SHELLAC_LIB}/numbers/numeric.sh'
     command -v num_parse >/dev/null && printf ok
   "
   [ "${status}" -eq 0 ]
@@ -56,7 +56,7 @@ teardown() {
   run bash -c "
     export SH_LIBPATH='${SHELLAC_LIB}'
     source '${SHELLAC_BIN}'
-    include numbers/int
+    include numbers/numeric
     command -v num_parse >/dev/null && printf ok
   "
   [ "${status}" -eq 0 ]
@@ -67,7 +67,7 @@ teardown() {
   run bash -c "
     export SH_LIBPATH='${SHELLAC_LIB}'
     source '${SHELLAC_BIN}'
-    include numbers/int.sh
+    include numbers/numeric.sh
     command -v num_parse >/dev/null && printf ok
   "
   [ "${status}" -eq 0 ]

@@ -134,6 +134,14 @@ include() {
     fi
     sh_stack_add "'${_include_target}' is apparently not a full path to a file."
 
+    # If the target is an absolute path but the file doesn't exist, fail here
+    # rather than falling through SH_LIBPATH resolution with a confusing error.
+    if [[ "${_include_target}" = /* ]]; then
+        _shellac_stack dump
+        printf -- 'include: %s\n' "'${_include_target}' not found or not a regular file" >&2
+        return 1
+    fi
+
     # If it's not a full path, we work through a sequence of tests:
     # Is it a subdir within SH_LIBPATH e.g. include text
     # Is it a subdir/library with an explicit extension e.g. include text/puts.bash
