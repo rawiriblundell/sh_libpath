@@ -45,7 +45,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install MkDocs
-        run: pip install mkdocs-material mkdocs-awesome-pages-plugin
+        run: pip install "mkdocs-material<2.0" mkdocs-awesome-pages-plugin
 
       - name: Deploy
         run: mkdocs gh-deploy --force
