@@ -61,3 +61,29 @@ sum() {
   done
   printf -- '%d\n' "${sum}"
 }
+
+# @description Compute the arithmetic mean of numbers from stdin, a file, or positional parameters.
+#   With no arguments reads from stdin. With one argument that is a readable file, averages its lines.
+#   Otherwise averages the supplied parameters.
+#
+# @arg $@ number Optional numbers to average, or a single file path
+#
+# @stdout The average value
+# @exitcode 0 Always
+average() {
+  case "${#}" in
+    (0)
+      awk '{ total += $1; count++ } END { print total/count }'
+    ;;
+    (1)
+      if [ -r "${1}" ]; then
+        awk '{ total += $1; count++ } END { print total/count }' "${1}"
+      else
+        printf -- '%s\n' "${1}"
+      fi
+    ;;
+    (*)
+      printf -- '%s\n' "${@}" | awk '{ total += $1; count++ } END { print total/count }'
+    ;;
+  esac
+}
