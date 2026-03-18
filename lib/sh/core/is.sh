@@ -200,3 +200,41 @@ is_root() {
 is_sourced() {
     [ "${BASH_SOURCE[0]}" != "${0}" ]
 }
+
+########## Value tests
+# @description Test whether a value is one of an allowed set of values.
+#
+# @arg $1 string The value to check
+# @arg $@ string Allowed values (all arguments after $1)
+#
+# @example
+#   var_is_one_of "${ENV}" dev staging prod
+#
+# @exitcode 0 Value is in the set; 1 Value is not in the set
+var_is_one_of() {
+    local value candidate
+    value="${1:?}"
+    shift
+    for candidate in "${@}"; do
+        [[ "${value}" == "${candidate}" ]] && return 0
+    done
+    return 1
+}
+
+# @description Test whether exactly one of the given values is non-empty.
+#   Useful for validating mutually exclusive options.
+#
+# @arg $@ string Values to test (at least two required)
+#
+# @example
+#   var_exactly_one_set "${opt_a}" "${opt_b}" "${opt_c}"
+#
+# @exitcode 0 Exactly one non-empty; 1 Zero or more than one non-empty
+var_exactly_one_set() {
+    local count value
+    count=0
+    for value in "${@}"; do
+        [[ -n "${value}" ]] && (( count += 1 ))
+    done
+    (( count == 1 ))
+}
