@@ -38,7 +38,7 @@ num_2dp() {
 #
 # @stdout Zero-right-padded integer
 # @exitcode 0 Always
-zeropad_right() {
+num_zeropad_right() {
   local _int _len
   _int="${1:?No number provided}"
   _len="${2:-3}"

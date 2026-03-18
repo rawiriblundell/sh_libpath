@@ -33,7 +33,7 @@ export _self_pid
 #
 # @stderr Formatted error message prefixed with script name and line number
 # @exitcode 1 Always (via SIGTERM trap)
-die() {
+cmd_die() {
     if [ -t 2 ]; then
         printf '\e[31;1m====>%s\e[0m\n' "${0}:(${LINENO}): ${*}" >&2
     else
@@ -42,6 +42,9 @@ die() {
     kill -s TERM "${_self_pid}"
 }
 
+# @description Alias for cmd_die.
+die() { cmd_die "${@}"; }
+
 # @description Print a formatted warning message to stderr and return (non-fatal).
 #   Uses colour when stderr is a terminal.
 #
@@ -49,7 +52,7 @@ die() {
 #
 # @stderr Formatted warning message prefixed with script name and line number
 # @exitcode 0 Always
-warn() {
+cmd_warn() {
     if [ -t 2 ]; then
         printf '\e[33;1m====>%s\e[0m\n' "${0}:(${LINENO}): ${*}" >&2
     else
@@ -57,16 +60,22 @@ warn() {
     fi
 }
 
+# @description Alias for cmd_warn.
+warn() { cmd_warn "${@}"; }
+
 # @description Run a command and die with a descriptive message if it fails.
-#   A lightweight alternative to exec_cmd() for critical one-liners.
+#   A lightweight alternative to cmd_exec() for critical one-liners.
 #
 # @arg $@ string The command and its arguments to execute
 #
 # @exitcode 0 Command succeeded
-# @exitcode 1 Command failed (via die())
-try() {
-    "${@}" || die "cannot ${*}"
+# @exitcode 1 Command failed (via cmd_die())
+cmd_try() {
+    "${@}" || cmd_die "cannot ${*}"
 }
+
+# @description Alias for cmd_try.
+try() { cmd_try "${@}"; }
 
 # @description Run a command up to N times until it succeeds.
 #   Prints a dot to stderr for each failed attempt.
@@ -79,7 +88,7 @@ try() {
 # @stderr A dot per failed attempt, then a newline; error message if exhausted
 # @exitcode 0 Command succeeded within the allowed attempts
 # @exitcode 1 All attempts exhausted
-retry() {
+cmd_retry() {
     local _attempts
     local _count
     local _opt
@@ -102,7 +111,7 @@ retry() {
         printf -- '%s' "." >&2
         if (( _count >= _attempts )); then
             printf -- '\n' >&2
-            printf -- 'retry: %s\n' "command failed after ${_attempts} attempt(s): ${*}" >&2
+            printf -- 'cmd_retry: %s\n' "command failed after ${_attempts} attempt(s): ${*}" >&2
             return 1
         fi
         (( _sleep > 0 )) && sleep "${_sleep}"

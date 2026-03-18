@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -17,8 +17,8 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_utils_extract+x}" ] && return 0
-_SHELLAC_LOADED_utils_extract=1
+[ -n "${_SHELLAC_LOADED_archive_extract+x}" ] && return 0
+_SHELLAC_LOADED_archive_extract=1
 
 # @description Compress files into a common archive format determined by the
 #   output filename extension. Supports .tar.bz2, .tar.gz, .tgz, .zip, and .rar.
@@ -28,15 +28,16 @@ _SHELLAC_LOADED_utils_extract=1
 #
 # @exitcode 0 Success
 # @exitcode 1 Unrecognised file extension
-compress() {
-  File=$1
+archive_compress() {
+  local _fsobj
+  _fsobj=$1
   shift
-  case "${File}" in
-    (*.tar.bz2) tar cjf "${File}" "$@"  ;;
-    (*.tar.gz)  tar czf "${File}" "$@"  ;;
-    (*.tgz)     tar czf "${File}" "$@"  ;;
-    (*.zip)     zip "${File}" "$@"      ;;
-    (*.rar)     rar "${File}" "$@"      ;;
+  case "${_fsobj}" in
+    (*.tar.bz2) tar cjf "${_fsobj}" "${@}"  ;;
+    (*.tar.gz)  tar czf "${_fsobj}" "${@}"  ;;
+    (*.tgz)     tar czf "${_fsobj}" "${@}"  ;;
+    (*.zip)     zip "${_fsobj}" "${@}"      ;;
+    (*.rar)     rar "${_fsobj}" "${@}"      ;;
     (*)         printf -- '%s\n' "Filetype not recognized" ;;
   esac
 }
@@ -49,54 +50,54 @@ compress() {
 #
 # @exitcode 0 All archives extracted successfully
 # @exitcode 1 One or more files were unreadable or had unrecognised extensions
-extract() {
-  local xcmd rc fsobj
+archive_extract() {
+  local _xcmd _rc _fsobj
 
   (($#)) || return
-  rc=0
-  for fsobj; do
-    xcmd=''
+  _rc=0
+  for _fsobj; do
+    _xcmd=''
 
-    if [[ ! -r ${fsobj} ]]; then
-      printf -- '%s\n' "$0: file is unreadable: '${fsobj}'" >&2
+    if [[ ! -r ${_fsobj} ]]; then
+      printf -- '%s\n' "$0: file is unreadable: '${_fsobj}'" >&2
       continue
     fi
 
-    [[ -e ./"${fsobj#/}" ]] && fsobj="./${fsobj#/}"
+    [[ -e ./"${_fsobj#/}" ]] && _fsobj="./${_fsobj#/}"
 
-    case ${fsobj} in
+    case ${_fsobj} in
       (*.cbt|*.t@(gz|lz|xz|b@(2|z?(2))|a@(z|r?(.@(Z|bz?(2)|gz|lzma|xz)))))
-        xcmd=(bsdtar xvf)
+        _xcmd=(bsdtar xvf)
       ;;
       (*.7z*|*.arj|*.cab|*.chm|*.deb|*.dmg|*.iso|*.lzh|*.msi|*.rpm|*.udf|*.wim|*.xar)
-        xcmd=(7z x)
+        _xcmd=(7z x)
       ;;
-      (*.ace|*.cba)         xcmd=(unace x) ;;
-      (*.cbr|*.rar)         xcmd=(unrar x) ;;
-      (*.cbz|*.epub|*.zip)  xcmd=(unzip) ;;
-      (*.cpio) cpio -id < "${fsobj}"; rc=$(( rc + "${?}" )); continue ;;
+      (*.ace|*.cba)         _xcmd=(unace x) ;;
+      (*.cbr|*.rar)         _xcmd=(unrar x) ;;
+      (*.cbz|*.epub|*.zip)  _xcmd=(unzip) ;;
+      (*.cpio) cpio -id < "${_fsobj}"; _rc=$(( _rc + "${?}" )); continue ;;
       (*.cso)
-        ciso 0 "${fsobj}" "${fsobj}".iso; extract "${fsobj}".iso
-        rm -rf "${fsobj:?}"; rc=$(( rc + "${?}" ))
+        ciso 0 "${_fsobj}" "${_fsobj}".iso; archive_extract "${_fsobj}".iso
+        rm -rf "${_fsobj:?}"; _rc=$(( _rc + "${?}" ))
         continue
       ;;
-      (*.arc)   xcmd=(arc e);;
-      (*.bz2)   xcmd=(bunzip2);;
-      (*.exe)   xcmd=(cabextract);;
-      (*.gz)    xcmd=(gunzip);;
-      (*.lzma)  xcmd=(unlzma);;
-      (*.xz)    xcmd=(unxz);;
-      (*.Z|*.z) xcmd=(uncompress);;
-      (*.zpaq)  xcmd=(zpaq x);;
+      (*.arc)   _xcmd=(arc e);;
+      (*.bz2)   _xcmd=(bunzip2);;
+      (*.exe)   _xcmd=(cabextract);;
+      (*.gz)    _xcmd=(gunzip);;
+      (*.lzma)  _xcmd=(unlzma);;
+      (*.xz)    _xcmd=(unxz);;
+      (*.Z|*.z) _xcmd=(uncompress);;
+      (*.zpaq)  _xcmd=(zpaq x);;
       (*)
-        printf -- '%s\n' "$0: unrecognized file extension: '${fsobj}'" >&2
+        printf -- '%s\n' "$0: unrecognized file extension: '${_fsobj}'" >&2
         continue
       ;;
     esac
 
-    command "${xcmd[@]}" "${fsobj}"
-    rc=$(( rc + "${?}" ))
+    command "${_xcmd[@]}" "${_fsobj}"
+    _rc=$(( _rc + "${?}" ))
   done
-  (( rc > 0 )) && return "${rc}"
+  (( _rc > 0 )) && return "${_rc}"
   return 0
 }

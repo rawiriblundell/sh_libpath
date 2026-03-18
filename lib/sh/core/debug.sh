@@ -64,7 +64,7 @@ debug() {
 # @description Like debug(), but pauses for a keypress before continuing.
 #
 # @exitcode 0 Always
-step() {
+debug_step() {
     [[ "${debug_mode}" = "true" ]] || return 0
     : [DEBUG] "${*}"
     : ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -87,7 +87,7 @@ esac
 #   x=enable xtrace, X=disable xtrace, q=quit.
 #
 # @exitcode 0 Always
-breakpoint() {
+debug_breakpoint() {
     local REPLY
     printf -- '%s\n' 'Breakpoint hit. [opaAxXq]'
     while read -r -n 1 REPLY; do

@@ -29,7 +29,7 @@ _SHELLAC_LOADED_goodies_linenoise=1
 #
 # @stdout Animated connection noise followed by a fatal error line
 # @exitcode 0 Always
-linenoise() {
+anim_linenoise() {
   local _target
   local _failmsg
   local _len

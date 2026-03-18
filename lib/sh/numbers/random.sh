@@ -146,7 +146,7 @@ random_xorshift128plus() {
 # @stdout One random integer per line within [min, max]
 # @exitcode 0 Success
 # @exitcode 3 min equals max (zero-range)
-rand_int() {
+random_int() {
   local _n_count _n_min _n_max _n_mod _rand_thres _i _x_int
   _n_count="${1:-1}"
   _n_min="${2:-1}"

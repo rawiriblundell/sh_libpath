@@ -29,7 +29,7 @@ _SHELLAC_LOADED_utils_exec_cmd=1
 # @stdout Formatted execution log with timestamp, command output and exit code
 # @exitcode 0 Command succeeded
 # @exitcode 1 Command failed and -e/--exit-on-fail was given
-exec_cmd() {
+cmd_exec() {
     local _die
     local _output
     local _exit_code

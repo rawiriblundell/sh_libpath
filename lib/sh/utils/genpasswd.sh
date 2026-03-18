@@ -106,26 +106,26 @@ genpasswd() {
   if [[ "${pwd_koremutake}" = "true" ]]; then
     for (( i=0; i<pwd_num; i++ )); do
       n=0
-      for int in $(randInt "${pwd_chars:-7}" 1 $(( ${#pwd_syllables[@]} - 1 )) ); do
+      for int in $(random_int "${pwd_chars:-7}" 1 $(( ${#pwd_syllables[@]} - 1 )) ); do
         tmpArray[n]=$(printf -- '%s\n' "${pwd_syllables[int]}")
         (( n++ ))
       done
-      read -r t u v < <(randInt 3 0 $(( ${#tmpArray[@]} - 1 )) | paste -s -)
+      read -r t u v < <(random_int 3 0 $(( ${#tmpArray[@]} - 1 )) | paste -s -)
       #pwdLower is effectively guaranteed, so we skip it and focus on the others
       if [[ "${pwd_upper}" = "true" ]]; then
         tmpArray[t]=$(capitalise "${tmpArray[t]}")
       fi
       if [[ "${pwd_digit}" = "true" ]]; then
         while (( u == t )); do
-          u="$(randInt 1 0 $(( ${#tmpArray[@]} - 1 )) )"
+          u="$(random_int 1 0 $(( ${#tmpArray[@]} - 1 )) )"
         done
-        tmpArray[u]="$(randInt 1 0 9)"
+        tmpArray[u]="$(random_int 1 0 9)"
       fi
       if [[ "${pwd_special}" = "true" ]]; then
         while (( v == t )); do
-          v="$(randInt 1 0 $(( ${#tmpArray[@]} - 1 )) )"
+          v="$(random_int 1 0 $(( ${#tmpArray[@]} - 1 )) )"
         done
-        rand_special=$(randInt 1 0 $(( ${#pwd_special_chars[@]} - 1 )) )
+        rand_special=$(random_int 1 0 $(( ${#pwd_special_chars[@]} - 1 )) )
         tmpArray[v]="${pwd_special_chars[rand_special]}"
       fi
       printf -- '%s\n' "${tmpArray[@]}" | paste -sd '\0' -
@@ -137,7 +137,7 @@ genpasswd() {
         tmpArray[n]="${REPLY}"
         (( n++ ))
       done < <(tr -dc "${pwd_set}" < /dev/urandom | tr -d ' ' | fold -w 1 | head -n "${pwd_chars}")
-      read -r t u v < <(randInt 3 0 $(( ${#tmpArray[@]} - 1 )) | paste -s -)
+      read -r t u v < <(random_int 3 0 $(( ${#tmpArray[@]} - 1 )) | paste -s -)
       #pwdLower is effectively guaranteed, so we skip it and focus on the others
       if [[ "${pwd_upper}" = "true" ]]; then
         if ! printf -- '%s\n' "tmpArray[@]}" | grep "[A-Z]" >/dev/null 2>&1; then
@@ -146,19 +146,19 @@ genpasswd() {
       fi
       if [[ "${pwd_digit}" = "true" ]]; then
         while (( u == t )); do
-          u="$(randInt 1 0 $(( ${#tmpArray[@]} - 1 )) )"
+          u="$(random_int 1 0 $(( ${#tmpArray[@]} - 1 )) )"
         done
         if ! printf -- '%s\n' "tmpArray[@]}" | grep "[0-9]" >/dev/null 2>&1; then
-          tmpArray[u]="$(randInt 1 0 9)"
+          tmpArray[u]="$(random_int 1 0 9)"
         fi
       fi
       # Because special characters aren't sucked up from /dev/urandom,
       # we have no reason to test for them, just swap one in
       if [[ "${pwd_special}" = "true" ]]; then
         while (( v == t )); do
-          v="$(randInt 1 0 $(( ${#tmpArray[@]} - 1 )) )"
+          v="$(random_int 1 0 $(( ${#tmpArray[@]} - 1 )) )"
         done
-        rand_special=$(randInt 1 0 $(( ${#pwd_special_chars[@]} - 1 )) ) 
+        rand_special=$(random_int 1 0 $(( ${#pwd_special_chars[@]} - 1 )) ) 
         tmpArray[v]="${pwd_special_chars[rand_special]}"
       fi
       printf -- '%s\n' "${tmpArray[@]}" | paste -sd '\0' -

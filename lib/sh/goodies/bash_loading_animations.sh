@@ -1,148 +1,138 @@
-#!/usr/bin/env bash
+# shellcheck shell=bash
+# shellcheck disable=SC2034
+
+# Copyright 2022 Rawiri Blundell
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+################################################################################
+# Provenance: https://github.com/rawiriblundell/shellac
+# SPDX-License-Identifier: Apache-2.0
+#
+# Animation arrays and loop/start/stop logic adapted from:
+# https://ants-gitlab.inf.um.es/fluidos-old/fluidos/-/raw/main/installation/bash_loading_animations.sh
+#
+# MIT License
+#
+# Copyright (c) 2021 Alejandro Molina Zarca, Antonio Skarmeta, Jorge Bernal,
+# Jordi Ortíz
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 [ -n "${_SHELLAC_LOADED_goodies_bash_loading_animations+x}" ] && return 0
 _SHELLAC_LOADED_goodies_bash_loading_animations=1
 
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#
-#%% Add the code between this box and its twin to the top of your script %%#
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#
+### Loading animations list ###
+# The first value of an array is the interval (in seconds) between each frame
 
-### List of available loading animations
-## You can safely remove the lines of the animations you don't want to use
-## The first value of an array is the interval (in seconds) between each frame
+## ASCII animations ##
+# Will work in any terminal, including the TTY.
+BLA_classic=( 0.25 '-' "\\" '|' '/' )
+BLA_box=( 0.2 ┤ ┴ ├ ┬ )
+BLA_bubble=( 0.6 · o O O o · )
+BLA_breathe=( 0.9 '  ()  ' ' (  ) ' '(    )' ' (  ) ' )
+BLA_growing_dots=( 0.5 '.  ' '.. ' '...' '.. ' '.  ' '   ' )
+BLA_passing_dots=( 0.25 '.  ' '.. ' '...' ' ..' '  .' '   ' )
+BLA_metro=( 0.2 '[    ]' '[=   ]' '[==  ]' '[=== ]' '[ ===]' '[  ==]' '[   =]' )
+BLA_snake=( 0.4 '[=     ]' '[~<    ]' '[~~=   ]' '[~~~<  ]' '[ ~~~= ]' '[  ~~~<]' '[   ~~~]' '[    ~~]' '[     ~]' '[      ]' )
+BLA_filling_bar=( 0.25 '█▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒' '██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒' '███▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒' '████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒' '█████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒' '██████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒' '███████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒' '████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒' '█████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒' '██████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒' '███████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒' '████████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒' '█████████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒' '██████████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒' '███████████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒' '████████████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒' '█████████████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒' '██████████████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒' '███████████████████▒▒▒▒▒▒▒▒▒▒▒▒▒' '████████████████████▒▒▒▒▒▒▒▒▒▒▒▒' '█████████████████████▒▒▒▒▒▒▒▒▒▒▒' '██████████████████████▒▒▒▒▒▒▒▒▒▒' '███████████████████████▒▒▒▒▒▒▒▒▒' '████████████████████████▒▒▒▒▒▒▒▒' '█████████████████████████▒▒▒▒▒▒▒' '██████████████████████████▒▒▒▒▒▒' '███████████████████████████▒▒▒▒▒' '████████████████████████████▒▒▒▒' '█████████████████████████████▒▒▒' '██████████████████████████████▒▒' '███████████████████████████████▒' '████████████████████████████████')
 
-# ASCII - The following animations will work in any terminal, including TTY:
-classic=( 0.25 '-' '\' '|' '/' )
-box=( 0.2 ┤ ┴ ├ ┬ )
-bubble=( 0.6 · o O O o · )
-breathe=( 0.9 '  ()  ' ' (  ) ' '(    )' ' (  ) ' )
-growing_dots=( 0.5 '.  ' '.. ' '...' '.. ' '.  ' '   ' )
-passing_dots=( 0.25 '.  ' '.. ' ' ..' '  .' '   ' )
-metro=( 0.2 '[    ]' '[=   ]' '[==  ]' '[=== ]' '[ ===]' '[  ==]' '[   =]' )
+## UTF-8 animations ##
+# Require Unicode support (will work in most modern terminals, but not in TTY).
+# Some animations may not render properly with certain fonts.
+BLA_classic_utf8=( 0.25 '—' "\\" '|' '/' )
+BLA_bounce=( 0.3 . · ˙ · )
+BLA_vertical_block=( 0.25 ▁ ▂ ▃ ▄ ▅ ▆ ▇ █ █ ▇ ▆ ▅ ▄ ▃ ▂ ▁ )
+BLA_horizontal_block=( 0.25 ▏ ▎ ▍ ▌ ▋ ▊ ▉ ▉ ▊ ▋ ▌ ▍ ▎ ▏ )
+BLA_quarter=( 0.25 ▖ ▘ ▝ ▗ )
+BLA_triangle=( 0.45 ◢ ◣ ◤ ◥)
+BLA_semi_circle=( 0.1 ◐ ◓ ◑ ◒ )
+BLA_rotating_eyes=( 0.4 ◡◡ ⊙⊙ ⊙⊙ ◠◠ )
+BLA_firework=( 0.4 '⢀' '⠠' '⠐' '⠈' '*' '*' ' ' )
+BLA_braille=( 0.2 ⠁ ⠂ ⠄ ⡀ ⢀ ⠠ ⠐ ⠈ )
+BLA_braille_whitespace=( 0.2 ⣾ ⣽ ⣻ ⢿ ⡿ ⣟ ⣯ ⣷ )
+BLA_trigram=( 0.25 ☰ ☱ ☳ ☶ ☴ )
+BLA_arrow=( 0.15 ▹▹▹▹▹ ▸▹▹▹▹ ▹▸▹▹▹ ▹▹▸▹▹ ▹▹▹▸▹ ▹▹▹▹▸ ▹▹▹▹▹ ▹▹▹▹▹ ▹▹▹▹▹ ▹▹▹▹▹ ▹▹▹▹▹ ▹▹▹▹▹ ▹▹▹▹▹ )
+BLA_bouncing_ball=( 0.4 '(●     )' '( ●    )' '(  ●   )' '(   ●  )' '(    ● )' '(     ●)' '(    ● )' '(   ●  )' '(  ●   )' '( ●    )' )
+BLA_big_dot=( 0.7 ∙∙∙ ●∙∙ ∙●∙ ∙∙● )
+BLA_modern_metro=( 0.15 ▰▱▱▱▱▱▱ ▰▰▱▱▱▱▱ ▰▰▰▱▱▱▱ ▱▰▰▰▱▱▱ ▱▱▰▰▰▱▱ ▱▱▱▰▰▰▱ ▱▱▱▱▰▰▰ ▱▱▱▱▱▰▰ ▱▱▱▱▱▱▰ ▱▱▱▱▱▱▱ ▱▱▱▱▱▱▱ ▱▱▱▱▱▱▱ ▱▱▱▱▱▱▱ )
+BLA_pong=( 0.35 '▐⠂       ▌' '▐⠈       ▌' '▐ ⠂      ▌' '▐ ⠠      ▌' '▐  ⡀     ▌' '▐  ⠠     ▌' '▐   ⠂    ▌' '▐   ⠈    ▌' '▐    ⠂   ▌' '▐    ⠠   ▌' '▐     ⡀  ▌' '▐     ⠠  ▌' '▐      ⠂ ▌' '▐      ⠈ ▌' '▐       ⠂▌' '▐       ⠠▌' '▐       ⡀▌' '▐      ⠠ ▌' '▐      ⠂ ▌' '▐     ⠈  ▌' '▐     ⠂  ▌' '▐    ⠠   ▌' '▐    ⡀   ▌' '▐   ⠠    ▌' '▐   ⠂    ▌' '▐  ⠈     ▌' '▐  ⠂     ▌' '▐ ⠠      ▌' '▐ ⡀      ▌' '▐⠠       ▌' )
+BLA_earth=( 0.45 🌍 🌎 🌏 )
+BLA_clock=( 0.2 🕛 🕐 🕑 🕒 🕓 🕔 🕕 🕖 🕗 🕘 🕙 🕚 )
+BLA_moon=( 0.8 🌑 🌒 🌓 🌔 🌕 🌖 🌗 🌘 )
+BLA_orange_pulse=( 0.35 🔸 🔶 🟠 🟠 🔶 )
+BLA_blue_pulse=( 0.35 🔹 🔷 🔵 🔵 🔷 )
+BLA_football=( 0.25 ' 👧⚽️       👦' '👧  ⚽️      👦' '👧   ⚽️     👦' '👧    ⚽️    👦' '👧     ⚽️   👦' '👧      ⚽️  👦' '👧       ⚽️👦 ' '👧      ⚽️  👦' '👧     ⚽️   👦' '👧    ⚽️    👦' '👧   ⚽️     👦' '👧  ⚽️      👦' )
+BLA_blink=( 0.25 😐 😐 😐 😐 😐 😐 😐 😐 😐 😑 )
+BLA_camera=( 0.1 📷 📷 📷 📷 📷 📷 📷 📷 📷 📷 📷 📷 📷 📷 📷 📷 📷 📷 📷 📷 📸 📷 📸 )
+BLA_sparkling_camera=( 0.1 '📷 ' '📷 ' '📷 ' '📷 ' '📷 ' '📷 ' '📷 ' '📷 ' '📷 ' '📷 ' '📷 ' '📷 ' '📷 ' '📷 ' '📷 ' '📷 ' '📷 ' '📷 ' '📷 ' '📷 ' '📸✨' '📷 ' '📸✨' )
+BLA_sick=( 0.9 🤢 🤢 🤮 )
+BLA_monkey=( 0.4 🙉 🙈 🙊 🙈 )
+BLA_bomb=( 0.25 '💣   ' ' 💣  ' '  💣 ' '   💣' '   💣' '   💣' '   💣' '   💣' '   💥' '    ' '    ' )
 
-# UTF-8 - The following animations require a terminal that supports Unicode (most modern terminals do), they will NOT work in TTY:
-classic_utf8=( 0.25 '—' '\' '|' '/' )
-bounce=( 0.3 . · ˙ · )
-vertical_block=( 0.25 ▁ ▂ ▃ ▄ ▅ ▆ ▇ █ █ ▇ ▆ ▅ ▄ ▃ ▁ )
-horizontal_block=( 0.25 ▏ ▎ ▍ ▌ ▋ ▊ ▉ ▉ ▊ ▋ ▌ ▍ ▎ ▏ )
-quarter=( 0.25 ▖ ▘ ▝ ▗ )
-triangle=( 0.45 ◢ ◣ ◤ ◥)
-semi_circle=( 0.1 ◐ ◓ ◑ ◒ )
-rotating_eyes=( 0.4 ◡◡ ⊙⊙ ⊙⊙ ◠◠ )
-firework=( 0.4 '⢀' '⠠' '⠐' '⠈' '*' '*' ' ' )
-braille=( 0.2 ⠁ ⠂ ⠄ ⡀ ⢀ ⠠ ⠐ ⠈ )
-braille_whitespace=( 0.2 ⣾ ⣽ ⣻ ⢿ ⡿ ⣟ ⣯ ⣷ )
-trigram=( 0.25 ☰ ☱ ☳ ☶ ☴ )
-arrow=( 0.15 ▹▹▹▹▹ ▸▹▹▹▹ ▹▸▹▹▹ ▹▹▸▹▹ ▹▹▹▸▹ ▹▹▹▹▸ ▹▹▹▹▹ ▹▹▹▹▹ ▹▹▹▹▹ ▹▹▹▹▹ ▹▹▹▹▹ ▹▹▹▹▹ ▹▹▹▹▹ )
-bouncing_ball=( 0.4 '( ●    )' '(  ●   )' '(   ●  )' '(    ● )' '(     ●)' '(    ● )' '(   ●  )' '(  ●   )' '( ●    )' '(●     )' )
-big_dot=( 0.7 ∙∙∙ ●∙∙ ∙●∙ ∙∙● )
-modern_metro=( 0.15 ▰▱▱▱▱▱▱ ▰▰▱▱▱▱▱ ▰▰▰▱▱▱▱ ▱▰▰▰▱▱▱ ▱▱▰▰▰▱▱ ▱▱▱▰▰▰▱ ▱▱▱▱▰▰▰ ▱▱▱▱▱▰▰ ▱▱▱▱▱▱▰ ▱▱▱▱▱▱▱ ▱▱▱▱▱▱▱ ▱▱▱▱▱▱▱ ▱▱▱▱▱▱▱ )
-pong=( 0.35 '▐⠂       ▌' '▐⠈       ▌' '▐ ⠂      ▌' '▐ ⠠      ▌' '▐  ⡀     ▌' '▐  ⠠     ▌' '▐   ⠂    ▌' '▐   ⠈    ▌' '▐    ⠂   ▌' '▐    ⠠   ▌' '▐     ⡀  ▌' '▐     ⠠  ▌' '▐      ⠂ ▌' '▐      ⠈ ▌' '▐       ⠂▌' '▐       ⠠▌' '▐       ⡀▌' '▐      ⠠ ▌' '▐      ⠂ ▌' '▐     ⠈  ▌' '▐     ⠂  ▌' '▐    ⠠   ▌' '▐    ⡀   ▌' '▐   ⠠    ▌' '▐   ⠂    ▌' '▐  ⠈     ▌' '▐  ⠂     ▌' '▐ ⠠      ▌' '▐ ⡀      ▌' '▐⠠       ▌' )
-earth=( 0.45 🌍 🌎 🌏 )
-clock=( 0.2 🕛 🕐 🕑 🕒 🕓 🕔 🕕 🕖 🕗 🕘 🕙 🕚 )
-moon=( 0.8 🌑 🌒 🌓 🌔 🌕 🌖 🌗 🌘 )
-orange_pulse=( 0.35 🔸 🔶 🟠 🟠 🔶 )
-blue_pulse=( 0.35 🔹 🔷 🔵 🔵 🔷 )
-football=( 0.25 ' 🧑⚽️       🧑' '🧑  ⚽️      🧑' '🧑   ⚽️     🧑' '🧑    ⚽️    🧑' '🧑     ⚽️   🧑' '🧑      ⚽️  🧑' '🧑       ⚽️🧑 ' '🧑      ⚽️  🧑' '🧑     ⚽️   🧑' '🧑    ⚽️    🧑' '🧑   ⚽️     🧑' '🧑  ⚽️      🧑' )
-blink=( 0.25 😐 😐 😐 😐 😐 😐 😐 😐 😐 😑 )
-sick=( 0.9 🤢 🤢 🤮 )
-monkey=( 0.4 🙉 🙈 🙊 🙈 )
-bomb=( 0.25 '💣   ' ' 💣  ' '  💣 ' '   💣' '   💣' '   💣' '   💣' '   💣' '   💥' '    ' '    ' )
+declare -a BLA_active_loading_animation
 
-####################################################
-### Edit the line below to choose your animation ###
-####################################################
-active_loading_animation=("${classic[@]}")
-####################################################
-### Edit the line above to choose your animation ###
-####################################################
-
-# Extract the delay between each frame from the active_loading_animation array
-loading_animation_frame_interval="${active_loading_animation[0]}"
-unset "active_loading_animation[0]"
-
-# Stop the animation and restore the normal cursor if the script is interrupted
-trap stop_loading_animation SIGINT
-
-# @description Display the active_loading_animation in a loop (run in background
-#   via start_loading_animation). Hides the cursor with tput civis.
-#
-# @exitcode 0 Always (loops indefinitely until killed)
-loading_animation() {
-  tput civis
-  while true ; do
-    for frame in "${active_loading_animation[@]}" ; do
-      printf "\r%s" "${frame}"
-      sleep "${loading_animation_frame_interval}"
+# @internal
+_anim_loop() {
+  while true; do
+    for frame in "${BLA_active_loading_animation[@]}"; do
+      printf -- '\r%s' "${frame}"
+      sleep "${BLA_loading_animation_frame_interval}"
     done
   done
 }
 
-# @description Start the loading animation in the background and store its PID
-#   in $loading_animation_id for later use by stop_loading_animation.
+# @description Start a loading animation in the background.
+#   The first element of the animation array is the frame interval in seconds;
+#   remaining elements are the animation frames.
+#   Call anim_stop when the task completes.
 #
-# @exitcode 0 Always
-start_loading_animation() {
-  loading_animation &
-  loading_animation_id="${!}"
+# @arg $@ array Elements of a BLA_* animation array (pass with "${BLA_name[@]}")
+#
+# @example
+#   anim_start "${BLA_classic[@]}"
+#   do_some_work
+#   anim_stop
+anim_start() {
+  BLA_active_loading_animation=( "${@}" )
+  BLA_loading_animation_frame_interval="${BLA_active_loading_animation[0]}"
+  unset "BLA_active_loading_animation[0]"
+  tput civis
+  _anim_loop &
+  BLA_loading_animation_pid="${!}"
 }
 
-# @description Stop the loading animation and restore the terminal cursor.
-#   Kills the background animation process by $loading_animation_id.
+# @description Stop the running loading animation and restore the cursor.
 #
-# @exitcode 0 Always
-stop_loading_animation() {
-  kill "${loading_animation_id}" &> /dev/null
-  printf "\n"
+# @example
+#   anim_stop
+anim_stop() {
+  kill "${BLA_loading_animation_pid}" &>/dev/null
+  printf -- '\n'
   tput cnorm
 }
-
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#
-#%% Add the code between this box and its twin to the top of your script %%#
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%#
-
-# Demo the loading animation
-# shellcheck disable=SC2218  # demo calls functions defined later in this file
-start_loading_animation
-sleep 10
-# shellcheck disable=SC2218
-stop_loading_animation
-exit 0
-
-##############
-### How-to ###
-##############
-
-# Use the chosen loading animation this way:
-# shellcheck disable=SC2218  # how-to example calls functions defined later in this file
-start_loading_animation
-your_command_here
-# shellcheck disable=SC2218
-stop_loading_animation
-
-# If your command prints some output in the terminal, it will mess with the loading animation.
-# To hide all output, do the following:
-your_command_here &> /dev/null
-# To hide error messages only, do the following:
-your_command_here 2> /dev/null
-# To hide standard output only, do the following:
-your_command_here 1> /dev/null
-
-
-####################
-### COMPACT MODE ###
-####################
-active_loading_animation=("${classic[@]}") ; loading_animation_frame_interval="${active_loading_animation[0]}" ; unset "active_loading_animation[0]" ; trap stop_loading_animation SIGINT
-loading_animation() { tput civis ; while true ; do for frame in "${active_loading_animation[@]}" ; do printf "\r%s" "${frame}" ; sleep "${loading_animation_frame_interval}" ; done ; done ; }
-start_loading_animation() { loading_animation & loading_animation_id="${!}" ; }
-stop_loading_animation() { kill "${loading_animation_id}" &> /dev/null ; printf "\n" ; tput cnorm ; }
-
-
-##########################
-### ULTRA-COMPACT MODE ###
-##########################
-active_loading_animation=("${classic[@]}") ; loading_animation_frame_interval="${active_loading_animation[0]}" ; unset "active_loading_animation[0]" ; trap stop_loading_animation SIGINT ; loading_animation() { tput civis ; while true ; do for frame in "${active_loading_animation[@]}" ; do printf "\r%s" "${frame}" ; sleep "${loading_animation_frame_interval}" ; done ; done ; } ; start_loading_animation() { loading_animation & loading_animation_id="${!}" ; } ; stop_loading_animation() { kill "${loading_animation_id}" &> /dev/null ; printf "\n" ; tput cnorm ; }

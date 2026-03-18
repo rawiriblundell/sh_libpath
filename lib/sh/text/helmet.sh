@@ -33,7 +33,7 @@ _SHELLAC_LOADED_text_helmet=1
 #
 # @stdout Input lines after the protected header lines
 # @exitcode 0 Always
-helmet() {
+text_helmet() {
   local _count
   local _lines
   case "${1}" in
@@ -48,3 +48,6 @@ helmet() {
   printf -- '%s\n' "${_lines[@]:0:_count}" >&2
   printf -- '%s\n' "${_lines[@]:_count}"
 }
+
+# @description Alias for text_helmet.
+helmet() { text_helmet "${@}"; }

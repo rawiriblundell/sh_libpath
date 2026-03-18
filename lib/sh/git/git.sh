@@ -26,11 +26,11 @@ _SHELLAC_LOADED_git_git=1
 # @arg $1 string File path to query
 #
 # @example
-#   get_newest_commit_date README.md   # => 1710000000 (3 weeks ago)
+#   git_newest_commit_date README.md   # => 1710000000 (3 weeks ago)
 #
 # @stdout Epoch time and relative date, e.g. "1710000000 (3 weeks ago)"
 # @exitcode 0 Always
-get_newest_commit_date() {
+git_newest_commit_date() {
     git --no-pager log -1 --pretty=format:'%ct (%cr)' -- "${1:?No file specified}"
 }
 
@@ -41,12 +41,15 @@ get_newest_commit_date() {
 #
 # @exitcode 0 Success
 # @exitcode 1 Not in a git repository or cd failed
-gcd() {
+git_cd() {
   case "$(git rev-parse --show-toplevel 2>&1)" in
     (fatal*) return 1 ;;
     (*)      cd "$(git rev-parse --show-toplevel)/${1}" || return 1 ;;
   esac
 }
+
+# @description Alias for git_cd.
+gcd() { git_cd "${@}"; }
 
 # @description Delete one or more git branches locally, remotely, or both. With no
 #   branch argument, launches an fzf multi-select prompt.
@@ -55,7 +58,7 @@ gcd() {
 # @arg $2 string Branch name(s) to delete, or omit to use fzf interactive selection
 #
 # @exitcode 0 Always (individual git commands may fail silently)
-delete_branch() {
+git_delete_branch() {
   local unwanted_branches current_branch mode
   current_branch="$(git symbolic-ref -q HEAD)"
   current_branch="${current_branch##refs/heads/}"

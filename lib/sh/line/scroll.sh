@@ -27,7 +27,7 @@ _SHELLAC_LOADED_line_scroll=1
 #
 # @stdout Input lines printed one at a time with delays
 # @exitcode 0 Always
-scroll() {
+line_scroll() {
   # Check that stdin isn't empty
   if [[ -t 0 ]]; then
     printf -- '%s\n' "Usage:  pipe | to | scroll [n]" ""

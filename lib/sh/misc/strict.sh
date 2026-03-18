@@ -47,7 +47,7 @@ strict_nowhitesplitting() {
 #   (prevent accidental file overwriting with >). Inspired by modernish safe.mm.
 #
 # @exitcode 0 Always
-safe() {
+strict_safe() {
   IFS=''
   set -o noglob
   set -o nounset

@@ -32,7 +32,7 @@ _SHELLAC_LOADED_net_cidr=1
 # @stdout The subnet mask in dotted-decimal notation
 # @exitcode 0 Success
 # @exitcode 1 No valid argument supplied
-cidr_prefix_to_mask() {
+net_cidr_prefix_to_mask() {
   local _subnet_mask
   case "${1}" in
     (/32|32)  _subnet_mask="255.255.255.255" ;;
@@ -69,7 +69,7 @@ cidr_prefix_to_mask() {
     (/1|1)    _subnet_mask="128.0.0.0" ;;
     (/0|0)    _subnet_mask="0.0.0.0" ;;
     (''|*)
-        printf -- 'cidr_prefix_to_mask: %s\n' "Usage: cidr_prefix_to_mask [/int|int]" >&2
+        printf -- 'net_cidr_prefix_to_mask: %s\n' "Usage: net_cidr_prefix_to_mask [/int|int]" >&2
         return 1
     ;;
   esac
@@ -94,11 +94,11 @@ cidr_prefix_to_mask() {
 #
 # @stdout Formatted table of prefix lengths and subnet masks
 # @exitcode 0 Always
-cidr_prefix_table() {
+net_cidr_prefix_table() {
   local _prefix_int
   for (( _prefix_int=32; _prefix_int>=0; _prefix_int-- )); do
     printf -- '%s\n' "+-----+-----------------+"
-    printf -- '| /%-2s | %-15s |\n' "${_prefix_int}" "$(cidr_prefix_to_mask "${_prefix_int}")"
+    printf -- '| /%-2s | %-15s |\n' "${_prefix_int}" "$(net_cidr_prefix_to_mask "${_prefix_int}")"
   done
   printf -- '%s\n' "+-----+-----------------+"
 }

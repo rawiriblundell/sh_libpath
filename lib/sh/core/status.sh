@@ -31,7 +31,7 @@ _SHELLAC_LOADED_core_status=1
 #
 # @exitcode 0 Last command's status matches the expectation
 # @exitcode 1 Last command's status does not match the expectation
-status() {
+cmd_status() {
     # shellcheck disable=SC2181
     case "${1}" in
         ([yY]*|0|true)  (( "${?}" == 0 )) ;;
@@ -40,18 +40,18 @@ status() {
     esac
 }
 
-# @description Return 0 if the last command succeeded (exit code 0). Alias shorthand for status().
+# @description Return 0 if the last command succeeded (exit code 0). Alias shorthand for cmd_status().
 #
 # @exitcode 0 Last command succeeded
 # @exitcode 1 Last command failed
-status_true() {
+cmd_status_true() {
     (( "${?}" == 0 ))
 }
 
-# @description Return 0 if the last command failed (exit code > 0). Alias shorthand for status().
+# @description Return 0 if the last command failed (exit code > 0). Alias shorthand for cmd_status().
 #
 # @exitcode 0 Last command failed
 # @exitcode 1 Last command succeeded
-status_false() {
+cmd_status_false() {
     (( "${?}" > 0 ))
 }

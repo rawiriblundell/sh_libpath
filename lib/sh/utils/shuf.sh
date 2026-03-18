@@ -23,7 +23,7 @@ _SHELLAC_LOADED_utils_shuf=1
 command -v shuf >/dev/null 2>&1 && return 0
 
 # @description Step-in replacement for 'shuf' on systems that lack it.
-#   Uses reservoir sampling for arbitrary-size input. Requires the randInt function
+#   Uses reservoir sampling for arbitrary-size input. Requires the random_int function
 #   and a working $RANDOM. Note: this is a work in progress; -o (output file) is
 #   not supported.
 #
@@ -106,9 +106,9 @@ shuf() {
     exec 6< "${1}"
   # Cater for the -i option
   elif [[ "${input_range}" = "true" ]]; then
-    # If an input range is provided and repeats are ok, then simply call randInt:
+    # If an input range is provided and repeats are ok, then simply call random_int:
     if [[ "${shuf_repeat}" = "true" ]] && (( n_max <= 32767 )); then
-      randInt "${n_count:-$n_max}" "${n_min}" "${n_max}"
+      random_int "${n_count:-$n_max}" "${n_min}" "${n_max}"
       return "$?"
     # Otherwise, print a complete range to fd6 for later processing
     else
@@ -122,7 +122,7 @@ shuf() {
     fi
     # If repeats are ok, just get it over and done with
     if [[ "${shuf_repeat}" = "true" ]] && (( n_count <= 32767 )); then
-      for i in $(randInt "${n_count}" 1 "${#shuf_array[@]}"); do
+      for i in $(random_int "${n_count}" 1 "${#shuf_array[@]}"); do
         (( i-- ))
         printf -- '%s\n' "${shuf_array[i]}"
       done
@@ -158,7 +158,7 @@ shuf() {
     # the reservoir to evict and replace with incoming data
     i="${#shuf_array[@]}"
     while IFS=$'\n' read -r -u 6; do
-      n=$(randInt 1 1 "$i")
+      n=$(random_int 1 1 "$i")
       (( n-- ))
       if (( n < ${#shuf_array[@]} )); then
         printf -- '%s\n' "${shuf_array[n]}"
@@ -172,7 +172,7 @@ shuf() {
     # At this point we very likely have something left in the reservoir
     # so we shuffle it out.  This is effectively Satollo's algorithm
     while (( ${#shuf_array[@]} > 0 )); do
-      n=$(randInt 1 1 "${#shuf_array[@]}")
+      n=$(random_int 1 1 "${#shuf_array[@]}")
       (( n-- ))
       if (( n < ${#shuf_array[@]} )) && [[ -n "${shuf_array[n]}" ]]; then
         printf -- '%s\n' "${shuf_array[n]}"

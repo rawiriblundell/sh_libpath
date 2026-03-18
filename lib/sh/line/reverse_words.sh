@@ -1,4 +1,4 @@
-# shellcheck shell=ksh
+# shellcheck shell=bash
 
 # Copyright 2022 Rawiri Blundell
 #
@@ -17,16 +17,16 @@
 # Provenance: https://github.com/rawiriblundell/sh_libpath
 # SPDX-License-Identifier: Apache-2.0
 
-[ -n "${_SHELLAC_LOADED_text_reverse_words+x}" ] && return 0
-_SHELLAC_LOADED_text_reverse_words=1
+[ -n "${_SHELLAC_LOADED_line_reverse_words+x}" ] && return 0
+_SHELLAC_LOADED_line_reverse_words=1
 
-# @description Reverse the order of words in the given arguments.
+# @description Reverse the order of words on a line.
 #
 # @arg $@ string One or more words to reverse
 #
 # @stdout Words in reversed order, space-separated
 # @exitcode 0 Always
-reverse_words() {
+line_reverse_words() {
     local _reverse_words_word _reverse_words_output
     # shellcheck disable=SC2068 # We want word splitting here
     for _reverse_words_word in ${@}; do
