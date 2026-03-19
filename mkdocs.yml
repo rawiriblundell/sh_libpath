@@ -6,12 +6,11 @@ repo_name: rawiriblundell/shellac
 edit_uri: edit/main/docs/
 
 theme:
-  name: terminal
+  name: shadcn
 
 plugins:
-  - search
-  - awesome-pages
-  - md-to-html
+  - shadcn/search
+  - shadcn/excalidraw
 
 markdown_extensions:
   - pymdownx.highlight:
