@@ -8,7 +8,7 @@ Shellac is a modular bash library providing a consistent, well-named API across 
 
 ```bash
 # Source shellac
-source /path/to/shellac
+source /opt/shellac/bin/shellac
 
 # Browse the library hierarchy
 shellac modules                   # list all modules
