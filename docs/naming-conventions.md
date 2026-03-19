@@ -2,7 +2,7 @@
 
 This document describes the naming standard that has emerged across
 `lib/sh/`. The net/ module is covered in more detail in
-`_draft_net_naming.md`; what follows applies library-wide.
+[net/ conventions](net-conventions.md); what follows applies library-wide.
 
 ---
 

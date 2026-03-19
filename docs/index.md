@@ -28,22 +28,24 @@ fs_hash /etc/passwd
 |--------|-------------|
 | `args` | Argument parsing and validation |
 | `array` | Array manipulation and functional operations |
-| `core` | Error handling, traps, type detection, status |
+| `core` | Error handling, traps, type detection, status, stdlib |
+| `crypto` | SSL/TLS, SSH fingerprints, passwords, UUIDs |
 | `fs` | Filesystem operations, archives, hashing, permissions, stat |
 | `git` | Git repository utilities |
 | `goodies` | Animations and novelty functions |
+| `json` | JSON pretty-printing |
 | `line` | Line-oriented text operations |
+| `markdown` | Markdown rendering helpers |
 | `misc` | AWS costs, Homebrew, Nagios output, strict modes |
 | `net` | Networking — IP, DNS, CIDR, validation, queries |
-| `numbers` | Numeric formatting, rounding, random, semver |
-| `openssl` | SSL/TLS certificate inspection utilities |
+| `numbers` | Numeric formatting, rounding, arithmetic |
 | `path` | Path resolution and symlink handling |
 | `sys` | CPU, memory, swap, uptime, terminal |
 | `text` | String manipulation, formatting, helmet |
 | `time` | Epoch, date conversion, month-end, DST |
 | `units` | Unit conversion — temperature, permissions, storage |
 | `users` | User and system account inspection |
-| `utils` | Command checking, confirmation, password generation |
+| `utils` | Command checking, retry, timeout, logging, prompts |
 
 ## Naming conventions
 

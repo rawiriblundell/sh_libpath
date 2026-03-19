@@ -509,8 +509,10 @@ _shellac_info_file() {
 # @internal
 # Print functions and descriptions for all files in a module directory.
 _shellac_info_module() {
-  local _dir _file
+  local _dir _file _module
   _dir="${1}"
+  _module="${_dir##*/}"
+  printf -- '%s/\n' "${_module}"
   while read -r _file; do
     grep -qm1 '^# @redirect' "${_file}" 2>/dev/null && continue
     _shellac_info_file "${_file}"

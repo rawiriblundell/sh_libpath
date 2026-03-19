@@ -110,3 +110,84 @@ teardown() {
   [ "${status}" -eq 1 ]
   [[ "${output}" == *"Usage:"* ]]
 }
+
+# ---------------------------------------------------------------------------
+# shellac modules
+# ---------------------------------------------------------------------------
+
+@test "shellac modules: returns 0 and lists known modules" {
+  run shellac_run 'shellac modules'
+  [ "${status}" -eq 0 ]
+  [[ "${output}" == *"core"* ]]
+  [[ "${output}" == *"net"* ]]
+  [[ "${output}" == *"text"* ]]
+}
+
+@test "shellac modules: output is sorted" {
+  run shellac_run 'shellac modules'
+  [ "${status}" -eq 0 ]
+  sorted="$(printf '%s\n' "${output}" | sort)"
+  [ "${output}" = "${sorted}" ]
+}
+
+# ---------------------------------------------------------------------------
+# shellac info
+# ---------------------------------------------------------------------------
+
+@test "shellac info: module lookup lists files and functions" {
+  run shellac_run 'shellac info net'
+  [ "${status}" -eq 0 ]
+  [[ "${output}" == *"net/"* ]]
+  [[ "${output}" == *"net_validate"* ]]
+}
+
+@test "shellac info: file lookup lists functions in that file" {
+  run shellac_run 'shellac info net/cidr'
+  [ "${status}" -eq 0 ]
+  [[ "${output}" == *"net_cidr_to_mask"* ]]
+  [[ "${output}" == *"net_mask_to_cidr"* ]]
+}
+
+@test "shellac info: file lookup accepts .sh extension" {
+  run shellac_run 'shellac info net/cidr.sh'
+  [ "${status}" -eq 0 ]
+  [[ "${output}" == *"net_cidr_to_mask"* ]]
+}
+
+@test "shellac info: function lookup prints description and exit codes" {
+  run shellac_run 'shellac info net_cidr_to_mask'
+  [ "${status}" -eq 0 ]
+  [[ "${output}" == *"net_cidr_to_mask"* ]]
+  [[ "${output}" == *"net/cidr.sh"* ]]
+  [[ "${output}" == *"Exit codes"* ]]
+}
+
+@test "shellac info: unknown target returns 1" {
+  run shellac_run 'shellac info no_such_function_xyz'
+  [ "${status}" -eq 1 ]
+}
+
+@test "shellac info: missing argument returns 1" {
+  run shellac_run 'shellac info'
+  [ "${status}" -eq 1 ]
+}
+
+# ---------------------------------------------------------------------------
+# shellac provides
+# ---------------------------------------------------------------------------
+
+@test "shellac provides: returns the library file for a known function" {
+  run shellac_run 'shellac provides net_cidr_to_mask'
+  [ "${status}" -eq 0 ]
+  [[ "${output}" == *"net/cidr.sh"* ]]
+}
+
+@test "shellac provides: unknown function returns 1" {
+  run shellac_run 'shellac provides no_such_function_xyz'
+  [ "${status}" -eq 1 ]
+}
+
+@test "shellac provides: missing argument returns 1" {
+  run shellac_run 'shellac provides'
+  [ "${status}" -eq 1 ]
+}
