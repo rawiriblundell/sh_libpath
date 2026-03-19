@@ -1,5 +1,3 @@
-# Shellac
-
 The missing library ecosystem for shell.
 
 Shellac is a modular bash library providing a consistent, well-named API across common domains: filesystem, networking, text, time, system, and more.

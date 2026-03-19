@@ -1,5 +1,3 @@
-# Library structure
-
 Shellac organises its code in a three-level hierarchy:
 
 ```

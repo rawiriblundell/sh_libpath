@@ -1,5 +1,3 @@
-# Shellac function naming conventions
-
 This document describes the naming standard that has emerged across
 `lib/sh/`.
 
