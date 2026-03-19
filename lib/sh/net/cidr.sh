@@ -68,8 +68,12 @@ net_cidr_to_mask() {
     (/2|2)    _subnet_mask="192.0.0.0" ;;
     (/1|1)    _subnet_mask="128.0.0.0" ;;
     (/0|0)    _subnet_mask="0.0.0.0" ;;
-    (''|*)
+    ('')
         printf -- 'net_cidr_to_mask: %s\n' "Usage: net_cidr_to_mask [/int|int]" >&2
+        return 1
+    ;;
+    (*)
+        printf -- 'net_cidr_to_mask: %s\n' "unrecognized CIDR prefix: ${1}" >&2
         return 1
     ;;
   esac
@@ -152,8 +156,12 @@ net_mask_to_cidr() {
     (192.0.0.0)       _prefix=2  ;;
     (128.0.0.0)       _prefix=1  ;;
     (0.0.0.0)         _prefix=0  ;;
-    (''|*)
+    ('')
       printf -- 'net_mask_to_cidr: %s\n' "Usage: net_mask_to_cidr <dotted-decimal-mask>" >&2
+      return 1
+    ;;
+    (*)
+      printf -- 'net_mask_to_cidr: %s\n' "unrecognized mask: ${1}" >&2
       return 1
     ;;
   esac
