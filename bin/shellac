@@ -453,10 +453,228 @@ _shellac_rm_confpath() {
   printf -- 'shellac: removed %s from %s\n' "${rm_path}" "${SHELLAC_CONFPATHS_CONF}"
 }
 
+# @internal
+# Print functions and one-line descriptions from a single library file.
+_shellac_info_file() {
+  local _file _element _rel_path _line _pending_desc _skip_next _func_name _func_status
+  _file="${1}"
+  _rel_path="${_file}"
+  for _element in "${SH_LIBPATH_ARRAY[@]}"; do
+    if [[ "${_file}" = "${_element}/"* ]]; then
+      _rel_path="${_file#"${_element}/"}"
+      break
+    fi
+  done
+  printf -- '\n%s\n' "${_rel_path}"
+  _pending_desc=''
+  _skip_next=0
+  while IFS= read -r _line; do
+    if [[ "${_line}" = '# @internal'* ]]; then
+      _skip_next=1
+      _pending_desc=''
+    elif [[ "${_line}" = '# @description '* ]]; then
+      _pending_desc="${_line#'# @description '}"
+      _skip_next=0
+    elif [[ "${_line}" = '# @description' ]]; then
+      _pending_desc=''
+      _skip_next=0
+    elif [[ "${_line}" =~ ^[a-zA-Z][a-zA-Z0-9_]*\(\) ]]; then
+      if (( ! _skip_next )); then
+        _func_name="${BASH_REMATCH[0]%()}"
+        if _is_function_loaded "${_func_name}"; then
+          _func_status='(loaded)'
+        else
+          _func_status=''
+        fi
+        printf -- '  %-35s %-50s %s\n' \
+          "${_func_name}" "${_pending_desc:-(undocumented)}" "${_func_status}"
+      fi
+      _pending_desc=''
+      _skip_next=0
+    fi
+  done < "${_file}"
+}
+
+# @internal
+# Print functions and descriptions for all files in a module directory.
+_shellac_info_module() {
+  local _dir _file
+  _dir="${1}"
+  while read -r _file; do
+    grep -qm1 '^# @redirect' "${_file}" 2>/dev/null && continue
+    _shellac_info_file "${_file}"
+  done < <(find "${_dir}" -type f -name "*.sh" | sort)
+}
+
+# @internal
+# Print the full shdoc block for a named function across all library files.
+_shellac_info_function() {
+  local _func _element _library_file _rel_path _line _state _desc _stdout _found
+  local _arg _ex _ec
+  local _args _examples _exitcodes
+  _func="${1}"
+  _found=0
+
+  for _element in "${SH_LIBPATH_ARRAY[@]}"; do
+    while read -r _library_file; do
+      _state='none'
+      _desc=''
+      _args=()
+      _examples=()
+      _stdout=''
+      _exitcodes=()
+      while IFS= read -r _line; do
+        case "${_line}" in
+          ('# @internal'*)
+            _state='skip'
+            _desc=''; _args=(); _examples=(); _stdout=''; _exitcodes=()
+          ;;
+          ('# @description '*)
+            _state='description'
+            _desc="${_line#'# @description '}"
+            _args=(); _examples=(); _stdout=''; _exitcodes=()
+          ;;
+          ('# @description')
+            _state='description'
+            _desc=''
+            _args=(); _examples=(); _stdout=''; _exitcodes=()
+          ;;
+          ('# @arg '*)
+            _args+=( "${_line#'# @arg '}" )
+          ;;
+          ('# @example')
+            _state='example'
+          ;;
+          ('# @stdout '*)
+            _stdout="${_line#'# @stdout '}"
+          ;;
+          ('# @exitcode '*)
+            _exitcodes+=( "${_line#'# @exitcode '}" )
+          ;;
+          ('#   '*)
+            case "${_state}" in
+              (description) _desc="${_desc} ${_line#'#   '}" ;;
+              (example)     _examples+=( "${_line#'#   '}" ) ;;
+            esac
+          ;;
+          (*)
+            if [[ "${_line}" =~ ^${_func}\(\) ]] && [[ "${_state}" != 'skip' ]]; then
+              _found=1
+              _rel_path="${_library_file#"${_element}/"}"
+              printf -- '%s\n' "${_func}"
+              if _is_function_loaded "${_func}"; then
+                printf -- '  %s (loaded)\n' "${_rel_path}"
+              else
+                printf -- '  %s\n' "${_rel_path}"
+              fi
+              [[ -n "${_desc}" ]] && printf -- '\n  %s\n' "${_desc}"
+              if (( ${#_args[@]} > 0 )); then
+                printf -- '\n  Arguments:\n'
+                for _arg in "${_args[@]}"; do
+                  printf -- '    %s\n' "${_arg}"
+                done
+              fi
+              if (( ${#_examples[@]} > 0 )); then
+                printf -- '\n  Examples:\n'
+                for _ex in "${_examples[@]}"; do
+                  printf -- '    %s\n' "${_ex}"
+                done
+              fi
+              [[ -n "${_stdout}" ]] && printf -- '\n  Stdout:\n    %s\n' "${_stdout}"
+              if (( ${#_exitcodes[@]} > 0 )); then
+                printf -- '\n  Exit codes:\n'
+                for _ec in "${_exitcodes[@]}"; do
+                  printf -- '    %s\n' "${_ec}"
+                done
+              fi
+              break 3
+            fi
+            _state='none'
+            _desc=''; _args=(); _examples=(); _stdout=''; _exitcodes=()
+          ;;
+        esac
+      done < "${_library_file}"
+    done < <(find "${_element}" -type f -name "*.sh" | sort)
+  done
+
+  if (( ! _found )); then
+    printf -- 'shellac info: %s: not found\n' "${_func}" >&2
+    return 1
+  fi
+}
+
+# @internal
+# Dispatcher for 'shellac info': resolves target as module, file, or function.
+_shellac_info() {
+  local _target _element _found
+  _target="${1:-}"
+  _found=0
+
+  if [[ -z "${_target}" ]]; then
+    printf -- 'shellac info: missing argument\n' >&2
+    return 1
+  fi
+
+  for _element in "${SH_LIBPATH_ARRAY[@]}"; do
+    if [[ -d "${_element}/${_target}" ]]; then
+      _shellac_info_module "${_element}/${_target}"
+      _found=1
+      break
+    fi
+    if [[ -f "${_element}/${_target}" ]]; then
+      _shellac_info_file "${_element}/${_target}"
+      _found=1
+      break
+    fi
+    if [[ -f "${_element}/${_target}.sh" ]]; then
+      _shellac_info_file "${_element}/${_target}.sh"
+      _found=1
+      break
+    fi
+  done
+
+  (( _found )) || _shellac_info_function "${_target}"
+}
+
+# @internal
+# Reverse lookup: which library file(s) define a given function.
+_shellac_provides() {
+  local _func _element _library_file _rel_path _found
+  _func="${1:-}"
+  _found=0
+
+  if [[ -z "${_func}" ]]; then
+    printf -- 'shellac provides: missing argument\n' >&2
+    return 1
+  fi
+
+  for _element in "${SH_LIBPATH_ARRAY[@]}"; do
+    while read -r _library_file; do
+      if grep -qm1 "^${_func}()" "${_library_file}" 2>/dev/null; then
+        _rel_path="${_library_file#"${_element}/"}"
+        if (( ! _found )); then
+          printf -- '%s is provided by:\n' "${_func}"
+          _found=1
+        fi
+        if _is_function_loaded "${_func}"; then
+          printf -- '  %s (loaded)\n' "${_rel_path}"
+        else
+          printf -- '  %s\n' "${_rel_path}"
+        fi
+      fi
+    done < <(find "${_element}" -type f -name "*.sh" | sort)
+  done
+
+  if (( ! _found )); then
+    printf -- 'shellac provides: %s: not found\n' "${_func}" >&2
+    return 1
+  fi
+}
+
 # @description shellac subcommand dispatcher.
 #   Provides a unified interface to shellac's core functions.
 #
-# @arg $1 string Subcommand: include, requires, wants, libraries, functions
+# @arg $1 string Subcommand: include, requires, wants, libraries, functions, info, provides
 #
 # @example
 #   shellac include text/trim
@@ -464,6 +682,10 @@ _shellac_rm_confpath() {
 #   shellac wants /etc/myapp/overrides.conf
 #   shellac libraries
 #   shellac functions
+#   shellac info time
+#   shellac info time/dst.sh
+#   shellac info dst_is_active
+#   shellac provides dst_is_active
 #
 # @exitcode 0 Subcommand succeeded
 # @exitcode 1 Unknown subcommand or subcommand failed
@@ -478,6 +700,8 @@ shellac() {
     (wants)        wants "${@}" ;;
     (libraries)    _shellac_ls_libraries ;;
     (functions)    _shellac_ls_functions | sort ;;
+    (info)         _shellac_info "${@}" ;;
+    (provides)     _shellac_provides "${@}" ;;
     (add-libpath)   _shellac_add_libpath "${@}" ;;
     (rm-libpath)    _shellac_rm_libpath "${@}" ;;
     (add-confpath)  _shellac_add_confpath "${@}" ;;
@@ -493,6 +717,8 @@ shellac() {
         "  wants <file>         Source a file if it exists; silently skip if not" \
         "  libraries            List available libraries" \
         "  functions            List available functions" \
+        "  info <target>        Show functions for a module, file, or full help for a function" \
+        "  provides <func>      Show which library file(s) define a function" \
         "  add-libpath <path>    Append a path to ${SHELLAC_PATHS_CONF}" \
         "  rm-libpath <path>     Remove a path from ${SHELLAC_PATHS_CONF}" \
         "  add-confpath <path>   Append a path to ${SHELLAC_CONFPATHS_CONF}" \
