@@ -41,8 +41,13 @@ jobs:
           # shdoc strips underscores from anchor links e.g. [func_name](#funcname)
           # but MkDocs generates anchors from headings preserving underscores (#func_name).
           # Fix by replacing the anchor with the link text, which retains underscores.
-          find docs/api -name '*.md' \
-            -exec sed -i -E 's/\[([a-zA-Z0-9_]+)\]\(#[a-z0-9]+\)/[\1](#\L\1)/g' {} \;
+          # Also strip the ## Index section — sidebar navigation replaces it.
+          while IFS= read -r f; do
+            sed -i \
+              -E 's/\[([a-zA-Z0-9_]+)\]\(#[a-z0-9]+\)/[\1](#\L\1)/g' \
+              -e '/^## Index$/,/^###/{/^###/!d}' \
+              "${f}"
+          done < <(find docs/api -name '*.md')
 
       - name: Set up Python
         uses: actions/setup-python@v5

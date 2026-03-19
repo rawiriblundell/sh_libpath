@@ -1,5 +1,3 @@
-# Variable precedence in bash
-
 While it's not strictly defined anywhere to my knowledge, there is arguably an unspoken-but-not-followed-but-probably-should-be variable precedence order from least to most important:
 
 * script defaults

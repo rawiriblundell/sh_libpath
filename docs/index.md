@@ -47,4 +47,4 @@ fs_hash /etc/passwd
 
 ## Naming conventions
 
-Shellac follows a consistent `<module>_<noun>` naming convention throughout. See the [naming conventions](naming-conventions.md) document for the full rationale, and [library structure](structure.md) for how modules, libraries, and functions relate to each other.
+Shellac follows a consistent `<module>_<noun>` naming convention throughout. See the [naming conventions](docs/naming-conventions.md) document for the full rationale, and [library structure](docs/structure.md) for how modules, libraries, and functions relate to each other.

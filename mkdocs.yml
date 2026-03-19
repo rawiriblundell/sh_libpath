@@ -7,6 +7,9 @@ edit_uri: edit/main/docs/
 
 theme:
   name: simple-blog
+  sidebar: true
+  navigation_depth: 3
+  logo: images/shellac-light.png
 
 plugins:
   - search

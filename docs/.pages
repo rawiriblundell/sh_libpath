@@ -1,6 +1,4 @@
 nav:
   - index.md
-  - Docs:
-    - structure.md
-    - naming-conventions.md
+  - Docs: docs
   - Module Reference: api

@@ -1,5 +1,3 @@
-# Scopes within Bourne family shells
-
 ## TL;DR
 
 In Bourne family shells, it's a good defensive practice to not use UPPERCASE variables unless/until you know *when* and *why* to use them.
