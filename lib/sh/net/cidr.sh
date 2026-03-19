@@ -117,40 +117,47 @@ net_cidr_prefix_table() {
 # @exitcode 0 Success
 # @exitcode 1 Invalid or non-contiguous mask supplied
 net_mask_to_cidr() {
-  local _o1 _o2 _o3 _o4 _mask _inv _host_bits
-  if [[ -z "${1}" ]]; then
-    printf -- 'net_mask_to_cidr: %s\n' "Usage: net_mask_to_cidr <dotted-decimal-mask>" >&2
-    return 1
-  fi
-  IFS=. read -r _o1 _o2 _o3 _o4 <<< "${1%%/*}"
-  # Validate each octet is numeric and in range
-  local _octet
-  for _octet in "${_o1}" "${_o2}" "${_o3}" "${_o4}"; do
-    case "${_octet}" in
-      (''|*[!0-9]*)
-        printf -- 'net_mask_to_cidr: %s\n' "invalid mask: ${1}" >&2
-        return 1
-      ;;
-    esac
-    if (( _octet > 255 )); then
-      printf -- 'net_mask_to_cidr: %s\n' "invalid mask: ${1}" >&2
+  local _prefix
+  case "${1}" in
+    (255.255.255.255) _prefix=32 ;;
+    (255.255.255.254) _prefix=31 ;;
+    (255.255.255.252) _prefix=30 ;;
+    (255.255.255.248) _prefix=29 ;;
+    (255.255.255.240) _prefix=28 ;;
+    (255.255.255.224) _prefix=27 ;;
+    (255.255.255.192) _prefix=26 ;;
+    (255.255.255.128) _prefix=25 ;;
+    (255.255.255.0)   _prefix=24 ;;
+    (255.255.254.0)   _prefix=23 ;;
+    (255.255.252.0)   _prefix=22 ;;
+    (255.255.248.0)   _prefix=21 ;;
+    (255.255.240.0)   _prefix=20 ;;
+    (255.255.224.0)   _prefix=19 ;;
+    (255.255.192.0)   _prefix=18 ;;
+    (255.255.128.0)   _prefix=17 ;;
+    (255.255.0.0)     _prefix=16 ;;
+    (255.254.0.0)     _prefix=15 ;;
+    (255.252.0.0)     _prefix=14 ;;
+    (255.248.0.0)     _prefix=13 ;;
+    (255.240.0.0)     _prefix=12 ;;
+    (255.224.0.0)     _prefix=11 ;;
+    (255.192.0.0)     _prefix=10 ;;
+    (255.128.0.0)     _prefix=9  ;;
+    (255.0.0.0)       _prefix=8  ;;
+    (254.0.0.0)       _prefix=7  ;;
+    (252.0.0.0)       _prefix=6  ;;
+    (248.0.0.0)       _prefix=5  ;;
+    (240.0.0.0)       _prefix=4  ;;
+    (224.0.0.0)       _prefix=3  ;;
+    (192.0.0.0)       _prefix=2  ;;
+    (128.0.0.0)       _prefix=1  ;;
+    (0.0.0.0)         _prefix=0  ;;
+    (''|*)
+      printf -- 'net_mask_to_cidr: %s\n' "Usage: net_mask_to_cidr <dotted-decimal-mask>" >&2
       return 1
-    fi
-  done
-  (( _mask = (_o1 << 24) | (_o2 << 16) | (_o3 << 8) | _o4 ))
-  (( _inv  = _mask ^ 0xFFFFFFFF ))
-  # A valid contiguous mask inverts to a block of consecutive 1-bits from bit 0.
-  # Identity: inv & (inv + 1) == 0
-  if (( (_inv & (_inv + 1)) != 0 )); then
-    printf -- 'net_mask_to_cidr: %s\n' "non-contiguous mask: ${1}" >&2
-    return 1
-  fi
-  _host_bits=0
-  while (( _inv > 0 )); do
-    (( _inv >>= 1 ))
-    (( _host_bits++ ))
-  done
-  printf -- '%d\n' "$(( 32 - _host_bits ))"
+    ;;
+  esac
+  printf -- '%d\n' "${_prefix}"
 }
 
 # TODO: future additions to this module:
