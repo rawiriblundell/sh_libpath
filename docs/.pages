@@ -1,4 +1,5 @@
 nav:
   - index.md
+  - structure.md
   - naming-conventions.md
   - API Reference: api

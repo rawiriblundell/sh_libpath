@@ -10,10 +10,14 @@ Shellac is a modular bash library providing a consistent, well-named API across 
 # Source shellac
 source /path/to/shellac
 
-# List available functions
-shellac functions
+# Browse the library hierarchy
+shellac modules                   # list all modules
+shellac info time                 # list libraries and functions in a module
+shellac info time/dst.sh          # list functions in a single library
+shellac info dst_is_active        # full documentation for a function
+shellac provides dst_is_active    # which library defines a function
 
-# Include a specific module
+# Load and use a library
 include fs/hash
 fs_hash /etc/passwd
 ```
@@ -43,4 +47,4 @@ fs_hash /etc/passwd
 
 ## Naming conventions
 
-Shellac follows a consistent `<module>_<noun>` naming convention throughout. See the [naming conventions](naming-conventions.md) document for the full rationale.
+Shellac follows a consistent `<module>_<noun>` naming convention throughout. See the [naming conventions](naming-conventions.md) document for the full rationale, and [library structure](structure.md) for how modules, libraries, and functions relate to each other.
