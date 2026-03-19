@@ -147,6 +147,37 @@ num_2dp() {
     printf -- '%0.2f\n' "${@}"
 }
 
+# @description Format an integer with thousands separators (commas).
+#
+# @arg $1 int Integer to format
+#
+# @example
+#   num_thousands 1234567   # => 1,234,567
+#   num_thousands -9876543  # => -9,876,543
+#   num_thousands 999       # => 999
+#
+# @stdout Formatted integer string
+# @exitcode 0 Success
+# @exitcode 1 No argument supplied
+num_thousands() {
+  local _n _neg _result
+  _n="${1:?No number given}"
+  _neg=""
+
+  if [[ "${_n}" = -* ]]; then
+    _neg="-"
+    _n="${_n#-}"
+  fi
+
+  _result=""
+  while (( ${#_n} > 3 )); do
+    _result=",${_n: -3}${_result}"
+    _n="${_n:0:$(( ${#_n} - 3 ))}"
+  done
+
+  printf -- '%s\n' "${_neg}${_n}${_result}"
+}
+
 # @description Right-pad an integer with zeros to reach a minimum length.
 #   If the integer is already at or above the target length, it is printed unchanged.
 #
