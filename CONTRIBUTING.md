@@ -47,7 +47,7 @@ See [CODE_OF_CONDUCT](CODE_OF_CONDUCT.md)
 
 This isn't going to be an exhaustive Git or GitHub how-to.  That's documented far better elsewhere.
 
-First, if you have larger changes in mind, [open an Issue](https://github.com/rawiriblundell/sh_libpath/issues/new) and let's discuss it.
+First, if you have larger changes in mind, [open an Issue](https://github.com/rawiriblundell/shellac/issues/new) and let's discuss it.
 
 If that discussion is resolved to our mutual satisfaction, or if you're going to submit something smaller, the next steps are:
 
@@ -106,11 +106,9 @@ Hard tabs are a hard no.
 
 ### Function names
 
-Function names are in lower `snake_case()`.  Names should try to be meaningful, so if you're not sure, consider `verb_noun` style.  Microsoft has documentation for [approved verbs](https://docs.microsoft.com/en-us/powershell/scripting/developer/cmdlet/approved-verbs-for-windows-powershell-commands?view=powershell-7) for PowerShell that may provide some guidance.
+Function names are in lower `snake_case()`.  The project uses a `<module>_<noun>` convention: the module name is the namespace and the noun describes what the function operates on.  See [naming conventions](docs/naming-conventions.md) for the full rationale, patterns, and named exceptions.
 
-Some style guides and other shell library projects use `class::function()` style naming, however `:` does not appear to be a portable character, so something like `__class_function()` may be preferable.
-
-For helper functions that won't be used directly by a human, prepend it with a single underscore.
+For helper functions that won't be used directly by a human, prepend with a single underscore: `_my_helper()`.
 
 Do not use the `function` keyword.  It is non-portable and considered obsolete.
 
@@ -207,32 +205,16 @@ get_api_user() {
 }
 ```
 
-In library files that target a shell that supports this, please go ahead and use it.
-
-If you are targeting a generic/portable library, please avoid this.  It's non-portable, and the workarounds are messy to say the least.  Our solution is to simply prepend any variables within a function with an underscore. We also unset the variable immediately prior to the function closure. For example:
+All library functions must declare local variables with `local`.  Declare and assign separately — never combine them — so that exit codes are not masked:
 
 ```bash
-get_api_user() {
-    _username=Shelly
-    ...
-    unset -v _username
+my_func() {
+    local username
+    local result
+    username="${1}"
+    result="$(some_command)"
 }
 ```
-
-#### `RETVAL` variables
-
-I think it might be useful to settle on a return value standard.  For example
-
-```bash
-function_name() {
-  blah
-  function_name_stdout
-  function_name_stderr
-  function_name_rc
-}
-```
-
-The idea is to pass information out of the function via the environment, so that you can act on those variables after the function has run.
 
 #### Constants
 
@@ -260,6 +242,65 @@ One of the flaws - I think - with some of the other shell library projects, is t
 This practise should be heavily discouraged.
 
 Each library file should be as self-contained as possible, and should try as much as possible not to require the inclusion of any other library.  This ultimately keeps the end-user interface simple, it ultimately keeps simple the core functionality of `include()`, it improves code re-use for derivative works, and it doesn't bog the codebase down with frustrating and highly obnoxious namespacing.
+
+## Library structure
+
+Shellac organises code in a three-level hierarchy: **module** (directory) → **library** (`.sh` file) → **function**.  See [docs/structure.md](docs/structure.md) for the full explanation.
+
+When adding a new library file, include a sentinel at the top to prevent double-sourcing:
+
+```bash
+[ -n "${_SHELLAC_LOADED_<module>_<library>+x}" ] && return 0
+_SHELLAC_LOADED_<module>_<library>=1
+```
+
+The sentinel name follows the file path with slashes and hyphens replaced by underscores and the `.sh` extension removed.  For example, `net/cidr.sh` → `_SHELLAC_LOADED_net_cidr`.
+
+You can browse the existing library structure using the shellac CLI:
+
+```bash
+shellac modules                   # list all modules
+shellac info <module>             # list libraries and functions in a module
+shellac info <module/library>     # list functions in a single library
+shellac info <function>           # full documentation for a function
+shellac provides <function>       # which library defines a function
+```
+
+## Documenting functions
+
+Public functions must be documented with shdoc annotations immediately above the function definition:
+
+```bash
+# @description One-line summary. Continuation lines are indented with three
+#   spaces and a hash.
+#
+# @arg $1 string Description of the first argument
+# @arg $2 int    Description of the second argument (optional)
+#
+# @example
+#   my_function foo    # => expected output
+#
+# @stdout What the function prints to stdout
+# @exitcode 0 Success
+# @exitcode 1 Failure condition
+my_function() {
+    ...
+}
+```
+
+Private/internal functions use `# @internal` instead of `# @description` and are suppressed from `shellac info` and `shellac functions` output.
+
+## Testing
+
+Tests live in `test/bats/` and use the [bats-core](https://github.com/bats-core/bats-core) framework.
+
+Run the full suite from the repo root:
+
+```bash
+bats test/bats/
+```
+
+All submissions should include tests for new functions or behaviour.  Existing tests must continue to pass.  The `lint.bats` file runs shellcheck across all library files automatically — new code must be shellcheck-clean or include a justified `# shellcheck disable` directive.
 
 ## The Unofficial Strict Mode
 
