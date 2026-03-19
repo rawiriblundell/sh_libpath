@@ -1,8 +1,7 @@
 # Shellac function naming conventions
 
 This document describes the naming standard that has emerged across
-`lib/sh/`. The net/ module is covered in more detail in
-[net/ conventions](net-conventions.md); what follows applies library-wide.
+`lib/sh/`.
 
 ---
 
@@ -88,7 +87,25 @@ net_query_port host 443    # is this port reachable?
 net_query_http_code url    # HTTP status of a URL
 ```
 
-See `_draft_net_naming.md` for the full rationale.
+#### net/ local vs query distinction
+
+Functions in `net/` follow both patterns, which reflect a meaningful
+difference in what the function does:
+
+| Pattern | What it does | Examples |
+|---|---|---|
+| `net_<noun>` | Reads local system state — no network I/O | `net_ip`, `net_mac`, `net_dns` |
+| `net_query_<noun>` | Makes an outbound network call | `net_query_ip`, `net_query_port`, `net_query_ipinfo` |
+
+Local reads (`net_ip`, `net_mac`) fail only when the platform is unusual
+or a required tool is absent. Network queries can fail because of
+firewalls, DNS, timeouts, or service outages. Mixing them under a single
+verb would obscure that difference.
+
+`net_dns_resolve` is a deliberate exception: it fires a DNS query outbound
+but lives in `dns.sh` as a DNS-domain operation rather than a general
+query. If a full `net_query` dispatcher is ever built, it would route
+internally to `net_dns_resolve`.
 
 ### `<module>_info_<attr>` — hardware identity
 
