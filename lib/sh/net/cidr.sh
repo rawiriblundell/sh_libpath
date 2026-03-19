@@ -168,7 +168,68 @@ net_mask_to_cidr() {
   printf -- '%d\n' "${_prefix}"
 }
 
+# @description Print the total number of addresses in a subnet for a given
+#   CIDR prefix length.  Accepts the prefix with or without a leading slash.
+#   Note: /32 = 1 address (host route); /31 = 2 addresses (point-to-point,
+#   RFC 3021); all others include network and broadcast addresses in the count.
+#
+# @arg $1 string CIDR prefix length, e.g. 24 or /24
+#
+# @example
+#   net_subnet_size 24   # => 256
+#   net_subnet_size /16  # => 65536
+#
+# @stdout Total address count as a plain integer
+# @exitcode 0 Success
+# @exitcode 1 No valid argument supplied
+net_subnet_size() {
+  local _size
+  case "${1}" in
+    (/32|32) _size=1          ;;
+    (/31|31) _size=2          ;;
+    (/30|30) _size=4          ;;
+    (/29|29) _size=8          ;;
+    (/28|28) _size=16         ;;
+    (/27|27) _size=32         ;;
+    (/26|26) _size=64         ;;
+    (/25|25) _size=128        ;;
+    (/24|24) _size=256        ;;
+    (/23|23) _size=512        ;;
+    (/22|22) _size=1024       ;;
+    (/21|21) _size=2048       ;;
+    (/20|20) _size=4096       ;;
+    (/19|19) _size=8192       ;;
+    (/18|18) _size=16384      ;;
+    (/17|17) _size=32768      ;;
+    (/16|16) _size=65536      ;;
+    (/15|15) _size=131072     ;;
+    (/14|14) _size=262144     ;;
+    (/13|13) _size=524288     ;;
+    (/12|12) _size=1048576    ;;
+    (/11|11) _size=2097152    ;;
+    (/10|10) _size=4194304    ;;
+    (/9|9)   _size=8388608    ;;
+    (/8|8)   _size=16777216   ;;
+    (/7|7)   _size=33554432   ;;
+    (/6|6)   _size=67108864   ;;
+    (/5|5)   _size=134217728  ;;
+    (/4|4)   _size=268435456  ;;
+    (/3|3)   _size=536870912  ;;
+    (/2|2)   _size=1073741824 ;;
+    (/1|1)   _size=2147483648 ;;
+    (/0|0)   _size=4294967296 ;;
+    ('')
+      printf -- 'net_subnet_size: %s\n' "Usage: net_subnet_size [/int|int]" >&2
+      return 1
+    ;;
+    (*)
+      printf -- 'net_subnet_size: %s\n' "unrecognized CIDR prefix: ${1}" >&2
+      return 1
+    ;;
+  esac
+  printf -- '%d\n' "${_size}"
+}
+
 # TODO: future additions to this module:
-#   net_network_address  - derive network address from IP + prefix/mask
+#   net_network_address   - derive network address from IP + prefix/mask
 #   net_broadcast_address - derive broadcast address from IP + prefix/mask
-#   net_subnet_size      - number of usable hosts for a given prefix length
