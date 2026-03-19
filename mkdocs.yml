@@ -9,6 +9,7 @@ theme:
   name: shadcn
 
 plugins:
+  - awesome-pages
   - shadcn/search
   - shadcn/excalidraw
 
