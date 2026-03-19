@@ -1,0 +1,5 @@
+# MkDocs build output
+site/
+
+# shdoc-generated API docs (built by CI before gh-deploy)
+docs/api/*/
