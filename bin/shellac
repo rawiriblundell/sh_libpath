@@ -258,6 +258,17 @@ _is_function_loaded() {
 }
 
 # @internal
+# Print a sorted list of unique module (subdirectory) names across SH_LIBPATH.
+_shellac_ls_modules() {
+  local _element _dir
+  for _element in "${SH_LIBPATH_ARRAY[@]}"; do
+    for _dir in "${_element}"/*/; do
+      [[ -d "${_dir}" ]] && printf -- '%s\n' "${_dir%/}"
+    done
+  done | awk -F/ '{print $NF}' | sort -u
+}
+
+# @internal
 # Print a library tree grouped by category, marking loaded libraries.
 _shellac_ls_libraries() {
   local _element
@@ -698,6 +709,7 @@ shellac() {
     (include)      include "${@}" ;;
     (requires)     requires "${@}" ;;
     (wants)        wants "${@}" ;;
+    (modules)      _shellac_ls_modules ;;
     (libraries)    _shellac_ls_libraries ;;
     (functions)    _shellac_ls_functions | sort ;;
     (info)         _shellac_info "${@}" ;;
@@ -715,6 +727,7 @@ shellac() {
         "  include <lib>        Load a library from SH_LIBPATH" \
         "  requires <deps>      Assert that commands, files or shell version are present" \
         "  wants <file>         Source a file if it exists; silently skip if not" \
+        "  modules              List available modules" \
         "  libraries            List available libraries" \
         "  functions            List available functions" \
         "  info <target>        Show functions for a module, file, or full help for a function" \
