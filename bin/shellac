@@ -477,7 +477,7 @@ shellac() {
     (requires)     requires "${@}" ;;
     (wants)        wants "${@}" ;;
     (libraries)    _shellac_ls_libraries ;;
-    (functions)    _shellac_ls_functions ;;
+    (functions)    _shellac_ls_functions | sort ;;
     (add-libpath)   _shellac_add_libpath "${@}" ;;
     (rm-libpath)    _shellac_rm_libpath "${@}" ;;
     (add-confpath)  _shellac_add_confpath "${@}" ;;
