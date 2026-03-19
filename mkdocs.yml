@@ -6,27 +6,12 @@ repo_name: rawiriblundell/shellac
 edit_uri: edit/main/docs/
 
 theme:
-  name: material
-  palette:
-    - scheme: default
-      toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
-    - scheme: slate
-      toggle:
-        icon: material/brightness-4
-        name: Switch to light mode
-  features:
-    - navigation.tabs
-    - navigation.sections
-    - navigation.top
-    - search.highlight
-    - search.share
-    - content.code.copy
+  name: terminal
 
 plugins:
   - search
   - awesome-pages
+  - md-to-html
 
 markdown_extensions:
   - pymdownx.highlight:
