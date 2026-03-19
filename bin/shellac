@@ -143,6 +143,9 @@ else
   # Now, de-duplicate
   SH_LIBPATH=$(printf -- '%s\n' "${SH_LIBPATH}" | tr ':' '\n' | awk '!s[$0]++' | paste -sd ':' -)
 
+  # Rebuild the array from the deduplicated string so the two stay in sync
+  IFS=':' read -ra SH_LIBPATH_ARRAY <<< "${SH_LIBPATH}"
+
   # Finally, export
   export SH_LIBPATH
 fi
