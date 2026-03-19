@@ -38,6 +38,11 @@ jobs:
             # Drop empty files (no shdoc annotations found)
             [ -s "${outfile}" ] || rm -f "${outfile}"
           done
+          # shdoc strips underscores from anchor links e.g. [func_name](#funcname)
+          # but MkDocs generates anchors from headings preserving underscores (#func_name).
+          # Fix by replacing the anchor with the link text, which retains underscores.
+          find docs/api -name '*.md' \
+            -exec sed -i -E 's/\[([a-zA-Z0-9_]+)\]\(#[a-z0-9]+\)/[\1](#\L\1)/g' {} \;
 
       - name: Set up Python
         uses: actions/setup-python@v5
