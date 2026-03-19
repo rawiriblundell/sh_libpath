@@ -94,7 +94,7 @@ net_cidr_to_mask() {
 #
 # @stdout Formatted table of prefix lengths and subnet masks
 # @exitcode 0 Always
-net_cidr_prefix_table() {
+net_cidr_table() {
   local _prefix_int
   for (( _prefix_int=32; _prefix_int>=0; _prefix_int-- )); do
     printf -- '%s\n' "+-----+-----------------+"
