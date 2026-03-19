@@ -230,6 +230,79 @@ net_subnet_size() {
   printf -- '%d\n' "${_size}"
 }
 
-# TODO: future additions to this module:
-#   net_network_address   - derive network address from IP + prefix/mask
-#   net_broadcast_address - derive broadcast address from IP + prefix/mask
+# @description Derive the network address from an IP address and CIDR prefix.
+#   Accepts combined notation (ip/prefix) or two separate arguments.
+#
+# @arg $1 string IP address with optional prefix (e.g. 192.168.1.50/24), or bare IP
+# @arg $2 int    CIDR prefix length when not embedded in $1 (e.g. 24)
+#
+# @example
+#   net_network_address 192.168.1.50/24   # => 192.168.1.0
+#   net_network_address 10.0.3.7 8        # => 10.0.0.0
+#
+# @stdout Network address in dotted-decimal notation
+# @exitcode 0 Success
+# @exitcode 1 Missing argument
+net_network_address() {
+  local _ip _prefix _o1 _o2 _o3 _o4 _ip_int _mask _net
+
+  case "${1}" in
+    (*/*) _ip="${1%%/*}"; _prefix="${1##*/}" ;;
+    (*)   _ip="${1}";     _prefix="${2}"     ;;
+  esac
+
+  if [[ -z "${_ip}" || -z "${_prefix}" ]]; then
+    printf -- 'net_network_address: %s\n' "Usage: net_network_address <ip/prefix|ip prefix>" >&2
+    return 1
+  fi
+
+  IFS=. read -r _o1 _o2 _o3 _o4 <<< "${_ip}"
+  (( _ip_int = (_o1 << 24) | (_o2 << 16) | (_o3 << 8) | _o4 ))
+  (( _mask   = (0xFFFFFFFF << (32 - _prefix)) & 0xFFFFFFFF ))
+  (( _net    = _ip_int & _mask ))
+
+  printf -- '%d.%d.%d.%d\n' \
+    "$(( (_net >> 24) & 0xFF ))" \
+    "$(( (_net >> 16) & 0xFF ))" \
+    "$(( (_net >>  8) & 0xFF ))" \
+    "$(( (_net      ) & 0xFF ))"
+}
+
+# @description Derive the broadcast address from an IP address and CIDR prefix.
+#   Accepts combined notation (ip/prefix) or two separate arguments.
+#
+# @arg $1 string IP address with optional prefix (e.g. 192.168.1.50/24), or bare IP
+# @arg $2 int    CIDR prefix length when not embedded in $1 (e.g. 24)
+#
+# @example
+#   net_broadcast_address 192.168.1.50/24   # => 192.168.1.255
+#   net_broadcast_address 10.0.3.7 8        # => 10.255.255.255
+#
+# @stdout Broadcast address in dotted-decimal notation
+# @exitcode 0 Success
+# @exitcode 1 Missing argument
+net_broadcast_address() {
+  local _ip _prefix _o1 _o2 _o3 _o4 _ip_int _mask _net _bcast
+
+  case "${1}" in
+    (*/*) _ip="${1%%/*}"; _prefix="${1##*/}" ;;
+    (*)   _ip="${1}";     _prefix="${2}"     ;;
+  esac
+
+  if [[ -z "${_ip}" || -z "${_prefix}" ]]; then
+    printf -- 'net_broadcast_address: %s\n' "Usage: net_broadcast_address <ip/prefix|ip prefix>" >&2
+    return 1
+  fi
+
+  IFS=. read -r _o1 _o2 _o3 _o4 <<< "${_ip}"
+  (( _ip_int = (_o1 << 24) | (_o2 << 16) | (_o3 << 8) | _o4 ))
+  (( _mask   = (0xFFFFFFFF << (32 - _prefix)) & 0xFFFFFFFF ))
+  (( _net    = _ip_int & _mask ))
+  (( _bcast  = _net | (_mask ^ 0xFFFFFFFF) ))
+
+  printf -- '%d.%d.%d.%d\n' \
+    "$(( (_bcast >> 24) & 0xFF ))" \
+    "$(( (_bcast >> 16) & 0xFF ))" \
+    "$(( (_bcast >>  8) & 0xFF ))" \
+    "$(( (_bcast      ) & 0xFF ))"
+}
