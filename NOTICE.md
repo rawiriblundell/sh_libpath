@@ -1,6 +1,6 @@
-# Notices for sh_libpath
+# Notices for Shellac
 
-This project is produced and maintained by the SH_LIBPATH authors.  This software incorporates material from third parties.
+This project is produced and maintained by the Shellac authors.  This software incorporates material from third parties.
 
 ## Copyright
 
@@ -23,39 +23,249 @@ permitted.
 
 ## Attributions
 
-- Cryptography section, NOTICE.md.  https://github.com/eclipse/ditto-examples/blob/master/legal/NOTICE.md
-- time/date_arithmetic.sh, time/human_duration.sh, time/is_leap_year.sh (time_is_leap_year adapted from aks/bash-lib), units/bytes_to_human.sh, net/validate_email.sh, net/ipv6_validate.sh, numbers/is_numeric.sh, numbers/version_compare.sh, path/extension.sh, utils/prompt.sh (password prompt adapted from martinburger/bash-common-helpers): MIT License, labbots/bash-utility https://github.com/labbots/bash-utility
-- time/seconds_to_hms.sh, Apache-2.0 License (c) Joe Mooring https://github.com/jmooring/bash-function-library
-- time/is_leap_year.sh (leap year logic), MIT License (c) Alan K. Stebbens https://github.com/aks/bash-lib
-- net/parse_url.sh, fs/ini_val.sh, MIT License (c) Kevin van Zonneveld https://github.com/kvz/bash3boilerplate
-- sys/path_utils.sh, MIT License https://github.com/codeforester/base
-- utils/prompt.sh (password prompt), MIT License https://github.com/martinburger/bash-common-helpers
-- numbers/compare.sh (num_compare, num_compare_float): Apache-2.0 License, elibs/ebash https://github.com/elibs/ebash
-- text/truncate.sh (str_truncate): Apache-2.0 License, elibs/ebash https://github.com/elibs/ebash
-- text/strip_ansi.sh (str_strip_ansi), text/match.sh (str_match, str_match_captures), time/epoch_ms.sh (time_epoch_ms, time_sleep_until), path/normalize.sh (path_normalize), path/relative.sh (path_relative), array/keys.sh (array_keys, array_has_key), array/print.sh (array_print), utils/choose.sh (choose): Apache-2.0 License, adoyle-h/lobash https://github.com/adoyle-h/lobash
-- text/collapse.sh (str_collapse), text/title_case.sh (str_title_case), sys/process.sh (process_running, pid_alive, pid_stop, pids_matching, process_parent), sys/signals.sh (signame, signum, sigexitcode), core/stacktrace.sh (stacktrace, stacktrace_array), core/save_function.sh (save_function), fs/backup.sh (file_backup, file_restore, file_is_backed_up), time/duration.sh (time_duration, time_compact_duration, time_diff_seconds — ebash portions): Apache-2.0 License, elibs/ebash https://github.com/elibs/ebash
-- text/contains_only.sh (str_contains_only, str_is_alpha, str_is_alnum, str_is_digits), text/rotate.sh (str_rotate): Apache-2.0 License, hastec-fr/apash https://github.com/hastec-fr/apash
-- sys/os.sh (OS_DISTRO/OS_FAMILY distro detection case), utils/assert.sh (assert_not_empty, assert_is_installed, assert_value_in_list, assert_exactly_one_of): Apache-2.0 License, gruntwork-io/bash-commons https://github.com/gruntwork-io/bash-commons
-- users/provision.sh (user_exists, group_exists, ensure_group_exists, ensure_user_exists): Apache-2.0 License, juan131/bash-libraries https://github.com/juan131/bash-libraries
-- utils/retry_backoff.sh (cmd_retry_backoff, cmd_retry_constant, cmd_retry_until — cyberark portions): Apache-2.0 License, cyberark/bash-lib https://github.com/cyberark/bash-lib
-- utils/retry_backoff.sh (cmd_retry_until — dolpa portions), time/duration.sh (time_diff_seconds — dolpa portions): Unlicense, dolpa/dolpa-bash-utils https://github.com/dolpa/dolpa-bash-utils
-- time/duration.sh (time_duration, time_compact_duration — kigster portions), time/epoch_ms.sh (time_sleep_until — kigster portions), sys/process.sh (pid_stop — kigster portions): MIT License, kigster/bash-orb https://github.com/kigster/bash-orb
-- numbers/math.sh (num_modulo, num_clamp — tomocafe portions), sys/path_env.sh (path_env_contains, path_env_prepend, path_env_append, path_env_remove, path_env_dedup): MIT License, tomocafe/dotfiles https://github.com/tomocafe/dotfiles
-- numbers/math.sh (num_abs, num_min, num_max — SpicyLemon portions), sys/ps_grep.sh (ps_grep), utils/timealert.sh (timealert): MIT License, SpicyLemon/SpicyLemon https://github.com/SpicyLemon/SpicyLemon
-- git/repo.sh (git_is_repo, git_root, git_repo_name, git_current_branch, git_default_branch, git_short_sha, git_is_tracked), sys/os.sh (OS_ARCH normalisation case — HariSekhon portions): MIT License, HariSekhon/DevOps-Bash-tools https://github.com/HariSekhon/DevOps-Bash-tools
-- goodies/tui_prompts.sh (tui_input, tui_confirm, tui_list, tui_checkbox, tui_password, tui_range), core/open.sh (open), net/open_link.sh (net_open_link): Apache-2.0 License, timo-reymann/bash-tui-framework https://github.com/timo-reymann/bash-tui-framework
-- goodies/ansi_cursor.sh (ansi_cursor_*, ansi_erase_*, ansi_scroll_*, ansi_title, ansi_bell, ansi_reset, ansi_is_supported): MIT License, fidian/ansi https://github.com/fidian/ansi
-- utils/mkcd.sh (mkcd): ISC License, modernish https://github.com/modernish/modernish
-- jsonprint.sh, MIT License (c) 2020 Rawiri Blundell https://github.com/rawiriblundell/jsonprint
-- various libraries as indicated in their headers, bashmenot, BSD 3-Clause License (c) 2014-2015, Miëtek Bak https://github.com/mietek/bashmenot/
-- various ideas as indicated by code comments, modernish, ISC License 2015-2021 Martijn Dekker <martijn@inlv.org> https://github.com/modernish/modernish
-- Some numbers for uuid.sh, BSD 3-Clause License, (c) 2009,2014 Google Inc. https://github.com/google/uuid/blob/master/time.go
-- crypto/chacha20.sh, MIT (c) 2020 Jason A. Donenfeld. https://git.zx2c4.com/chacha20.sh/plain/chacha20.sh
-- realpaths.sh, CC0 1.0 Universal https://raw.githubusercontent.com/bashup/realpaths/master/realpaths
-- realpath.portable_follow in realpaths.sh, based on readlinkf_posix, MIT License (c) 2019 Koichi Nakashima (ko1nksm) https://github.com/ko1nksm/readlinkf/blob/master/readlinkf.sh
-- bash_loading_animations.sh, WTFPLv2 (c) 2022 Silejonu, https://github.com/Silejonu/bash_loading_animations/
-- http_status_codes.sh, CC-BY-SA 2.5 https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
-- os.sh, XDG vars referenced from xdg (go).  MIT License (c) 2014 Adrian-George Bostan <adrg@epistack.com> https://github.com/adrg/xdg
+### eclipse/ditto-examples
+Apache-2.0 — https://github.com/eclipse/ditto-examples/blob/master/legal/NOTICE.md
+
+- `NOTICE.md` — Cryptography section template
+
+---
+
+### labbots/bash-utility
+MIT — https://github.com/labbots/bash-utility
+
+- `time/date_arithmetic.sh`, `time/human_duration.sh`, `time/is_leap_year.sh` (time_is_leap_year adapted from aks/bash-lib)
+- `units/bytes_to_human.sh`
+- `text/predicates.sh` — str_is_email (adapted from net/validate_email.sh in bash-utility)
+- `net/validate.sh` — _net_validate_ipv6
+- `numbers/numeric.sh` — is_numeric, is_integer, is_float, is_positive_integer (formerly numbers/is_numeric.sh)
+- `numbers/version_compare.sh`
+- `path/extension.sh`
+- `utils/prompt.sh` — password prompt (also adapted from martinburger/bash-common-helpers)
+
+---
+
+### Joe Mooring / bash-function-library
+Apache-2.0 — https://github.com/jmooring/bash-function-library
+
+- `time/seconds_to_hms.sh`
+
+---
+
+### Alan K. Stebbens / bash-lib
+MIT — https://github.com/aks/bash-lib
+
+- `time/is_leap_year.sh` — leap year logic
+
+---
+
+### Kevin van Zonneveld / bash3boilerplate
+MIT — https://github.com/kvz/bash3boilerplate
+
+- `net/query.sh` — net_parse_url (formerly net/parse_url.sh)
+- `fs/ini_val.sh`
+
+---
+
+### codeforester/base
+MIT — https://github.com/codeforester/base
+
+- `sys/path_utils.sh`
+
+---
+
+### martinburger/bash-common-helpers
+MIT — https://github.com/martinburger/bash-common-helpers
+
+- `utils/prompt.sh` — password prompt (also adapted from labbots/bash-utility)
+
+---
+
+### elibs/ebash
+Apache-2.0 — https://github.com/elibs/ebash
+
+- `numbers/compare.sh` — num_compare, num_compare_float
+- `text/truncate.sh` — str_truncate
+- `text/collapse.sh` — str_collapse
+- `text/title_case.sh` — str_title_case
+- `sys/process.sh` — process_running, pid_alive, pid_stop, pids_matching, process_parent
+- `sys/signals.sh` — signame, signum, sigexitcode
+- `core/stacktrace.sh` — stacktrace, stacktrace_array
+- `core/save_function.sh` — save_function
+- `fs/backup.sh` — file_backup, file_restore, file_is_backed_up
+- `time/duration.sh` — time_duration, time_compact_duration, time_diff_seconds (ebash portions)
+
+---
+
+### adoyle-h/lobash
+Apache-2.0 — https://github.com/adoyle-h/lobash
+
+- `text/strip_ansi.sh` — str_strip_ansi
+- `text/match.sh` — str_match, str_match_captures
+- `time/epoch_ms.sh` — time_epoch_ms, time_sleep_until (lobash portions)
+- `path/normalize.sh` — path_normalize
+- `path/relative.sh` — path_relative
+- `array/keys.sh` — array_keys, array_has_key
+- `array/print.sh` — array_print
+- `utils/choose.sh` — choose
+
+---
+
+### hastec-fr/apash
+Apache-2.0 — https://github.com/hastec-fr/apash
+
+- `text/contains_only.sh` — str_contains_only, str_is_alpha, str_is_alnum, str_is_digits
+- `text/rotate.sh` — str_rotate
+
+---
+
+### gruntwork-io/bash-commons
+Apache-2.0 — https://github.com/gruntwork-io/bash-commons
+
+- `sys/os.sh` — OS_DISTRO/OS_FAMILY distro detection
+- `core/assert.sh` — assert_not_empty, assert_is_installed, assert_value_in_list, assert_exactly_one_of
+
+---
+
+### juan131/bash-libraries
+Apache-2.0 — https://github.com/juan131/bash-libraries
+
+- `users/provision.sh` — user_exists, group_exists, ensure_group_exists, ensure_user_exists
+
+---
+
+### cyberark/bash-lib
+Apache-2.0 — https://github.com/cyberark/bash-lib
+
+- `utils/retry_backoff.sh` — cmd_retry_backoff, cmd_retry_constant, cmd_retry_until (cyberark portions)
+
+---
+
+### dolpa/dolpa-bash-utils
+Unlicense — https://github.com/dolpa/dolpa-bash-utils
+
+- `utils/retry_backoff.sh` — cmd_retry_until (dolpa portions)
+- `time/duration.sh` — time_diff_seconds (dolpa portions)
+
+---
+
+### kigster/bash-orb
+MIT — https://github.com/kigster/bash-orb
+
+- `time/duration.sh` — time_duration, time_compact_duration (kigster portions)
+- `time/epoch_ms.sh` — time_sleep_until (kigster portions)
+- `sys/process.sh` — pid_stop (kigster portions)
+
+---
+
+### tomocafe/dotfiles
+MIT — https://github.com/tomocafe/dotfiles
+
+- `numbers/math.sh` — num_modulo, num_clamp
+- `sys/path_env.sh` — path_env_contains, path_env_prepend, path_env_append, path_env_remove, path_env_dedup
+
+---
+
+### SpicyLemon/SpicyLemon
+MIT — https://github.com/SpicyLemon/SpicyLemon
+
+- `numbers/math.sh` — num_abs, num_min, num_max
+- `sys/ps_grep.sh` — ps_grep
+- `utils/timealert.sh` — timealert
+
+---
+
+### HariSekhon/DevOps-Bash-tools
+MIT — https://github.com/HariSekhon/DevOps-Bash-tools
+
+- `git/base.sh` — git_is_repo, git_root, git_repo_name, git_current_branch, git_default_branch, git_short_sha, git_is_tracked
+- `sys/os.sh` — OS_ARCH normalisation
+
+---
+
+### timo-reymann/bash-tui-framework
+Apache-2.0 — https://github.com/timo-reymann/bash-tui-framework
+
+- `goodies/tui_prompts.sh` — tui_input, tui_confirm, tui_list, tui_checkbox, tui_password, tui_range
+- `core/open.sh` — open
+- `net/open_link.sh` — net_open_link
+
+---
+
+### fidian/ansi
+MIT — https://github.com/fidian/ansi
+
+- `goodies/ansi_cursor.sh` — ansi_cursor_*, ansi_erase_*, ansi_scroll_*, ansi_title, ansi_bell, ansi_reset, ansi_is_supported
+
+---
+
+### modernish
+ISC — https://github.com/modernish/modernish
+
+- `utils/mkcd.sh` — mkcd
+- Various ideas as noted in code comments
+
+---
+
+### Miëtek Bak / bashmenot
+BSD 3-Clause — https://github.com/mietek/bashmenot/
+
+- Various libraries as indicated in their file headers
+
+---
+
+### rawiriblundell/jsonprint
+MIT — https://github.com/rawiriblundell/jsonprint
+
+- `json/jsonprint.sh`
+
+---
+
+### Google / uuid
+BSD 3-Clause — https://github.com/google/uuid/blob/master/time.go
+
+- `crypto/uuid.sh` — UUID time values
+
+---
+
+### Jason A. Donenfeld
+MIT — https://git.zx2c4.com/chacha20.sh/plain/chacha20.sh
+
+- `crypto/chacha20.sh`
+
+---
+
+### bashup/realpaths
+CC0 1.0 Universal — https://github.com/bashup/realpaths
+
+- `path/realpaths.sh`
+
+---
+
+### Koichi Nakashima / readlinkf
+MIT — https://github.com/ko1nksm/readlinkf/blob/master/readlinkf.sh
+
+- `path/realpaths.sh` — realpath_portable_follow (based on readlinkf_posix)
+
+---
+
+### Silejonu/bash_loading_animations
+WTFPLv2 — https://github.com/Silejonu/bash_loading_animations/
+
+- `goodies/bash_loading_animations.sh`
+
+---
+
+### MDN Web Docs / IANA
+CC-BY-SA 2.5 — https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+
+- `net/http_status_codes.sh` — HTTP status code reference data (refreshed against RFC 9110, IANA registry, and vendor extensions)
+
+---
+
+### adrg/xdg
+MIT — https://github.com/adrg/xdg
+
+- `sys/os.sh` — XDG variable references
 
 ## Unlicense
 
