@@ -150,6 +150,31 @@ net_query_port() {
   timeout 1 bash -c "</dev/${3:-tcp}/${1:?No target}/${2:-22}" 2>/dev/null
 }
 
+# @description Poll a host/port until it becomes reachable or a timeout expires.
+#   Retries once per second using net_query_port.
+#
+# @arg $1 string Remote hostname or IP address
+# @arg $2 int Port number (default: 22)
+# @arg $3 int Timeout in seconds (default: 30)
+#
+# @example
+#   net_wait_for_port db.example.com 5432 60
+#
+# @exitcode 0 Port became reachable within the timeout
+# @exitcode 1 Timeout expired before port was reachable
+net_wait_for_port() {
+  local host port timeout i
+  host="${1:?No target}"
+  port="${2:-22}"
+  timeout="${3:-30}"
+
+  for (( i = 0; i < timeout; i++ )); do
+    net_query_port "${host}" "${port}" && return 0
+    sleep 1
+  done
+  return 1
+}
+
 # @description Parse a URL into its component parts.
 #   With one argument, prints all components as key: value lines.
 #   With a second argument, prints only the requested field.
