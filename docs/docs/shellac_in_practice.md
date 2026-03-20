@@ -27,8 +27,7 @@ each shellac call replaces.
 #!/bin/bash
 # Regenerate your known_hosts file after rotating your keys
 
-# Locate and load shellac
-source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")"/../lib/sh/shellac)" 2>/dev/null || {
+source shellac 2>/dev/null || {
     printf -- '%s\n' "shellac not found - https://github.com/rawiriblundell/shellac" >&2
     exit 1
 }
@@ -147,9 +146,12 @@ ls -1 "${HOME}/.ssh"
 
 ## What changed and why
 
-**Loading shellac** — the `source` line self-locates shellac relative to
-the script. If it's absent the script fails immediately with a useful
-message rather than a cascade of "command not found" errors.
+**Loading shellac** — `source shellac` works because bash searches `PATH`
+for bare names with no slash, and a standard shellac install puts `bin/`
+on `PATH`. `bin/shellac` then self-locates `lib/sh` from its own path, so
+no hardcoded install prefix is needed. If shellac is absent the script
+fails immediately with a useful message rather than a cascade of
+"command not found" errors.
 
 **`requires`** — three tools are non-negotiable. Declaring them upfront
 means the script fails with a clear message before touching anything,
