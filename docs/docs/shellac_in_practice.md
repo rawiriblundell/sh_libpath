@@ -1,5 +1,5 @@
 This document shows what a shellac-enhanced script looks like in practice.
-The source script is `~/bin/regen_knownhosts` — a utility that safely
+The source script is `regen_knownhosts` — a utility that safely
 regenerates `~/.ssh/known_hosts` after a key rotation by pulling hosts
 from bash history, deduplicating, re-scanning fingerprints, and falling
 back to live SSH connections for hosts that keyscan can't reach.
@@ -9,19 +9,127 @@ each shellac call replaces.
 
 ---
 
-## Original pain points
+<div markdown="block" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
 
-| Before | After |
-|---|---|
-| `LC_CTYPE=C tr -dc "a-zA-Z0-9" < /dev/urandom \| fold -w 8 \| head -n 1` | `secrets_genpasswd 8` |
-| `printf -- '%s\n' "..." >&2` (error to stderr) | `warn "..."` |
-| `printf -- '======> %s\n' "Processing ${host}..."` | `log_info "Processing ${host}..."` |
-| `trap 'rm -f "${file}"' RETURN` (hand-rolled) | `include core/trap` cleanup pattern |
-| No dependency checking | `requires ssh ssh-keyscan ssh-keygen` |
+<div markdown="block">
 
----
+**Original**
 
-## Shellac-enhanced version
+```bash
+#!/bin/bash
+# Regenerate your known_hosts file after rotating your keys
+
+# --- Functions ---------------------------------------------------------------
+
+# Build a candidate host list from bash history
+_get_historical_hosts() {
+    grep "^ssh " "${HOME}/.bash_history" |
+        awk '{print $2}' |
+        sort |
+        uniq |
+        grep -Ev -- '^-|ssh$|radius2\|^raw$'
+}
+
+# Print or add SSH fingerprints for one or more hosts
+ssh-fingerprint() {
+    local fingerprint
+    local keyscanargs=()
+    fingerprint="$(mktemp)"
+
+    # Cleanup temp file on return
+    trap 'rm -f "${fingerprint:?}"' RETURN
+
+    # Prefer ed25519 where supported
+    ssh -Q key 2>/dev/null | grep -q ed25519 &&
+        keyscanargs=( -t "ed25519,rsa,ecdsa" )
+
+    case "${1}" in
+        (-a|--add|--append)
+            shift 1
+            ssh-keyscan "${keyscanargs[@]}" "${@}" > "${fingerprint}" 2>/dev/null
+            [[ -s "${fingerprint}" ]] || return 1
+            cp "${HOME}"/.ssh/known_hosts{,."$(date +%Y%m%d)"}
+            sort -u "${fingerprint}" "${HOME}/.ssh/known_hosts.$(date +%Y%m%d)" \
+                > "${HOME}/.ssh/known_hosts"
+        ;;
+        (''|-h|--help)
+            printf -- '%s\n' \
+                "Usage: ssh-fingerprint (-a|--add|--append) [hostnames]" >&2
+            return 1
+        ;;
+        (*)
+            ssh-keyscan "${keyscanargs[@]}" "${@}" > "${fingerprint}" 2>/dev/null
+            [[ -s "${fingerprint}" ]] || return 1
+            ssh-keygen -l -f "${fingerprint}"
+        ;;
+    esac
+}
+
+# --- Main --------------------------------------------------------------------
+
+# Back up known_hosts with a random stamp so reruns don't collide
+local rand_stamp
+rand_stamp="$(LC_CTYPE=C tr -dc 'a-zA-Z0-9' < /dev/urandom \
+    | fold -w 8 | head -n 1).$(date +%Y%m%d)"
+cp "${HOME}/.ssh/known_hosts" "${HOME}/.ssh/known_hosts.${rand_stamp}"
+printf -- '======> %s\n' "Backed up known_hosts to known_hosts.${rand_stamp}"
+
+# Split into hashed and unhashed entries
+grep  '|1|' "${HOME}/.ssh/known_hosts" \
+    > "${HOME}/.ssh/known_hosts.hashed"
+grep -v '|1|' "${HOME}/.ssh/known_hosts" |
+    awk '{print $1}' |
+    tr ',' '\n' \
+    > "${HOME}/.ssh/known_hosts.unhashed"
+
+# Resolve hashed entries by matching against bash history
+if [[ -s "${HOME}/.ssh/known_hosts.hashed" ]]; then
+    while read -r host; do
+        if ssh-keygen -F "${host}" >/dev/null 2>&1; then
+            grep -q "${host}" "${HOME}/.ssh/known_hosts.unhashed" ||
+                printf -- '%s\n' "${host}" >> "${HOME}/.ssh/known_hosts.unhashed"
+        fi
+    done < <(_get_historical_hosts)
+fi
+
+# Merge unhashed list with history, deduplicate
+sort -u "${HOME}/.ssh/known_hosts.unhashed" \
+    <(_get_historical_hosts) \
+    > "${HOME}/.ssh/known_hosts.sorted"
+
+# Clear known_hosts and rebuild from sorted list
+: > "${HOME}/.ssh/known_hosts"
+
+while read -r target_host; do
+    printf -- '======> %s\n' "Processing ${target_host}..."
+    ssh-fingerprint --add "${target_host}" ||
+        printf -- '%s\n' "${target_host}" >> "${HOME}/.ssh/failed_fingerprinting"
+done < "${HOME}/.ssh/known_hosts.sorted"
+
+# Second pass: attempt live SSH for hosts keyscan couldn't reach
+if [[ -s "${HOME}/.ssh/failed_fingerprinting" ]]; then
+    printf -- '%s\n' \
+        "Working through fingerprint failures — this may take a while" >&2
+    while read -r host; do
+        if ! ssh -n -o ConnectTimeout=3 -o BatchMode=yes \
+                -o StrictHostKeyChecking=accept-new "${host}" true; then
+            printf -- '%s\n' \
+                "${host}: unable to connect — manual intervention required" >&2
+        fi
+        grep -q "^${host}" "${HOME}/.ssh/known_hosts" &&
+            printf -- '======> %s\n' "${host} added to known_hosts"
+    done < "${HOME}/.ssh/failed_fingerprinting"
+fi
+
+printf -- '======> %s\n' "Done. Clean up ${HOME}/.ssh when you're satisfied:"
+ls -1 "${HOME}/.ssh"
+```
+
+</div>
+
+<div markdown="block">
+
+**With shellac**
 
 ```bash
 #!/bin/bash
@@ -48,7 +156,7 @@ _get_historical_hosts() {
         awk '{print $2}' |
         sort |
         uniq |
-        grep -Ev -- '^-|ssh$|radius2\\|^raw$'
+        grep -Ev -- '^-|ssh$|radius2\|^raw$'
 }
 
 # Print or add SSH fingerprints for one or more hosts
@@ -141,6 +249,10 @@ fi
 log_info "Done. Clean up ${HOME}/.ssh when you're satisfied:"
 ls -1 "${HOME}/.ssh"
 ```
+
+</div>
+
+</div>
 
 ---
 
