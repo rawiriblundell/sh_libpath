@@ -30,7 +30,7 @@ fi
 #   For the 'expiry'/'end' field the second argument may be a remote hostname
 #   (port defaults to 443 or may be passed as the third argument).
 #
-# @arg $1 string Field: algorithm | CN | email | expiry | end | fingerprint | issuer | modulus | OrgName | SANs | serial | start | state — or any other value for full text
+# @arg $1 string Field: algorithm | CN | days | email | expiry | end | fingerprint | issuer | modulus | OrgName | SANs | serial | start | state — or any other value for full text
 # @arg $2 string Certificate file path (or hostname for remote expiry check)
 #
 # @stdout Requested certificate field value or full decoded certificate text
@@ -41,6 +41,7 @@ fi
 # (c) 2019 Rawiri Blundell, Datacom Compute.  MIT License.
 ssl_view_cert () {
     local _ssl_view_cert_algorithm _ssl_view_cert_host _ssl_view_cert_port _ssl_view_cert_in
+    local _ssl_view_cert_exp_epoch _ssl_view_cert_now_epoch
     _ssl_view_cert_in="${2}"
 
     if (( "${#_ssl_view_cert_in}" == 0 )); then
@@ -122,8 +123,14 @@ ssl_view_cert () {
                 sed -e "s/^notBefore=//" -e "s/GMT//" |
                 awk '{printf("%s %02d %d %s\n", $1,$2,$4,$3)}'
         ;;
+        ([Dd]ays)
+            _ssl_view_cert_exp_epoch=$(openssl x509 -in "${_ssl_view_cert_in}" -enddate -noout | cut -d= -f2)
+            _ssl_view_cert_exp_epoch=$(date -d "${_ssl_view_cert_exp_epoch}" +%s)
+            _ssl_view_cert_now_epoch=$(date +%s)
+            printf -- '%d\n' "$(( (_ssl_view_cert_exp_epoch - _ssl_view_cert_now_epoch) / 86400 ))"
+        ;;
         ([Ss]tate)
-            case "$(openssl x509 -in "${_ssl_view_cert_in}" -checkend "${2:-0}")" in
+            case "$(openssl x509 -in "${_ssl_view_cert_in}" -checkend "${3:-0}")" in
                 (*'not expire'*)  printf -- '%s\n' "OK" ;;
                 (*'will expire')  printf -- '%s\n' "EXPIRED" ;;
             esac
