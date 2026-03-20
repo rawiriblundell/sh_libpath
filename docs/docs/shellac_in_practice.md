@@ -162,9 +162,6 @@ Same result, readable at a glance.
 calls. Log functions write to the right stream automatically, carry
 consistent formatting, and can be silenced or redirected centrally.
 
-**`sort -u`** — minor: the `cat | sort | uniq` pipeline was collapsed. Not
-a shellac change, just a cleanup that became obvious in the rewrite.
-
 The logic is otherwise unchanged — the rewrite is not a reimagining, just
 a demonstration that shellac handles the scaffolding so the script can
 focus on what it actually does.

@@ -4,3 +4,4 @@ nav:
   - shell_scopes.md
   - variable_precedence.md
   - shellac_in_practice.md
+  - musings.md
