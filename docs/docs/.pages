@@ -1,0 +1,6 @@
+nav:
+  - structure.md
+  - naming-conventions.md
+  - shell_scopes.md
+  - variable_precedence.md
+  - shellac_in_practice.md
