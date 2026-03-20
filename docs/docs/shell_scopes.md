@@ -14,8 +14,7 @@ Variable scoping in Bourne-family shells surprises programmers coming from other
 
 ## What are scopes
 
-| :pushpin: This is not an exhaustive treatment — the topic is explored elsewhere to whatever depth you choose.  This is a high-level overview within a shell scripting context, deliberately avoiding the muddying/blurring of the definitions of scopes and namespaces.  The concepts are used here in a minimal, practical way. |
-| --- |
+*NOTE: This is not an exhaustive treatment — the topic is explored elsewhere to whatever depth you choose. This is a high-level overview within a shell scripting context, deliberately avoiding the muddying/blurring of the definitions of scopes and namespaces. The concepts are used here in a minimal, practical way.*
 
 The definition of a scope for the last 60+ years has been "the portion of source code in which a binding of a name with an entity applies".  That definition is in the context of lexical scoping, which we'll get to in a minute.
 
