@@ -293,8 +293,9 @@ focus on what it actually does.
 A script that syncs all GitHub gists for a given user to local
 directories. At 79 lines it is compact, but 22 of those lines are
 hand-rolled `die()` and `requires()` functions — which are shellac
-verbatim. Removing them drops the script to 57 lines with no logic
-change.
+verbatim. With `core/stdlib` covering all three individual includes,
+`net/query` adding a preflight connectivity check, and `get_url`
+eliminated as an unnecessary wrapper, the script drops to 52 lines.
 
 ---
 
@@ -398,28 +399,22 @@ source shellac 2>/dev/null || {
     exit 1
 }
 
-include core/die
-include core/requires
-include utils/logging
+include core/stdlib
+include net/query
 
-requires curl jq
+requires curl jq git
 
 user="${1:?No github user defined}"
 base_uri="https://api.github.com/users/${user}/gists"
 gist_path="${2:-${HOME}/git/gists}"
 gist_manifest="${gist_path}/manifest.json"
 
-get_url() {
-  case "${1}" in
-    (--save)  CURL_OPTS=( -O ); shift 1 ;;
-  esac
-  curl "${CURL_OPTS[@]}" -s "${1:?No URL defined}"
-}
-
 main() {
+  net_query_internet || die "No internet connectivity"
+
   try mkdir -p "${gist_path}"
 
-  get_url "${base_uri}" > "${gist_manifest}"
+  curl -s "${base_uri}" > "${gist_manifest}"
 
   readarray -t gist_id_list < <(jq -r '.[].id' "${gist_manifest}")
 
@@ -456,17 +451,26 @@ main "${@}"
 
 ### What changed and why
 
-**`include core/die` + `include core/requires`** — the original's `die()`
-and `requires()` are shellac's implementations, hand-rolled inline.
-Two `include` calls replace 22 lines, and the TERM trap / `_self_pid`
-export that `die()` depends on are set up automatically by `core/die`.
+**`include core/stdlib`** — replaces three separate includes (`core/die`,
+`core/requires`, `utils/logging`) with one. `core/stdlib` is the curated
+baseline: control flow, dependency checking, logging, and more. The
+original's `die()` and `requires()` are shellac verbatim, hand-rolled
+inline — `core/stdlib` deletes 22 lines of boilerplate that were
+reimplementing what was already available.
 
 **`requires` moves to the top** — in the original it's called inside
-`main()`, after `get_url` and the variable assignments are already defined.
-With shellac it sits at the top of the script, before any work begins.
+`main()`, after variables are already assigned. With shellac it sits at
+the top of the script, before any work begins. `git` is also added — the
+original calls `git clone` but never checks for it.
+
+**`get_url` is removed** — it was a six-line wrapper around `curl -s`
+called exactly once, with the `--save` branch never used. Inlining the
+`curl` call removes the function entirely.
+
+**`net_query_internet`** — preflight connectivity check before hitting
+the API. The original would let `curl` silently fail and pass an empty
+or error JSON to `jq`. `net_query_internet || die` makes the failure
+immediate and readable.
 
 **`try`** — `mkdir -p ... || die "..."` and `cd ... || die "..."` collapse
 to `try mkdir -p ...` and `try cd ...`. Same semantics, less noise.
-
-**`log_info`** — the `printf -- '%s\n' "Syncing..."` status line gets
-consistent formatting for free.
