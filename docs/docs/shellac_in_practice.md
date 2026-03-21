@@ -1,11 +1,17 @@
-This document shows what a shellac-enhanced script looks like in practice.
-The source script is `regen_knownhosts` — a utility that safely
-regenerates `~/.ssh/known_hosts` after a key rotation by pulling hosts
-from bash history, deduplicating, re-scanning fingerprints, and falling
-back to live SSH connections for hosts that keyscan can't reach.
+Two real scripts, rewritten with shellac. Each rewrite is functionally
+equivalent to the original — the goal is not to reimagine the logic but
+to show what shellac handles so the script doesn't have to.
 
-The rewrite below is functionally equivalent. Annotations explain what
-each shellac call replaces.
+---
+
+## Example 1: regen_knownhosts
+
+A utility that safely regenerates `~/.ssh/known_hosts` after a key
+rotation: pulls hosts from bash history, deduplicates, re-scans
+fingerprints, and falls back to live SSH for hosts keyscan can't reach.
+The shellac version is slightly longer due to the `include` preamble, but
+the scaffolding (dependency checks, logging, random stamp generation) is
+all gone from the script body.
 
 ---
 
@@ -279,3 +285,188 @@ consistent formatting, and can be silenced or redirected centrally.
 The logic is otherwise unchanged — the rewrite is not a reimagining, just
 a demonstration that shellac handles the scaffolding so the script can
 focus on what it actually does.
+
+---
+
+## Example 2: gist_pull
+
+A script that syncs all GitHub gists for a given user to local
+directories. At 79 lines it is compact, but 22 of those lines are
+hand-rolled `die()` and `requires()` functions — which are shellac
+verbatim. Removing them drops the script to 57 lines with no logic
+change.
+
+---
+
+<div markdown="block" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+
+<div markdown="block">
+
+**Original**
+
+```bash
+#!/bin/bash
+# Pull all the gists for a given user
+
+#TO-DO: Identify local copies that have been deleted and sync
+
+user="${1:?No github user defined}"
+base_uri="https://api.github.com/users/${user}/gists"
+gist_path="${2:-${HOME}/git/gists}"
+gist_manifest="${gist_path}/manifest.json"
+
+# Get the top level PID and setup a trap so that we can call die() within subshells
+trap "exit 1" TERM
+_self_pid="${$}"
+export _self_pid
+
+# shellcheck disable=SC2059
+die() {
+  [ -t 0 ] && _diefmt='\e[31;1m====>%s\e[0m\n'
+  printf "${_diefmt:-====>%s\n}" "${0}:(${LINENO}): ${*}" >&2
+  kill -s TERM "${_self_pid}"
+}
+
+requires() {
+  local cmd err_count
+  err_count=0
+  for cmd in "${@}"; do
+    if ! command -v "${cmd}" >/dev/null 2>&1; then
+      err "${cmd} is required but was not found in PATH"
+      (( ++err_count ))
+    fi
+  done
+  (( err_count > 0 )) && exit 1
+  return 0
+}
+
+get_url() {
+  case "${1}" in
+    (--save)  CURL_OPTS=( -O ); shift 1 ;;
+  esac
+  curl "${CURL_OPTS[@]}" -s "${1:?No URL defined}"
+}
+
+main() {
+  requires curl jq
+
+  mkdir -p "${gist_path}" || die "Could not create ${gist_path}"
+
+  get_url "${base_uri}" > "${gist_manifest}"
+
+  readarray -t gist_id_list < <(jq -r '.[].id' "${gist_manifest}")
+
+  (
+    cd "${gist_path}" || die "Could not enter ${gist_path}..."
+    for gist_id in "${gist_id_list[@]}"; do
+      printf -- '%s\n' "Syncing ${gist_id}..."
+      gist_uri="https://gist.github.com/${gist_id}.git"
+      [[ ! -d "${gist_id}" ]] && git clone "${gist_uri}"
+      (
+        cd "${gist_id}" || die "Could not enter ${gist_path}/${gist_id}"
+        gist_filename=$(
+          jq -r --arg gist_id "${gist_id}" '
+            .[] |
+              select(.id==$gist_id) |
+              .files[].filename' "${gist_manifest}"
+        )
+        ln_target="${gist_path}/${gist_id}/${gist_filename}"
+        ln_link="${gist_path}/${gist_filename}"
+        ln -s "${ln_target}" "${ln_link}" >/dev/null 2>&1
+      )
+    done
+  )
+}
+
+main "${@}"
+```
+
+</div>
+
+<div markdown="block">
+
+**With shellac**
+
+```bash
+#!/bin/bash
+# Pull all the gists for a given user
+
+#TO-DO: Identify local copies that have been deleted and sync
+
+source shellac 2>/dev/null || {
+    printf -- '%s\n' "shellac not found - https://github.com/rawiriblundell/shellac" >&2
+    exit 1
+}
+
+include core/die
+include core/requires
+include utils/logging
+
+requires curl jq
+
+user="${1:?No github user defined}"
+base_uri="https://api.github.com/users/${user}/gists"
+gist_path="${2:-${HOME}/git/gists}"
+gist_manifest="${gist_path}/manifest.json"
+
+get_url() {
+  case "${1}" in
+    (--save)  CURL_OPTS=( -O ); shift 1 ;;
+  esac
+  curl "${CURL_OPTS[@]}" -s "${1:?No URL defined}"
+}
+
+main() {
+  try mkdir -p "${gist_path}"
+
+  get_url "${base_uri}" > "${gist_manifest}"
+
+  readarray -t gist_id_list < <(jq -r '.[].id' "${gist_manifest}")
+
+  (
+    try cd "${gist_path}"
+    for gist_id in "${gist_id_list[@]}"; do
+      log_info "Syncing ${gist_id}..."
+      gist_uri="https://gist.github.com/${gist_id}.git"
+      [[ ! -d "${gist_id}" ]] && git clone "${gist_uri}"
+      (
+        try cd "${gist_id}"
+        gist_filename=$(
+          jq -r --arg gist_id "${gist_id}" '
+            .[] |
+              select(.id==$gist_id) |
+              .files[].filename' "${gist_manifest}"
+        )
+        ln_target="${gist_path}/${gist_id}/${gist_filename}"
+        ln_link="${gist_path}/${gist_filename}"
+        ln -s "${ln_target}" "${ln_link}" >/dev/null 2>&1
+      )
+    done
+  )
+}
+
+main "${@}"
+```
+
+</div>
+
+</div>
+
+---
+
+### What changed and why
+
+**`include core/die` + `include core/requires`** — the original's `die()`
+and `requires()` are shellac's implementations, hand-rolled inline.
+Two `include` calls replace 22 lines, and the TERM trap / `_self_pid`
+export that `die()` depends on are set up automatically by `core/die`.
+
+**`requires` moves to the top** — in the original it's called inside
+`main()`, after `get_url` and the variable assignments are already defined.
+With shellac it sits at the top of the script, before any work begins.
+
+**`try`** — `mkdir -p ... || die "..."` and `cd ... || die "..."` collapse
+to `try mkdir -p ...` and `try cd ...`. Same semantics, less noise.
+
+**`log_info`** — the `printf -- '%s\n' "Syncing..."` status line gets
+consistent formatting for free.
