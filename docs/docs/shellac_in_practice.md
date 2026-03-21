@@ -146,10 +146,8 @@ source shellac 2>/dev/null || {
     exit 1
 }
 
-include core/die
-include core/trap
+include core/stdlib
 include crypto/genpasswd
-include utils/logging
 
 # Fail fast if required tools are absent
 requires ssh ssh-keyscan ssh-keygen
@@ -270,6 +268,11 @@ on `PATH`. `bin/shellac` then self-locates `lib/sh` from its own path, so
 no hardcoded install prefix is needed. If shellac is absent the script
 fails immediately with a useful message rather than a cascade of
 "command not found" errors.
+
+**`include core/stdlib`** — the curated baseline: control flow, logging,
+dependency checking, trap helpers, and more. Three of the four original
+includes (`core/die`, `core/trap`, `utils/logging`) are already in
+stdlib, so only `crypto/genpasswd` needs to be named separately.
 
 **`requires`** — three tools are non-negotiable. Declaring them upfront
 means the script fails with a clear message before touching anything,
