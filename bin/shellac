@@ -684,6 +684,104 @@ _shellac_provides() {
   fi
 }
 
+# @internal
+# Configure PATH and SH_LIBPATH for the current shellac clone.
+# Writes /etc/profile.d/00-shellac.sh (if writable) or appends to ~/.bashrc.
+# Idempotent: skips any line already present. Reports every change made.
+_shellac_init() {
+  local clone_root bin_path lib_path target_file install_type
+  local path_line libpath_line reload_cmd changed
+  changed=0
+
+  # Derive clone root from the location of bin/shellac itself
+  clone_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd -P)"
+  clone_root="${clone_root%/bin}"
+  bin_path="${clone_root}/bin"
+  lib_path="${clone_root}/lib/sh"
+
+  printf -- 'shellac init: detected clone at %s\n' "${clone_root}"
+
+  if [ ! -d "${lib_path}" ]; then
+    printf -- 'shellac init: lib/sh not found at %s — is this a complete clone?\n' "${lib_path}" >&2
+    return 1
+  fi
+
+  # Choose system vs per-user install based on write access to /etc/profile.d/
+  if [ -d /etc/profile.d ] && [ -w /etc/profile.d ]; then
+    install_type=system
+    target_file=/etc/profile.d/00-shellac.sh
+    printf -- 'shellac init: /etc/profile.d/ is writable — system-wide install\n'
+    reload_cmd="source ${target_file}"
+  else
+    install_type=user
+    if [ -f "${HOME}/.bashrc" ]; then
+      target_file="${HOME}/.bashrc"
+    else
+      target_file="${HOME}/.profile"
+    fi
+    printf -- 'shellac init: /etc/profile.d/ is not writable — per-user install\n'
+    reload_cmd="source ${target_file}"
+  fi
+
+  path_line="export PATH=\"${bin_path}:\${PATH}\""
+  libpath_line="export SH_LIBPATH=\"${lib_path}\""
+
+  if [ "${install_type}" = system ]; then
+    if [ ! -f "${target_file}" ]; then
+      printf -- '# Shellac shell library — https://github.com/rawiriblundell/shellac\n' \
+        > "${target_file}" || {
+        printf -- 'shellac init: failed to write %s\n' "${target_file}" >&2
+        return 1
+      }
+      printf -- 'shellac init: created %s\n' "${target_file}"
+      changed=$(( changed + 1 ))
+    else
+      printf -- 'shellac init: %s already exists\n' "${target_file}"
+    fi
+
+    if ! grep -qF "${bin_path}" "${target_file}" 2>/dev/null; then
+      printf -- '%s\n' "${path_line}" >> "${target_file}"
+      printf -- 'shellac init: added PATH entry to %s\n' "${target_file}"
+      changed=$(( changed + 1 ))
+    else
+      printf -- 'shellac init: PATH entry already present in %s\n' "${target_file}"
+    fi
+
+    if ! grep -qF "${lib_path}" "${target_file}" 2>/dev/null; then
+      printf -- '%s\n' "${libpath_line}" >> "${target_file}"
+      printf -- 'shellac init: added SH_LIBPATH to %s\n' "${target_file}"
+      changed=$(( changed + 1 ))
+    else
+      printf -- 'shellac init: SH_LIBPATH already present in %s\n' "${target_file}"
+    fi
+  else
+    printf -- 'shellac init: target file: %s\n' "${target_file}"
+
+    if ! grep -qF "${bin_path}" "${target_file}" 2>/dev/null; then
+      printf -- '\n# Shellac shell library — https://github.com/rawiriblundell/shellac\n%s\n' \
+        "${path_line}" >> "${target_file}"
+      printf -- 'shellac init: added PATH entry to %s\n' "${target_file}"
+      changed=$(( changed + 1 ))
+    else
+      printf -- 'shellac init: PATH entry already present in %s\n' "${target_file}"
+    fi
+
+    if ! grep -qF "${lib_path}" "${target_file}" 2>/dev/null; then
+      printf -- '%s\n' "${libpath_line}" >> "${target_file}"
+      printf -- 'shellac init: added SH_LIBPATH to %s\n' "${target_file}"
+      changed=$(( changed + 1 ))
+    else
+      printf -- 'shellac init: SH_LIBPATH already present in %s\n' "${target_file}"
+    fi
+  fi
+
+  if (( changed > 0 )); then
+    printf -- 'shellac init: %d change(s) made — reload with: %s\n' "${changed}" "${reload_cmd}"
+  else
+    printf -- 'shellac init: nothing to do — already configured\n'
+  fi
+}
+
 # @description shellac subcommand dispatcher.
 #   Provides a unified interface to shellac's core functions.
 #
@@ -716,6 +814,7 @@ shellac() {
     (functions)    _shellac_ls_functions | sort ;;
     (info)         _shellac_info "${@}" ;;
     (provides)     _shellac_provides "${@}" ;;
+    (init)          _shellac_init ;;
     (add-libpath)   _shellac_add_libpath "${@}" ;;
     (rm-libpath)    _shellac_rm_libpath "${@}" ;;
     (add-confpath)  _shellac_add_confpath "${@}" ;;
@@ -726,6 +825,7 @@ shellac() {
         "Usage: shellac <subcommand> [args]" \
         "" \
         "Subcommands:" \
+        "  init                 Configure PATH and SH_LIBPATH for this install" \
         "  include <lib>        Load a library from SH_LIBPATH" \
         "  requires <deps>      Assert that commands, files or shell version are present" \
         "  wants <file>         Source a file if it exists; silently skip if not" \

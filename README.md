@@ -9,22 +9,37 @@
 
 The missing library ecosystem for shell
 
+## Install
+
+```bash
+git clone https://github.com/rawiriblundell/shellac /opt/shellac
+source /opt/shellac/bin/shellac
+shellac init
+```
+
+No `curl | bash`. No package manager. No build step. `shellac init` detects
+whether you have write access to `/etc/profile.d/` and configures a
+system-wide or per-user install accordingly, reporting every change it makes.
+
 ## TL;DR?
 
 ```bash
 #!/usr/bin/env bash
 
-# Load our init script
-. /path/to/shellac || exit 1
+# Load the shellac framework
+source shellac 2>/dev/null || {
+  printf -- '%s\n' "shellac not found - https://github.com/rawiriblundell/shellac" >&2
+  exit 1
+}
 
-# Import the function libraries that it provides
+# Import the function libraries that shellac provides
 # Without a given extension, ".sh" is assumed
 include sys/os
-# Give a specific extension to load a shell specific lib
+# Give a specific extension to load a shell-specific lib
 include utils/git.zsh
-# If you have a full path to a library for whatever reason
+# Or, if you have a full path for whatever reason
 include /opt/mycompany/lib/company_lib.sh
-# Or just load all libraries under the text libpath
+# Or just load all libraries within a module
 include text
 
 # Check that we have everything we need including shell version, commands and vars
