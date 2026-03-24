@@ -101,6 +101,10 @@ _uuid_clockseq() {
 
 # @internal
 _uuid_format() {
+  local _uuid_7th_byte
+  local _uuid_9th_byte
+  local _uuid_i
+  local _uuid_char
   case "${1}" in
     (v[1-8]|[1-8]) _uuid_7th_byte="${1/v/}" ;;
     (*)
@@ -305,6 +309,9 @@ uuid_v4() {
 # @exitcode 0 Success
 # @exitcode 1 Missing hashmode, namespace, or name
 uuid_hash() {
+  local _uuid_hashmode
+  local _uuid_namespace
+  local _uuid_name
   while (( "${#}" > 0 )); do
     case "${1}" in
       (md5|v3)  _uuid_hashmode=md5 ;;
