@@ -106,13 +106,12 @@ unset _uuid_ns_test
 
 # @internal
 _uuid_clockseq() {
-  # If we have a UUID_CLOCK env var, then we iterate it
   if (( "${#UUID_CLOCK}" > 0 )); then
-    UUID_CLOCK=$(printf -- '%x\n' $(( 0x"${UUID_CLOCK}" + 1 )) )
-  # Otherwise, we generate it
+    # Increment with wraparound at the 14-bit boundary; keep zero-padded to 4 chars
+    UUID_CLOCK="$(printf -- '%04x' $(( (16#${UUID_CLOCK} + 1) & 0x3fff )))"
   else
-    _uuid_9th_byte=( 8 9 a b )
-    UUID_CLOCK="${_uuid_9th_byte[RANDOM%4]}$(_uuid_randchars 3 | paste -sd '' -)"
+    # Initialise to a random 14-bit value (0x0000–0x3fff)
+    UUID_CLOCK="$(printf -- '%04x' $(( RANDOM & 0x3fff )))"
   fi
   export UUID_CLOCK
 }
@@ -181,6 +180,7 @@ _uuid_gettime() {
 # Populate globals once at load time; callers reference them directly
 _uuid_getnode
 _uuid_now_ns
+_uuid_clockseq
 
 # @description Return the RFC4122 nil UUID (all zeros).
 #
@@ -408,9 +408,9 @@ uuid_v6() {
   local time_mid
   local time_low_bits
   local clock_seq_hi
-  local variant_nibble
+  local clock_seq_lo
   local node
-  local _uuid_9th_byte
+  local _clock_int
 
   # _uuid_gettime returns printf '1%x' of the raw 60-bit timestamp integer.
   # That integer is MSB-first, which is exactly the field order v6 needs for
@@ -425,9 +425,11 @@ uuid_v6() {
   time_low_bits="${ts_raw:12:3}"
 
   _uuid_clockseq
-  _uuid_9th_byte=( 8 9 a b )
-  variant_nibble="${_uuid_9th_byte[RANDOM%4]}"
-  clock_seq_hi="${variant_nibble}${UUID_CLOCK:1:1}"
+  # Apply RFC 4122 variant bits (10xxxxxx) to clock_seq_hi by arithmetic,
+  # avoiding fragile positional slicing of UUID_CLOCK
+  _clock_int=$(( 16#${UUID_CLOCK} ))
+  clock_seq_hi="$(printf -- '%02x' $(( 0x80 | (_clock_int >> 8) & 0x3f )))"
+  clock_seq_lo="$(printf -- '%02x' $(( _clock_int & 0xff )))"
 
   [[ -z "${UUID_NODE}" ]] && _uuid_getnode
   node="${UUID_NODE}"
@@ -437,7 +439,7 @@ uuid_v6() {
     "${time_mid}" \
     "${time_low_bits}" \
     "${clock_seq_hi}" \
-    "${UUID_CLOCK:2:2}" \
+    "${clock_seq_lo}" \
     "${node}"
 }
 
