@@ -138,7 +138,7 @@ _uuid_format() {
     case "${_uuid_i}" in
       (9|14|19|24) printf -- '%s' "-" ;;
       (15)         printf -- '%s' "${_uuid_7th_byte}" ;;
-      (20)         printf -- '%s' "${_uuid_9th_byte[RANDOM%4]}" ;;
+      (20)         printf -- '%s' "${_uuid_9th_byte[$((${SRANDOM:-$RANDOM}%4))]}" ;;
       (*)          printf -- '%s' "${_uuid_char}" ;;
     esac
     (( _uuid_i++ ))
@@ -309,14 +309,14 @@ uuid_v4() {
   # If we get to this point, we're generating one from scratch
   # This is bash native, based on libuuid's __uuid_generate_random()
   printf -- '%04x%04x-%04x-%04x-%04x-%04x%04x%04x\n' \
-    "${RANDOM}" \
-    "${RANDOM}" \
-    "${RANDOM}" \
-    "$(( RANDOM & 0x0fff | 0x4000))" \
-    "$(( RANDOM & 0x3fff | 0x8000))" \
-    "${RANDOM}" \
-    "${RANDOM}" \
-    "${RANDOM}"
+    "$(( ${SRANDOM:-$RANDOM} & 0xffff ))" \
+    "$(( ${SRANDOM:-$RANDOM} & 0xffff ))" \
+    "$(( ${SRANDOM:-$RANDOM} & 0xffff ))" \
+    "$(( ${SRANDOM:-$RANDOM} & 0x0fff | 0x4000 ))" \
+    "$(( ${SRANDOM:-$RANDOM} & 0x3fff | 0x8000 ))" \
+    "$(( ${SRANDOM:-$RANDOM} & 0xffff ))" \
+    "$(( ${SRANDOM:-$RANDOM} & 0xffff ))" \
+    "$(( ${SRANDOM:-$RANDOM} & 0xffff ))"
 }
 
 # @internal
@@ -471,7 +471,7 @@ uuid_v7() {
 
   # rand_b: variant nibble + 62 random bits across fields 4 and 5
   _uuid_9th_byte=( 8 9 a b )
-  rand_b_hi="${_uuid_9th_byte[RANDOM%4]}$(_uuid_randchars 3 | paste -sd '' -)"
+  rand_b_hi="${_uuid_9th_byte[$((${SRANDOM:-$RANDOM}%4))]}$(_uuid_randchars 3 | paste -sd '' -)"
   rand_b_lo="$(_uuid_randchars 12 | paste -sd '' -)"
 
   printf -- '%s-%s-7%s-%s-%s\n' \
@@ -542,7 +542,7 @@ uuid_v8() {
 
   # custom_c spans fields 4 and 5; field 4's first nibble carries the variant
   _uuid_9th_byte=( 8 9 a b )
-  custom_c_hi="${_uuid_9th_byte[RANDOM%4]}${custom_c:0:3}"
+  custom_c_hi="${_uuid_9th_byte[$((${SRANDOM:-$RANDOM}%4))]}${custom_c:0:3}"
   custom_c_lo="${custom_c:3:12}"
 
   printf -- '%s-%s-8%s-%s-%s\n' \
