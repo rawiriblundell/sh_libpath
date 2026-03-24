@@ -119,31 +119,33 @@ _uuid_clockseq() {
 
 # @internal
 _uuid_format() {
-  local _uuid_7th_byte
+  local _uuid_version
   local _uuid_9th_byte
-  local _uuid_i
-  local _uuid_char
+  local _uuid_hex
+
   case "${1}" in
-    (v[1-8]|[1-8]) _uuid_7th_byte="${1/v/}" ;;
+    (v[1-8]|[1-8]) _uuid_version="${1/v/}" ;;
     (*)
       printf -- 'uuid: %s\n' "Unrecognised version specifier" >&2
       return 1
     ;;
   esac
+
+  read -r _uuid_hex
+
+  if (( ${#_uuid_hex} < 32 )); then
+    printf -- 'uuid: %s\n' "Input too short: need at least 32 hex chars, got ${#_uuid_hex}" >&2
+    return 1
+  fi
+
   _uuid_9th_byte=( 8 9 a b )
 
-  _uuid_i=1
-  while read -r _uuid_char; do
-    (( _uuid_i == 37 )) && break
-    case "${_uuid_i}" in
-      (9|14|19|24) printf -- '%s' "-" ;;
-      (15)         printf -- '%s' "${_uuid_7th_byte}" ;;
-      (20)         printf -- '%s' "${_uuid_9th_byte[$((${SRANDOM:-$RANDOM}%4))]}" ;;
-      (*)          printf -- '%s' "${_uuid_char}" ;;
-    esac
-    (( _uuid_i++ ))
-  done
-  printf -- '%s\n' ""
+  printf -- '%s-%s-%s%s-%s%s-%s\n' \
+    "${_uuid_hex:0:8}" \
+    "${_uuid_hex:8:4}" \
+    "${_uuid_version}" "${_uuid_hex:13:3}" \
+    "${_uuid_9th_byte[$((${SRANDOM:-$RANDOM}%4))]}" "${_uuid_hex:17:3}" \
+    "${_uuid_hex:20:12}"
 }
 
 # @internal
