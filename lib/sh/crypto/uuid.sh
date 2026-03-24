@@ -606,12 +606,12 @@ uuid_gen() {
     (-2)             uuid_v2; return "${?}" ;;
     (-3|--md5)
       shift 1
-      uuid_stdout="$(uuid_hash v3 "${@}")"
+      uuid_stdout="$(uuid_v3 "${@}")"
     ;;
     (-4|-r|--random) uuid_stdout="$(uuid_v4)" ;;
     (-5|--sha1)
       shift 1
-      uuid_stdout="$(uuid_hash v5 "${@}")"
+      uuid_stdout="$(uuid_v5 "${@}")"
     ;;
     (-6|--sortable)  uuid_stdout="$(uuid_v6)" ;;
     (-7|--ms-time)   uuid_stdout="$(uuid_v7)" ;;
