@@ -1,9 +1,7 @@
-# Installation
-
 Shellac has no build step and no package manager dependency. Clone it, source
 it once, run `shellac init`.
 
-No `curl | bash`.
+No dodgy `curl | bash` invocations!
 
 ---
 
