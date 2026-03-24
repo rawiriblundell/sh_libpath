@@ -185,142 +185,6 @@ _uuid_getnode
 _uuid_now_ns
 _uuid_clockseq
 
-# @description Return the RFC4122 nil UUID (all zeros).
-#
-# @stdout 00000000-0000-0000-0000-000000000000
-# @exitcode 0 Always
-uuid_nil() {
-  printf -- '%s\n' "00000000-0000-0000-0000-000000000000"
-}
-
-# @description Blindly convert a UUID between little-endian and mixed-endian (Microsoft) byte order.
-#   The first three octets are byte-swapped; the remainder are unchanged.
-#
-# @arg $1 string A valid UUID string
-#
-# @stdout UUID with first three octets in reversed byte order
-# @exitcode 0 Success
-# @exitcode 1 No UUID supplied or invalid UUID structure/content
-uuid_switch_endian() {
-  local _uuid
-
-  # If there's no arg given, there's no point continuing
-  if (( $# == 0 )); then
-    printf -- '%s\n' "uuid_switch_endian: No UUID supplied." >&2
-    return 1
-  fi
-
-  _uuid="${1}"
-
-  # Next we try to validate that we're dealing with a UUID
-  if command -v validate_uuid >/dev/null 2>&1; then
-    if ! validate_uuid "${_uuid}" >/dev/null 2>&1; then
-      printf -- 'uuid_switch_endian: Does not appear to be a valid UUID: %s\n' "${_uuid}" >&2
-      return 1
-    fi
-  # If that function's not available, we just throw this cheap length check at it:
-  elif (( ${#_uuid:-0} != 36 )); then
-    printf -- 'uuid_switch_endian: Does not appear to be a valid UUID: %s\n' "${_uuid}" >&2
-    return 1
-  fi
-
-  # We explode the UUID to its two-char hex bytes and assign it to a var
-  _uuid="$(printf -- '%s\n' "${_uuid}" | tr -d '-' | fold -w 2 | paste -sd ' ' -)"
-
-  # We want word splitting here
-  # This assigns each space delimited hex byte to a position in the positional params array
-  # shellcheck disable=SC2086
-  set -- ${_uuid}
-
-  # Now we simply print out the elements of the positional params array
-  # We can see with the first three octets that the positions are rotated
-  printf -- '%s-%s-%s-%s-%s\n' \
-    "${4}${3}${2}${1}" \
-    "${6}${5}" \
-    "${8}${7}" \
-    "${9}${10}" \
-    "${11}${12}${13}${14}${15}${16}"
-}
-
-# @description Generate a version 1 (time-based, MAC address) UUID.
-#   Uses uuidgen --time if available, otherwise generates from scratch.
-#
-# @stdout A version 1 UUID string
-# @exitcode 0 Always
-uuid_v1() {
-  local _uuid_i
-  local _uuid_char
-  local _uuid_time
-  local _uuid_node
-
-  if command -v uuidgen >/dev/null 2>&1; then
-    uuidgen --time
-    return 0
-  fi
-
-  # If we get to this point, we're generating one from scratch
-  # UUIDv1's have the following requirements:
-  # adc763c3-e5cb-13bd-a0ae-5d11615562bf
-  # Must be '1' --^    ^    ^^-- Must be '17' if user generated
-  #                    ^-- Must be '8', '9', 'a' or 'b'.
-  _uuid_time=$(_uuid_gettime)
-  # Run _uuid_clockseq to set/update UUID_CLOCK env var
-  _uuid_clockseq
-  [[ -z "${UUID_NODE}" ]] && _uuid_getnode
-  _uuid_node="${UUID_NODE}"
-
-  printf -- '%s\n' "${_uuid_time}${UUID_CLOCK}${_uuid_node}" | 
-    fold -w 1 | 
-    _uuid_format v1
-}
-
-# @description Generate a version 2 (DCE Security) UUID.
-#   UUIDv2 is not implemented. The DCE Security UUID specification was never
-#   made public, implementations are incompatible, and the format is effectively
-#   defunct. Use uuid_v1 for time-based UUIDs or uuid_v4 for random UUIDs.
-#
-# @exitcode 1 Always
-uuid_v2() {
-  printf -- 'uuid_v2: %s\n' "UUIDv2 (DCE Security) is not supported. Use uuid_v1 or uuid_v4 instead." >&2
-  return 1
-}
-
-# @description Generate a version 4 (fully random) UUID.
-#   Uses uuidgen --random, /proc/sys/kernel/random/uuid, or a bash-native fallback.
-#
-# @stdout A version 4 UUID string
-# @exitcode 0 Always
-uuid_v4() {
-  if command -v uuidgen >/dev/null 2>&1; then
-    uuidgen --random
-    return 0
-  fi
-  
-  # Linux already does this for us, if it's here, just cat it
-  if [[ -r /proc/sys/kernel/random/uuid ]]; then
-    cat /proc/sys/kernel/random/uuid
-    return 0
-  fi
-
-  # As above but for FreeBSD + Linux compat
-  if [[ -r /compat/linux/proc/sys/kernel/random/uuid ]]; then
-    cat /compat/linux/proc/sys/kernel/random/uuid
-    return 0
-  fi
-
-  # If we get to this point, we're generating one from scratch
-  # This is bash native, based on libuuid's __uuid_generate_random()
-  printf -- '%04x%04x-%04x-%04x-%04x-%04x%04x%04x\n' \
-    "$(( ${SRANDOM:-$RANDOM} & 0xffff ))" \
-    "$(( ${SRANDOM:-$RANDOM} & 0xffff ))" \
-    "$(( ${SRANDOM:-$RANDOM} & 0xffff ))" \
-    "$(( ${SRANDOM:-$RANDOM} & 0x0fff | 0x4000 ))" \
-    "$(( ${SRANDOM:-$RANDOM} & 0x3fff | 0x8000 ))" \
-    "$(( ${SRANDOM:-$RANDOM} & 0xffff ))" \
-    "$(( ${SRANDOM:-$RANDOM} & 0xffff ))" \
-    "$(( ${SRANDOM:-$RANDOM} & 0xffff ))"
-}
-
 # @internal
 # Convert a hex string (with or without hyphens) to raw binary bytes.
 # Used by uuid_hash to encode the namespace UUID as bytes per RFC 4122.
@@ -399,6 +263,57 @@ uuid_hash() {
   esac
 }
 
+# @description Return the RFC4122 nil UUID (all zeros).
+#
+# @stdout 00000000-0000-0000-0000-000000000000
+# @exitcode 0 Always
+uuid_nil() {
+  printf -- '%s\n' "00000000-0000-0000-0000-000000000000"
+}
+
+# @description Generate a version 1 (time-based, MAC address) UUID.
+#   Uses uuidgen --time if available, otherwise generates from scratch.
+#
+# @stdout A version 1 UUID string
+# @exitcode 0 Always
+uuid_v1() {
+  local _uuid_i
+  local _uuid_char
+  local _uuid_time
+  local _uuid_node
+
+  if command -v uuidgen >/dev/null 2>&1; then
+    uuidgen --time
+    return 0
+  fi
+
+  # If we get to this point, we're generating one from scratch
+  # UUIDv1's have the following requirements:
+  # adc763c3-e5cb-13bd-a0ae-5d11615562bf
+  # Must be '1' --^    ^    ^^-- Must be '17' if user generated
+  #                    ^-- Must be '8', '9', 'a' or 'b'.
+  _uuid_time=$(_uuid_gettime)
+  # Run _uuid_clockseq to set/update UUID_CLOCK env var
+  _uuid_clockseq
+  [[ -z "${UUID_NODE}" ]] && _uuid_getnode
+  _uuid_node="${UUID_NODE}"
+
+  printf -- '%s\n' "${_uuid_time}${UUID_CLOCK}${_uuid_node}" | 
+    fold -w 1 | 
+    _uuid_format v1
+}
+
+# @description Generate a version 2 (DCE Security) UUID.
+#   UUIDv2 is not implemented. The DCE Security UUID specification was never
+#   made public, implementations are incompatible, and the format is effectively
+#   defunct. Use uuid_v1 for time-based UUIDs or uuid_v4 for random UUIDs.
+#
+# @exitcode 1 Always
+uuid_v2() {
+  printf -- 'uuid_v2: %s\n' "UUIDv2 (DCE Security) is not supported. Use uuid_v1 or uuid_v4 instead." >&2
+  return 1
+}
+
 # @description Generate a version 3 (MD5 namespace-based) UUID.
 #   Alias for: uuid_hash v3 namespace name
 #
@@ -410,6 +325,42 @@ uuid_hash() {
 # @exitcode 1 Missing namespace or name
 uuid_v3() {
   uuid_hash v3 "${@}"
+}
+
+# @description Generate a version 4 (fully random) UUID.
+#   Uses uuidgen --random, /proc/sys/kernel/random/uuid, or a bash-native fallback.
+#
+# @stdout A version 4 UUID string
+# @exitcode 0 Always
+uuid_v4() {
+  if command -v uuidgen >/dev/null 2>&1; then
+    uuidgen --random
+    return 0
+  fi
+  
+  # Linux already does this for us, if it's here, just cat it
+  if [[ -r /proc/sys/kernel/random/uuid ]]; then
+    cat /proc/sys/kernel/random/uuid
+    return 0
+  fi
+
+  # As above but for FreeBSD + Linux compat
+  if [[ -r /compat/linux/proc/sys/kernel/random/uuid ]]; then
+    cat /compat/linux/proc/sys/kernel/random/uuid
+    return 0
+  fi
+
+  # If we get to this point, we're generating one from scratch
+  # This is bash native, based on libuuid's __uuid_generate_random()
+  printf -- '%04x%04x-%04x-%04x-%04x-%04x%04x%04x\n' \
+    "$(( ${SRANDOM:-$RANDOM} & 0xffff ))" \
+    "$(( ${SRANDOM:-$RANDOM} & 0xffff ))" \
+    "$(( ${SRANDOM:-$RANDOM} & 0xffff ))" \
+    "$(( ${SRANDOM:-$RANDOM} & 0x0fff | 0x4000 ))" \
+    "$(( ${SRANDOM:-$RANDOM} & 0x3fff | 0x8000 ))" \
+    "$(( ${SRANDOM:-$RANDOM} & 0xffff ))" \
+    "$(( ${SRANDOM:-$RANDOM} & 0xffff ))" \
+    "$(( ${SRANDOM:-$RANDOM} & 0xffff ))"
 }
 
 # @description Generate a version 5 (SHA-1 namespace-based) UUID.
@@ -627,6 +578,55 @@ uuid_gen() {
     ;;
   esac
   printf -- '%s\n' "${uuid_stdout}"
+}
+
+# @description Blindly convert a UUID between little-endian and mixed-endian (Microsoft) byte order.
+#   The first three octets are byte-swapped; the remainder are unchanged.
+#
+# @arg $1 string A valid UUID string
+#
+# @stdout UUID with first three octets in reversed byte order
+# @exitcode 0 Success
+# @exitcode 1 No UUID supplied or invalid UUID structure/content
+uuid_switch_endian() {
+  local _uuid
+
+  # If there's no arg given, there's no point continuing
+  if (( $# == 0 )); then
+    printf -- '%s\n' "uuid_switch_endian: No UUID supplied." >&2
+    return 1
+  fi
+
+  _uuid="${1}"
+
+  # Next we try to validate that we're dealing with a UUID
+  if command -v validate_uuid >/dev/null 2>&1; then
+    if ! validate_uuid "${_uuid}" >/dev/null 2>&1; then
+      printf -- 'uuid_switch_endian: Does not appear to be a valid UUID: %s\n' "${_uuid}" >&2
+      return 1
+    fi
+  # If that function's not available, we just throw this cheap length check at it:
+  elif (( ${#_uuid:-0} != 36 )); then
+    printf -- 'uuid_switch_endian: Does not appear to be a valid UUID: %s\n' "${_uuid}" >&2
+    return 1
+  fi
+
+  # We explode the UUID to its two-char hex bytes and assign it to a var
+  _uuid="$(printf -- '%s\n' "${_uuid}" | tr -d '-' | fold -w 2 | paste -sd ' ' -)"
+
+  # We want word splitting here
+  # This assigns each space delimited hex byte to a position in the positional params array
+  # shellcheck disable=SC2086
+  set -- ${_uuid}
+
+  # Now we simply print out the elements of the positional params array
+  # We can see with the first three octets that the positions are rotated
+  printf -- '%s-%s-%s-%s-%s\n' \
+    "${4}${3}${2}${1}" \
+    "${6}${5}" \
+    "${8}${7}" \
+    "${9}${10}" \
+    "${11}${12}${13}${14}${15}${16}"
 }
 
 # @description Validate that a string is a structurally and content-valid UUID.
