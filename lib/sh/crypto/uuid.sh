@@ -589,16 +589,14 @@ validate_uuid() {
     return 1
   fi
 
-  # Validate the content
-  # '00' is valid hex but (( 16#00 )) == 0 is falsy — short-circuit it before the arithmetic check
+  # Validate the content — case matches all valid hex bytes cleanly,
+  # no arithmetic needed and no bash error on invalid input
   while read -r _uuid_hex_char; do
     case "${_uuid_hex_char}" in
-      (00) : ;;
+      ([0-9a-fA-F][0-9a-fA-F]) : ;;
       (*)
-        if ! (( "16#${_uuid_hex_char}" )); then
-          printf -- '%s: non-hex chars found: %s\n' "${_uuid_string}" "${_uuid_hex_char}" >&2
-          return 1
-        fi
+        printf -- '%s: non-hex chars found: %s\n' "${_uuid_string}" "${_uuid_hex_char}" >&2
+        return 1
       ;;
     esac
   done < <(printf -- '%s\n' "${_uuid_string}" | tr -d '-' | fold -w 2)
