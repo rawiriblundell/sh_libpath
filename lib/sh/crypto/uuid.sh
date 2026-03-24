@@ -581,6 +581,10 @@ uuid_gen() {
     ;;
     (--pseudo)       uuid_stdout="$(uuid_pseudo)" ;;
     ('')             uuid_stdout="$(uuid_v4)" ;;
+    (*)
+      printf -- 'uuid_gen: unrecognised option: %s\n' "${1}" >&2
+      return 1
+    ;;
   esac
   printf -- '%s\n' "${uuid_stdout}"
 }
