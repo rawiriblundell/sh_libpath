@@ -87,6 +87,24 @@ _uuid_getnode() {
 }
 
 # @internal
+# Capture the current Unix epoch in nanoseconds atomically in a single date call.
+# Detects nanosecond support once at load time; exports UUID_EPOCH_NS on each call.
+# Callers derive seconds via $(( UUID_EPOCH_NS / 1000000000 )) and nanoseconds
+# via $(( UUID_EPOCH_NS % 1000000000 )) with no further subprocess calls.
+if _uuid_ns_test="$(date +%s%N 2>/dev/null)" && [[ "${_uuid_ns_test}" != *N* ]] && [[ -n "${_uuid_ns_test}" ]]; then
+  _uuid_now_ns() {
+    UUID_EPOCH_NS="$(date +%s%N)"
+    export UUID_EPOCH_NS
+  }
+else
+  _uuid_now_ns() {
+    UUID_EPOCH_NS="$(( $(time_epoch) * 1000000000 ))"
+    export UUID_EPOCH_NS
+  }
+fi
+unset _uuid_ns_test
+
+# @internal
 _uuid_clockseq() {
   # If we have a UUID_CLOCK env var, then we iterate it
   if (( "${#UUID_CLOCK}" > 0 )); then
@@ -137,6 +155,8 @@ _uuid_gettime() {
   local _uuid_g1582ns100
   local _uuid_ns100_now
   local _uuid_nano_100
+  local _epoch_s
+  local _epoch_ns
 
   # The following magical numbers sourced from Go's UUID implementation
   # Copyright (c) 2009,2014 Google Inc. BSD 3-Clause License
@@ -144,25 +164,23 @@ _uuid_gettime() {
   _uuid_unix=2440587                               # Julian day of 1 Jan 1970
   _uuid_epoch="$(( _uuid_unix - _uuid_lillian ))"  # Days between epochs
   _uuid_g1582="$(( _uuid_epoch * 86400 ))"         # seconds between epochs
-  _uuid_g1582ns100="$(( _uuid_g1582 * 10000000 ))" # 100s of a nanoseconds between epochs
+  _uuid_g1582ns100="$(( _uuid_g1582 * 10000000 ))" # 100-nanosecond intervals between epochs
 
-  # time_epoch() is provided by time/epoch and handles all platform fallbacks
-  # TODO: I don't think these are quite exact, I'll need some deeper focus on this
-  _uuid_ns100_now="$(( $(time_epoch) * 10000000 ))"
+  # Capture seconds and nanoseconds atomically; split by arithmetic only
+  _uuid_now_ns
+  _epoch_s="$(( UUID_EPOCH_NS / 1000000000 ))"
+  _epoch_ns="$(( UUID_EPOCH_NS % 1000000000 ))"
 
-  # Sub-100ns precision if date supports %N; falls back to 0 gracefully
-  if date +%N 2>&1 | grep "^[0-9]" >/dev/null 2>&1; then
-    _uuid_nano_100="$(( 10#$(date -u +%N) / 100 ))"
-  else
-    _uuid_nano_100=0
-  fi
+  _uuid_ns100_now="$(( _epoch_s * 10000000 ))"
+  _uuid_nano_100="$(( _epoch_ns / 100 ))"
 
-  # We pre-prend with '1', add the lot and emit it in hex format
+  # We pre-pend with '1', add the lot and emit it in hex format
   printf -- '1%x' "$(( _uuid_ns100_now + _uuid_nano_100 + _uuid_g1582ns100 ))"
 }
 
-# Populate UUID_NODE once at load time; callers reference it directly
+# Populate globals once at load time; callers reference them directly
 _uuid_getnode
+_uuid_now_ns
 
 # @description Return the RFC4122 nil UUID (all zeros).
 #
@@ -430,8 +448,9 @@ uuid_v7() {
   local rand_b_lo
   local _uuid_9th_byte
 
-  # time_epoch_ms() is provided by time/epoch and handles %3N availability gracefully
-  ms_hex="$(printf -- '%012x' "$(time_epoch_ms)")"
+  # Derive milliseconds from the atomic nanosecond capture
+  _uuid_now_ns
+  ms_hex="$(printf -- '%012x' "$(( UUID_EPOCH_NS / 1000000 ))")"
   ms_high="${ms_hex:0:8}"
   ms_low="${ms_hex:8:4}"
 
