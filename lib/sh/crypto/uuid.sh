@@ -111,7 +111,8 @@ _uuid_clockseq() {
     UUID_CLOCK="$(printf -- '%04x' $(( (16#${UUID_CLOCK} + 1) & 0x3fff )))"
   else
     # Initialise to a random 14-bit value (0x0000–0x3fff)
-    UUID_CLOCK="$(printf -- '%04x' $(( RANDOM & 0x3fff )))"
+    # SRANDOM (bash 5.1+) gives 32-bit OS-sourced randomness; fall back to RANDOM
+    UUID_CLOCK="$(printf -- '%04x' $(( (${SRANDOM:-$RANDOM}) & 0x3fff )))"
   fi
   export UUID_CLOCK
 }
