@@ -318,6 +318,18 @@ uuid_v4() {
     "${RANDOM}"
 }
 
+# @internal
+# Convert a hex string (with or without hyphens) to raw binary bytes.
+# Used by uuid_hash to encode the namespace UUID as bytes per RFC 4122.
+_uuid_hex_to_bytes() {
+  local _hex
+  _hex="${1//-/}"
+  while [[ -n "${_hex}" ]]; do
+    printf -- "\\x${_hex:0:2}"
+    _hex="${_hex:2}"
+  done
+}
+
 # @description Generate a version 3 (MD5) or version 5 (SHA-1) namespace-based UUID.
 #   Select the algorithm and namespace, then provide a unique name.
 #
@@ -364,21 +376,18 @@ uuid_hash() {
     return 0
   fi
 
-  # The below isn't a strict implementation just yet, but it works
-  # We should really be converting @custom namespaces and names to big-endian hex
-  # Concatening the namespace and name, then hashing, then converting to little-endian
-  # That's still not the most strict interpretation of the RFC, but it's close...
-  # Other implementations I've read extract bytes from the namespace and append name as a string, go figure!
+  # Per RFC 4122: hash the namespace UUID as 16 raw bytes followed by the name
+  # as UTF-8 octets. _uuid_hex_to_bytes strips hyphens and emits binary bytes.
   case "${_uuid_hashmode}" in
     (md5)
-      printf -- '%s' "${_uuid_namespace}${_uuid_name}" |
+      { _uuid_hex_to_bytes "${_uuid_namespace}"; printf -- '%s' "${_uuid_name}"; } |
         md5sum |
         awk '{print $1}' |
         fold -w 1 |
         _uuid_format 3
     ;;
     (sha1)
-      printf -- '%s' "${_uuid_namespace}${_uuid_name}" |
+      { _uuid_hex_to_bytes "${_uuid_namespace}"; printf -- '%s' "${_uuid_name}"; } |
         sha1sum |
         awk '{print $1}' |
         fold -w 1 |
