@@ -399,6 +399,32 @@ uuid_hash() {
   esac
 }
 
+# @description Generate a version 3 (MD5 namespace-based) UUID.
+#   Alias for: uuid_hash v3 namespace name
+#
+# @arg $1 string Namespace: @dns, @url, @oid, @x500, or @custom
+# @arg $2 string Name
+#
+# @stdout A version 3 UUID string
+# @exitcode 0 Success
+# @exitcode 1 Missing namespace or name
+uuid_v3() {
+  uuid_hash v3 "${@}"
+}
+
+# @description Generate a version 5 (SHA-1 namespace-based) UUID.
+#   Alias for: uuid_hash v5 namespace name
+#
+# @arg $1 string Namespace: @dns, @url, @oid, @x500, or @custom
+# @arg $2 string Name
+#
+# @stdout A version 5 UUID string
+# @exitcode 0 Success
+# @exitcode 1 Missing namespace or name
+uuid_v5() {
+  uuid_hash v5 "${@}"
+}
+
 # @description Generate a version 6 (reordered time) UUID.
 #   Functionally equivalent to v1 but with timestamp bits stored MSB-first,
 #   making v6 UUIDs lexicographically sortable. Prefer v6 over v1 for new work.
