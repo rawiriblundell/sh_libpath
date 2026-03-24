@@ -345,17 +345,17 @@ uuid_hash() {
   done
 
   if (( "${#_uuid_hashmode}" == 0 )); then
-    printf -- 'uuid_gen: %s\n' "A hashmode must be selected: 'md5' or 'sha1'" >&2
+    printf -- 'uuid_hash: %s\n' "A hashmode must be selected: 'md5' or 'sha1'" >&2
     return 1
   fi
 
   if (( "${#_uuid_namespace}" == 0 )); then
-    printf -- 'uuid_gen: %s\n' "A namespace must be selected: '@dns', '@url', '@oid', '@x500' or '@custom" >&2
+    printf -- 'uuid_hash: %s\n' "A namespace must be selected: '@dns', '@url', '@oid', '@x500' or '@custom" >&2
     return 1
   fi
 
   if (( "${#_uuid_name}" == 0 )); then
-    printf -- 'uuid_gen: %s\n' "A unique name must be provided" >&2
+    printf -- 'uuid_hash: %s\n' "A unique name must be provided" >&2
     return 1
   fi
   
