@@ -20,11 +20,19 @@
 [ -n "${_SHELLAC_LOADED_crypto_uuid+x}" ] && return 0
 _SHELLAC_LOADED_crypto_uuid=1
 
+# We cross-reference the Shellac epoch library here
+# This gives us epoch functions: time_epoch() and time_epoch_ms()
+include time/epoch
+
 # RFC4122-style UUIDs
 # I just thought I'd take a brief moment for a shout-out. intl-spectrum.com had
 # a couple of great articles by Nathan Rector that I referenced for v1 and v4.
 # They managed to dumb this down enough _and_ throw in a couple of non-obvious
 # nuggets of technical information that other resources didn't clearly articulate
+
+# An updated shout-out: playfulprogramming.com has a series of articles by
+# Corbin Crutchley that manage to neatly articulate the different UUID versions
+# This was a useful resource for the decisions for v2, v6, v7 and v8
 
 # UUID's are basically strings of hex with _at least_ the following byte features
 # adc763c3-e5cb-43bd-a0ae-5d11615562bf
@@ -37,34 +45,45 @@ _uuid_randchars() {
 }
 
 # @internal
-_uuid_getmac() {
-  ifconfig | 
-    grep -Eo '([[:xdigit:]]{1,2}[:-]){5}[[:xdigit:]]{1,2}' | 
-    head -n 1 | 
-    tr -d ':'
-}
-
-# @internal
+# Populate UUID_NODE with a hardware MAC address if available, rejecting all-zero
+# results (e.g. loopback). Falls back to a hostname-derived node ID prefixed with
+# '17' to signal user-generated. Callers use UUID_NODE directly after this returns;
+# the export persists across calls so node detection runs at most once per session.
 _uuid_getnode() {
-  # Initialise our hostname var
+  local _uuid_mac
+  local _uuid_hostname
+
+  if command -v ip >/dev/null 2>&1; then
+    _uuid_mac="$(ip -brief link | awk '$4 ~ /BROADCAST/ {print $3; exit}' | tr -d ':')"
+  elif command -v ifconfig >/dev/null 2>&1; then
+    _uuid_mac="$(ifconfig |
+      grep -Eo '([[:xdigit:]]{1,2}[:-]){5}[[:xdigit:]]{1,2}' |
+      grep -Ev '^00[:-]00[:-]00[:-]00[:-]00[:-]00$' |
+      head -n 1 |
+      tr -d ':-')"
+  fi
+
+  if [[ -n "${_uuid_mac}" ]] && [[ "${_uuid_mac}" != "000000000000" ]]; then
+    UUID_NODE="${_uuid_mac}"
+    export UUID_NODE
+    return 0
+  fi
+
+  # No usable MAC — derive a node ID from the hostname instead
+  # We start with '17' to indicate that this is a user generated value
+  # Each ascii char takes two hex chars; 5 chars = 10 hex + '17' prefix = 12 total
   _uuid_hostname="${HOSTNAME:-$(uname -n)}"
-  # Stack the var until it's more than 5 chars long
-  # Each char when output takes two chars for hex 
-  # representation.  Ergo, 5 ascii chars = 10 in hex
   while (( "${#_uuid_hostname}" < 5 )); do
     _uuid_hostname="${_uuid_hostname}${HOSTNAME:-$(uname -n)}"
   done
-  
-  # We start with '17' to indicate that this is a user generated value
-  # Then we churn out our 10 extra chars, totalling 12
-  printf -- '%s' "17"
-  printf -- '%s\n' "${_uuid_hostname}" |
-    fold -w 1 | 
-    head -n 5 | 
+
+  UUID_NODE="17$(printf -- '%s\n' "${_uuid_hostname}" |
+    fold -w 1 |
+    head -n 5 |
     while read -r _uuid_char; do
       printf -- '%02x' \'"${_uuid_char}"
-    done
-  printf -- '%s\n' ""
+    done)"
+  export UUID_NODE
 }
 
 # @internal
@@ -107,20 +126,13 @@ _uuid_format() {
 
 # @internal
 _uuid_gettime() {
-  local _uuid_lillian _uuid_unix _uuid_epoch _uuid_g1582 _uuid_g1582ns100
-  local _uuid_ns100_now _uuid_nano_100
-
-  # TODO: Rope in time_epoch()
-  if ! date +%s 2>&1 | grep "^[0-9].*$" >/dev/null 2>&1; then
-    printf -- 'uuid: %s\n' "This library requires a version of 'date' that supports epoch time" >&2
-    return 1
-  fi
-
-  # TODO: Failover to simply multiplying the output of time_epoch()
-  if ! date +%N 2>&1 | grep "^[0-9].*$" >/dev/null 2>&1; then
-    printf -- 'uuid: %s\n' "This library requires a version of 'date' that supports nanosecond time" >&2
-    return 1
-  fi
+  local _uuid_lillian
+  local _uuid_unix
+  local _uuid_epoch
+  local _uuid_g1582
+  local _uuid_g1582ns100
+  local _uuid_ns100_now
+  local _uuid_nano_100
 
   # The following magical numbers sourced from Go's UUID implementation
   # Copyright (c) 2009,2014 Google Inc. BSD 3-Clause License
@@ -130,14 +142,23 @@ _uuid_gettime() {
   _uuid_g1582="$(( _uuid_epoch * 86400 ))"         # seconds between epochs
   _uuid_g1582ns100="$(( _uuid_g1582 * 10000000 ))" # 100s of a nanoseconds between epochs
 
-  # We throw in our own magic numbers
+  # time_epoch() is provided by time/epoch and handles all platform fallbacks
   # TODO: I don't think these are quite exact, I'll need some deeper focus on this
-  _uuid_ns100_now="$(( $(date -u +%s) * 10000000 ))"
-  _uuid_nano_100="$(( $(date -u +%N) / 100 ))"
+  _uuid_ns100_now="$(( $(time_epoch) * 10000000 ))"
+
+  # Sub-100ns precision if date supports %N; falls back to 0 gracefully
+  if date +%N 2>&1 | grep "^[0-9]" >/dev/null 2>&1; then
+    _uuid_nano_100="$(( 10#$(date -u +%N) / 100 ))"
+  else
+    _uuid_nano_100=0
+  fi
 
   # We pre-prend with '1', add the lot and emit it in hex format
   printf -- '1%x' "$(( _uuid_ns100_now + _uuid_nano_100 + _uuid_g1582ns100 ))"
 }
+
+# Populate UUID_NODE once at load time; callers reference it directly
+_uuid_getnode
 
 # @description Return the RFC4122 nil UUID (all zeros).
 #
@@ -202,7 +223,10 @@ uuid_switch_endian() {
 # @stdout A version 1 UUID string
 # @exitcode 0 Always
 uuid_v1() {
-  local _uuid_i _uuid_char _uuid_time _uuid_node
+  local _uuid_i
+  local _uuid_char
+  local _uuid_time
+  local _uuid_node
 
   if command -v uuidgen >/dev/null 2>&1; then
     uuidgen --time
@@ -217,21 +241,23 @@ uuid_v1() {
   _uuid_time=$(_uuid_gettime)
   # Run _uuid_clockseq to set/update UUID_CLOCK env var
   _uuid_clockseq
-  # First, we try to get a mac address from the system
-  _uuid_node="$(_uuid_getmac)"
-  # If that doesn't give us a result, we call _uuid_getnode
-  (( "${#_uuid_node}" == 0 )) && _uuid_node=$(_uuid_getnode)
+  [[ -z "${UUID_NODE}" ]] && _uuid_getnode
+  _uuid_node="${UUID_NODE}"
 
   printf -- '%s\n' "${_uuid_time}${UUID_CLOCK}${_uuid_node}" | 
     fold -w 1 | 
     _uuid_format v1
 }
 
-# @description Generate a version 2 (DCE security) UUID. (Not yet implemented.)
+# @description Generate a version 2 (DCE Security) UUID.
+#   UUIDv2 is not implemented. The DCE Security UUID specification was never
+#   made public, implementations are incompatible, and the format is effectively
+#   defunct. Use uuid_v1 for time-based UUIDs or uuid_v4 for random UUIDs.
 #
-# @exitcode 0 Always
+# @exitcode 1 Always
 uuid_v2() {
-  :
+  printf -- 'uuid_v2: %s\n' "UUIDv2 (DCE Security) is not supported. Use uuid_v1 or uuid_v4 instead." >&2
+  return 1
 }
 
 # @description Generate a version 4 (fully random) UUID.
@@ -336,28 +362,157 @@ uuid_hash() {
   esac
 }
 
-# @description Generate a version 6 UUID. (Not yet implemented.)
+# @description Generate a version 6 (reordered time) UUID.
+#   Functionally equivalent to v1 but with timestamp bits stored MSB-first,
+#   making v6 UUIDs lexicographically sortable. Prefer v6 over v1 for new work.
 #
-# @stdout Placeholder message
+# @stdout A version 6 UUID string
 # @exitcode 0 Always
 uuid_v6() {
-  printf -- '%s\n' "Watch this space..."
+  local ts_raw
+  local time_high
+  local time_mid
+  local time_low_bits
+  local clock_seq_hi
+  local variant_nibble
+  local node
+  local _uuid_9th_byte
+
+  # _uuid_gettime returns printf '1%x' of the raw 60-bit timestamp integer.
+  # That integer is MSB-first, which is exactly the field order v6 needs for
+  # lexicographic sorting — so we just strip the literal '1' prefix and
+  # zero-pad to 15 hex chars to get the three timestamp fields directly.
+  ts_raw="$(_uuid_gettime)"
+  ts_raw="${ts_raw#1}"
+  ts_raw="$(printf -- '%015s' "${ts_raw}" | tr ' ' '0')"
+
+  time_high="${ts_raw:0:8}"
+  time_mid="${ts_raw:8:4}"
+  time_low_bits="${ts_raw:12:3}"
+
+  _uuid_clockseq
+  _uuid_9th_byte=( 8 9 a b )
+  variant_nibble="${_uuid_9th_byte[RANDOM%4]}"
+  clock_seq_hi="${variant_nibble}${UUID_CLOCK:1:1}"
+
+  [[ -z "${UUID_NODE}" ]] && _uuid_getnode
+  node="${UUID_NODE}"
+
+  printf -- '%s-%s-6%s-%s%s-%s\n' \
+    "${time_high}" \
+    "${time_mid}" \
+    "${time_low_bits}" \
+    "${clock_seq_hi}" \
+    "${UUID_CLOCK:2:2}" \
+    "${node}"
 }
 
-# @description Generate a version 7 UUID. (Not yet implemented.)
+# @description Generate a version 7 (Unix timestamp + random) UUID.
+#   Uses a 48-bit millisecond Unix timestamp followed by random bits, making
+#   v7 UUIDs lexicographically sortable without requiring a MAC address.
+#   Prefer v7 over v1/v6 for new work that doesn't need Gregorian-epoch time.
 #
-# @stdout Placeholder message
+# @stdout A version 7 UUID string
 # @exitcode 0 Always
 uuid_v7() {
-  printf -- '%s\n' "Watch this space..."
+  local ms_hex
+  local ms_high
+  local ms_low
+  local rand_a
+  local rand_b_hi
+  local rand_b_lo
+  local _uuid_9th_byte
+
+  # time_epoch_ms() is provided by time/epoch and handles %3N availability gracefully
+  ms_hex="$(printf -- '%012x' "$(time_epoch_ms)")"
+  ms_high="${ms_hex:0:8}"
+  ms_low="${ms_hex:8:4}"
+
+  # rand_a: 12 random bits (3 hex chars) filling the lower nibbles of field 3
+  rand_a="$(_uuid_randchars 3 | paste -sd '' -)"
+
+  # rand_b: variant nibble + 62 random bits across fields 4 and 5
+  _uuid_9th_byte=( 8 9 a b )
+  rand_b_hi="${_uuid_9th_byte[RANDOM%4]}$(_uuid_randchars 3 | paste -sd '' -)"
+  rand_b_lo="$(_uuid_randchars 12 | paste -sd '' -)"
+
+  printf -- '%s-%s-7%s-%s-%s\n' \
+    "${ms_high}" \
+    "${ms_low}" \
+    "${rand_a}" \
+    "${rand_b_hi}" \
+    "${rand_b_lo}"
 }
 
-# @description Generate a version 8 UUID. (Not yet implemented.)
+# @description Generate a version 8 (custom) UUID.
+#   RFC 9562 mandates only the version and variant bits; the three custom fields
+#   (custom_a 48-bit, custom_b 12-bit, custom_c 62-bit) are implementation-defined.
+#   This implementation fills them with random data by default, producing a UUID
+#   that is distinguishable from v4 by version number. Callers with a specific
+#   encoding scheme can supply their own hex values for each field; any omitted
+#   field is randomised.
 #
-# @stdout Placeholder message
-# @exitcode 0 Always
+# @arg --custom-a hex  48-bit custom field (up to 12 hex chars)
+# @arg --custom-b hex  12-bit custom field (up to 3 hex chars)
+# @arg --custom-c hex  62-bit custom field (up to 15 hex chars)
+#
+# @stdout A version 8 UUID string
+# @exitcode 0 Success
+# @exitcode 1 Invalid arguments
 uuid_v8() {
-  printf -- '%s\n' "Watch this space..."
+  local custom_a
+  local custom_b
+  local custom_c
+  local custom_a_hi
+  local custom_a_lo
+  local custom_c_hi
+  local custom_c_lo
+  local _uuid_9th_byte
+
+  while (( "${#}" > 0 )); do
+    case "${1}" in
+      (--custom-a)
+        custom_a="${2:?uuid_v8: --custom-a requires a hex value}"
+        shift
+      ;;
+      (--custom-b)
+        custom_b="${2:?uuid_v8: --custom-b requires a hex value}"
+        shift
+      ;;
+      (--custom-c)
+        custom_c="${2:?uuid_v8: --custom-c requires a hex value}"
+        shift
+      ;;
+      (*)
+        printf -- 'uuid_v8: unknown option: %s\n' "${1}" >&2
+        return 1
+      ;;
+    esac
+    shift
+  done
+
+  # Pad or truncate each custom field to its correct width, randomising if absent
+  : "${custom_a:=$(_uuid_randchars 12 | paste -sd '' -)}"
+  : "${custom_b:=$(_uuid_randchars 3  | paste -sd '' -)}"
+  : "${custom_c:=$(_uuid_randchars 15 | paste -sd '' -)}"
+  custom_a="$(printf -- '%012s' "${custom_a:0:12}" | tr ' ' '0')"
+  custom_b="$(printf -- '%03s'  "${custom_b:0:3}"  | tr ' ' '0')"
+  custom_c="$(printf -- '%015s' "${custom_c:0:15}" | tr ' ' '0')"
+
+  custom_a_hi="${custom_a:0:8}"
+  custom_a_lo="${custom_a:8:4}"
+
+  # custom_c spans fields 4 and 5; field 4's first nibble carries the variant
+  _uuid_9th_byte=( 8 9 a b )
+  custom_c_hi="${_uuid_9th_byte[RANDOM%4]}${custom_c:0:3}"
+  custom_c_lo="${custom_c:3:12}"
+
+  printf -- '%s-%s-8%s-%s-%s\n' \
+    "${custom_a_hi}" \
+    "${custom_a_lo}" \
+    "${custom_b}" \
+    "${custom_c_hi}" \
+    "${custom_c_lo}"
 }
 
 # @description Generate a pseudo-UUID using od and /dev/urandom.
@@ -372,19 +527,32 @@ uuid_pseudo() {
 # @description Generate a UUID of the specified version (default: v4).
 #
 # @arg $1 string Optional: -0/-nil/-null, -1/--time, -2, -3/--md5, -4/-r/--random,
-#   -5/--sha1, or --pseudo
+#   -5/--sha1, -6/--sortable, -7/--ms-time, -8/--custom, or --pseudo
 #
 # @stdout A UUID string
-# @exitcode 0 Always
+# @exitcode 0 Success
+# @exitcode 1 Invalid arguments or unsupported version
 uuid_gen() {
   local uuid_stdout
   case "${1}" in
     (-0|-nil|-null)  uuid_stdout="$(uuid_nil)" ;;
     (-1|--time)      uuid_stdout="$(uuid_v1)" ;;
-    (-2)             uuid_stdout="$(uuid_v2)" ;;
-    (-3|--md5)       uuid_stdout="$(uuid_hash v3)" ;;
+    (-2)             uuid_v2; return "${?}" ;;
+    (-3|--md5)
+      shift 1
+      uuid_stdout="$(uuid_hash v3 "${@}")"
+    ;;
     (-4|-r|--random) uuid_stdout="$(uuid_v4)" ;;
-    (-5|--sha1)      uuid_stdout="$(uuid_hash v5)" ;;
+    (-5|--sha1)
+      shift 1
+      uuid_stdout="$(uuid_hash v5 "${@}")"
+    ;;
+    (-6|--sortable)  uuid_stdout="$(uuid_v6)" ;;
+    (-7|--ms-time)   uuid_stdout="$(uuid_v7)" ;;
+    (-8|--custom)
+      shift 1
+      uuid_stdout="$(uuid_v8 "${@}")"
+    ;;
     (--pseudo)       uuid_stdout="$(uuid_pseudo)" ;;
     ('')             uuid_stdout="$(uuid_v4)" ;;
   esac
@@ -393,15 +561,18 @@ uuid_gen() {
 
 # @description Validate that a string is a structurally and content-valid UUID.
 #   Checks the 8-4-4-4-12 structure and that all characters are hexadecimal.
-#   Known issue: 16#var will fail if a hex byte is '00'.
 #
 # @arg $1 string The UUID string to validate
 #
 # @exitcode 0 Valid UUID
 # @exitcode 1 Invalid structure or non-hex characters found
 validate_uuid() {
-    local _uuid_hex_char _uuid_string
+  local _uuid_hex_char
+  local _uuid_string
   _uuid_string="${1:?No UUID provided}"
+
+  # Nil UUID is valid by definition; fast exit avoids the loop entirely
+  [[ "${_uuid_string}" == "00000000-0000-0000-0000-000000000000" ]] && return 0
 
   # Validate the structure
   # shellcheck disable=SC2046 # We want word splitting here
@@ -412,11 +583,17 @@ validate_uuid() {
   fi
 
   # Validate the content
+  # '00' is valid hex but (( 16#00 )) == 0 is falsy — short-circuit it before the arithmetic check
   while read -r _uuid_hex_char; do
-    if ! (( "16#${_uuid_hex_char}" )); then
-      printf -- '%s: non-hex chars found: %s\n' "${_uuid_string}" "${_uuid_hex_char}">&2
-      return 1
-    fi
+    case "${_uuid_hex_char}" in
+      (00) : ;;
+      (*)
+        if ! (( "16#${_uuid_hex_char}" )); then
+          printf -- '%s: non-hex chars found: %s\n' "${_uuid_string}" "${_uuid_hex_char}" >&2
+          return 1
+        fi
+      ;;
+    esac
   done < <(printf -- '%s\n' "${_uuid_string}" | tr -d '-' | fold -w 2)
 
   # No problems found?  Must be a legit UUID then!
