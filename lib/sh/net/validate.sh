@@ -93,7 +93,7 @@ _net_validate_cidr() {
     esac
   fi
 
-  [[ "${_prefix}" =~ ^[0-9]+$ ]] || return 1
+  printf -- '%d' "${_prefix}" >/dev/null 2>&1 || return 1
   (( _prefix >= 0 && _prefix <= _max ))
 }
 

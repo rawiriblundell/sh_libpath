@@ -320,7 +320,7 @@ num_is_float() {
 # @exitcode 2 Missing argument
 num_is_numeric() {
     (( ${#} == 0 )) && { printf -- '%s\n' "num_is_numeric: missing argument" >&2; return 2; }
-    [[ "${1}" =~ ^[0-9]+$ ]]
+    printf -- '%d' "${1:-null}" >/dev/null 2>&1 && (( ${1} >= 0 ))
 }
 
 # @description Test whether a value is a positive integer (1 or greater, no sign).
@@ -340,7 +340,11 @@ num_is_numeric() {
 # @exitcode 2 Missing argument
 num_is_positive_integer() {
     (( ${#} == 0 )) && { printf -- '%s\n' "num_is_positive_integer: missing argument" >&2; return 2; }
-    [[ "${1}" =~ ^[1-9][0-9]*$ ]]
+    printf -- '%d' "${1:-null}" >/dev/null 2>&1 || return 1
+    (( ${1} > 0 )) || return 1
+    case "${1}" in
+      (0*) return 1 ;;
+    esac
 }
 
 # @description Test whether an integer is odd.

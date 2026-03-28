@@ -37,7 +37,7 @@ num_abs() {
   local n
   n="${1:-}"
   [[ -z "${n}" ]] && { printf -- '%s\n' "num_abs: missing argument" >&2; return 1; }
-  [[ "${n}" =~ ^-?[0-9]+$ ]] || { printf -- '%s\n' "num_abs: not an integer: ${n}" >&2; return 1; }
+  printf -- '%d' "${n}" >/dev/null 2>&1 || { printf -- '%s\n' "num_abs: not an integer: ${n}" >&2; return 1; }
   (( n < 0 )) && n=$(( -n ))
   printf -- '%d\n' "${n}"
 }

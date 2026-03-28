@@ -54,7 +54,7 @@ octal_to_rwx() {
   _octal="${1:?No octal mode given}"
 
   # Strip a leading zero from 4-digit input (0755 -> 755)
-  [[ "${_octal}" =~ ^0[0-7]{3}$ ]] && _octal="${_octal:1}"
+  case "${_octal}" in (0[0-7][0-7][0-7]) _octal="${_octal:1}" ;; esac
 
   case "${#_octal}" in
     (4)

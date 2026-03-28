@@ -99,15 +99,18 @@ numbers_version_compare() {
     printf -- '%s\n' "numbers_version_compare: requires 2 arguments" >&2
     return 3
   }
-  regex="^[.0-9]*$"
-  [[ "${1}" =~ ${regex} ]] || {
-    printf -- 'numbers_version_compare: invalid argument: %s\n' "${1}" >&2
-    return 4
-  }
-  [[ "${2}" =~ ${regex} ]] || {
-    printf -- 'numbers_version_compare: invalid argument: %s\n' "${2}" >&2
-    return 4
-  }
+  case "${1}" in
+    (*[!0-9.]*|'')
+      printf -- 'numbers_version_compare: invalid argument: %s\n' "${1}" >&2
+      return 4
+    ;;
+  esac
+  case "${2}" in
+    (*[!0-9.]*|'')
+      printf -- 'numbers_version_compare: invalid argument: %s\n' "${2}" >&2
+      return 4
+    ;;
+  esac
   [[ "${1}" = "${2}" ]] && return 0
   IFS=. read -r -a ver1 <<< "${1}"
   IFS=. read -r -a ver2 <<< "${2}"

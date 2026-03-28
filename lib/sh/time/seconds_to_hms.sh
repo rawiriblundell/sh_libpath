@@ -30,10 +30,10 @@ time_seconds_to_hms() {
   local seconds
   (( ${#} == 0 )) && { printf -- '%s\n' "time_seconds_to_hms: missing argument" >&2; return 1; }
   seconds="${1}"
-  [[ "${seconds}" =~ ^[0-9]+$ ]] || {
+  if ! printf -- '%d' "${seconds}" >/dev/null 2>&1 || (( seconds < 0 )); then
     printf -- 'time_seconds_to_hms: expected non-negative integer, got: %s\n' "${seconds}" >&2
     return 1
-  }
+  fi
   printf -- '%02d:%02d:%02d\n' \
     "$(( seconds / 3600 ))" \
     "$(( seconds % 3600 / 60 ))" \

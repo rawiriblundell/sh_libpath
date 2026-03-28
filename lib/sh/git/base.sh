@@ -205,7 +205,7 @@ if command -v git >/dev/null 2>&1; then
   git() {
     # If the args contain any mention of a master branch, we check for the newer
     # 'main' nomenclature.  We take no other position than to suggest the correct command.
-    if [[ "${*}" =~ 'master' ]]; then
+    if case "${*}" in (*master*) true ;; (*) false ;; esac; then
       if command git branch 2>/dev/null | grep -qw "main"; then
         printf -- '%s\n' "This repo uses 'main' rather than 'master'." \
           "Try: 'git ${*/master/main}'" \

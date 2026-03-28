@@ -192,7 +192,7 @@ str_contains_only() {
   set="${2:-}"
   [[ -z "${str}" ]] && return 0
   [[ -n "${str}" && -z "${set}" ]] && return 1
-  [[ "${str}" =~ ^[${set}]*$ ]]
+  case "${str}" in (*[!${set}]*) return 1 ;; esac
 }
 
 # @description Return 0 if the string contains only ASCII alphabetic characters (non-empty).
@@ -205,7 +205,9 @@ str_is_alpha() {
   else
     _str="${1:-}"
   fi
-  [[ "${_str}" =~ ^[[:alpha:]]+$ ]]
+  case "${_str}" in
+    (''|*[![:alpha:]]*) return 1 ;;
+  esac
 }
 
 # @description Return 0 if the string contains only ASCII alphanumeric characters (non-empty).
@@ -218,7 +220,9 @@ str_is_alnum() {
   else
     _str="${1:-}"
   fi
-  [[ "${_str}" =~ ^[[:alnum:]]+$ ]]
+  case "${_str}" in
+    (''|*[![:alnum:]]*) return 1 ;;
+  esac
 }
 
 # @description Return 0 if the string contains only ASCII digit characters (non-empty).
@@ -231,7 +235,9 @@ str_is_digits() {
   else
     _str="${1:-}"
   fi
-  [[ "${_str}" =~ ^[[:digit:]]+$ ]]
+  case "${_str}" in
+    (''|*[![:digit:]]*) return 1 ;;
+  esac
 }
 
 # @description Test if a string is a plausible email address.

@@ -103,7 +103,7 @@ tui_list() {
   while true; do
     printf -- '%s [1-%d]: ' "${prompt}" "${count}" >&2
     read -r choice
-    [[ "${choice}" =~ ^[0-9]+$ ]] || continue
+    printf -- '%d' "${choice}" >/dev/null 2>&1 || continue
     (( choice >= 1 && choice <= count )) || continue
     printf -- '%s\n' "${items[$(( choice - 1 ))]}"
     return 0
@@ -150,7 +150,7 @@ tui_checkbox() {
     read -r choice
     # Empty input = confirm
     [[ -z "${choice}" ]] && break
-    [[ "${choice}" =~ ^[0-9]+$ ]] || continue
+    printf -- '%d' "${choice}" >/dev/null 2>&1 || continue
     (( choice >= 1 && choice <= ${#items[@]} )) || continue
     local idx=$(( choice - 1 ))
     if (( selected[idx] )); then
@@ -205,7 +205,7 @@ tui_range() {
     printf -- '%s [%d-%d] (default %d): ' "${prompt}" "${lo}" "${hi}" "${default}" >&2
     read -r reply
     reply="${reply:-${default}}"
-    [[ "${reply}" =~ ^-?[0-9]+$ ]] || continue
+    printf -- '%d' "${reply}" >/dev/null 2>&1 || continue
     (( reply >= lo && reply <= hi )) && break
   done
   printf -- '%d\n' "${reply}"
