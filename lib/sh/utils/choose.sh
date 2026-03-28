@@ -32,6 +32,6 @@ _SHELLAC_LOADED_utils_choose=1
 # @stdout The chosen element
 # @exitcode 0 Always; 1 No arguments
 choose() {
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "choose: no elements provided" >&2; return 1; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "choose: no elements provided" >&2; return 1; }
   printf -- '%s\n' "${@:$(( (RANDOM % $#) + 1 )):1}"
 }

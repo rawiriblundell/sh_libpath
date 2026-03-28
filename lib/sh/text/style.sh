@@ -649,7 +649,7 @@ text_toupper() {
 # @stdout String with all ANSI escape sequences removed
 # @exitcode 0 Always
 str_strip_ansi() {
-  if [[ $# -gt 0 ]]; then
+  if (( ${#} > 0 )); then
     printf -- '%s\n' "${1}" | sed 's/\x1b\[[0-9;]*m//g'
   else
     sed 's/\x1b\[[0-9;]*m//g'

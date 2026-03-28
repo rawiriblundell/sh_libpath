@@ -37,7 +37,7 @@ cmd_retry_backoff() {
   local max_attempts attempt wait_secs max_wait
   max_attempts="${1:-5}"
   shift
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "cmd_retry_backoff: missing command" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "cmd_retry_backoff: missing command" >&2; return 2; }
   max_wait="${SHELLAC_RETRY_MAX_WAIT:-60}"
 
   attempt=1
@@ -73,7 +73,7 @@ cmd_retry_constant() {
   max_attempts="${1:-5}"
   wait_secs="${2:-5}"
   shift 2
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "cmd_retry_constant: missing command" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "cmd_retry_constant: missing command" >&2; return 2; }
 
   attempt=1
   while (( attempt <= max_attempts )); do
@@ -106,7 +106,7 @@ cmd_retry_until() {
   timeout="${1:?cmd_retry_until: missing timeout argument}"
   interval="${2:-5}"
   shift 2
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "cmd_retry_until: missing command" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "cmd_retry_until: missing command" >&2; return 2; }
 
   deadline=$(( $(date +%s) + timeout ))
   attempt=1

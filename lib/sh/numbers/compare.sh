@@ -95,7 +95,7 @@ num_compare_float() {
 numbers_version_compare() {
   local regex i
   declare -a ver1 ver2
-  [[ $# -lt 2 ]] && {
+  (( ${#} < 2 )) && {
     printf -- '%s\n' "numbers_version_compare: requires 2 arguments" >&2
     return 3
   }

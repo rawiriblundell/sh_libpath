@@ -28,7 +28,7 @@ _SHELLAC_LOADED_sys_terminal_size=1
 # @exitcode 0 Always
 sys_terminal_size() {
   local _rows _cols
-  if [ "${#LINES}" -gt 0 ] && [ "${#COLUMNS}" -gt 0 ]; then
+  if (( ${#LINES} > 0 )) && (( ${#COLUMNS} > 0 )); then
     printf '%d %d\n' "${LINES}" "${COLUMNS}"
     return 0
   fi

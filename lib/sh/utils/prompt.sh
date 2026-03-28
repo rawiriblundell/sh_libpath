@@ -37,7 +37,7 @@ _SHELLAC_LOADED_utils_prompt=1
 # @exitcode 0 Success; 2 Missing argument
 prompt_response() {
   local def_arg response
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "prompt_response: missing argument" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "prompt_response: missing argument" >&2; return 2; }
   def_arg="${2:-}"
   response=""
   while :; do
@@ -68,7 +68,7 @@ prompt_response() {
 # @exitcode 0 Success; 2 Missing arguments
 prompt_password() {
   local var_name msg charcount char password
-  [[ $# -lt 2 ]] && { printf -- '%s\n' "prompt_password: requires 2 arguments" >&2; return 2; }
+  (( ${#} < 2 )) && { printf -- '%s\n' "prompt_password: requires 2 arguments" >&2; return 2; }
   var_name="${1}"
   msg="${2}"
   charcount=0

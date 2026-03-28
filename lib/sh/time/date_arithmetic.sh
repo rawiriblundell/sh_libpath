@@ -28,7 +28,7 @@ _SHELLAC_LOADED_time_date_arithmetic=1
 # @exitcode 0 Success; 1 date error; 2 Missing arguments
 time_add_days() {
   local timestamp day new_timestamp
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "time_add_days: missing arguments" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "time_add_days: missing arguments" >&2; return 2; }
   timestamp="${1}"
   day="${2:-1}"
   new_timestamp="$(date -d "$(date -d "@${timestamp}" '+%F %T') +${day} day" +'%s')" || return 1
@@ -42,7 +42,7 @@ time_add_days() {
 # @exitcode 0 Success; 1 date error; 2 Missing arguments
 time_add_weeks() {
   local timestamp week new_timestamp
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "time_add_weeks: missing arguments" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "time_add_weeks: missing arguments" >&2; return 2; }
   timestamp="${1}"
   week="${2:-1}"
   new_timestamp="$(date -d "$(date -d "@${timestamp}" '+%F %T') +${week} week" +'%s')" || return 1
@@ -56,7 +56,7 @@ time_add_weeks() {
 # @exitcode 0 Success; 1 date error; 2 Missing arguments
 time_add_months() {
   local timestamp month new_timestamp
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "time_add_months: missing arguments" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "time_add_months: missing arguments" >&2; return 2; }
   timestamp="${1}"
   month="${2:-1}"
   new_timestamp="$(date -d "$(date -d "@${timestamp}" '+%F %T') +${month} month" +'%s')" || return 1
@@ -70,7 +70,7 @@ time_add_months() {
 # @exitcode 0 Success; 1 date error; 2 Missing arguments
 time_add_years() {
   local timestamp year new_timestamp
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "time_add_years: missing arguments" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "time_add_years: missing arguments" >&2; return 2; }
   timestamp="${1}"
   year="${2:-1}"
   new_timestamp="$(date -d "$(date -d "@${timestamp}" '+%F %T') +${year} year" +'%s')" || return 1
@@ -84,7 +84,7 @@ time_add_years() {
 # @exitcode 0 Success; 1 date error; 2 Missing arguments
 time_add_hours() {
   local timestamp hour new_timestamp
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "time_add_hours: missing arguments" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "time_add_hours: missing arguments" >&2; return 2; }
   timestamp="${1}"
   hour="${2:-1}"
   new_timestamp="$(date -d "$(date -d "@${timestamp}" '+%F %T') +${hour} hour" +'%s')" || return 1
@@ -98,7 +98,7 @@ time_add_hours() {
 # @exitcode 0 Success; 1 date error; 2 Missing arguments
 time_add_minutes() {
   local timestamp minute new_timestamp
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "time_add_minutes: missing arguments" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "time_add_minutes: missing arguments" >&2; return 2; }
   timestamp="${1}"
   minute="${2:-1}"
   new_timestamp="$(date -d "$(date -d "@${timestamp}" '+%F %T') +${minute} minute" +'%s')" || return 1
@@ -112,7 +112,7 @@ time_add_minutes() {
 # @exitcode 0 Success; 1 date error; 2 Missing arguments
 time_add_seconds() {
   local timestamp second new_timestamp
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "time_add_seconds: missing arguments" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "time_add_seconds: missing arguments" >&2; return 2; }
   timestamp="${1}"
   second="${2:-1}"
   new_timestamp="$(date -d "$(date -d "@${timestamp}" '+%F %T') +${second} second" +'%s')" || return 1
@@ -126,7 +126,7 @@ time_add_seconds() {
 # @exitcode 0 Success; 1 date error; 2 Missing arguments
 time_sub_days() {
   local timestamp day new_timestamp
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "time_sub_days: missing arguments" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "time_sub_days: missing arguments" >&2; return 2; }
   timestamp="${1}"
   day="${2:-1}"
   new_timestamp="$(date -d "$(date -d "@${timestamp}" '+%F %T') ${day} days ago" +'%s')" || return 1
@@ -140,7 +140,7 @@ time_sub_days() {
 # @exitcode 0 Success; 1 date error; 2 Missing arguments
 time_sub_weeks() {
   local timestamp week new_timestamp
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "time_sub_weeks: missing arguments" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "time_sub_weeks: missing arguments" >&2; return 2; }
   timestamp="${1}"
   week="${2:-1}"
   new_timestamp="$(date -d "$(date -d "@${timestamp}" '+%F %T') ${week} weeks ago" +'%s')" || return 1
@@ -154,7 +154,7 @@ time_sub_weeks() {
 # @exitcode 0 Success; 1 date error; 2 Missing arguments
 time_sub_months() {
   local timestamp month new_timestamp
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "time_sub_months: missing arguments" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "time_sub_months: missing arguments" >&2; return 2; }
   timestamp="${1}"
   month="${2:-1}"
   new_timestamp="$(date -d "$(date -d "@${timestamp}" '+%F %T') ${month} months ago" +'%s')" || return 1
@@ -168,7 +168,7 @@ time_sub_months() {
 # @exitcode 0 Success; 1 date error; 2 Missing arguments
 time_sub_years() {
   local timestamp year new_timestamp
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "time_sub_years: missing arguments" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "time_sub_years: missing arguments" >&2; return 2; }
   timestamp="${1}"
   year="${2:-1}"
   new_timestamp="$(date -d "$(date -d "@${timestamp}" '+%F %T') ${year} years ago" +'%s')" || return 1
@@ -182,7 +182,7 @@ time_sub_years() {
 # @exitcode 0 Success; 1 date error; 2 Missing arguments
 time_sub_hours() {
   local timestamp hour new_timestamp
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "time_sub_hours: missing arguments" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "time_sub_hours: missing arguments" >&2; return 2; }
   timestamp="${1}"
   hour="${2:-1}"
   new_timestamp="$(date -d "$(date -d "@${timestamp}" '+%F %T') ${hour} hours ago" +'%s')" || return 1
@@ -196,7 +196,7 @@ time_sub_hours() {
 # @exitcode 0 Success; 1 date error; 2 Missing arguments
 time_sub_minutes() {
   local timestamp minute new_timestamp
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "time_sub_minutes: missing arguments" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "time_sub_minutes: missing arguments" >&2; return 2; }
   timestamp="${1}"
   minute="${2:-1}"
   new_timestamp="$(date -d "$(date -d "@${timestamp}" '+%F %T') ${minute} minutes ago" +'%s')" || return 1
@@ -210,7 +210,7 @@ time_sub_minutes() {
 # @exitcode 0 Success; 1 date error; 2 Missing arguments
 time_sub_seconds() {
   local timestamp second new_timestamp
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "time_sub_seconds: missing arguments" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "time_sub_seconds: missing arguments" >&2; return 2; }
   timestamp="${1}"
   second="${2:-1}"
   new_timestamp="$(date -d "$(date -d "@${timestamp}" '+%F %T') ${second} seconds ago" +'%s')" || return 1
@@ -224,7 +224,7 @@ time_sub_seconds() {
 # @exitcode 0 Success; 1 date error; 2 Missing arguments
 time_format() {
   local timestamp format out
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "time_format: missing arguments" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "time_format: missing arguments" >&2; return 2; }
   timestamp="${1}"
   format="${2:-%F %T}"
   out="$(date -d "@${timestamp}" +"${format}")" || return 1

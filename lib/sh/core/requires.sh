@@ -197,7 +197,7 @@ requires() {
             # Shell version check e.g. 'requires BASH32' = we check for bash 3.2 or newer
             # To strictly require a specific version, you could use the keyval test above
             # TODO: Expand the "is greater than" logic, add extra shells
-            if [ "${#BASH_VERSION}" -gt 0 ]; then
+            if (( ${#BASH_VERSION} > 0 )); then
                 # Get first three chars e.g. '4.3'
                 _bashver="${BASH_VERSION%${BASH_VERSION#???}}"
                 # Concat and remove dot e.g. 'BASH43'
@@ -205,28 +205,28 @@ requires() {
                 # Test on string (e.g. BASH44 = BASH44)
                 [ "${_item}" = "${_bashver}" ] && continue
                 # Test on integer by stripping "BASH" (e.g. 51 -ge 44)
-                [ "${_item/BASH/}" -ge "${_bashver/BASH/}" ] && continue
+                (( ${_item/BASH/} >= ${_bashver/BASH/} )) && continue
             fi
             ;;
 
             (KSH)
             # At present we just check that we have one of the following env vars
-            [ "${#KSH_VERSION}" -gt 0 ] && continue
+            (( ${#KSH_VERSION} > 0 )) && continue
             [ "${#.sh.version}" -gt 0 ] && continue
             ;;
 
             (ZSH*)
-            if [ "${#ZSH_VERSION}" -gt 0 ]; then
+            if (( ${#ZSH_VERSION} > 0 )); then
                 # ZSH_VERSION outputs a semantic number e.g. 5.7.1
                 # We use parameter expansion to pull out the dots e.g. ZSH571
                 # We do a string, then an int comparison just as with bash
                 [ "${_item}" = "ZSH${ZSH_VERSION//./}" ] && continue
-                [ "${_item/ZSH/}" -ge "${ZSH_VERSION//./}" ] && continue
+                (( ${_item/ZSH/} >= ${ZSH_VERSION//./} )) && continue
             fi
             ;;
 
             (root)
-            [ "${EUID:-$(id -u)}" -eq "0" ] && continue
+            (( ${EUID:-$(id -u)} == 0 )) && continue
             ;;
         esac
 
@@ -255,7 +255,7 @@ requires() {
 
     _failures="${_failures# }"
 
-    if [ "${#_failures}" -eq "0" ]; then
+    if (( ${#_failures} == 0 )); then
         return 0
     else
         printf -- '%s\n' "The following requirements were not met:" "${_failures}" >&2

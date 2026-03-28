@@ -67,7 +67,7 @@ random_lcg() {
     _rn_seed=123459876
   fi
 
-  while [ "${_rn_count}" -gt 0 ]; do
+  while (( _rn_count > 0 )); do
     # BSD style modulus'ed against 2^31
     _rn_seed=$(( (1103515245 * _rn_seed + 12345) % 2147483648 ))
 

@@ -34,7 +34,7 @@ _SHELLAC_LOADED_time_human_duration=1
 # @exitcode 0 Success; 2 Missing argument
 time_human_duration() {
   local t day hr min sec
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "time_human_duration: missing argument" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "time_human_duration: missing argument" >&2; return 2; }
   t="${1}"
   day="$(( t / 60 / 60 / 24 ))"
   hr="$(( t / 60 / 60 % 24 ))"

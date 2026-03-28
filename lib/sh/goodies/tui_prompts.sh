@@ -88,7 +88,7 @@ tui_list() {
   local prompt choice num i
   prompt="${1:-Choose}"
   shift
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "tui_list: no items provided" >&2; return 1; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "tui_list: no items provided" >&2; return 1; }
 
   local -a items
   items=( "${@}" )
@@ -125,7 +125,7 @@ tui_checkbox() {
   local prompt
   prompt="${1:-Select (space to toggle, enter to confirm)}"
   shift
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "tui_checkbox: no items provided" >&2; return 1; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "tui_checkbox: no items provided" >&2; return 1; }
 
   local -a items selected
   items=( "${@}" )

@@ -213,7 +213,7 @@ path_dirname() {
 # @exitcode 0 Success; 1 No extension found; 2 Missing argument
 path_extension() {
   local file extension
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "path_extension: missing argument" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "path_extension: missing argument" >&2; return 2; }
   file="${1##*/}"
   extension="${file##*.}"
   [[ "${file}" = "${extension}" ]] && return 1
@@ -233,7 +233,7 @@ path_extension() {
 # @exitcode 0 Success; 2 Missing argument
 path_stem() {
   local file
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "path_stem: missing argument" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "path_stem: missing argument" >&2; return 2; }
   file="${1##*/}"
   printf -- '%s\n' "${file%.*}"
 }
@@ -252,7 +252,7 @@ path_stem() {
 # @exitcode 0 Success; 2 Missing argument
 path_strip_extension() {
   local path
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "path_strip_extension: missing argument" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "path_strip_extension: missing argument" >&2; return 2; }
   path="${1}"
   printf -- '%s\n' "${path%.*}"
 }
@@ -271,7 +271,7 @@ path_strip_extension() {
 # @exitcode 0 Success; 2 Missing argument
 path_replace_extension() {
   local path ext
-  [[ $# -lt 2 ]] && { printf -- '%s\n' "path_replace_extension: missing argument(s)" >&2; return 2; }
+  (( ${#} < 2 )) && { printf -- '%s\n' "path_replace_extension: missing argument(s)" >&2; return 2; }
   path="${1}"
   ext="${2}"
   printf -- '%s\n' "${path%.*}${ext}"

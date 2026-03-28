@@ -28,7 +28,7 @@ _SHELLAC_LOADED_time_seconds_to_hms=1
 # @exitcode 0 Success; 1 Invalid input
 time_seconds_to_hms() {
   local seconds
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "time_seconds_to_hms: missing argument" >&2; return 1; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "time_seconds_to_hms: missing argument" >&2; return 1; }
   seconds="${1}"
   [[ "${seconds}" =~ ^[0-9]+$ ]] || {
     printf -- 'time_seconds_to_hms: expected non-negative integer, got: %s\n' "${seconds}" >&2

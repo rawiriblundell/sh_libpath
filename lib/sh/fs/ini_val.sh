@@ -43,7 +43,7 @@ fs_ini_val() {
   local file sectionkey val comment delim comment_delim section key
   local current current_comment ret_str
 
-  [[ $# -lt 2 ]] && {
+  (( ${#} < 2 )) && {
     printf -- '%s\n' "fs_ini_val: requires at least 2 arguments (file, section.key)" >&2
     return 2
   }

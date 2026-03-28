@@ -35,7 +35,7 @@ _SHELLAC_LOADED_text_collapse=1
 # @stdout String with consecutive whitespace reduced to single spaces
 # @exitcode 0 Always
 str_collapse() {
-  if [[ $# -gt 0 ]]; then
+  if (( ${#} > 0 )); then
     printf -- '%s\n' "$*" | tr -s '[:space:]' ' '
   else
     tr -s '[:space:]' ' '

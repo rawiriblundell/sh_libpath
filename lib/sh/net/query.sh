@@ -196,7 +196,7 @@ net_wait_for_port() {
 net_parse_url() {
   local url proto userpass user pass hostport host port path need
 
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "net_parse_url: missing argument" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "net_parse_url: missing argument" >&2; return 2; }
 
   url="${1}"
   need="${2:-}"

@@ -38,7 +38,7 @@ _SHELLAC_LOADED_time_is_leap_year=1
 # @exitcode 2 Missing argument
 time_is_leap_year() {
   local year
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "time_is_leap_year: missing argument" >&2; return 2; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "time_is_leap_year: missing argument" >&2; return 2; }
   year="$(( 10#${1} ))"
   if (( year % 4 == 0 && ( year % 100 != 0 || year % 400 == 0 ) )); then
     return 0

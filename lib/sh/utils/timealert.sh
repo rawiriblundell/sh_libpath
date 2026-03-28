@@ -37,7 +37,7 @@ _SHELLAC_LOADED_utils_timealert=1
 # @exitcode Passthrough — the exit code of the wrapped command
 timealert() {
   local start end elapsed rc cmd_label
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "timealert: missing command" >&2; return 1; }
+  (( ${#} == 0 )) && { printf -- '%s\n' "timealert: missing command" >&2; return 1; }
   cmd_label="${*}"
   start="$(date +%s)"
   "${@}"
