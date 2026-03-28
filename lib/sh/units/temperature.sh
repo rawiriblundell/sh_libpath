@@ -32,6 +32,17 @@ _temp_validate() {
     return 1
 }
 
+# @internal
+# Resolve temperature input from $1 or stdin (if stdin is not a terminal).
+_temp_input() {
+    if [[ -n "${1:-}" ]]; then
+        printf -- '%s' "${1}"
+    elif [[ ! -t 0 ]]; then
+        IFS= read -r _temp_stdin_val
+        printf -- '%s' "${_temp_stdin_val}"
+    fi
+}
+
 ########## Celsius <-> Fahrenheit
 # @description Convert Celsius to Fahrenheit. Formula: F = (C * 9/5) + 32
 #
@@ -41,8 +52,10 @@ _temp_validate() {
 # @exitcode 0 Success
 # @exitcode 1 Invalid input
 celsius_to_fahrenheit() {
-    _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
-    printf -- '%s\n' "scale=2;(${1} * 9 / 5) + 32" | bc
+    local _t
+    _t="$(_temp_input "${1:-}")"
+    _temp_validate "${_t}" || { printf -- '%s\n' "null"; return 1; }
+    printf -- '%s\n' "scale=2;(${_t} * 9 / 5) + 32" | bc
 }
 
 # @description Convert Fahrenheit to Celsius. Formula: C = (F - 32) * 5/9
@@ -53,8 +66,10 @@ celsius_to_fahrenheit() {
 # @exitcode 0 Success
 # @exitcode 1 Invalid input
 fahrenheit_to_celsius() {
-    _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
-    printf -- '%s\n' "scale=2;(${1} - 32) * 5 / 9" | bc
+    local _t
+    _t="$(_temp_input "${1:-}")"
+    _temp_validate "${_t}" || { printf -- '%s\n' "null"; return 1; }
+    printf -- '%s\n' "scale=2;(${_t} - 32) * 5 / 9" | bc
 }
 
 ########## Celsius <-> Kelvin
@@ -66,8 +81,10 @@ fahrenheit_to_celsius() {
 # @exitcode 0 Success
 # @exitcode 1 Invalid input
 celsius_to_kelvin() {
-    _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
-    printf -- '%s\n' "scale=2;${1} + 273.15" | bc
+    local _t
+    _t="$(_temp_input "${1:-}")"
+    _temp_validate "${_t}" || { printf -- '%s\n' "null"; return 1; }
+    printf -- '%s\n' "scale=2;${_t} + 273.15" | bc
 }
 
 # @description Convert Kelvin to Celsius. Formula: C = K - 273.15
@@ -78,8 +95,10 @@ celsius_to_kelvin() {
 # @exitcode 0 Success
 # @exitcode 1 Invalid input
 kelvin_to_celsius() {
-    _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
-    printf -- '%s\n' "scale=2;${1} - 273.15" | bc
+    local _t
+    _t="$(_temp_input "${1:-}")"
+    _temp_validate "${_t}" || { printf -- '%s\n' "null"; return 1; }
+    printf -- '%s\n' "scale=2;${_t} - 273.15" | bc
 }
 
 ########## Fahrenheit <-> Kelvin (via Celsius)
@@ -91,9 +110,11 @@ kelvin_to_celsius() {
 # @exitcode 0 Success
 # @exitcode 1 Invalid input
 fahrenheit_to_kelvin() {
+    local _t
     local _c
-    _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
-    _c=$(printf -- '%s\n' "scale=10;(${1} - 32) * 5 / 9" | bc)
+    _t="$(_temp_input "${1:-}")"
+    _temp_validate "${_t}" || { printf -- '%s\n' "null"; return 1; }
+    _c=$(printf -- '%s\n' "scale=10;(${_t} - 32) * 5 / 9" | bc)
     printf -- '%s\n' "scale=2;${_c} + 273.15" | bc
 }
 
@@ -105,9 +126,11 @@ fahrenheit_to_kelvin() {
 # @exitcode 0 Success
 # @exitcode 1 Invalid input
 kelvin_to_fahrenheit() {
+    local _t
     local _c
-    _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
-    _c=$(printf -- '%s\n' "scale=10;${1} - 273.15" | bc)
+    _t="$(_temp_input "${1:-}")"
+    _temp_validate "${_t}" || { printf -- '%s\n' "null"; return 1; }
+    _c=$(printf -- '%s\n' "scale=10;${_t} - 273.15" | bc)
     printf -- '%s\n' "scale=2;(${_c} * 9 / 5) + 32" | bc
 }
 
@@ -120,8 +143,10 @@ kelvin_to_fahrenheit() {
 # @exitcode 0 Success
 # @exitcode 1 Invalid input
 celsius_to_rankine() {
-    _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
-    printf -- '%s\n' "scale=2;(${1} + 273.15) * 9 / 5" | bc
+    local _t
+    _t="$(_temp_input "${1:-}")"
+    _temp_validate "${_t}" || { printf -- '%s\n' "null"; return 1; }
+    printf -- '%s\n' "scale=2;(${_t} + 273.15) * 9 / 5" | bc
 }
 
 # @description Convert Rankine to Celsius. Formula: C = R * 5/9 - 273.15
@@ -132,8 +157,10 @@ celsius_to_rankine() {
 # @exitcode 0 Success
 # @exitcode 1 Invalid input
 rankine_to_celsius() {
-    _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
-    printf -- '%s\n' "scale=2;${1} * 5 / 9 - 273.15" | bc
+    local _t
+    _t="$(_temp_input "${1:-}")"
+    _temp_validate "${_t}" || { printf -- '%s\n' "null"; return 1; }
+    printf -- '%s\n' "scale=2;${_t} * 5 / 9 - 273.15" | bc
 }
 
 ########## Fahrenheit <-> Rankine (direct: no intermediate needed)
@@ -145,8 +172,10 @@ rankine_to_celsius() {
 # @exitcode 0 Success
 # @exitcode 1 Invalid input
 fahrenheit_to_rankine() {
-    _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
-    printf -- '%s\n' "scale=2;${1} + 459.67" | bc
+    local _t
+    _t="$(_temp_input "${1:-}")"
+    _temp_validate "${_t}" || { printf -- '%s\n' "null"; return 1; }
+    printf -- '%s\n' "scale=2;${_t} + 459.67" | bc
 }
 
 # @description Convert Rankine to Fahrenheit. Formula: F = R - 459.67
@@ -157,8 +186,10 @@ fahrenheit_to_rankine() {
 # @exitcode 0 Success
 # @exitcode 1 Invalid input
 rankine_to_fahrenheit() {
-    _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
-    printf -- '%s\n' "scale=2;${1} - 459.67" | bc
+    local _t
+    _t="$(_temp_input "${1:-}")"
+    _temp_validate "${_t}" || { printf -- '%s\n' "null"; return 1; }
+    printf -- '%s\n' "scale=2;${_t} - 459.67" | bc
 }
 
 ########## Kelvin <-> Rankine (direct: no intermediate needed)
@@ -170,8 +201,10 @@ rankine_to_fahrenheit() {
 # @exitcode 0 Success
 # @exitcode 1 Invalid input
 kelvin_to_rankine() {
-    _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
-    printf -- '%s\n' "scale=2;${1} * 9 / 5" | bc
+    local _t
+    _t="$(_temp_input "${1:-}")"
+    _temp_validate "${_t}" || { printf -- '%s\n' "null"; return 1; }
+    printf -- '%s\n' "scale=2;${_t} * 9 / 5" | bc
 }
 
 # @description Convert Rankine to Kelvin. Formula: K = R * 5/9
@@ -182,8 +215,10 @@ kelvin_to_rankine() {
 # @exitcode 0 Success
 # @exitcode 1 Invalid input
 rankine_to_kelvin() {
-    _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
-    printf -- '%s\n' "scale=2;${1} * 5 / 9" | bc
+    local _t
+    _t="$(_temp_input "${1:-}")"
+    _temp_validate "${_t}" || { printf -- '%s\n' "null"; return 1; }
+    printf -- '%s\n' "scale=2;${_t} * 5 / 9" | bc
 }
 
 ########## Celsius <-> Newton
@@ -195,8 +230,10 @@ rankine_to_kelvin() {
 # @exitcode 0 Success
 # @exitcode 1 Invalid input
 celsius_to_newton() {
-    _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
-    printf -- '%s\n' "scale=2;${1} * 33 / 100" | bc
+    local _t
+    _t="$(_temp_input "${1:-}")"
+    _temp_validate "${_t}" || { printf -- '%s\n' "null"; return 1; }
+    printf -- '%s\n' "scale=2;${_t} * 33 / 100" | bc
 }
 
 # @description Convert Newton to Celsius. Formula: C = N * 100/33
@@ -207,8 +244,10 @@ celsius_to_newton() {
 # @exitcode 0 Success
 # @exitcode 1 Invalid input
 newton_to_celsius() {
-    _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
-    printf -- '%s\n' "scale=2;${1} * 100 / 33" | bc
+    local _t
+    _t="$(_temp_input "${1:-}")"
+    _temp_validate "${_t}" || { printf -- '%s\n' "null"; return 1; }
+    printf -- '%s\n' "scale=2;${_t} * 100 / 33" | bc
 }
 
 ########## Celsius <-> Rømer
@@ -220,8 +259,10 @@ newton_to_celsius() {
 # @exitcode 0 Success
 # @exitcode 1 Invalid input
 celsius_to_romer() {
-    _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
-    printf -- '%s\n' "scale=2;${1} * 21 / 40 + 7.5" | bc
+    local _t
+    _t="$(_temp_input "${1:-}")"
+    _temp_validate "${_t}" || { printf -- '%s\n' "null"; return 1; }
+    printf -- '%s\n' "scale=2;${_t} * 21 / 40 + 7.5" | bc
 }
 
 # @description Convert Rømer to Celsius. Formula: C = (Ro - 7.5) * 40/21
@@ -232,8 +273,10 @@ celsius_to_romer() {
 # @exitcode 0 Success
 # @exitcode 1 Invalid input
 romer_to_celsius() {
-    _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
-    printf -- '%s\n' "scale=2;(${1} - 7.5) * 40 / 21" | bc
+    local _t
+    _t="$(_temp_input "${1:-}")"
+    _temp_validate "${_t}" || { printf -- '%s\n' "null"; return 1; }
+    printf -- '%s\n' "scale=2;(${_t} - 7.5) * 40 / 21" | bc
 }
 
 ########## Celsius <-> Delisle
@@ -246,8 +289,10 @@ romer_to_celsius() {
 # @exitcode 0 Success
 # @exitcode 1 Invalid input
 celsius_to_delisle() {
-    _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
-    printf -- '%s\n' "scale=2;(100 - ${1}) * 3 / 2" | bc
+    local _t
+    _t="$(_temp_input "${1:-}")"
+    _temp_validate "${_t}" || { printf -- '%s\n' "null"; return 1; }
+    printf -- '%s\n' "scale=2;(100 - ${_t}) * 3 / 2" | bc
 }
 
 # @description Convert Delisle to Celsius. Formula: C = 100 - De * 2/3
@@ -258,8 +303,10 @@ celsius_to_delisle() {
 # @exitcode 0 Success
 # @exitcode 1 Invalid input
 delisle_to_celsius() {
-    _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
-    printf -- '%s\n' "scale=2;100 - ${1} * 2 / 3" | bc
+    local _t
+    _t="$(_temp_input "${1:-}")"
+    _temp_validate "${_t}" || { printf -- '%s\n' "null"; return 1; }
+    printf -- '%s\n' "scale=2;100 - ${_t} * 2 / 3" | bc
 }
 
 ########## Celsius <-> Réaumur
@@ -271,8 +318,10 @@ delisle_to_celsius() {
 # @exitcode 0 Success
 # @exitcode 1 Invalid input
 celsius_to_reaumur() {
-    _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
-    printf -- '%s\n' "scale=2;${1} * 4 / 5" | bc
+    local _t
+    _t="$(_temp_input "${1:-}")"
+    _temp_validate "${_t}" || { printf -- '%s\n' "null"; return 1; }
+    printf -- '%s\n' "scale=2;${_t} * 4 / 5" | bc
 }
 
 # @description Convert Réaumur to Celsius. Formula: C = Ré * 5/4
@@ -283,8 +332,10 @@ celsius_to_reaumur() {
 # @exitcode 0 Success
 # @exitcode 1 Invalid input
 reaumur_to_celsius() {
-    _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
-    printf -- '%s\n' "scale=2;${1} * 5 / 4" | bc
+    local _t
+    _t="$(_temp_input "${1:-}")"
+    _temp_validate "${_t}" || { printf -- '%s\n' "null"; return 1; }
+    printf -- '%s\n' "scale=2;${_t} * 5 / 4" | bc
 }
 
 ########## Dispatcher helpers (internal)
@@ -335,10 +386,23 @@ _temp_from_celsius() {
 # @exitcode 0 Success
 # @exitcode 1 Invalid input or unknown unit
 temp_convert() {
+    local _t
+    local _from
+    local _to
     local _celsius
-    _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
-    _celsius=$(_temp_to_celsius "${1}" "${2}") || return 1
-    _temp_from_celsius "${_celsius}" "${3}"
+    if (( $# == 2 )); then
+        # value from stdin, units as $1 and $2
+        _t="$(_temp_input "")"
+        _from="${1}"
+        _to="${2}"
+    else
+        _t="${1:-}"
+        _from="${2}"
+        _to="${3}"
+    fi
+    _temp_validate "${_t}" || { printf -- '%s\n' "null"; return 1; }
+    _celsius=$(_temp_to_celsius "${_t}" "${_from}") || return 1
+    _temp_from_celsius "${_celsius}" "${_to}"
 }
 
 # @description Display a temperature converted from a given unit to all supported units.
@@ -353,9 +417,19 @@ temp_convert() {
 # @exitcode 0 Success
 # @exitcode 1 Invalid input or unknown unit
 temp_convert_all() {
+    local _t
+    local _from
     local _celsius
-    _temp_validate "${1}" || { printf -- '%s\n' "null"; return 1; }
-    _celsius=$(_temp_to_celsius "${1}" "${2}") || return 1
+    if (( $# == 1 )); then
+        # value from stdin, unit as $1
+        _t="$(_temp_input "")"
+        _from="${1}"
+    else
+        _t="${1:-}"
+        _from="${2}"
+    fi
+    _temp_validate "${_t}" || { printf -- '%s\n' "null"; return 1; }
+    _celsius=$(_temp_to_celsius "${_t}" "${_from}") || return 1
     printf -- 'Celsius    = %s°C\n'  "${_celsius}"
     printf -- 'Fahrenheit = %s°F\n'  "$(celsius_to_fahrenheit "${_celsius}")"
     printf -- 'Kelvin     = %s°K\n'  "$(celsius_to_kelvin     "${_celsius}")"
