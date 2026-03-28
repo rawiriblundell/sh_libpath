@@ -35,8 +35,16 @@ _SHELLAC_LOADED_units_bytes_to_human=1
 units_bytes_to_human() {
   local b d s
   declare -a S
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "units_bytes_to_human: missing argument" >&2; return 2; }
-  b="${1}"
+  if [[ $# -eq 0 ]]; then
+    if [[ ! -t 0 ]]; then
+      IFS= read -r b
+    else
+      printf -- '%s\n' "units_bytes_to_human: missing argument" >&2
+      return 2
+    fi
+  else
+    b="${1}"
+  fi
   d=""
   s=0
   S=( Bytes {K,M,G,T,P,E,Y,Z}B )
