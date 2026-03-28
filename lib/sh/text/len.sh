@@ -112,7 +112,11 @@ str_count() {
 # @exitcode 0 Always
 str_word_count() {
   local _input
-  _input="${*}"
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _input
+  else
+    _input="${*}"
+  fi
   local -a _words
   # shellcheck disable=SC2206
   _words=( ${_input} )

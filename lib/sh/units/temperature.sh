@@ -390,7 +390,7 @@ temp_convert() {
     local _from
     local _to
     local _celsius
-    if (( $# == 2 )); then
+    if (( ${#} == 2 )); then
         # value from stdin, units as $1 and $2
         _t="$(_temp_input "")"
         _from="${1}"
@@ -420,7 +420,7 @@ temp_convert_all() {
     local _t
     local _from
     local _celsius
-    if (( $# == 1 )); then
+    if (( ${#} == 1 )); then
         # value from stdin, unit as $1
         _t="$(_temp_input "")"
         _from="${1}"

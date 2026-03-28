@@ -39,7 +39,11 @@ _SHELLAC_LOADED_numbers_numeric=1
 # @exitcode 1 No input given
 num_parse() {
     local _input _base _stripped
-    _input="${1:?No value given}"
+    if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+        IFS= read -r _input
+    else
+        _input="${1:?No value given}"
+    fi
     _base="${2:-}"
 
     # Explicit base: use bash's base#value arithmetic syntax
@@ -108,7 +112,11 @@ int() {
 # @exitcode 1 No input given
 num_format() {
     local _n _base _digits _result _rem _neg
-    _n="${1:?No integer given}"
+    if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+        IFS= read -r _n
+    else
+        _n="${1:?No integer given}"
+    fi
     _base="${2:-10}"
     _neg=""
 
@@ -144,7 +152,13 @@ num_format() {
 # @stdout Each value formatted to two decimal places, one per line
 # @exitcode 0 Always
 num_2dp() {
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    local _val
+    IFS= read -r _val
+    printf -- '%0.2f\n' "${_val}"
+  else
     printf -- '%0.2f\n' "${@}"
+  fi
 }
 
 # @description Format an integer with thousands separators (commas).
@@ -161,7 +175,11 @@ num_2dp() {
 # @exitcode 1 No argument supplied
 num_thousands() {
   local _n _neg _result
-  _n="${1:?No number given}"
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _n
+  else
+    _n="${1:?No number given}"
+  fi
   _neg=""
 
   if [[ "${_n}" = -* ]]; then
@@ -188,7 +206,11 @@ num_thousands() {
 # @exitcode 0 Always
 num_zeropad_right() {
     local _int _len
-    _int="${1:?No number provided}"
+    if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+        IFS= read -r _int
+    else
+        _int="${1:?No number provided}"
+    fi
     _len="${2:-3}"
 
     if (( "${#_int}" >= _len )); then
@@ -297,7 +319,7 @@ num_is_float() {
 # @exitcode 1 Value is not
 # @exitcode 2 Missing argument
 num_is_numeric() {
-    [[ $# -eq 0 ]] && { printf -- '%s\n' "num_is_numeric: missing argument" >&2; return 2; }
+    (( ${#} == 0 )) && { printf -- '%s\n' "num_is_numeric: missing argument" >&2; return 2; }
     [[ "${1}" =~ ^[0-9]+$ ]]
 }
 
@@ -317,7 +339,7 @@ num_is_numeric() {
 # @exitcode 1 Value is not
 # @exitcode 2 Missing argument
 num_is_positive_integer() {
-    [[ $# -eq 0 ]] && { printf -- '%s\n' "num_is_positive_integer: missing argument" >&2; return 2; }
+    (( ${#} == 0 )) && { printf -- '%s\n' "num_is_positive_integer: missing argument" >&2; return 2; }
     [[ "${1}" =~ ^[1-9][0-9]*$ ]]
 }
 

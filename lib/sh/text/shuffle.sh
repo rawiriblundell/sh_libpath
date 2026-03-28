@@ -30,6 +30,12 @@ _SHELLAC_LOADED_text_shuffle=1
 # @exitcode 0 Success
 # @exitcode 1 Required dependencies (fold, paste, RANDOM) not found
 str_shuffle() {
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    local _shuffle_input
+    IFS= read -r _shuffle_input
+    # shellcheck disable=SC2086
+    set -- ${_shuffle_input}
+  fi
   local _str_shuffle_missing _str_shuffle_dep
   local _str_shuffle_chars _str_shuffle_charcount _str_shuffle_randmax
   local _str_shuffle_chartmp _word _shuffled_word _rand _i

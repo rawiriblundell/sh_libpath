@@ -29,7 +29,13 @@ _SHELLAC_LOADED_text_predicates=1
 # @exitcode 0 String is empty
 # @exitcode 1 String is not empty
 str_is_empty() {
-  [[ -z "${1}" ]]
+  local _str
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _str
+  else
+    _str="${1}"
+  fi
+  [[ -z "${_str}" ]]
 }
 
 # @description Test if a string is blank (empty or whitespace only).
@@ -40,7 +46,11 @@ str_is_empty() {
 # @exitcode 1 String contains non-whitespace characters
 str_is_blank() {
   local _str
-  _str="${1}"
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _str
+  else
+    _str="${1}"
+  fi
   _str="${_str//[[:space:]]/}"
   [[ -z "${_str}" ]]
 }
@@ -54,8 +64,13 @@ str_is_blank() {
 # @exitcode 1 String does not start with prefix
 str_starts_with() {
   local _str _prefix
-  _str="${1:?No string given}"
-  _prefix="${2:?No prefix given}"
+  if (( ${#} == 1 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _str
+    _prefix="${1}"
+  else
+    _str="${1:?No string given}"
+    _prefix="${2:?No prefix given}"
+  fi
   [[ "${_str}" = "${_prefix}"* ]]
 }
 
@@ -68,8 +83,13 @@ str_starts_with() {
 # @exitcode 1 String does not end with suffix
 str_ends_with() {
   local _str _suffix
-  _str="${1:?No string given}"
-  _suffix="${2:?No suffix given}"
+  if (( ${#} == 1 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _str
+    _suffix="${1}"
+  else
+    _str="${1:?No string given}"
+    _suffix="${2:?No suffix given}"
+  fi
   [[ "${_str}" = *"${_suffix}" ]]
 }
 
@@ -82,8 +102,13 @@ str_ends_with() {
 # @exitcode 1 String does not contain substring
 str_contains() {
   local _str _substr
-  _str="${1:?No string given}"
-  _substr="${2:?No substring given}"
+  if (( ${#} == 1 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _str
+    _substr="${1}"
+  else
+    _str="${1:?No string given}"
+    _substr="${2:?No substring given}"
+  fi
   [[ "${_str}" = *"${_substr}"* ]]
 }
 
@@ -114,7 +139,13 @@ str_equal_fold() {
 #
 # @exitcode 0 Match; 1 No match
 str_match() {
-  [[ "${1:-}" =~ ${2:-} ]]
+  if (( ${#} == 1 )) && [[ ! -t 0 ]]; then
+    local _str
+    IFS= read -r _str
+    [[ "${_str}" =~ ${1} ]]
+  else
+    [[ "${1:-}" =~ ${2:-} ]]
+  fi
 }
 
 # @description Match a string against a regex and populate a named array with
@@ -168,21 +199,39 @@ str_contains_only() {
 # @arg $1 string String to test
 # @exitcode 0 Non-empty and purely alphabetic; 1 otherwise
 str_is_alpha() {
-  [[ "${1:-}" =~ ^[[:alpha:]]+$ ]]
+  local _str
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _str
+  else
+    _str="${1:-}"
+  fi
+  [[ "${_str}" =~ ^[[:alpha:]]+$ ]]
 }
 
 # @description Return 0 if the string contains only ASCII alphanumeric characters (non-empty).
 # @arg $1 string String to test
 # @exitcode 0 Non-empty and purely alphanumeric; 1 otherwise
 str_is_alnum() {
-  [[ "${1:-}" =~ ^[[:alnum:]]+$ ]]
+  local _str
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _str
+  else
+    _str="${1:-}"
+  fi
+  [[ "${_str}" =~ ^[[:alnum:]]+$ ]]
 }
 
 # @description Return 0 if the string contains only ASCII digit characters (non-empty).
 # @arg $1 string String to test
 # @exitcode 0 Non-empty and purely decimal digits; 1 otherwise
 str_is_digits() {
-  [[ "${1:-}" =~ ^[[:digit:]]+$ ]]
+  local _str
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _str
+  else
+    _str="${1:-}"
+  fi
+  [[ "${_str}" =~ ^[[:digit:]]+$ ]]
 }
 
 # @description Test if a string is a plausible email address.
@@ -199,8 +248,17 @@ str_is_digits() {
 # @exitcode 2 Missing argument
 # Adapted from labbots/bash-utility (MIT) https://github.com/labbots/bash-utility
 str_is_email() {
-  local email_re
-  [[ $# -eq 0 ]] && { printf -- '%s\n' "str_is_email: missing argument" >&2; return 2; }
+  local email_re _str
+  if (( ${#} == 0 )); then
+    if [[ ! -t 0 ]]; then
+      IFS= read -r _str
+    else
+      printf -- '%s\n' "str_is_email: missing argument" >&2
+      return 2
+    fi
+  else
+    _str="${1}"
+  fi
   email_re="^([A-Za-z]+[A-Za-z0-9]*\+?((\.|\-|\_)?[A-Za-z]+[A-Za-z0-9]*)*)@(([A-Za-z0-9]+)+((\.|\-|\_)?([A-Za-z0-9]+)+)*)+\.([A-Za-z]{2,})+$"
-  [[ "${1}" =~ ${email_re} ]]
+  [[ "${_str}" =~ ${email_re} ]]
 }

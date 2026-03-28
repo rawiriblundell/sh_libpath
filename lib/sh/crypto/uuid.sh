@@ -591,13 +591,16 @@ uuid_gen() {
 uuid_switch_endian() {
   local _uuid
 
-  # If there's no arg given, there's no point continuing
-  if (( $# == 0 )); then
-    printf -- '%s\n' "uuid_switch_endian: No UUID supplied." >&2
-    return 1
+  if (( ${#} == 0 )); then
+    if [[ ! -t 0 ]]; then
+      IFS= read -r _uuid
+    else
+      printf -- '%s\n' "uuid_switch_endian: No UUID supplied." >&2
+      return 1
+    fi
+  else
+    _uuid="${1}"
   fi
-
-  _uuid="${1}"
 
   # Next we try to validate that we're dealing with a UUID
   if command -v validate_uuid >/dev/null 2>&1; then
@@ -639,10 +642,14 @@ uuid_switch_endian() {
 validate_uuid() {
   local _uuid_hex_char
   local _uuid_string
-  _uuid_string="${1:?No UUID provided}"
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _uuid_string
+  else
+    _uuid_string="${1:?No UUID provided}"
+  fi
 
   # Nil UUID is valid by definition; fast exit avoids the loop entirely
-  [[ "${_uuid_string}" == "00000000-0000-0000-0000-000000000000" ]] && return 0
+  [[ "${_uuid_string}" = "00000000-0000-0000-0000-000000000000" ]] && return 0
 
   # Validate the structure
   # shellcheck disable=SC2046 # We want word splitting here

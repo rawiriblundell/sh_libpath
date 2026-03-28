@@ -36,7 +36,11 @@ _SHELLAC_LOADED_text_case_convert=1
 # @exitcode 0 Always
 str_snake_case() {
   local _input
-  _input="${*}"
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _input
+  else
+    _input="${*}"
+  fi
   printf -- '%s\n' "${_input}" |
     sed 's/\([A-Z]\)/_\1/g' |
     tr '[:upper:] -' '[:lower:]__' |
@@ -58,7 +62,11 @@ str_snake_case() {
 # @exitcode 0 Always
 str_camel_case() {
   local _input _result _word _first
-  _input="${*}"
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _input
+  else
+    _input="${*}"
+  fi
   _input="${_input//[_-]/ }"
   _result=""
   _first=1
@@ -87,7 +95,11 @@ str_camel_case() {
 # @exitcode 0 Always
 str_kebab_case() {
   local _input
-  _input="${*}"
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _input
+  else
+    _input="${*}"
+  fi
   printf -- '%s\n' "${_input}" |
     sed 's/\([A-Z]\)/-\1/g' |
     tr '[:upper:] _' '[:lower:]--' |
@@ -109,7 +121,11 @@ str_kebab_case() {
 # @exitcode 0 Always
 str_slug() {
   local _input
-  _input="${*}"
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _input
+  else
+    _input="${*}"
+  fi
   printf -- '%s\n' "${_input}" |
     tr '[:upper:]' '[:lower:]' |
     sed 's/[^a-z0-9]\+/-/g; s/^-//; s/-$//'
@@ -148,6 +164,12 @@ _str_altcaps_uppercase() {
 # @stdout Text with alternating uppercase/lowercase characters
 # @exitcode 0 Always
 str_altcaps() {
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    local _altcaps_input
+    IFS= read -r _altcaps_input
+    # shellcheck disable=SC2086
+    set -- ${_altcaps_input}
+  fi
   local _lastswitch
   local _count
   local _word
@@ -184,7 +206,11 @@ str_altcaps() {
 # @exitcode 0 Always
 str_ucfirst() {
   local _input
-  _input="${*}"
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _input
+  else
+    _input="${*}"
+  fi
   printf -- '%s\n' "${_input^}"
 }
 
@@ -199,7 +225,11 @@ str_ucfirst() {
 # @exitcode 0 Always
 str_lcfirst() {
   local _input
-  _input="${*}"
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _input
+  else
+    _input="${*}"
+  fi
   printf -- '%s\n' "${_input,}"
 }
 
@@ -216,7 +246,11 @@ str_ucwords() {
   local _input
   local _word
   local _result
-  _input="${*}"
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _input
+  else
+    _input="${*}"
+  fi
   _result=''
   for _word in ${_input}; do
     _result="${_result}${_result:+ }${_word^}"
@@ -238,7 +272,11 @@ str_ucwords() {
 # @exitcode 0 Always
 str_title_case() {
   local input
-  input="${1:-}"
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    IFS= read -r input
+  else
+    input="${1:-}"
+  fi
   [[ -z "${input}" ]] && return 0
   printf -- '%s\n' "${input^}" | sed 's/_\([a-z]\)/ \u\1/g'
 }

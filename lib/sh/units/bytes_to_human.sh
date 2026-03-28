@@ -35,7 +35,7 @@ _SHELLAC_LOADED_units_bytes_to_human=1
 units_bytes_to_human() {
   local b d s
   declare -a S
-  if [[ $# -eq 0 ]]; then
+  if (( ${#} == 0 )); then
     if [[ ! -t 0 ]]; then
       IFS= read -r b
     else

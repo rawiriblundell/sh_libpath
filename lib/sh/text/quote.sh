@@ -58,5 +58,11 @@ str_quote() {
             _str_quote_left='"'; _str_quote_right='"'
         ;;
     esac
-    printf -- '%s\n' "${_str_quote_left}${*}${_str_quote_right}"
+    local _input
+    if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+        IFS= read -r _input
+    else
+        _input="${*}"
+    fi
+    printf -- '%s\n' "${_str_quote_left}${_input}${_str_quote_right}"
 }

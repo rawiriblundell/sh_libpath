@@ -33,7 +33,11 @@ _SHELLAC_LOADED_text_encode=1
 # @exitcode 0 Always
 str_url_encode() {
   local _input _encoded _char _i
-  _input="${*}"
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _input
+  else
+    _input="${*}"
+  fi
   _encoded=""
   for (( _i = 0; _i < ${#_input}; _i++ )); do
     _char="${_input:_i:1}"
@@ -64,7 +68,11 @@ str_url_encode() {
 # @exitcode 0 Always
 str_url_decode() {
   local _input
-  _input="${*}"
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _input
+  else
+    _input="${*}"
+  fi
   _input="${_input//+/ }"
   printf -- '%b\n' "${_input//%/\\x}"
 }
@@ -110,7 +118,11 @@ _str_base64_decode() {
 # @exitcode 0 Success
 # @exitcode 1 No suitable tool found
 str_to_base64() {
-  printf -- '%s' "${*}" | _str_base64_encode
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    _str_base64_encode
+  else
+    printf -- '%s' "${*}" | _str_base64_encode
+  fi
 }
 
 # @description Decode a base64-encoded string. Tries base64, openssl, uudecode in order.
@@ -124,7 +136,11 @@ str_to_base64() {
 # @exitcode 0 Success
 # @exitcode 1 No suitable tool found
 str_from_base64() {
-  printf -- '%s' "${*}" | _str_base64_decode
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    _str_base64_decode
+  else
+    printf -- '%s' "${*}" | _str_base64_decode
+  fi
 }
 
 # @description Escape a string for safe use as a shell argument.
@@ -140,7 +156,13 @@ str_from_base64() {
 # @stdout Shell-escaped string
 # @exitcode 0 Always
 str_escape() {
-  printf -- '%q\n' "${*}"
+  local _input
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _input
+  else
+    _input="${*}"
+  fi
+  printf -- '%q\n' "${_input}"
 }
 
 # @description Convert a string to its hexadecimal representation.
@@ -151,5 +173,11 @@ str_escape() {
 # @stdout Hex-encoded string (no spaces, lowercase)
 # @exitcode 0 Always
 str_to_hex() {
-  printf -- '%s' "${1:?No string supplied}" | xxd -pu
+  local _input
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _input
+  else
+    _input="${1:?No string supplied}"
+  fi
+  printf -- '%s' "${_input}" | xxd -pu
 }

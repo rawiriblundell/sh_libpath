@@ -29,7 +29,11 @@ _SHELLAC_LOADED_text_trim=1
 str_trim() {
   LC_CTYPE=C
   local _trim_str _trim_tmp
-  _trim_str="${*}"
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _trim_str
+  else
+    _trim_str="${*}"
+  fi
   while true; do
     _trim_tmp="${_trim_str#[[:space:]]}"   # Strip whitespace to the left
     _trim_tmp="${_trim_tmp%[[:space:]]}"   # Strip whitespace to the right
@@ -63,7 +67,11 @@ strip() {
 str_ltrim() {
   LC_CTYPE=C
   local _ltrim_str _ltrim_tmp
-  _ltrim_str="${*}"
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _ltrim_str
+  else
+    _ltrim_str="${*}"
+  fi
   while true; do
     _ltrim_tmp="${_ltrim_str#[[:space:]]}"
     [[ "${_ltrim_tmp}" = "${_ltrim_str}" ]] && break
@@ -87,7 +95,11 @@ ltrim() {
 str_ntrim() {
   LC_CTYPE=C
   local _ntrim_str
-  _ntrim_str=$(printf -- '%s' "${*}" | xargs)
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    _ntrim_str=$(xargs)
+  else
+    _ntrim_str=$(printf -- '%s' "${*}" | xargs)
+  fi
   printf -- '%s\n' "${_ntrim_str}"
 }
 
@@ -105,7 +117,11 @@ ntrim() {
 str_rtrim() {
   LC_CTYPE=C
   local _rtrim_str _rtrim_tmp
-  _rtrim_str="${*}"
+  if (( ${#} == 0 )) && [[ ! -t 0 ]]; then
+    IFS= read -r _rtrim_str
+  else
+    _rtrim_str="${*}"
+  fi
   while true; do
     _rtrim_tmp="${_rtrim_str%[[:space:]]}"
     [[ "${_rtrim_tmp}" = "${_rtrim_str}" ]] && break
