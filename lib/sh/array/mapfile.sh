@@ -63,8 +63,9 @@ mapfile() {
 
   export MAPFILE
 
-  # Finally, rename the array if required
-  # I would love to know a better way to handle this
+  # Finally, rename the array if required.
+  # eval is intentional: this fallback only runs when the mapfile builtin is
+  # absent (bash < 4.0), which predates local -n namerefs (bash 4.3).
   if [[ -n "${_arrName}" ]]; then
     # shellcheck disable=SC2034
       eval "${_arrName}=( \"\${MAPFILE[@]}\" )"

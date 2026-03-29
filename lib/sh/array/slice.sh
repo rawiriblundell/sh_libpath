@@ -63,31 +63,31 @@ array_slice() {
     _slice_mode="all"
   done
 
-  # Read array indicated at $2 into a function internal array _slice_tmp
-  # This is pretty dirty... I'd like to know a safer and portable alternative...
-  eval "_slice_tmp=( \"\${$2[@]}\" )"
+  # Nameref into the caller's array — no eval needed (requires bash 4.3+,
+  # which is already assumed by the rest of this file's use of local -n).
+  local -n _slice_ref="${2:?No array name given}"
 
   case "${_slice_mode}" in
     (single)
-      printf -- '%s\n' "${_slice_tmp[$1]}"
+      printf -- '%s\n' "${_slice_ref[$1]}"
     ;;
     (inclusive)
       for (( i=0; i<"${1/:/}"; i++ )); do
-        printf -- '%s\n' "${_slice_tmp[i]}"
+        printf -- '%s\n' "${_slice_ref[i]}"
       done
     ;;
     (range)
       _slice_start="${1%:*}"
       _slice_end="${1#*:}"
       for (( i=_slice_start; i<_slice_end; i++ )); do
-        printf -- '%s\n' "${_slice_tmp[i]}"
+        printf -- '%s\n' "${_slice_ref[i]}"
       done
     ;;
     (inclusive_increment)
       _slice_incr="${1/::/}"
       i=0
-      while (( i < "${#_slice_tmp}" )); do
-        printf -- '%s\n' "${_slice_tmp[i]}"
+      while (( i < "${#_slice_ref[@]}" )); do
+        printf -- '%s\n' "${_slice_ref[i]}"
         i=$(( i + _slice_incr ))
       done
     ;;
@@ -98,12 +98,12 @@ array_slice() {
       _slice_end="${_slice_var1#*:}"
       _slice_incr="${_slice_var2#*:}"
       while (( i <= _slice_end )); do
-        printf -- '%s\n' "${_slice_tmp[i]}"
+        printf -- '%s\n' "${_slice_ref[i]}"
         i=$(( i + _slice_incr ))
       done
     ;;
     (all)
-      printf -- '%s\n' "${_slice_tmp[@]}"
+      printf -- '%s\n' "${_slice_ref[@]}"
     ;;
   esac
 }
