@@ -115,9 +115,9 @@ _sanitise_mac_addr() {
   raw_mac="${1:?No MAC data}"
   for octet in ${raw_mac}; do
     if (( ${#octet} == 1 )); then
-      printf "0%s-" "${octet}"
+      printf -- '0%s-' "${octet}"
     else
-      printf "%s-" "${octet}"
+      printf -- '%s-' "${octet}"
     fi
   done | tr '[:lower:]' '[:upper:]' | cut -d- -f1-6
 }

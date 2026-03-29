@@ -63,7 +63,7 @@ _include_sentinel() {
 _include_is_loaded() {
     local _sentinel
     _sentinel=$(_include_sentinel "${1}")
-    eval "[ -n \"\${${_sentinel}+x}\" ]"
+    declare -p "${_sentinel}" >/dev/null 2>&1
 }
 
 # @description Source a library from SH_LIBPATH or a full path.
