@@ -122,7 +122,7 @@ tui_list() {
 # @stdout Space-separated selected items
 # @exitcode 0 Always (empty string if nothing selected)
 tui_checkbox() {
-  local prompt
+  local prompt i idx result
   prompt="${1:-Select (space to toggle, enter to confirm)}"
   shift
   (( ${#} == 0 )) && { printf -- '%s\n' "tui_checkbox: no items provided" >&2; return 1; }
@@ -131,7 +131,6 @@ tui_checkbox() {
   items=( "${@}" )
   # Initialise all to unchecked
   selected=()
-  local i
   for (( i = 0; i < ${#items[@]}; i++ )); do
     selected+=( 0 )
   done
@@ -152,7 +151,7 @@ tui_checkbox() {
     [[ -z "${choice}" ]] && break
     printf -- '%d' "${choice}" >/dev/null 2>&1 || continue
     (( choice >= 1 && choice <= ${#items[@]} )) || continue
-    local idx=$(( choice - 1 ))
+    idx=$(( choice - 1 ))
     if (( selected[idx] )); then
       selected[idx]=0
     else
@@ -160,7 +159,7 @@ tui_checkbox() {
     fi
   done
 
-  local result=''
+  result=''
   for (( i = 0; i < ${#items[@]}; i++ )); do
     (( selected[i] )) && result="${result:+${result} }${items[i]}"
   done

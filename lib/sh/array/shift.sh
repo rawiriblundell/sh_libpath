@@ -30,7 +30,8 @@ _SHELLAC_LOADED_array_shift=1
 array_shift() {
   # Create nameref to real array
   local -n arr="$1"
-  local n="${2:-1}"
+  local n
+  n="${2:-1}"
   arr=("${arr[@]:${n}}")
 }
 

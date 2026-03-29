@@ -28,10 +28,11 @@ _SHELLAC_LOADED_utils_repeat=1
 # @exitcode 0 All repetitions completed
 # @exitcode 1 First argument is not a positive integer
 repeat() {
+  local repeat_num
   # check that $1 is a digit, if not error out, if so, set the repeatNum variable
   case "${1}" in
     (*[!0-9]*|'') printf -- '%s\n' "[ERROR]: '${1}' is not a number.  Usage: 'repeat n command'"; return 1;;
-    (*)           local repeat_num=$1;;
+    (*)           repeat_num=$1;;
   esac
   # shift so that the rest of the line is the command to execute
   shift
